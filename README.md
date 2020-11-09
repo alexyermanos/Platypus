@@ -3,7 +3,7 @@ R package for the analysis of single-cell immune repertoires. Platypus contains 
 
 
 
-Brief walk-through from the vignette. For additional information please consult the functions directly and the pdf version of the vignette for accompanying figures. 
+Brief walk-through from the vignette. For additional information please consult the functions directly and the pdf version of the vignette for accompanying figures (https://github.com/alexyermanos/Platypus/blob/master/vignette.html)
 
 ### Loading the package
 #source("~/Downloads/Platypus-master/Platypus_1.1.tar.gz")
