@@ -77,9 +77,9 @@ VDJ_per_cell <- function(clonotype.list,
     }
 
     # Barcodes
-    barcodes <- list()
+    barcode <- list()
     for (x in clonotype.list[[i]]$clonotype_id) {
-      barcodes[[x]] <- contig.list[[i]]$barcode[contig.list[[i]]$raw_clonotype_id==x]
+      barcode[[x]] <- contig.list[[i]]$barcode[contig.list[[i]]$raw_clonotype_id==x]
     }
 
     # Selecting only sequences with start and end annotations
@@ -108,7 +108,7 @@ VDJ_per_cell <- function(clonotype.list,
       )
     }
 
-    seq_trimmed <- extract_trimmed(seq_per_clonotype(annotations.list[[i]], barcodes))
+    seq_trimmed <- extract_trimmed(seq_per_clonotype(annotations.list[[i]], barcode))
 
     # Aligns trimmed sequences against reference to get trimmed reference sequence
     get_alinged_ref <- function(trimmed, reference, chain) {
@@ -127,18 +127,18 @@ VDJ_per_cell <- function(clonotype.list,
       matching <- contig.list[[i]]$barcode%in%barcodes & contig.list[[i]]$chain == chain & contig.list[[i]]$is_cell == "True"
       if (trimmed_reference == "") {trimmed_reference <- rep("", length(contig.list[[i]]$barcode[matching]))}
 
-      data <- data.frame(barcodes = contig.list[[i]]$barcode[matching], contig.list[[i]][matching, feature],
+      data <- data.frame(barcode = contig.list[[i]]$barcode[matching], contig.list[[i]][matching, feature],
                   full_seq = as.character(fasta.list[[i]][contig.list[[i]]$contig_id[matching]]), trimmed_ref = trimmed_reference)
       data <- inner_join(data, as.data.frame(trimmed_sequence, col.names = c("contig_id", "chain", "sequence")), by = "contig_id")
     }
 
-    data_HC <- mcMap(extract_feature, barcodes, seq_trimmed, ref_trimmed_HC,
+    data_HC <- mcMap(extract_feature, barcode, seq_trimmed, ref_trimmed_HC,
                       MoreArgs = list(c("umis", "contig_id", "c_gene", "v_gene", "j_gene"), "IGH"))
 
-    data_LC <- mcMap(extract_feature, barcodes, seq_trimmed, ref_trimmed_LC,
+    data_LC <- mcMap(extract_feature, barcode, seq_trimmed, ref_trimmed_LC,
                       MoreArgs = list(c("umis", "contig_id", "c_gene", "v_gene", "j_gene"), "IGK"))
 
-    VDJ.per.cell[[i]] <- mcMap(inner_join, data_HC, data_LC, by="barcodes", suffix=list(c("_HC", "_LC")))
+    VDJ.per.cell[[i]] <- mcMap(inner_join, data_HC, data_LC, by="barcode", suffix=list(c("_HC", "_LC")))
 
   }
   return(VDJ.per.cell)
