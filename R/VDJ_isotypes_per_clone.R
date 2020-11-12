@@ -29,11 +29,11 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
     for (i in 1:length(VDJ_per_clone_output)){
 
       for (j in 1:length(VDJ_per_clone_output[[i]])){
-        VDJ_per_clone_output[[i]][[j]] <- VDJ_per_clone_output[[i]][[j]][,c("barcode", "isotype_hc")]
+        VDJ_per_clone_output[[i]][[j]] <- VDJ_per_clone_output[[i]][[j]][,c("barcode", "c_gene_HC")]
       }
 
-      VDJ_per_clone_output_all[[i]] <- do.call("rbind",VDJ_per_clone_output[[i]])
-      VDJ_per_clone_output_all[[i]]$isotype <- substring(VDJ_per_clone_output_all[[i]]$isotype_hc,first = 1,last = 4)
+      VDJ_per_clone_output_all[[i]] <- do.call("rbind", VDJ_per_clone_output[[i]])
+      VDJ_per_clone_output_all[[i]]$isotype <- substring(VDJ_per_clone_output_all[[i]]$c_gene_HC,first = 1,last = 4)
 
       #Order the VDJ_clonotype output based on increasing frequency
       ranks <- order(-VDJ_clonotype_output[[i]]$frequency)
