@@ -17,8 +17,8 @@ GEX_cluster_genes_heatmap <- function(automate_GEX.output,GEX_cluster_genes.outp
 
   holding_genes <- list()
   for(i in 1:length(GEX_cluster_genes.output)){
-    if(metric=="p.value") holding_genes[[i]] <- rownames(GEX_cluster_genes.output[[i]][order(GEX_cluster_genes.output[[i]]$p_val_adj, decreasing = TRUE),])[1:n.genes.per.cluster]
-    else if(metric=="avg_logFC") holding_genes[[i]] <- rownames(GEX_cluster_genes.output[[i]][order(GEX_cluster_genes.output[[i]]$avg_logFC, decreasing = TRUE),])[1:n.genes.per.cluster]
+    if(metric=="p.value") holding_genes[[i]] <- rownames(GEX_cluster_genes.output[[i]][order(GEX_cluster_genes.output[[i]]$p_val_adj, decreasing = FALSE),])[1:n.genes.per.cluster]
+    else if(metric=="avg_logFC") holding_genes[[i]] <- rownames(GEX_cluster_genes.output[[i]][order(abs(GEX_cluster_genes.output[[i]]$avg_logFC), decreasing = TRUE),])[1:n.genes.per.cluster]
   }
   ## Sample cells if too many
   sample_cells <- list()
