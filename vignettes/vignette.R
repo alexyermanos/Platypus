@@ -191,6 +191,14 @@ print(nchar(extracted_covid_germline[[1]][[1]]$VDJ.AA.HC[2])) ### just heavy cha
 print(nchar(extracted_covid_germline[[1]][[1]]$VDJ.AA.LC[2])) ### just light chain for clonotype4 germline
 
 
+## ---- fig.show='hold'---------------------------------------------------------
+
+
+VDJ.per.cell <- VDJ_per_cell(clonotype.list = VDJ_analyze.output, VDJ.out.directory = VDJ.out.directory.list)
+
+print(VDJ.per.cell[[1]][[1]]$sequence_HC)  # trimmmed sequence 
+print(VDJ.per.cell[[1]][[1]]$trimmed_ref_HC)  # trimmmed germline sequence 
+stringdist::stringdist(VDJ.per.cell[[1]][[1]]$sequence_HC, VDJ.per.cell[[1]][[1]]$trimmed_ref_HC) 
 
 
 ## ---- fig.show='hold'---------------------------------------------------------
