@@ -59,8 +59,8 @@ Seurat::FeaturePlot(covid_gex_individual[[1]],reduction = "umap",features = c("C
 
 ### Integrating two GEX libraries into one Seurat object
 dir_to_covid_gex <- list()
-dir_to_covid_gex[[1]] <- c("~/PHD/covid_patients/GEX/Both_flowcell_alignments/5921925/filtered_feature_bc_matrix/",
-                           "~/PHD/covid_patients/GEX/Both_flowcell_alignments/5922423/filtered_feature_bc_matrix/")
+dir_to_covid_gex[[1]] <- c("~/Downloads/covid_data/Patient1_GEX/",
+                           "~/Downloads/covid_data/Patient2_GEX/")
 
 covid_gex <- Platypus::automate_GEX(GEX.outs.directory.list = dir_to_covid_gex[1:1],integration.method = "scale.data",mito.filter = 20,cluster.resolution = 0.5,VDJ.gene.filter = T)
 
