@@ -28,10 +28,11 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
     if(nrow(topN_filtered) < n.genes) {temp.n.genes <- nrow(topN_filtered)}
 
     if (by_FC) {
-      output_list[[i]] <- slice_max(topN_filtered, n = temp.n.genes, avg_logFC)
+      topN_filtered <- topN_filtered %>% mutate(abs_value = abs(topN_filtered$avg_logFC))
+      output_list[[i]] <- select(slice_max(topN_filtered, n = temp.n.genes, abs_value), !abs_value)
     }
     else {
-      output_list[[i]] <- slice_max(topN_filtered, n = temp.n.genes, p_val)
+      output_list[[i]] <- slice_min(topN_filtered, n = temp.n.genes, p_val)
     }
   }
   output_unlist <- do.call("rbind", output_list)
