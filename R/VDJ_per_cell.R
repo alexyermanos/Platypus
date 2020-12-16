@@ -173,12 +173,6 @@ VDJ_per_cell <- function(clonotype.list,
     VDJ.per.cell[[i]] <- mcMap(inner_join, data_HC, data_LC, by="barcode", suffix=list(c("_HC", "_LC")))
     VDJ.per.cell[[i]] <- mcMap(left_join, VDJ.per.cell[[i]], pasted_cdr3, by="barcode", suffix=list(c("", "")))
 
-  # Adding mouse number -------------------------
-    for (j in 1:length(VDJ.per.cell[[i]])) {
-      if (nrow(VDJ.per.cell[[i]][[j]]) != 0)
-        VDJ.per.cell[[i]][[j]]$mouse <- mouse_number[[i]]
-    }
-
   }
   return(VDJ.per.cell)
 }
