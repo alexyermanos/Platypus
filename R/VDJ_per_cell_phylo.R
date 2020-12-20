@@ -1,5 +1,5 @@
 #' @param VDJ.out.directory Character vector with each element containing the path to the output of cellranger vdj runs. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
-#' @return Returns a dataframe where each row corresponds to a single cell from one input directory. The output of this can be supplied to VDJ_clonotype_phylo. Information involving full-length sequence, isotype, germline sequence, barcode and more are provided as columns.  
+#' @return Returns a dataframe where each row corresponds to a single cell from one input directory. The output of this can be supplied to VDJ_clonotype_phylo. Information involving full-length sequence, isotype, germline sequence, barcode and more are provided as columns.
 #' @export
 #' @examples
 #' \dontrun{
@@ -7,11 +7,10 @@
 #' }
 #'
 VDJ_per_cell_phylo <- function(VDJ.out.directory) {
-  require(seqinr)
+
   require(jsonlite)
-  require(dplyr)
   require(msa)
-  require(stringr)
+  require(tidyverse)
   require(Biostrings)
   library(parallel)
   if(.Platform$OS.type == "unix") options(mc.cores=detectCores()-1, print("Using parallel package"))
@@ -34,7 +33,7 @@ VDJ_per_cell_phylo <- function(VDJ.out.directory) {
   references_HC <- list()
   for (x in vdj$clonotype_id) {
     temp_index <- gsub("_consensus_", "_concat_ref_",
-      contig.list$raw_consensus_id[contig.list$raw_clonotype_id == x & contig.list$chain == "IGH" & contig.list$is_cell == "True"])
+                       contig.list$raw_consensus_id[contig.list$raw_clonotype_id == x & contig.list$chain == "IGH" & contig.list$is_cell == "True"])
     references_HC[[x]] <- as.character(reference.list[unique(temp_index[temp_index != "None"])])
     if (length(references_HC[[x]]) == 0) {references_HC[[x]] <- ""}
   }
@@ -42,7 +41,7 @@ VDJ_per_cell_phylo <- function(VDJ.out.directory) {
   references_LC <- list()
   for (x in vdj$clonotype_id) {
     temp_index <- gsub("_consensus_", "_concat_ref_",
-      contig.list$raw_consensus_id[contig.list$raw_clonotype_id == x & contig.list$chain == "IGK" & contig.list$is_cell == "True"])
+                       contig.list$raw_consensus_id[contig.list$raw_clonotype_id == x & contig.list$chain == "IGK" & contig.list$is_cell == "True"])
     references_LC[[x]] <- as.character(reference.list[unique(temp_index[temp_index != "None"])])
     if (length(references_LC[[x]]) == 0) {references_LC[[x]] <- ""}
   }
@@ -94,25 +93,25 @@ VDJ_per_cell_phylo <- function(VDJ.out.directory) {
   ref_trimmed_LC <- mcmapply(get_alinged_ref, seq_trimmed, references_LC, MoreArgs = list("IGK"), SIMPLIFY = F)
 
   temp_contig <- contig.list %>%
-                  select(!c(length, v_gene, d_gene, j_gene, reads, umis, raw_consensus_id)) %>%
-                     filter(contig.list$is_cell=="True" & contig.list$high_confidence=="True", contig.list$productive=="True") %>%
-                       select(!c(is_cell, productive, high_confidence, full_length)) %>%
-                         rename(., "raw_clonotype_id" = "clonotype_id", "cdr3" = "cdr3_aa")
+    filter(is_cell == "True", productive == "True", high_confidence == "True") %>%
+    select(!c(is_cell, productive, high_confidence, full_length)) %>%
+    rename(., "clonotype_id" = "raw_clonotype_id", "cdr3_aa" = "cdr3")
 
   temp_contig <- temp_contig %>% inner_join(., select(bind_rows(seq_trimmed), contig_id, sequence), by="contig_id", suffix=c("", "_trimmed")) %>%
-                  inner_join(., select(bind_rows(ref_trimmed_HC), contig_id, ref_trimmed), by="contig_id", suffix=c("","")) %>%
-                    inner_join(., select(bind_rows(ref_trimmed_LC), contig_id, ref_trimmed), by="contig_id", suffix=c("",""))
+    inner_join(., select(bind_rows(ref_trimmed_HC), contig_id, ref_trimmed), by="contig_id", suffix=c("","")) %>%
+    inner_join(., select(bind_rows(ref_trimmed_LC), contig_id, ref_trimmed), by="contig_id", suffix=c("",""))
 
   HC <- filter(temp_contig, chain == "IGH") %>% select(!c(chain))
   LC <- filter(temp_contig, chain %in% c("IGK", "IGL")) %>% select(!c(c_gene, chain))
 
   VDJ.per.cell <- inner_join(HC, LC, by ="barcode", suffix = c("_HC", "_LC")) %>%
-                 relocate(., clonotype_id_HC, cdr3_nt_HC, cdr3_nt_LC, cdr3_aa_HC, cdr3_aa_LC, c_gene, barcode,
-                              sequence_HC, sequence_LC, ref_trimmed_HC, ref_trimmed_LC) %>%
-                    select(!c(contig_id_LC, contig_id_HC, clonotype_id_LC)) %>%
-                      rename("clonotype_id_HC" = "clonotype_id") %>%
-                        mutate(sequence_HC_aa = as.character(translate(DNAStringSet(sequence_HC)))) %>%
-                          mutate(sequence_LC_aa = as.character(translate(DNAStringSet(sequence_LC))))
+    relocate(., clonotype_id_HC, cdr3_nt_HC, cdr3_nt_LC, cdr3_aa_HC, cdr3_aa_LC, c_gene, barcode,
+             sequence_HC, sequence_LC, ref_trimmed_HC, ref_trimmed_LC) %>%
+    select(!c(contig_id_LC, contig_id_HC, clonotype_id_LC)) %>%
+    rename("clonotype_id" = "clonotype_id_HC") %>%
+    mutate(sequence_HC_aa = as.character(Biostrings::translate(DNAStringSet(sequence_HC)))) %>%
+    mutate(sequence_LC_aa = as.character(Biostrings::translate(DNAStringSet(sequence_LC)))) %>%
+    select(-matches("reads|length|raw"))
 
   return(VDJ.per.cell)
 }
