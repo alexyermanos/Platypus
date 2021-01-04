@@ -1,0 +1,122 @@
+#' Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
+#' @param clonotype.list Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.
+#' @param clone.strategy String describing the clonotyping strategy. Possible options include 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'CDR3aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
+#' All homology calculations are performed on the amino acid level.
+#' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
+#' @return list_dfs Returns a list of clonotype dataframes. list_dfs[[1]] is the first element of the list, etc.
+#' @export
+#' @examples
+#' \dontrun{
+#' VDJ_clonotype(clonotype.list=VDJ.analyze.output,
+#'  clone.strategy="Hvj.Lvj.CDR3length.CDR3homology",
+#'  homology.threshold=".3")
+#'  }
+VDJ_clonotype_phylo <- function(clonotype.list,
+                          clone.strategy,
+                          homology.threshold){
+  require(stringdist)
+  find.max.common.substring<-function(words){
+    words.split <- strsplit(words, '')
+    words.split <- lapply(words.split, `length<-`, max(nchar(words)))
+    words.mat <- do.call(rbind, words.split)
+    common.substr.length <- which.max(apply(words.mat, 2, function(col) !length(unique(col)) == 1)) - 1
+    res<-substr(words[1], 1, common.substr.length)
+    return(res)
+  }
+  
+  output.clonotype <- list()
+  if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) print("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
+  if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3   # Setting default homology threshold
+  
+  #Possible strategy options:'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'.
+  if(clone.strategy=="cdr3.aa"){
+    clonotype.list$new_clone_unique<-paste(clonotype.list$cdr3_aa_HC, clonotype.list$cdr3_aa_LC,sep="")
+    list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+    list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+  }
+  else if(clone.strategy=="hvj.lvj"){
+    clonotype.list$new_clone_unique <- paste(clonotype.list$v_gene_HC,
+                                                  clonotype.list$j_gene_HC,
+                                                  clonotype.list$v_gene_LC,
+                                                  clonotype.list$j_gene_LC,sep="_")
+    list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+    list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    
+  }else if(clone.strategy=="hvj.lvj.cdr3lengths"){
+    clonotype.list$new_clone_unique <- paste(clonotype.list$v_gene_HC,
+                                             clonotype.list$j_gene_HC,
+                                             clonotype.list$v_gene_LC,
+                                             clonotype.list$j_gene_LC,
+                                             nchar(clonotype.list$cdr3_aa_HC),
+                                             nchar(clonotype.list$cdr3_aa_LC),sep="_")
+    list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+    list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+      
+    }else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+      clones_temp <- (paste(clonotype.list$v_gene_HC,
+                            clonotype.list$j_gene_HC,
+                            clonotype.list$v_gene_LC,
+                            clonotype.list$j_gene_LC,
+                            nchar(clonotype.list$cdr3_aa_HC),
+                            nchar(clonotype.list$cdr3_aa_LC),sep="_"))
+      clonotype.list$new_clone_unique <- clones_temp
+      list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+      list_dfs<-lapply(list_dfs, FUN= function(x){
+        if(nrow(x)>=2){
+          vh_distance <- stringdist::stringdistmatrix(x$cdr3_aa_HC,x$cdr3_aa_HC,method = "lv")/nchar(x$cdr3_aa_HC)
+          if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
+            vl_distance <- stringdist::stringdistmatrix(x$cdr3_aa_LC,x$cdr3_aa_LC,method = "lv")/nchar(x$cdr3_aa_LC)
+          }else{
+            vl_distance <- 0
+          }
+          combined_distance <- vh_distance + vl_distance
+          diag(combined_distance) <- NA
+          hclust_combined <- stats::hclust(stats::as.dist(combined_distance)) #convert combined_distance to a distance object
+          hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+          x$new_clone_unique<- paste(x$new_clone_unique,hclust_combined_cut)
+          x <- split(x, x$new_clone_unique)
+          x<-lapply(1:length(x), function(i) x[[i]])
+        }else{
+          x$new_clone_unique<- paste(x$new_clone_unique,"1")
+        }
+         return(x)
+        })
+      list_dfs<-unlist(list_dfs,recursive = FALSE)
+      is.df<-which(sapply(list_dfs, function(z) {
+        inherits(z, "data.frame")}))
+      df_size<-unname(unlist(lapply(unname(is.df), function(z) lengths(list_dfs[z]))))
+      df_size1<-df_size[1]
+      idx<-c()
+      idx<-which(sapply(list_dfs, function(z) {
+       !inherits(z, "data.frame")}))
+      temp<-as.data.frame(matrix(unname(idx), ncol = df_size[1],  byrow = TRUE), stringsAsFactors = FALSE)
+      list_dfs_1<-lapply(1:nrow(temp), function(z) {
+        ident_part<-find.max.common.substring(names(list_dfs[unlist(temp[z,])]))
+        rev_ident_part<-as.vector(sapply(names(list_dfs[unlist(temp[z,])]), function(x) {
+          gsub(x, pattern = ident_part, replacement = "\\1")
+        }))
+        df<-data.frame(matrix(unlist(list_dfs[unlist(temp[z,])]),ncol=length(rev_ident_part),byrow=T),stringsAsFactors=FALSE)
+        names(df)<-rev_ident_part
+        df
+      })
+      list_dfs_2<-list_dfs[is.df]
+      list_dfs<-c(list_dfs_1,list_dfs_2)
+      list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    }else{ #if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
+      vh_distance <- stringdist::stringdistmatrix(clonotype.list$cdr3_aa_HC, clonotype.list$cdr3_aa_HC, method = "lv")/nchar(clonotype.list$cdr3_aa_HC)
+      if(clone.strategy=="CDR3.homology"){
+        vl_distance <- stringdist::stringdistmatrix(clonotype.list$cdr3_aa_LC, clonotype.list$cdr3_aa_LC, method = "lv")/nchar(clonotype.list$cdr3_aa_LC)
+      }else{
+        vl_distance <- 0
+      }
+      combined_distance <- vh_distance + vl_distance
+      diag(combined_distance) <- NA
+      hclust_combined <- stats::hclust(stats::as.dist(combined_distance))
+      hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+      clonotype.list$new_clone_unique <- paste(hclust_combined_cut)
+      list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+      list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    }
+  return(list_dfs)
+}
+
