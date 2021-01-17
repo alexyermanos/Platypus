@@ -1,4 +1,4 @@
-GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, default){
+GEX_phenotype <- function(seurat.object, species, cell.state.names, cell.state.markers, default){
   require(do)
   require(useful)
   Cap<-function(x){
@@ -9,6 +9,9 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
     } 
     return(temp)
   }
+  
+  is.hum<-any(useful::find.case(rownames(seurat.object),case="upper"))
+  
   if(missing(cell.state.markers)&default==T){
     cell.state.markers<-c("CD4+;CD44-",
                           "CD4+;IL7R+;CD44+",
@@ -36,12 +39,13 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
                         "MemoryBcell")
   }
   
-  is.hum<-all(useful::find.case(rownames(seurat.object),case="upper"))
-  if(is.hum==F){
-    cell.state.markers<-Cap(cell.state.markers)
-  }
-  if(is.hum==T){
-    cell.state.markers <- toupper(cell.state.markers) 
+  if(is.hum==F&&default==T){
+    if(is.hum==F){
+      cell.state.markers<-Cap(cell.state.markers)
+    }
+    if(is.hum==T&&default==T){
+      cell.state.markers <- toupper(cell.state.markers)
+    }
   }
   #parse cell state markers
   cell.state.markers<-Replace(cell.state.markers,from=";", to="&")
@@ -60,7 +64,6 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
     if(is.exist!=F){
       Idents(object = seurat.object, cells = eval(parse(text=cell.state.names[i])) ) <- cell.state.names[i] 
     }
-    
   }
   seurat.object[["cell.state"]] <- Idents(object = seurat.object)
   Idents(object = seurat.object)<-seurat.object[["previous.ident"]]
