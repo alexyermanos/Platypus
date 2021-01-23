@@ -6,17 +6,19 @@
 #' @param up.or.down Whether up or downregulated genes should be used for GO term analysis if GEX_cluster_genes output is used. Default: "up"
 #' @param MT.Rb.filter logical, if mitochondrial and ribosomal genes should be filtered out.
 #' @param kegg logical, if KEGG pathway analysis should be conducted. Requires internet connection. Default: False.
+#' @param go.plots logical, if top GO-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.GO.terms.plots) Go-terms for each cluster will be plotted to the working directory.
+#' @param top.N.GO.terms.plots The number of most significant GO-terms to be incluted in the go.plots. Default: 10.
 #' @return Returns a list of data frames containing the TopGO and the TopKEGG output containing the significant GO terms.
 #' @export
 #' @examples
 #' \dontrun{
 #' test <- GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
-#' test2 <- GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP")
+#' test2 <- GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP", go.plots = T)
 #'}
 
 
 
-GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg){
+GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.GO.terms.plots){
 
   require(org.Mm.eg.db)
   require(edgeR)
@@ -28,6 +30,8 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   if (missing(up.or.down)) {up.or.down <- "up"}
   if (missing(MT.Rb.filter)) {MT.Rb.filter <- T}
   if (missing(kegg)){kegg <- F}
+  if (missing(go.plots)){go.plots <- F}
+  if (missing(top.N.GO.terms.plots)){top.N.GO.terms.plots <- 10}
 
   gene.list <- list()
   list_topGO <- list()
@@ -121,6 +125,52 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   if (kegg==T){
   list[[2]]<-list_topKEGG
   }
+
+  if (go.plots==T){
+      top_pathways=top.N.GO.terms.plots
+      for (i in 1:length(list[[1]])){
+        plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i)
+        if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(list[[1]][[i]])
+        list[[1]][[i]]$ratio<-list[[1]][[i]]$DE/list[[1]][[i]]$N
+        list[[1]][[i]]$Term <- paste0(rownames(list[[1]][[i]]), "_", list[[1]][[i]]$Term)
+        names(list[[1]][[i]])<-c("GO_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
+        list[[1]][[i]]<-list[[1]][[i]][1:top_pathways,]
+        list[[1]][[i]]$GO_term <- factor(list[[1]][[i]]$GO_term, levels = list[[1]][[i]]$GO_term[order(list[[1]][[i]]$p_adj, decreasing = TRUE)])
+
+
+        g<-ggplot(list[[1]][[i]], aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
+          geom_point()+
+          theme_bw()+
+          scale_color_gradient(low="blue", high="red")+
+
+          scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+
+          theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+          ggtitle(plot_title)
+
+        pdf(paste(plot_title,".pdf",sep=""))
+        print(g)
+        dev.off()
+
+        g<-ggplot(list[[1]][[i]], aes(-log(p_adj), GO_term, colour=DE_genes))+
+          geom_point(size=5)+
+          theme_bw()+
+          scale_color_gradient(low="blue", high="red")+
+
+          scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+
+          theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+          ggtitle(plot_title)
+
+
+        pdf(paste(plot_title,"_2.pdf",sep=""))
+        print(g)
+        dev.off()
+        }
+
+    }
 
   return(list)
 
