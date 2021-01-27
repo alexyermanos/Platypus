@@ -77,14 +77,14 @@ VDJ_analyze <- function(VDJ.out.directory,
   for(j in 1:nrow(clonotype.list[[i]])){
     utils::setTxtProgressBar(value = j/nrow(clonotype.list[[i]]),pb = holding_bar)
     tryCatch({
-      clonotype.list[[i]]$HC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain=="IGH")])))
-      clonotype.list[[i]]$HC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$v_gene!="None")])))
-      clonotype.list[[i]]$HC_dgene[j] <- names(which.max(table(contig.list[[i]]$d_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain=="IGH")])))
-      clonotype.list[[i]]$HC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain=="IGH")])))
-      clonotype.list[[i]]$LC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain!="IGH")])))
-      clonotype.list[[i]]$LC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain!="IGH")])))
-      clonotype.list[[i]]$LC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True" & contig.list[[i]]$chain!="IGH")])))
-      clonotype.list[[i]]$barcodes[j] <- gsub(toString(unique(contig.list[[i]]$barcode[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & contig.list[[i]]$is_cell=="True")])),pattern = ", ",replacement = ";")
+      clonotype.list[[i]]$HC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
+      clonotype.list[[i]]$HC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$v_gene!="None")])))
+      clonotype.list[[i]]$HC_dgene[j] <- names(which.max(table(contig.list[[i]]$d_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
+      clonotype.list[[i]]$HC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
+      clonotype.list[[i]]$LC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
+      clonotype.list[[i]]$LC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
+      clonotype.list[[i]]$LC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
+      clonotype.list[[i]]$barcodes[j] <- gsub(toString(unique(contig.list[[i]]$barcode[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true"))])),pattern = ", ",replacement = ";")
     }, error=function(e){})
 
     }
