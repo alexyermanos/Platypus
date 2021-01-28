@@ -38,7 +38,7 @@ automate_GEX <- function(GEX.outs.directory.list,
                          neighbor.dim,
                          mds.dim,
                          groups){
-  print("This may take longer than other repertoire associated functions. Please see Seurat vingenettes for further information")
+  print("This may take longer than other repertoire associated functions. Please see Seurat vignettes for further information")
   if(missing(integration.method)) integration.method <- "scale.data"
   if(integration.method=="harmony") require(harmony)
   if(missing(GEX.outs.directory.list)) print("Missing output directory of cellranger count. Assuming a list of 10x gene expression libraries is supplied as input.")
