@@ -4,17 +4,33 @@
 #' @param sample1 either character or integer specifying the first sample that should be compared.
 #' @param sample2 either character or integer specifying the first sample that should be compared.
 #' @param by.group Logical specifying if groups should be used instead of samples. If TRUE, then the argument in sample1 and sample2 will correspond to cells found in the groups from sample1 or sample2.
+#' @param filter Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.
 #' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
 #' @export
 #' @examples
 #' \dontrun{
 #' check_de_genes2 <- GEX_DEgenes_persample(automate.GEX=automate.GEX.output[[i]],min.pct = .25,sample1 = "2",sample2 = "3")
 #'}
-GEX_DEgenes_persample <- function(automate.GEX,min.pct, sample1, sample2,by.group){
+GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.group, filter){
+
   if(missing(by.group)) by.group <- FALSE
+  if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
+
   number_of_clusters <- length(unique(automate.GEX$seurat_clusters))
   if(by.group==TRUE) Seurat::Idents(automate.GEX) <- automate.GEX$group_id
   if(by.group==FALSE) Seurat::Idents(automate.GEX) <- automate.GEX$sample_id
-  cluster_markers <- Seurat::FindMarkers(automate.GEX, min.pct = min.pct,ident.1 = as.character(sample1),ident.2 = as.character(sample2))
+
+  cluster_markers <- Seurat::FindMarkers(automate.GEX, min.pct = min.pct, ident.1 = as.character(sample1), ident.2 = as.character(sample2))
+  for(i in 1:cluster_markers){
+    cluster_markers[[i]] <- Seurat::FindMarkers(automate_GEX.output, ident.1 = i-1, min.pct = min.pct)
+    cluster_markers[[i]]$SYMBOL <- rownames(cluster_markers[[i]])
+    cluster_markers[[i]]$cluster <- rep((i-1), nrow(cluster_markers[[i]]))
+    exclude <- c()
+    for (j in filter) {
+      exclude <- c(exclude, str_which(rownames(cluster_markers[[i]]), j))
+    }
+    cluster_markers[[i]] <- cluster_markers[[i]][-exclude,]
+  }
   return(cluster_markers)
 }
+
