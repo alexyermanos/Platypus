@@ -1,3 +1,4 @@
+
 #' Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.
 #' @param automate.GEX Output Seurat object from automate_GEX function that contained at least two distinct biological samples. The differential biological samples correspond to integer values in the order of the working directories initially supplied to the automate_GEX function.
 #' @param min.pct The minimum percentage of cells expressing a gene in either of the two groups to be compared.
@@ -13,24 +14,20 @@
 #'}
 GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.group, filter){
 
-  if(missing(by.group)) by.group <- FALSE
-  if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
+    if(missing(by.group)) by.group <- FALSE
+    if (missing(filter)) filter <- c("MT-", "RPL", "RPS")
 
-  number_of_clusters <- length(unique(automate.GEX$seurat_clusters))
-  if(by.group==TRUE) Seurat::Idents(automate.GEX) <- automate.GEX$group_id
-  if(by.group==FALSE) Seurat::Idents(automate.GEX) <- automate.GEX$sample_id
+    number_of_clusters <- length(unique(automate.GEX$seurat_clusters))
+    if(by.group==TRUE) Seurat::Idents(automate.GEX) <- automate.GEX$group_id
+    if(by.group==FALSE) Seurat::Idents(automate.GEX) <- automate.GEX$sample_id
 
-  cluster_markers <- Seurat::FindMarkers(automate.GEX, min.pct = min.pct, ident.1 = as.character(sample1), ident.2 = as.character(sample2))
-  for(i in 1:cluster_markers){
-    cluster_markers[[i]] <- Seurat::FindMarkers(automate_GEX.output, ident.1 = i-1, min.pct = min.pct)
-    cluster_markers[[i]]$SYMBOL <- rownames(cluster_markers[[i]])
-    cluster_markers[[i]]$cluster <- rep((i-1), nrow(cluster_markers[[i]]))
+    cluster_markers <- Seurat::FindMarkers(automate.GEX, min.pct = min.pct, ident.1 = as.character(sample1), ident.2 = as.character(sample2))
+    cluster_markers$SYMBOL <- rownames(cluster_markers)
     exclude <- c()
     for (j in filter) {
-      exclude <- c(exclude, str_which(rownames(cluster_markers[[i]]), j))
+        exclude <- c(exclude, !rownames(cluster_markers) %in% j)
     }
-    cluster_markers[[i]] <- cluster_markers[[i]][-exclude,]
-  }
-  return(cluster_markers)
-}
+    cluster_markers <- cluster_markers[-exclude,]
 
+    return(cluster_markers)
+}
