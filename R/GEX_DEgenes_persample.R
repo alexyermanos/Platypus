@@ -35,9 +35,10 @@ GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.gr
     
     exclude <- c()
     for (j in filter) {
-        exclude <- c(exclude, !rownames(cluster_markers) %in% j)
+      exclude <- c(exclude, stringr::str_which(rownames(cluster_markers), j))
     }
     cluster_markers <- cluster_markers[-exclude,]
+    
     
     if (return.plot==TRUE) {
       if (logFC==TRUE) {
@@ -50,7 +51,7 @@ GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.gr
       cluster_markers <- cluster_markers[ranks,]
       heatmap_genes <- c(cluster_markers[which(cluster_markers$avg_logFC > 0),"SYMBOL"][1:up.genes], cluster_markers[which(cluster_markers$avg_logFC < 0),"SYMBOL"][1:down.genes])
       }
-      cluster_markers_heatmap <- DoHeatmap(automate.GEX, features = heatmap_genes)
+      cluster_markers_heatmap <- Seurat::DoHeatmap(automate.GEX, features = heatmap_genes)
     }
     if (return.plot==FALSE) cluster_markers_heatmap <- NULL
     
