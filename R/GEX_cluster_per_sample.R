@@ -18,6 +18,7 @@ GEX_cluster_per_sample <- function(automate_GEX.output){
   }
   melting <- reshape2::melt(cells_per_cluster_per_sample)
   melting$L1 <- as.character(melting$L1)
-  output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = L1, y=value, x=L2,group=L1)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership")
+  melting$L2 <- melting$L2 - 1
+  output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = L1, y=value, x=L2,group=L1)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
   return(output.plot)
 }
