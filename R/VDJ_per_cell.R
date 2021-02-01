@@ -18,7 +18,8 @@ VDJ_per_cell <- function(clonotype.list,
          fasta.list,
          reference.list,
          filtered.contigs,
-         annotations.json) {
+         annotations.json,
+         JSON) {
   require(seqinr)
   require(jsonlite)
   require(dplyr)
@@ -26,6 +27,7 @@ VDJ_per_cell <- function(clonotype.list,
   if(missing(VDJ.out.directory)) print("No output directory supplied. Assuming clonotype and contig are provided as list objects")
   if(missing(contig.list)) print("No contig.list supplied. Assuming contigs should be extracted from working directory")
   if(missing(filtered.contigs)) filtered.contigs <- TRUE
+  if(missing(JSON)) JSON <- FALSE
 
   print("Reading in output files")
   ### need to also read in the fastas
@@ -38,7 +40,7 @@ VDJ_per_cell <- function(clonotype.list,
     fasta.list <- lapply(VDJ.out.directory_fasta, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
     VDJ.out.directory_reference <- paste(VDJ.out.directory,"/concat_ref.fasta",sep="")
     reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-    annotations.json <- read_json(paste0(VDJ.out.directory, "/all_contig_annotations.json"), simplifyVector = T)
+    if (JSON==TRUE) annotations.json <- read_json(paste0(VDJ.out.directory, "/all_contig_annotations.json"), simplifyVector = T)
   }
 
   VDJ.per.cell <- list()
@@ -91,25 +93,30 @@ VDJ_per_cell <- function(clonotype.list,
 
           VDJ.per.cell[[i]][[j]]$full_HC_sequence[k] <- as.character(fasta.list[[i]][which(names(fasta.list[[i]])==VDJ.per.cell[[i]][[j]]$contig_id_hc[k])])
           VDJ.per.cell[[i]][[j]]$full_LC_sequence[k] <- as.character(fasta.list[[i]][which(names(fasta.list[[i]])==VDJ.per.cell[[i]][[j]]$contig_id_lc[k])])
-          # Adding VDJ trimmed sequence
-          selected_contig <- annotations.json[annotations.json$contig_name == VDJ.per.cell[[i]][[j]]$contig_id_hc[k],]
-          info <- selected_contig$annotations[[1]]
-          vdj_seq_start <- info$contig_match_start[info$feature$region_type == "L-REGION+V-REGION"]
-          vdj_seq_end <- info$contig_match_end[info$feature$region_type == "J-REGION"]
-          seq_trimmed <- substr(selected_contig$sequence, vdj_seq_start, vdj_seq_end)
-          ref_trimmed <- as.character(pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_HC_sequence[1], type = "local")@subject)
-          VDJ.per.cell[[i]][[j]]$trimmed_HC_sequence[k] <- seq_trimmed
-          VDJ.per.cell[[i]][[j]]$trimmed_HC_germline[k] <- ref_trimmed
-
-          # Same for light chain
-          selected_contig <- annotations.json[annotations.json$contig_name == VDJ.per.cell[[i]][[j]]$contig_id_lc[k],]
-          info <- selected_contig$annotations[[1]]
-          vdj_seq_start <- info$contig_match_start[info$feature$region_type == "L-REGION+V-REGION"]
-          vdj_seq_end <- info$contig_match_end[info$feature$region_type == "J-REGION"]
-          seq_trimmed <- substr(selected_contig$sequence, vdj_seq_start, vdj_seq_end)
-          ref_trimmmed <- as.character(pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_LC_sequence[1], type = "local")@subject)
-          VDJ.per.cell[[i]][[j]]$trimmed_LC_sequence[k] <- seq_trimmed
-          VDJ.per.cell[[i]][[j]]$trimmed_LC_germline[k] <- ref_trimmmed
+          
+          if(JSON==TRUE){
+            
+            # Adding VDJ trimmed sequence
+            selected_contig <- annotations.json[annotations.json$contig_name == VDJ.per.cell[[i]][[j]]$contig_id_hc[k],]
+            info <- selected_contig$annotations[[1]]
+            vdj_seq_start <- info$contig_match_start[info$feature$region_type == "L-REGION+V-REGION"]
+            vdj_seq_end <- info$contig_match_end[info$feature$region_type == "J-REGION"]
+            seq_trimmed <- substr(selected_contig$sequence, vdj_seq_start, vdj_seq_end)
+            ref_trimmed <- as.character(pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_HC_sequence[1], type = "local")@subject)
+            VDJ.per.cell[[i]][[j]]$trimmed_HC_sequence[k] <- seq_trimmed
+            VDJ.per.cell[[i]][[j]]$trimmed_HC_germline[k] <- ref_trimmed
+            
+            # Same for light chain
+            selected_contig <- annotations.json[annotations.json$contig_name == VDJ.per.cell[[i]][[j]]$contig_id_lc[k],]
+            info <- selected_contig$annotations[[1]]
+            vdj_seq_start <- info$contig_match_start[info$feature$region_type == "L-REGION+V-REGION"]
+            vdj_seq_end <- info$contig_match_end[info$feature$region_type == "J-REGION"]
+            seq_trimmed <- substr(selected_contig$sequence, vdj_seq_start, vdj_seq_end)
+            ref_trimmmed <- as.character(pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_LC_sequence[1], type = "local")@subject)
+            VDJ.per.cell[[i]][[j]]$trimmed_LC_sequence[k] <- seq_trimmed
+            VDJ.per.cell[[i]][[j]]$trimmed_LC_germline[k] <- ref_trimmmed
+          }
+          
 
         }, error=function(e){})
       }

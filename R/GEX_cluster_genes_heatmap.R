@@ -29,7 +29,7 @@ GEX_cluster_genes_heatmap <- function(automate_GEX.output,GEX_cluster_genes.outp
     }
     else{
       sample_cells[[i]] <- which(automate_GEX.output$seurat_clusters==unique_clusters[i])
-    }
+    } 
   }
   output_heatmap <- Seurat::DoHeatmap(automate_GEX.output,features = unlist(unique(holding_genes)),cells = unlist(sample_cells))
   return(output_heatmap)
