@@ -17,14 +17,17 @@ VDJ_per_clone <- function(clonotype.list,
                           fasta.list,
                           reference.list,
                           filtered.contigs,
-                          annotations.json){
+                          annotations.json,
+                          JSON){
   require(seqinr)
   require(jsonlite)
   require(dplyr)
   if(missing(VDJ.out.directory)) print("No output directory supplied. Assuming clonotype and contig are provided as list objects")
   if(missing(contig.list)) print("No contig.list supplied. Assuming contigs should be extracted from working directory")
   if(missing(filtered.contigs)) filtered.contigs <- TRUE
+  if(missing(JSON)) JSON <- FALSE
 
+  
   print("Reading in output files")
     ### need to also read in the fastas
     if(missing(VDJ.out.directory)==F){
@@ -36,7 +39,7 @@ VDJ_per_clone <- function(clonotype.list,
       fasta.list <- lapply(VDJ.out.directory_fasta, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
       VDJ.out.directory_reference <- paste(VDJ.out.directory,"/concat_ref.fasta",sep="")
       reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-      annotations.json <- read_json(paste0(VDJ.out.directory, "/all_contig_annotations.json"))
+      if(JSON == TRUE) annotations.json <- read_json(paste0(VDJ.out.directory, "/all_contig_annotations.json"))
     }
   print("Reading in output files")
 
@@ -44,19 +47,23 @@ VDJ_per_clone <- function(clonotype.list,
   seq <- c()
   barcode <- c()
   contig_name <- c()
-  for (i in 1:length(annotations.json)) {
-    if (annotations.json[[i]]$high_confidence & annotations.json[[i]]$filtered & annotations.json[[i]]$productive) {
-      first_region_index <- which(sapply(annotations.json[[i]]$annotations, function(x) {x$feature$region_type == "L-REGION+V-REGION"}))
-      last_region_index <- which(sapply(annotations.json[[i]]$annotations, function(x) {x$feature$region_type == "J-REGION"}))
-      vdj_start_index <- annotations.json[[i]]$annotations[[first_region_index]]$contig_match_start
-      vdj_end_index <- annotations.json[[i]]$annotations[[last_region_index]]$contig_match_end
-      seq[i] <- substr(annotations.json[[i]]$sequence, vdj_start_index, vdj_end_index)
-      contig_name[i] <- annotations.json[[i]]$contig_name
+  if(JSON==TRUE){
+    
+    for (i in 1:length(annotations.json)) {
+      if (annotations.json[[i]]$high_confidence & annotations.json[[i]]$filtered & annotations.json[[i]]$productive) {
+        first_region_index <- which(sapply(annotations.json[[i]]$annotations, function(x) {x$feature$region_type == "L-REGION+V-REGION"}))
+        last_region_index <- which(sapply(annotations.json[[i]]$annotations, function(x) {x$feature$region_type == "J-REGION"}))
+        vdj_start_index <- annotations.json[[i]]$annotations[[first_region_index]]$contig_match_start
+        vdj_end_index <- annotations.json[[i]]$annotations[[last_region_index]]$contig_match_end
+        seq[i] <- substr(annotations.json[[i]]$sequence, vdj_start_index, vdj_end_index)
+        contig_name[i] <- annotations.json[[i]]$contig_name
+      }
     }
+    VDJ_sequence <- data.frame(cbind(seq = seq, barcode = barcode, contig_name = contig_name))
+    VDJ_sequence <- VDJ_sequence %>% filter(!is.na(contig_name))
+    
   }
-  VDJ_sequence <- data.frame(cbind(seq = seq, barcode = barcode, contig_name = contig_name))
-  VDJ_sequence <- VDJ_sequence %>% filter(!is.na(contig_name))
-
+  
   VDJ.per.clone <- list()
   ### each element in VDJ.per.clone is a dataframe containing per cell information
   for(i in 1:length(clonotype.list)){
@@ -104,10 +111,13 @@ VDJ_per_clone <- function(clonotype.list,
         tryCatch({
           VDJ.per.clone[[i]][[j]]$full_HC_sequence[k] <- as.character(fasta.list[[i]][which(names(fasta.list[[i]])==VDJ.per.clone[[i]][[j]]$contig_id_hc[k])])
           VDJ.per.clone[[i]][[j]]$full_LC_sequence[k] <- as.character(fasta.list[[i]][which(names(fasta.list[[i]])==VDJ.per.clone[[i]][[j]]$contig_id_lc[k])])
-          # Adding VDJ trimmed sequence
-          VDJ.per.clone[[i]][[j]]$trimmed_HC_sequence[k] <- VDJ_sequence$seq[VDJ_sequence$contig_name == VDJ.per.clone[[i]][[j]]$contig_id_hc[k]]
-          VDJ.per.clone[[i]][[j]]$trimmed_LC_sequence[k] <- VDJ_sequence$seq[VDJ_sequence$contig_name == VDJ.per.clone[[i]][[j]]$contig_id_lc[k]]
-
+          
+          if(JSON==TRUE){
+            # Adding VDJ trimmed sequence
+            VDJ.per.clone[[i]][[j]]$trimmed_HC_sequence[k] <- VDJ_sequence$seq[VDJ_sequence$contig_name == VDJ.per.clone[[i]][[j]]$contig_id_hc[k]]
+            VDJ.per.clone[[i]][[j]]$trimmed_LC_sequence[k] <- VDJ_sequence$seq[VDJ_sequence$contig_name == VDJ.per.clone[[i]][[j]]$contig_id_lc[k]]
+          }
+          
         }, error=function(e){})
       }
     }
