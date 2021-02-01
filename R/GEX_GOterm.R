@@ -23,7 +23,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   require(org.Mm.eg.db)
   require(edgeR)
 
-  if (missing(GEX.cluster.genes.output)) {print("Pleas submit either GEX_cluster_genes output or list of gene Symbols")}
+  if (missing(GEX.cluster.genes.output)) {print("Please submit either GEX_cluster_genes output or list of gene Symbols")}
   if (missing(topNgenes)) {}
   if (missing(ontology)) {ontology <- "BP"}
   if (missing(species)) {species <- "Mm"}
@@ -37,6 +37,8 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   list_topGO <- list()
   list_topKEGG <- list()
   list <- list()
+  g1 <- list()
+  g2 <- list()
 
   #Check whether GEX_cluster_genes output was submitted or list as character vector
   if (class(GEX.cluster.genes.output[[1]])=="data.frame"){
@@ -138,7 +140,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         list[[1]][[i]]$GO_term <- factor(list[[1]][[i]]$GO_term, levels = list[[1]][[i]]$GO_term[order(list[[1]][[i]]$p_adj, decreasing = TRUE)])
 
 
-        g<-ggplot(list[[1]][[i]], aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
+        g1[[i]]<-ggplot(list[[1]][[i]], aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
           geom_point()+
           theme_bw()+
           scale_color_gradient(low="blue", high="red")+
@@ -150,10 +152,10 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
           ggtitle(plot_title)
 
         pdf(paste(plot_title,".pdf",sep=""))
-        print(g)
+        print(g1[[i]])
         dev.off()
 
-        g<-ggplot(list[[1]][[i]], aes(-log(p_adj), GO_term, colour=DE_genes))+
+        g2[[i]]<-ggplot(list[[1]][[i]], aes(-log(p_adj), GO_term, colour=DE_genes))+
           geom_point(size=5)+
           theme_bw()+
           scale_color_gradient(low="blue", high="red")+
@@ -166,9 +168,11 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
 
 
         pdf(paste(plot_title,"_2.pdf",sep=""))
-        print(g)
+        print(g2[[i]])
         dev.off()
-        }
+      }
+      list[[3]] <- g1
+      list[[4]] <- g2
 
     }
 
