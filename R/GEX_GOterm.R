@@ -6,9 +6,11 @@
 #' @param up.or.down Whether up or downregulated genes should be used for GO term analysis if GEX_cluster_genes output is used. Default: "up"
 #' @param MT.Rb.filter logical, if mitochondrial and ribosomal genes should be filtered out.
 #' @param kegg logical, if KEGG pathway analysis should be conducted. Requires internet connection. Default: False.
-#' @param go.plots logical, if top GO-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.GO.terms.plots) Go-terms for each cluster will be plotted to the working directory.
-#' @param top.N.GO.terms.plots The number of most significant GO-terms to be incluted in the go.plots. Default: 10.
-#' @return Returns a list of data frames containing the TopGO and the TopKEGG output containing the significant GO terms.
+#' @param go.plots logical, if top GO-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.GO.terms.plots) Go-terms for each cluster will be plotted to the working directory and saved as a list element. Plots are made both based on padj and ratio.
+#' @param top.N.go.terms.plots The number of most significant GO-terms to be incluted in the go.plots. Default: 10.
+#' @param kegg.plots logical, if top KEGG-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.kegg.terms.plots) KEGG-terms for each cluster will be plotted to the working directory and saved as a list element. Plots are made both based on padj and ratio.
+#' @param top.N.kegg.terms.plots The number of most significant KEGG-terms to be incluted in the kegg.plots. Default: 10.
+#' @return Returns a list of data frames and plots containing the TopGO and the TopKEGG output containing the significant GO/KEGG terms and their visualizations.
 #' @export
 #' @examples
 #' \dontrun{
@@ -18,7 +20,7 @@
 
 
 
-GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.GO.terms.plots){
+GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.go.terms.plots, kegg.plots, top.N.kegg.terms.plots){
 
   require(org.Mm.eg.db)
   require(edgeR)
@@ -31,14 +33,18 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   if (missing(MT.Rb.filter)) {MT.Rb.filter <- T}
   if (missing(kegg)){kegg <- F}
   if (missing(go.plots)){go.plots <- F}
-  if (missing(top.N.GO.terms.plots)){top.N.GO.terms.plots <- 10}
-
+  if (missing(top.N.go.terms.plots)){top.N.go.terms.plots <- 10}
+  if (missing(top.N.kegg.terms.plots)){top.N.kegg.terms.plots <- 10}
+  if (missing(kegg.plots)){kegg.plots <- F}
+  
   gene.list <- list()
   list_topGO <- list()
   list_topKEGG <- list()
   list <- list()
   g1 <- list()
   g2 <- list()
+  g3 <- list()
+  g4 <- list()
 
   #Check whether GEX_cluster_genes output was submitted or list as character vector
   if (class(GEX.cluster.genes.output[[1]])=="data.frame"){
@@ -129,7 +135,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   }
 
   if (go.plots==T){
-      top_pathways=top.N.GO.terms.plots
+      top_pathways=top.N.go.terms.plots
       for (i in 1:length(list[[1]])){
         plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i)
         if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(list[[1]][[i]])
@@ -170,12 +176,66 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         pdf(paste(plot_title,"_2.pdf",sep=""))
         print(g2[[i]])
         dev.off()
+        
       }
+      
+      
       list[[3]] <- g1
       list[[4]] <- g2
 
     }
-
+  
+  if (kegg.plots==T&kegg==T){
+    top_pathways=top.N.kegg.terms.plots
+    for (i in 1:length(list[[2]])){
+      plot_title<-paste0("KEGG_top",top_pathways,"terms_cluster",i)
+      if (nrow(list[[2]][[i]])<top_pathways) top_pathways=nrow(list[[2]][[i]])
+      list[[2]][[i]]$ratio<-list[[2]][[i]]$DE/list[[2]][[i]]$N
+      list[[2]][[i]]$Term <- paste0(rownames(list[[2]][[i]]), "_", list[[2]][[i]]$Term)
+      names(list[[2]][[i]])<-c("KEGG_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
+      list[[2]][[i]]<-list[[2]][[i]][1:top_pathways,]
+      list[[2]][[i]]$KEGG_term <- factor(list[[2]][[i]]$KEGG_term, levels = list[[2]][[i]]$KEGG_term[order(list[[2]][[i]]$p_adj, decreasing = TRUE)])
+      
+      
+      g3[[i]]<-ggplot(list[[2]][[i]], aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
+        geom_point()+
+        theme_bw()+
+        scale_color_gradient(low="blue", high="red")+
+        
+        scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+        
+        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+              panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+        ggtitle(plot_title)
+      
+      pdf(paste(plot_title,".pdf",sep=""))
+      print(g3[[i]])
+      dev.off()
+      
+      g4[[i]]<-ggplot(list[[2]][[i]], aes(-log(p_adj), KEGG_term, colour=DE_genes))+
+        geom_point(size=5)+
+        theme_bw()+
+        scale_color_gradient(low="blue", high="red")+
+        
+        scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+        
+        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+              panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+        ggtitle(plot_title)
+      
+      
+      pdf(paste(plot_title,"_2.pdf",sep=""))
+      print(g4[[i]])
+      dev.off()
+      
+    }
+    
+    
+    list[[3]] <- g1
+    list[[4]] <- g2
+    list[[5]] <- g3
+    list[[6]] <- g4
+  }
   return(list)
 
 }
