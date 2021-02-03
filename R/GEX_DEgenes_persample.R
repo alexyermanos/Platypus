@@ -1,4 +1,3 @@
-
 #' Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.
 #' @param automate.GEX Output Seurat object from automate_GEX function that contained at least two distinct biological samples. The differential biological samples correspond to integer values in the order of the working directories initially supplied to the automate_GEX function.
 #' @param min.pct The minimum percentage of cells expressing a gene in either of the two groups to be compared.
