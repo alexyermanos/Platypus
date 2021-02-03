@@ -22,8 +22,10 @@
 
 GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.go.terms.plots, kegg.plots, top.N.kegg.terms.plots){
 
+  require(dplyr)
   require(org.Mm.eg.db)
   require(edgeR)
+  require(stringr)
 
   if (missing(GEX.cluster.genes.output)) {print("Please submit either GEX_cluster_genes output or list of gene Symbols")}
   if (missing(topNgenes)) {}
