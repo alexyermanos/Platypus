@@ -13,6 +13,7 @@
 VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis){
   require(circlize)
   circos.clear()
+  circos.par(points.overflow.warning=FALSE)
   if(missing(axis)){axis <- "max"}
   if(missing(label.threshold)){label.threshold <- 0}
   if(missing(grid.col)){grid.col <- setNames(rainbow(length(union(rownames(Adj_matrix), colnames(Adj_matrix)))),sample(union(rownames(Adj_matrix), colnames(Adj_matrix))))}
