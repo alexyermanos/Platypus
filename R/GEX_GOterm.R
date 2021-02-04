@@ -125,7 +125,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
     list_topGO[[i]] <- topGO(go, ontology = ontology, number = Inf)
 
     if (kegg == T){
-      #if requested to allso KEGG-pathway analysis
+      #if requested to also KEGG-pathway analysis
       keg <- kegga(gene.list[[i]], species = species)
       list_topKEGG[[i]] <- topKEGG(keg)
     }
