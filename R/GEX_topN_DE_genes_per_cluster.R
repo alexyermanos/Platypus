@@ -13,7 +13,7 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
   require(dplyr)
   require(stringr)
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
-  if (missing(by_FC)) {by_FC <- FALSE}
+  if (missing(by_FC)) {by_FC <- TRUE}
 
   output_list <- list()
   for(i in 1:length(GEX_cluster_genes.output)) {
