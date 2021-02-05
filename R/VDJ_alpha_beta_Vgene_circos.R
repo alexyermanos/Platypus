@@ -5,18 +5,37 @@
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
+#' @param B.or.Tcells Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
 #'  plots <- VJ_alpha_beta_Vgene_circos(vdj_repertoire_tcells)
 #'}
 
-VJ_alpha_beta_Vgene_circos <- function(VDJ.analyze.output, V.or.J, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold){
+VJ_alpha_beta_Vgene_circos <- function(VDJ.analyze.output, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold){
 if(missing(V.or.J)){V.or.J <- "both"}
 if(missing(label.threshold)){label.threshold <- 0}
 if(missing(c.threshold)){c.threshold <- 0}
 if(missing(cell.level)){cell.level <- F}
 if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
+if(missing(B.or.Tcells)){
+  for(i in 1:nrow(VDJ.analyze.output[[1]])){
+    if(substr(VDJ.analyze.output[[1]]$HC_vgene[[i]],start=1, stop = 2)=="IG"){
+      B.or.Tcells <- "B"
+      break
+    }
+    if(substr(VDJ.analyze.output[[1]]$HC_vgene[[1]],start=1, stop = 2)=="TR"){
+      B.or.Tcells <- "T"
+      break
+    }
+    if(i == nrow(VDJ.analyze.output[[1]])){
+      print("Please specify whether B or T cells are beeing analyzed (Parameter B.or.Tcells)")
+      break
+    }
+  }
+}
+
+  plots <- list()
 
   #filter out clonotypes with less then c.threshold cells
   for(i in 1:length(VDJ.analyze.output)){
@@ -133,32 +152,65 @@ if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
     nm = unique(unlist(dimnames(Vgene_usage_matrix[[i]])))
     group = structure(str_sub(nm, 1,4), names = nm)
 
-    #set levels for grouping. Differentiate wheter "None" has to be included as its own group for unpaired clonotypes.
-    if(V.or.J == "both"){
-      if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
-        levels <- c("TRAV", "TRBV", "TRAJ","TRBJ","None")
-      }else{
-        levels <- c("TRAV", "TRBV", "TRAJ","TRBJ")
+
+
+
+    #set levels for grouping.
+    #Differentiate whether B or T cells are analyzed
+
+
+    #Differentiate whether "None" has to be included as its own group for unpaired clonotypes.
+    if(B.or.Tcells == "T"){
+        if(V.or.J == "both"){
+        if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
+          levels <- c("TRAV", "TRBV", "TRAJ","TRBJ","None")
+        }else{
+          levels <- c("TRAV", "TRBV", "TRAJ","TRBJ")
+        }
+      }else if(V.or.J == "V"){
+        if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
+          levels <- c("TRAV", "TRBV","None")
+        }else{
+          levels <- c("TRAV", "TRBV")
+        }
+      }else if(V.or.J == "J"){
+        if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
+          levels <- c("TRAJ","TRBJ","None")
+        }else{
+          levels <- c("TRAJ", "TRBJ")
+        }
       }
-    }else if(V.or.J == "V"){
-      if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
-        levels <- c("TRAV", "TRBV","None")
-      }else{
-        levels <- c("TRAV", "TRBV")
+    }else if(B.or.Tcells == "B"){
+      if(V.or.J == "both"){
+        if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
+          levels <- c("IGHV","IGLV","IGKV","IGHJ","IGLJ","IGKJ","None")
+        }else{
+          levels <- c("IGHV","IGLV","IGKV","IGHJ","IGLJ","IGKJ")
+        }
+      }else if(V.or.J == "V"){
+        if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
+          levels <- c("IGHV","IGLV","IGKV","None")
+        }else{
+          levels <- c("IGHV","IGLV","IGKV")
+        }
+      }else if(V.or.J == "J"){
+        if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
+          levels <- c("IGHJ","IGLJ","IGKJ","None")
+        }else{
+          levels <- c("IGHJ","IGLJ","IGKJ")
+        }
       }
-    }else if(V.or.J == "J"){
-      if(ifelse(is.na((colSums(Vgene_usage_matrix[[i]])["None"]>0)),FALSE,(colSums(Vgene_usage_matrix[[i]])["None"]>0))|ifelse(is.na(rowSums(Vgene_usage_matrix[[i]])["None"]>0), FALSE, (rowSums(Vgene_usage_matrix[[i]])["None"]>0))){
-        levels <- c("TRAJ","TRBJ","None")
-      }else{
-        levels <- c("TRAJ", "TRBJ")
-      }
+    }else{
+      print("Please specify whether B or T cells are analyzed. (Parameter B.or.Tcells)")
     }
 
     # Set grouping factors based on previously defined levels. Order of levels defines order of groups in Circos plot.
     group = factor(group[sample(length(group), length(group))], levels = levels)
 
-    VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold)
+    plots[[i]] <- VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold)
   }
+  plots[[i+1]] <- Vgene_usage_matrix
+  return(plots)
 }
 
 
