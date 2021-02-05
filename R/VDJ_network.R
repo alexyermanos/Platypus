@@ -1,17 +1,17 @@
 #' Creates a similarity network where clones with similar CDR3s are connected.
 #' @param clonotype.list dataframe based on the clonotypes.csv file from cellranger vdj output. If a single network is desired then just a subset of the multi-sample clonotype.list should be supplied.
 #' @param distance.cutoff The threshold Levenshtein distance for which two nodes will be connected on the similarity network.
-#' @param per.mouse logical value indicating if a single networks should be produced for each mouse.
-#' @param connected logical value indicating if the connected network should be produced as output. This will result in filtering out all nodes that are not connected in the output network. Only relevant if per.mouse is set to false.
-#' @return returns a list containing networks and network information. If per.mouse is set to TRUE then the result will be a network for each repertoire. If per.mouse ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
+#' @param per.sample logical value indicating if a single networks should be produced for each mouse.
+#' @param connected logical value indicating if the connected network should be produced as output. This will result in filtering out all nodes that are not connected in the output network. Only relevant if per.sample is set to false.
+#' @return returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
 #' @export
 #' @examples
 #' \dontrun{
-#' VDJ_network(my_VDJ_analyze_final_check[1:1],per.mouse = T,distance.cutoff = 2)
+#' VDJ_network(my_VDJ_analyze_final_check[1:1],per.sample = T,distance.cutoff = 2)
 #'}
-VDJ_network <- function(clonotype.list,distance.cutoff,per.mouse,connected){
+VDJ_network <- function(clonotype.list,distance.cutoff,per.sample,connected){
   require(stringdist)
-  if(per.mouse==F){
+  if(per.sample==F){
   for(i in 1:length(clonotype.list)) clonotype.list[[i]]$mouse <- rep(i,nrow(clonotype.list[[i]]))
   clonotype_rbind <- do.call("rbind",clonotype.list)
   distance_matrix <- stringdist::stringdistmatrix(clonotype_rbind$CDR3_aa_pasted,clonotype_rbind$CDR3_aa_pasted,method = "lv")
@@ -31,7 +31,7 @@ VDJ_network <- function(clonotype.list,distance.cutoff,per.mouse,connected){
   outlist[[4]] <- paired_graph
   return(outlist)
   }
-  else if(per.mouse==T){
+  else if(per.sample==T){
     outlist <- list()
 
     for(i in 1:length(clonotype.list)){

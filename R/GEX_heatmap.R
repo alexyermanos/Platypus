@@ -16,13 +16,13 @@ GEX_heatmap <- function(GEX.object,b.or.t,sample.index,clone.rank.threshold,cust
   if(missing(b.or.t)) b.or.t <- "t"
   if(missing(custom.array)) custom.array <- c("")
   holding_sample_id <- which(GEX.object$sample_id==sample.index)
-  holding_clone_rank_index <- which(GEX.object$clone_rank<clone.rank.threshold)
+  holding_clone_rank_index <- which(GEX.object$clone_rank<=clone.rank.threshold)
   holding_cells <- intersect(holding_sample_id,holding_clone_rank_index)
   if(b.or.t=="b"){
-    GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = c("CD74","CD79A","FCER2","TMSB10","BTG1","BACH2","MEF2C","HVCN1","SARAF","CXCR4","FCRL1","CD72","NCF1","AIM2","CRIP1","CD82","ITGB1","CD24","PTPRC","CD19","CD27","CD38","SDC1","CD22","FAS","TNFRSF13B","IL4R","XBP1"),cells = holding_cells,label = F,group.by = "clonotype_id",lines.width = 1)
+    GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = c("CD74","CD79A","FCER2","TMSB10","BTG1","BACH2","MEF2C","HVCN1","SARAF","CXCR4","FCRL1","CD72","NCF1","AIM2","CRIP1","CD82","ITGB1","CD24","PTPRC","CD19","CD27","CD38","SDC1","CD22","FAS","TNFRSF13B","IL4R","XBP1"),cells = holding_cells,label = F,group.by = "clone_rank",lines.width = 1) 
   }
   else if(b.or.t=="t"){
-    GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = c("CD3E","CD8A","CD4","IL7R","CCL5","GZMA","GZMK","GZMB","PRF1","NKG7","SELL","TNFRSF13B","TBX1","PDCD1","ITGAE","LAG3","CD44","ICOS","CX3CR1","MKI67","TCF7","CST7","GNLY","CXCR5","EOMES"),cells = holding_cells,label = F,group.by = "clonotype_id",lines.width = 1)
+    GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = c("CD3E","CD8A","CD4","IL7R","CCL5","GZMA","GZMK","GZMB","PRF1","NKG7","SELL","TNFRSF13B","TBX1","PDCD1","ITGAE","LAG3","CD44","ICOS","CX3CR1","MKI67","TCF7","CST7","GNLY","CXCR5","EOMES"),cells = holding_cells,label = F,group.by = "clone_rank",lines.width = 1)
   }
   else if(b.or.t=="custom"){
     GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = toupper(custom.array),cells = holding_cells,label = F,group.by = "clonotype_id",lines.width = 1)

@@ -9,7 +9,7 @@
 #'}
 #'
 VDJ_dublets <- function(clonotype.list,clone.level){
-  if(missing(clone.level)) clone.level <- T
+  if(missing(clone.level)) clone.level <- F
   output.matrices <- list()
   for(i in 1:length(clonotype.list)){
     max.hc <- max(clonotype.list[[i]]$HC_count)
