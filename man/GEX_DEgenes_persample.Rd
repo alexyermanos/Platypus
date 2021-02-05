@@ -4,7 +4,18 @@
 \alias{GEX_DEgenes_persample}
 \title{Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.}
 \usage{
-GEX_DEgenes_persample(automate.GEX, min.pct, sample1, sample2, by.group)
+GEX_DEgenes_persample(
+  automate.GEX,
+  min.pct,
+  sample1,
+  sample2,
+  by.group,
+  filter,
+  return.plot,
+  logFC,
+  up.genes,
+  down.genes
+)
 }
 \arguments{
 \item{automate.GEX}{Output Seurat object from automate_GEX function that contained at least two distinct biological samples. The differential biological samples correspond to integer values in the order of the working directories initially supplied to the automate_GEX function.}
@@ -16,6 +27,16 @@ GEX_DEgenes_persample(automate.GEX, min.pct, sample1, sample2, by.group)
 \item{sample2}{either character or integer specifying the first sample that should be compared.}
 
 \item{by.group}{Logical specifying if groups should be used instead of samples. If TRUE, then the argument in sample1 and sample2 will correspond to cells found in the groups from sample1 or sample2.}
+
+\item{filter}{Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.}
+
+\item{return.plot}{Logical specifying if a heatmap of the DEX genes is to be returned. If TRUE then @return is a list where the first element is a dataframe and the second a heatmap (see @return)}
+
+\item{logFC}{Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).}
+
+\item{up.genes}{Integer specifying the number of upregulated genes to be shown.}
+
+\item{down.genes}{Integer specifying the number of downregulated genes to be shown.}
 }
 \value{
 Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.

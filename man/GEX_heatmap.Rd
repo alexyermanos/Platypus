@@ -24,7 +24,7 @@ GEX_heatmap(
 \item{custom.array}{Corresponds to which repertoire should be used in the case that the length of clonotype.list has a length greater than 1. The transcriptional profiles from only one repertoire can be plotted at a time.}
 }
 \value{
-Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate
+Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate.
 }
 \description{
 Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by premade sets of B or T cell markers, or can be customly supplied by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.
