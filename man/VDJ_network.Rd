@@ -4,25 +4,25 @@
 \alias{VDJ_network}
 \title{Creates a similarity network where clones with similar CDR3s are connected.}
 \usage{
-VDJ_network(clonotype.list, distance.cutoff, per.mouse, connected)
+VDJ_network(clonotype.list, distance.cutoff, per.sample, connected)
 }
 \arguments{
 \item{clonotype.list}{dataframe based on the clonotypes.csv file from cellranger vdj output. If a single network is desired then just a subset of the multi-sample clonotype.list should be supplied.}
 
 \item{distance.cutoff}{The threshold Levenshtein distance for which two nodes will be connected on the similarity network.}
 
-\item{per.mouse}{logical value indicating if a single networks should be produced for each mouse.}
+\item{per.sample}{logical value indicating if a single networks should be produced for each mouse.}
 
-\item{connected}{logical value indicating if the connected network should be produced as output. This will result in filtering out all nodes that are not connected in the output network. Only relevant if per.mouse is set to false.}
+\item{connected}{logical value indicating if the connected network should be produced as output. This will result in filtering out all nodes that are not connected in the output network. Only relevant if per.sample is set to false.}
 }
 \value{
-returns a list containing networks and network information. If per.mouse is set to TRUE then the result will be a network for each repertoire. If per.mouse ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
+returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
 }
 \description{
 Creates a similarity network where clones with similar CDR3s are connected.
 }
 \examples{
 \dontrun{
-VDJ_network(my_VDJ_analyze_final_check[1:1],per.mouse = T,distance.cutoff = 2)
+VDJ_network(my_VDJ_analyze_final_check[1:1],per.sample = T,distance.cutoff = 2)
 }
 }

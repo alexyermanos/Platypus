@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_logoplot.R
 \name{VDJ_logoplot}
 \alias{VDJ_logoplot}
-\title{Plots a logoplot of the CDR3 region}
+\title{Plots a logoplot of the CDR3 aminoacid region}
 \usage{
 VDJ_logoplot(VDJ.object, length_cdr3)
 }
@@ -11,8 +11,11 @@ VDJ_logoplot(VDJ.object, length_cdr3)
 
 \item{GEX.object}{Output of the automate_GEX function}
 }
+\value{
+Returns the logo plot.
+}
 \description{
-Plots a logoplot of the CDR3 region
+Plots a logoplot of the CDR3 aminoacid region
 }
 \examples{
 \dontrun{
