@@ -44,20 +44,20 @@ GEX_automate <- function(GEX.outs.directory.list,
   if(missing(GEX.outs.directory.list)) print("Missing output directory of cellranger count. Assuming a list of 10x gene expression libraries is supplied as input.")
   if(missing(mito.filter)) mito.filter <- 5
   if(missing(integration.method)) integration.method <- "scale.data"
-  
+
   if(missing(VDJ.gene.filter)) VDJ.gene.filter <- T
   if(missing(norm.scale.factor)) norm.scale.factor <- 10000
   if(missing(n.count.rna.min)) n.count.rna.min <- 0
   if(missing(n.count.rna.max)) n.count.rna.max <- Inf
-  
+
   if(missing(n.feature.rna)) n.feature.rna <- 0
   if(missing(n.variable.features)) n.variable.features <- 2000
   if(missing(cluster.resolution)) cluster.resolution <- .5
   if(missing(neighbor.dim)) neighbor.dim <- 1:10
   if(missing(mds.dim)) mds.dim <- 1:10
   if(missing(integration.method)) integration.method <- "scale.data"
-  
-  
+
+
   if(missing(GEX.list) & !missing(GEX.outs.directory.list)){
     GEX.list <- list()
     for(i in 1:length(GEX.outs.directory.list)){
@@ -68,13 +68,13 @@ GEX_automate <- function(GEX.outs.directory.list,
   }
   for(i in 1:length(GEX.list)){
     if(missing(groups)) groups <- 1:length(GEX.outs.directory.list[[i]])
-    
-    
+
+
     if(length(GEX.outs.directory.list[[i]])>1){
       sample1 <- which(grepl(x = names(GEX.list[[i]]$orig.ident),pattern = "\\_")==F)
       GEX.list[[i]]$sample_id <- rep("",ncol(GEX.list[[i]]))
       GEX.list[[i]]$sample_id[sample1] <- i
-      
+
       sample_rest <- (gsub("\\_.*","",names(GEX.list[[i]]$orig.ident)))
       GEX.list[[i]]$sample_id[(length(sample1)+1):length(sample_rest)] <- as.integer(sample_rest[-c(1:length(sample1))])
       GEX.list[[i]]$group_id <- rep(groups,table(GEX.list[[i]]$sample_id))
@@ -83,7 +83,7 @@ GEX_automate <- function(GEX.outs.directory.list,
       GEX.list[[i]]$sample_id <- 1
       GEX.list[[i]]$group_id <- 1
     }
-    
+
     holding_upper_gene_names <- toupper(rownames(GEX.list[[i]]))
     if(VDJ.gene.filter==T){
       antibody_gene_indices <- which(grepl((holding_upper_gene_names),pattern = "^IGHA")==F &
@@ -113,51 +113,51 @@ GEX_automate <- function(GEX.outs.directory.list,
                                        grepl((holding_upper_gene_names),pattern = "^TRAJ")==F)
       GEX.list[[i]] <- GEX.list[[i]][antibody_gene_indices,]
     }
-    
+
     GEX.list[[i]][["barcode"]] <- as.character(gsub(".*_","",colnames(GEX.list[[i]])))
     GEX.list[[i]][["barcode"]] <- gsub(GEX.list[[i]]$barcode,pattern = "-1",replacement = "")
-    
+
     GEX.list[[i]][["percent.mt"]] <- Seurat::PercentageFeatureSet(GEX.list[[i]], pattern = "^MT-") + Seurat::PercentageFeatureSet(GEX.list[[i]], pattern = "^mt-")
     cell.subset.bool <- (GEX.list[[i]]$percent.mt<20 & GEX.list[[i]]$nFeature_RNA >n.feature.rna & GEX.list[[i]]$nCount_RNA > n.count.rna.min & GEX.list[[i]]$nCount_RNA < n.count.rna.max)
     GEX.list[[i]] <- subset(GEX.list[[i]],cells=which(cell.subset.bool==T))#  & nFeature_RNA>n.feature.rna  & nCount_RNA > n.count.rna)) #subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
-    
+
     if(integration.method=="sct"){
       GEX.list[[i]] <- Seurat::SCTransform(GEX.list[[i]],vars.to.regress = "percent.mt")
       GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature=Seurat::VariableFeatures(object = GEX.list[[i]]))
       GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]],dims=neighbor.dim,verbose = T)
       GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]],resolution = cluster.resolution)
-      GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim,check_duplicates==F)
+      GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim)
       GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[i]], dims = mds.dim,check_duplicates==F)
-      
+
     }
     if(integration.method=="harmony"){
       GEX.list[[i]] <- Seurat::NormalizeData(GEX.list[[i]], normalization.method = "LogNormalize", scale.factor = norm.scale.factor)
       GEX.list[[i]] <- Seurat::FindVariableFeatures(GEX.list[[i]], selection.method = "vst", nfeatures = n.variable.features)
-      
+
       all.genes <- rownames(GEX.list[[i]])
       GEX.list[[i]] <- Seurat::ScaleData(GEX.list[[i]], features = VariableFeatures(object = GEX.list[[i]]))
       GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature=VariableFeatures(object = GEX.list[[i]]))
       GEX.list[[i]] <- harmony::RunHarmony(GEX.list[[i]], "sample_id")
       GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]],dims=neighbor.dim,verbose = T,reduction = "harmony")
       GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]],resolution = cluster.resolution,reduction = "harmony")
-      GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim,reduction = "harmony",check_duplicates==F)
+      GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim,reduction = "harmony")
       GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[i]], dims = mds.dim,reduction = "harmony",check_duplicates==F)
-      
+
     }
     if(integration.method=="scale.data"){
       GEX.list[[i]] <- Seurat::NormalizeData(GEX.list[[i]], normalization.method = "LogNormalize", scale.factor = norm.scale.factor)
       GEX.list[[i]] <- Seurat::FindVariableFeatures(GEX.list[[i]], selection.method = "vst", nfeatures = n.variable.features)
       all.genes <- rownames(GEX.list[[i]])
-      
+
       GEX.list[[i]] <- Seurat::ScaleData(GEX.list[[i]], features = all.genes)
       GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]], features = Seurat::VariableFeatures(object = GEX.list[[i]]))
       GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]], dims = neighbor.dim)
       GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]], resolution = cluster.resolution)
-      GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim,,check_duplicates==F)
+      GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim)
       GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[i]], dims = mds.dim,check_duplicates==F)
     }
-    
-    
+
+
   }
   return(GEX.list)
 }
