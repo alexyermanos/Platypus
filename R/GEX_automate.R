@@ -38,7 +38,7 @@ GEX_automate <- function(GEX.outs.directory.list,
                          neighbor.dim,
                          mds.dim,
                          groups){
-  print("This may take longer than other repertoire associated functions. Please see Seurat vignettes for further information")
+  print("This may take longer than other repertoire associated functions. Please see Seurat vingenettes for further information")
   if(missing(integration.method)) integration.method <- "scale.data"
   if(integration.method=="harmony") require(harmony)
   if(missing(GEX.outs.directory.list)) print("Missing output directory of cellranger count. Assuming a list of 10x gene expression libraries is supplied as input.")
@@ -86,31 +86,31 @@ GEX_automate <- function(GEX.outs.directory.list,
     
     holding_upper_gene_names <- toupper(rownames(GEX.list[[i]]))
     if(VDJ.gene.filter==T){
-      antibody_gene_indices <- which(grepl((holding_upper_gene_names),pattern = "IGHA")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGHG")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGHM")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGHD")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGHE")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGHJ")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGK")==F &
-                                       grepl((holding_upper_gene_names),pattern = "IGHV")==F &
-                                       grepl((holding_upper_gene_names),pattern = "JCHAIN")==F&
-                                       grepl((holding_upper_gene_names),pattern = "IGL")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRAV")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRAC")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRBC")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRGC")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRDC")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRBD")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRBJ")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRGV")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRGJ")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRGJ")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRDV")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRDD")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRDJ")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRBV")==F &
-                                       grepl((holding_upper_gene_names),pattern = "TRAJ")==F)
+      antibody_gene_indices <- which(grepl((holding_upper_gene_names),pattern = "^IGHA")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGHG")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGHM")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGHD")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGHE")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGHJ")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGK")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^IGHV")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^JCHAIN")==F&
+                                       grepl((holding_upper_gene_names),pattern = "^IGL")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRAV")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRAC")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRBC")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRGC")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRDC")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRBD")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRBJ")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRGV")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRGJ")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRGJ")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRDV")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRDD")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRDJ")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRBV")==F &
+                                       grepl((holding_upper_gene_names),pattern = "^TRAJ")==F)
       GEX.list[[i]] <- GEX.list[[i]][antibody_gene_indices,]
     }
     
