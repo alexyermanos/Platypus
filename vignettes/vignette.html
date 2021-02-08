@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Alexander Yermanos" />
+
+<meta name="date" content="2021-02-06" />
+
+<title>Platypus vignette</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Platypus vignette</h1>
+<h4 class="author">Alexander Yermanos</h4>
+<h4 class="date">2021-02-06</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>1. Introduction</h2>
+<p>Platypus is a package designed to facilitate the data analysis of single-cell immune repertoire sequencing experiments. The package can be used to separately analyze gene expression (GEX) or immune receptor repertoire (VDJ) sequencing data, in addition to integrating the two data sets to combine phenotypic features with repertoire analysis. The package is designed to primarily analyze the output from 10x genomics cellranger (output from count for GEX and vdj for enriched immune receptor libraries). The functions could work with other barcode-based scSeq technologies assume the input columns are added correctly. The gene expression analysis relies heavily upon Seurat, a commonly used R package for single-cell sequencing (scSeq).</p>
+</div>
+<div id="gene-expression-analysis" class="section level2">
+<h2>2. Gene expression analysis</h2>
+<p>The output from cellranger’s count function returns gene expression information in the form of an expression matrix, barcodes, and gene identifiers. The input directory should be set to the directory containing these three files (barcodes.tsv.gz, features.tsv.gz, matrix.mtx.gz). If it is desired to analyze multiple distinct transcriptomes (e.g. on separate UMAP space), these directories should go into separate list objects. For example if there are 20 repertoires and it is wanted to analyze them separately (20 separate UMAPs, 20 separate repertoires) then each outer list element of the input directories will contain the directory for the individual repertoire/GEX files. In the example below in which two directories are supplied to a single list element, these two distinct transcriptomes (corresponding to two distinct repertoires) will be merged together.</p>
+<p>The output of this function is a Seurat object similar to the standard pipeline demonstrated in the Seurat vignette. This involves scaling, normalizing, clustering, and performing dimension reductionality (tSNE and UMAP by default). At this stage there is no incorporation of repertoire features, which need to be explicitly integrated using subsequent functions in Platypus.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co">### loading the package</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">#source(&quot;~/Downloads/Platypus-master/Platypus_1.1.tar.gz&quot;)</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># library(Platypus)</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co"># dir_to_covid_gex_individual &lt;- list()</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># dir_to_covid_gex_individual[[1]] &lt;- c(&quot;~/Downloads/covid_data/Patient1_GEX/&quot;)</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># dir_to_covid_gex_individual[[2]] &lt;- c(&quot;~/Downloads/covid_data/Patient2_GEX/&quot;) ## adding the single directory </span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># </span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># Now we run automate_GEX to perform the standard Seurat pipeline in a single line of code with the ability to change the parameters used by Seurat involving minimum read numbers, mitochondrial gene percentages, cluster resolution, etc. This example will result with a single Seurat GEX object. </span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># </span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># covid_gex_individual &lt;- Platypus::automate_GEX(GEX.outs.directory.list = dir_to_covid_gex_individual,integration.method = &quot;scale.data&quot;,mito.filter = 20,cluster.resolution = 0.5,VDJ.gene.filter = T)</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># #VDJ.gene.filter removes antibody and TCR genes from the data set (e.g. IGHV1-1) to not let clonality impact transcriptional clustering. </span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># length(covid_gex_individual) ## length of two </span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># class(covid_gex_individual) ## list class</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># class(covid_gex_individual[[1]]) ## Seurat object </span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co"># ncol(covid_gex_individual[[1]]) ## 6055 cells</span></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co"># ncol(covid_gex_individual[[2]]) ## 6871 cells</span></a>
+<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co"># </span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="co"># ## Now can visualize the individual samples using UMAP/tsne plots </span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="co"># Seurat::DimPlot(covid_gex_individual[[1]],reduction = &quot;umap&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co"># Seurat::FeaturePlot(covid_gex_individual[[1]],reduction = &quot;umap&quot;,features = c(&quot;CD4&quot;,&quot;CD8A&quot;,&quot;CD19&quot;))</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># ## Here we can see the B, CD4 and CD8 clusters within the individual patient.</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co"># </span><span class="al">###</span><span class="co"> Integrating two GEX libraries into one Seurat object</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co"># dir_to_covid_gex &lt;- list()</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co"># dir_to_covid_gex[[1]] &lt;- c(&quot;~/Downloads/covid_data/Patient1_GEX/&quot;,</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#                            &quot;~/Downloads/covid_data/Patient2_GEX/&quot;)</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co"># covid_gex &lt;- Platypus::automate_GEX(GEX.outs.directory.list = dir_to_covid_gex[1:1],integration.method = &quot;scale.data&quot;,mito.filter = 20,cluster.resolution = 0.5,VDJ.gene.filter = T)</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="co"># </span><span class="al">###</span><span class="co"> Now both gene expression samples will be integrated together. The covid_gex[[1]]$sample_id contains the sample origin information based on the order of the input directories. In this case, patient1 is the covid_gex[[1]]$sample_id==1 and patient2 is the covid_gex[[1]]$sample_id==2.</span></a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="co"># class(covid_gex) ## list</span></a>
+<a class="sourceLine" id="cb2-17" data-line-number="17"><span class="co"># length(covid_gex) </span><span class="al">###</span><span class="co"> list of length one</span></a>
+<a class="sourceLine" id="cb2-18" data-line-number="18"><span class="co"># class(covid_gex[[1]]) ## Seurat object</span></a>
+<a class="sourceLine" id="cb2-19" data-line-number="19"><span class="co"># </span></a>
+<a class="sourceLine" id="cb2-20" data-line-number="20"><span class="co"># ## We can extract which cells come from which sample based on the sample_id in the Seurat object. </span></a>
+<a class="sourceLine" id="cb2-21" data-line-number="21"><span class="co"># print(table(covid_gex[[1]]$sample_id)) </span></a>
+<a class="sourceLine" id="cb2-22" data-line-number="22"><span class="co"># ## we can see that the first patient had 6871 cells and the second patient had 6055 cells found in their gene expression data based on the current filtering. </span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># ## Now can visualize the individual samples using UMAP/tsne plots </span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># Seurat::DimPlot(covid_gex[[1]],reduction = &quot;umap&quot;)</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">### We observe that under this Seurat pipeline there are 12 distinct clusters. The number of clusters can be changed by altering the cluster.resolution argument in the automate_GEX function. In this current UMAP we do not see which cells are coming from which patient. </span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># Seurat::DimPlot(covid_gex[[1]],reduction = &quot;umap&quot;,split.by = &quot;sample_id&quot;) # the resulting DimPlot now has separated the cells by the sample_id vector in the Seurat object. We can visually observe that the majority of clusters have cells from both patients, suggesting a similar distribution of transcriptional properties between the two samples. </span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># Seurat::FeaturePlot(covid_gex[[1]],reduction = &quot;umap&quot;,features = c(&quot;CD4&quot;,&quot;CD8A&quot;,&quot;CD19&quot;))</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># ## Again we can see the B, CD4 and CD8 clusters from the cells of both patients. </span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co"># Seurat::FeaturePlot(covid_gex[[1]],reduction = &quot;umap&quot;,features = c(&quot;CD4&quot;,&quot;CD8A&quot;,&quot;CD19&quot;),split.by = &quot;sample_id&quot;)</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co"># ## Again, splitting by sample_id we can look at specific markers for each patient. We can see that both patients seem to have B cells (CD19+) , CD4 T cells, and CD8 T cells. </span></a></code></pre></div>
+</div>
+<div id="differential-gene-analysis" class="section level2">
+<h2>3. Differential Gene Analysis</h2>
+<p>After scaling, normalizing, and clustering the cells from the GEX libraries we can now investigate which genes are differentially expressed between either clusters or samples. First we can investigate those genes that define each of the clusters by using the GEX_cluster_genes function that takes the output from the automate_GEX function. Depending on the size of the data set and the number of cells this function can by quite slow. The output of this will be a list in which each element contains to the differentially expressed genes for a given cluster. For example the first element of the list corresponds to a dataframe describing the genes for cluster0 that we previously observed on the UMAP. This list object will correspond to the length of the number of clusters and has the same format as the FindMarkers function from Seurat. The pct.1 will correspond to the percentage of cells expressing the gene in the cluster of interest, and the pct.2 corresponds to the rest of the cells in other clusters.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co">## GEX_cluster_genes will return a list containing the genes differentially up or down regulated for each cluster. </span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">## Warning: running this function will take a while</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co"># gene_expression_cluster &lt;- Platypus::GEX_cluster_genes(covid_gex[[1]],min.pct = 0.25) </span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co"># length(gene_expression_cluster) ## length of 12, corresponding to 12 clusters</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co"># length(unique(covid_gex[[1]]$seurat_clusters)) ## length of 12 </span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co"># </span><span class="al">###</span><span class="co"> This gives the genes associated with cluster0 in the previously displayed umap - also corresponding to the cells found at covid_gex[[1]]$seurat_clusters==0 </span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co"># head(gene_expression_cluster[[1]])</span></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co"># # We see the genes ANXA1, S100A4 etc are highly expressed in cluster0. </span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co"># # Here we can quantify the number of differentially expressed genes for all 12 clusters</span></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co"># print(sapply(gene_expression_cluster,nrow))</span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co"># </span></a></code></pre></div>
+<p>It is also possible using Platypus to create a heatmap displaying the differentially expressed genes for each cluster. This can be customized to sub-sample cells in case certain clusters are too large for visualization purposes. Additionally, the user can determine the number of genes to display for each cluster based on the n.genes.per.cluster argument. The function GEX_cluster_genes_heatmap can be used to produce a ggplot object, based on the DoHeatmap from Seurat. After plotting the ggplot object we can clearly see genes enricheded in the various clusters - mainly indicated by the diagonal.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co"># covid_heatmap_clusters &lt;- Platypus::GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#                                                               GEX_cluster_genes.output = gene_expression_cluster,</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#                                                               n.genes.per.cluster = 5,max.cell = 50,</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#                                                               metric = &quot;avg_logFC&quot;)</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co"># print(covid_heatmap_clusters)</span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co"># </span></a></code></pre></div>
+<p>We can also extract and test for differentially expressed genes between the two samples. This can be done using the GEX_DEgenes_persample function.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="co"># DE_genes_per_sample &lt;- GEX_DEgenes_persample(automate.GEX=covid_gex[[1]],min.pct = .25,sample1 = &quot;1&quot;,sample2 = &quot;2&quot;)</span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co"># head(DE_genes_per_sample) </span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co"># nrow(DE_genes_per_sample) ##71 rows </span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co"># </span></a></code></pre></div>
+</div>
+<div id="vdj-repertoire-anaylsis" class="section level2">
+<h2>3. VDJ Repertoire anaylsis</h2>
+<div id="reading-in-the-clonotype-data" class="section level3">
+<h3>3.1 Reading in the clonotype data</h3>
+<p>Now we can analyze the VDJ repertoire data without integrating GEX libraries. This may be useful if only VDJ libraries have been sequenced without the accompanying gene expression data. We first start by reading in the clonotypes based on the default 10x cellranger clonotyping strategy and augmenting the amount of clonal information in the a dataframe containing the clonotype information. The first step is to use the VDJ_analyze function on the directory of the outputs from cellranger vdj. The larger BAM files can be removed to save space as the current pipeline does not require these files.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co"># VDJ.out.directory.list &lt;- list()</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co"># VDJ.out.directory.list[[1]] &lt;- &quot;~/Downloads/covid_data/Patient1_VDJ_Bcell_out/&quot;</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co"># VDJ.out.directory.list[[2]] &lt;- &quot;~/Downloads/covid_data/Patient2_VDJ_Bcell_out/&quot;</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co"># covid_vdj_repertoire_bcells &lt;- Platypus::VDJ_analyze(VDJ.out.directory =VDJ.out.directory.list, filter.1HC.1LC = T) </span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co"># length(covid_vdj_repertoire_bcells) ## list of length two, first element corresponds to the clones from the first repertoire directory that was set as input. </span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co"># print(colnames(covid_vdj_repertoire_bcells[[1]]))</span></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co"># ## Can see various information, including which barcodes make up the clonal family, the nt_clone_ids incase the clonotyping method is changed using the VDJ_clonotype function. Furthermore, the majority germline gene per clonal family is extracted from the contigs file. </span></a></code></pre></div>
+</div>
+<div id="changing-the-clonotype-strategy" class="section level3">
+<h3>3.2 Changing the clonotype strategy</h3>
+<p>Often paired nucleotide CDRH3 and CDRL3 clonotype may not be the best strategy given somatic hypermutation may occur in the CDR3 region. Therefore there could be highly similar clones that likely bind the same antigen that are officially part of different clonal families. To address this we have added a function that allows for various heuristic clonoptying strategies. This involves clonotpying by identical amino acid CDRH3 + CDRL3 seuqence, identical germline usage, or seqeunce homology requirements. This will then update the original clonotyping object from VDJ_analyze by updating the clonotype_id column with the new amino acid acid (or other strategy) used for clonotyping. Similarly, the new clonal family determinant can be found in the new_unique_clone. In the case below, the new_unique_clone will contain the amino acid seqeunce of the heavy chain and light chain pasted together. If multiple nucleotide clones are merged by changing the clonotyping strategy, their barcodes can be found in the barcodse column.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="co"># covid_vdj_aminoacid_clonotype &lt;- Platypus::VDJ_clonotype(clonotype.list=covid_vdj_repertoire_bcells,</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co">#                                                          clone.strategy=&quot;cdr3.aa&quot;)</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="co"># length(covid_vdj_aminoacid_clonotype) # length of 2</span></a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co"># print(colnames(covid_vdj_aminoacid_clonotype[[1]])) </span></a></code></pre></div>
+</div>
+<div id="getting-clonal-information-at-the-level-of-the-single-cell" class="section level3">
+<h3>3.3 Getting clonal information at the level of the single cell</h3>
+<p>So far the functions have been at the clonal level, thereby ignoring cell-specific features that may vary across a clonal family, such as isotypes, sequence variants, etc. The VDJ_per_clone function will provide this information by returning a nested list in which the outer list element corresponds to the repertoire (e.g. list[[1]] is the first directory given as input to the VDJ_analyze function). The inner list element corresponds to a dataframe for each clone. Within this dataframe it is possible to extract information such as the germline gene usage for heavy and light chains (e.g. HC_Vgene is the V gene of the IGH for antibodies or the V gene of the TRB for T cells). Furthermore, one can extract the full sequence of the heavy and light chain for each cell barcode based on the output from cellranger. One issue with this is that the sequence returned from the fasta files from cellranger extend beyond the FR1 to FR4 region (e.g. constant region, signal peptide), which may be problematic for downstream experimental validation/expression. The same occurs for the germline sequence - again as determined by cellranger. The germline information can be found in the full_HC_germline and full_LC_germline columns in the inner list elements. To obtain the B/TCR sequence that is clonable, one can either proceed with the call_MIXCR function or export the sequences and use a different alignment tool.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co"># covid_single_cell &lt;- Platypus::VDJ_per_clone(clonotype.list = covid_vdj_repertoire_bcells,VDJ.out.directory =VDJ.out.directory.list)</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co"># print(paste(&quot;There are&quot;,length(covid_single_cell[[1]]),&quot;unique nucleotide B cell clones in patient1&quot;),sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co"># </span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co"># print(paste(&quot;There are&quot;,nrow(covid_single_cell[[1]][[1]]),&quot;unique B cells in the most abundant clone in patient1&quot;),sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co"># print(paste(&quot;There are&quot;,nrow(covid_single_cell[[2]][[1]]),&quot;unique B cells in the most abundant clone in patient2&quot;),sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co"># </span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co"># </span></a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co"># print(colnames(covid_single_cell[[1]][[1]]))</span></a></code></pre></div>
+</div>
+<div id="extracting-full-length-sequences-from-the-vdjregion" class="section level3">
+<h3>3.4 Extracting full-length sequences from the VDJRegion</h3>
+<p>To quantify the number of somatic variants or to extract full-length sequences for expression, it is often useful to have the nucleotide sequence from framework region 1 (FR1) to framework region 4 (FR4). Using the call_MIXCR function, the full-length VDJRegion sequences can be added to the clonal information and easily extracted thereafter. This function works on UNIX/mac and furthermore requires that mixcr is already downloaded locally (and license agreement . One just needs to supply the directory to the executable in the call_MIXCR function as below. Either “mmu” or “hsa” for mouse and human, respectively. Again the format is similar to the input, in that the outer list corresponds to the individual repertoire and the inner list is a dataframe with various information, including the full-length VDJ sequences (e.g. VDJ.AA.LC and VDJ.AA.HC for the light and heavy chain amino acid sequence). You will notice that the germline sequence is still very long (e.g. in the example below looking at the “full_HC_germline” length is over 600 nucleotides). this will be filled in using the separate function VDJ_extract_germline.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co"># covid_vdj_region &lt;- Platypus::call_MIXCR(VDJ.per.clone = covid_single_cell,mixcr.directory = &quot;~/Downloads/mixcr-3.0.12/mixcr&quot;,species = &quot;hsa&quot;)</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="co"># print(length(covid_vdj_region[[1]]))</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co"># print(colnames(covid_vdj_region[[1]][[1]]))</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="co"># print(nchar(covid_vdj_region[[1]][[1]]$VDJ.AA.HC[2])) </span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co"># print(nchar(covid_vdj_region[[1]][[1]]$full_HC_germline[1]))</span></a></code></pre></div>
+</div>
+<div id="extracting-full-length-germline-sequence-corresponding-to-the-vdjregion" class="section level3">
+<h3>3.5 Extracting full-length germline sequence corresponding to the VDJRegion</h3>
+<p>Extracting the germline column can be accomplished using the VDJ_extract_germline, which takes the germline sequence as determined by cellranger. The output contains all the germline sequences in dataframe format for a given repertoire. The original clonotype identifier can be found in the descrR1 column, as seen below.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co"># extracted_covid_germline &lt;- VDJ_extract_germline(VDJ.per.clone=covid_single_cell,mixcr.directory=&quot;~/Downloads/mixcr-3.0.12/mixcr&quot;,extract.VDJRegion=T,species = &quot;hsa&quot;)</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co"># print(colnames(extracted_covid_germline[[1]][[1]])) ## column names of the germlines from the repertoire corresponding to patient1. </span></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="co"># print(nrow(extracted_covid_germline[[1]][[1]])) ## germline sequences corresponding to 2298 clones in the first patient </span></a>
+<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co"># print(nrow(extracted_covid_germline[[2]][[1]])) ## germline sequences corresponding to 2298 clones in the second patient. </span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co"># print(extracted_covid_germline[[1]][[1]]$aaSeqCDR3[1]) ## CAREL_FDYW - we can observe unproductive CDR3s for the germline sequence of the first clonotype </span></a>
+<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-12" data-line-number="12"><span class="co"># </span></a>
+<a class="sourceLine" id="cb14-13" data-line-number="13"><span class="co"># print((extracted_covid_germline[[1]][[1]]$descrsR1[2]))  ## second row in the dataframe corresponds to clonotype4.</span></a>
+<a class="sourceLine" id="cb14-14" data-line-number="14"><span class="co"># print(nchar(extracted_covid_germline[[1]][[1]]$VDJ.AA.HC.LC[2])) </span><span class="al">###</span><span class="co"> pasted HC and LC together</span></a>
+<a class="sourceLine" id="cb14-15" data-line-number="15"><span class="co"># print(nchar(extracted_covid_germline[[1]][[1]]$VDJ.AA.HC[2])) </span><span class="al">###</span><span class="co"> just heavy chain for clonotype4 germline</span></a>
+<a class="sourceLine" id="cb14-16" data-line-number="16"><span class="co"># print(nchar(extracted_covid_germline[[1]][[1]]$VDJ.AA.LC[2])) </span><span class="al">###</span><span class="co"> just light chain for clonotype4 germline</span></a>
+<a class="sourceLine" id="cb14-17" data-line-number="17"><span class="co"># </span></a></code></pre></div>
+</div>
+<div id="extracting-trimmmed-vdj-region-sequence-and-germline" class="section level3">
+<h3>3.6 Extracting trimmmed VDJ region sequence and germline</h3>
+<p>The function VDJ_per_cell combines the features that are obtained from VDJ_per_clone with trimmed VDJ sequences and the corresponding trimmed germline sequences. This can be useful to compute the somatic hypermutation rate only on the VDJ region for single cells in the clonotype. The columns named “full_seq_”, “sequence_”, and “trimmed_ref_” represent the sequence returned from the fasta files from cellranger, the sequence trimmed at the VDJ region, and the germline sequence trimmed at the VDJ region (followed by HC for Heavy Chain and LC for Light Chain).</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co"># VDJ.per.cell &lt;- VDJ_per_cell(clonotype.list = VDJ_analyze.output, VDJ.out.directory = VDJ.out.directory.list)</span></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="co"># print(VDJ.per.cell[[1]][[1]]$sequence_HC)  # trimmmed sequence </span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co"># print(VDJ.per.cell[[1]][[1]]$trimmed_ref_HC)  # trimmmed sequence </span></a>
+<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co"># stringdist::stringdist(VDJ.per.cell[[1]][[1]]$sequence_HC, VDJ.per.cell[[1]][[1]]$trimmed_ref_HC) </span></a></code></pre></div>
+</div>
+<div id="organizing-full-length-sequences-into-clonal-lineages-easily-exportable-for-phylogenetics." class="section level3">
+<h3>3.7 Organizing full-length sequences into clonal lineages easily exportable for phylogenetics.</h3>
+<p>After extracting the germline sequences and the full-length VDJRegion sequences, we can combine this information and group the sequences into clonal lineages that can individually be exported for downstream phylogenetics or into the VDJ_tree function within Platypus. The output list is similar to the output of other VDJ functions, in which the outer list element corresponds to the repertoire and the inner list element corresponds to the individual clone/clonal families. Here the heavy chain and light chain have been pasted together but in case one wants to separate them, the information can be found in the output of the VDJ_extract_germline function. For example, above the output of the VDJ_extract_germline function was extracted_covid_germline[[1]][[1]]$VDJ.AA.HC.LC[2]. In this sequence there is a &quot;_&quot; at the end of the heavy chain and light chain sequences. So one can split the strings for this and use this sequence to create the phylogenetic trees.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co"># covid_clonal_lineages &lt;- VDJ_clonal_lineages(call_MIXCR.output=covid_vdj_region, VDJ_extract_germline.output=extracted_covid_germline,as.nucleotide=F,with.germline=T)</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co"># print(colnames(covid_clonal_lineages[[1]][[1]])) ## dataframe with the columns Seq and Name. </span></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="co"># print(covid_clonal_lineages[[1]][[1]]$Seq[1])</span></a>
+<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="co"># print(covid_clonal_lineages[[1]][[1]]$Name[1]) #&quot;clonotype3_1_IGHA1_AACCATGAGTGGAGTC-1&quot;</span></a>
+<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="co"># ## Here we can see that the above sequence corresponds to the original clonotype3 but is now the first clonal lineage (as seen by the _1_ before the isotype). Furthermore, the isotype of this cell was of the IGHA1. Lastly we have the barcode of the cell at the end, allowing us to look back at other cell-specific properties if wanted. </span></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-13" data-line-number="13"><span class="co"># print(covid_clonal_lineages[[1]][[3]]$Name[3]) #&quot;clonotype7_3_IGHA1_AGTGAGGTCGAGAACG-1&quot;</span></a>
+<a class="sourceLine" id="cb16-14" data-line-number="14"><span class="co"># ## Again, this was originally the 7th clonotype, and is now the third most clonally expanded lineage (&quot;_3_&quot;). Again of the IGHA1 isotype with the following barcode. </span></a>
+<a class="sourceLine" id="cb16-15" data-line-number="15"><span class="co"># </span></a>
+<a class="sourceLine" id="cb16-16" data-line-number="16"><span class="co"># print(tail(covid_clonal_lineages[[1]][[3]]$Name))  ## here at the end of the dataframe the user can also see the germline sequence, which has the &quot;Name&quot; of &quot;germline&quot;. </span></a>
+<a class="sourceLine" id="cb16-17" data-line-number="17"><span class="co"># </span></a></code></pre></div>
+</div>
+<div id="neighbor-joining-phylogenetic-trees" class="section level3">
+<h3>3.8 Neighbor-joining phylogenetic trees</h3>
+<p>The output of the VDJ_clonal_lineage function can be used as input to the VDJ_tree to produce quick, neighbor-joining phylogenetic trees. It is important that the VDJRegion is considered (or that the sequences from 10x have been trimmed) as this function does not involve a multiple string alignment - instead it creates a distance matrix from all sequences. The min number of unique sequences can be specified (e.g. if there are 50 cells in a clonl lineage, but only one unique antibody sequence, this tree will not be produced). Similarly the number of max sequences can be specified, which will cause then invoke random sampling. Plotting the first tree we can see the that there is one variant (named Seq_1) that has 90 cells (seen by the Freq_90) and it is very close to the germline (Seq_6_Freq_1). We know it is the germline because it is the highest sequence variant and it is set as the root.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co"># covid_trees &lt;- VDJ_tree(clonal.lineages = covid_clonal_lineages,with.germline=T,min.sequences = 5,max.sequences = 30,unique.sequences = T)</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="co"># plot(covid_trees[[1]][[1]])</span></a></code></pre></div>
+</div>
+<div id="plotting-per-cell-isotype-information" class="section level3">
+<h3>3.9 Plotting per-cell isotype information</h3>
+<p>Addition VDJ functions include plotting isotype distribution per clone. This can be performed by the VDJ_isotypes_per_clone function and setting the number of clones to show. The following code extracts and plots the isotype distribution of the top 30 clones. We can see a clear IgA isotype majority of the top four clones in the first patient</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co">#covid_isotypes &lt;- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_repertoire_bcells, VDJ_per_clone_output = covid_single_cell, clones = 30)</span></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="co">#print(covid_isotypes[[1]])</span></a></code></pre></div>
+<p>Whereas in the second patient (second repertoire entered in original VDJ_analyze) shows a similarly expanded IgA clone with over 60 cell barcodes.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="co">#print(covid_isotypes[[2]])</span></a></code></pre></div>
+</div>
+<div id="sequence-similarity-networks" class="section level3">
+<h3>3.10 Sequence similarity networks</h3>
+<p>Other functions are specifically tailored to repertoire analysis - such as VDJ_network, which creates a sequence similarity network between repertoires or within a repertoire by connecting those clones with sequence similarity. This function relies upon igraph to visually display and construct the graph - which means that networks with high number of sequences will not display easily. In the following example we take the top 60 most expanded clones from the output of VDJ_analyze and use this as input into the network construction function. Setting the per.mouse argument to false indicates that one network for multiple repertoires should be produced.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="co"># library(igraph)</span></a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4"><span class="co"># ## Take the output from VDJ_analyze (or subsample as in this case the top 60 clones)</span></a>
+<a class="sourceLine" id="cb20-5" data-line-number="5"><span class="co"># network_clones_covid &lt;- list()</span></a>
+<a class="sourceLine" id="cb20-6" data-line-number="6"><span class="co"># network_clones_covid[[1]] &lt;- covid_vdj_repertoire_bcells[[1]][1:60,]</span></a>
+<a class="sourceLine" id="cb20-7" data-line-number="7"><span class="co"># network_clones_covid[[2]] &lt;- covid_vdj_repertoire_bcells[[2]][1:60,]</span></a>
+<a class="sourceLine" id="cb20-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb20-9" data-line-number="9"><span class="co"># </span></a>
+<a class="sourceLine" id="cb20-10" data-line-number="10"><span class="co"># covid_bcell_igraph &lt;- Platypus::VDJ_network(network_clones_covid[1:2],per.sample = F,distance.cutoff = 8,connected = F)</span></a>
+<a class="sourceLine" id="cb20-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb20-12" data-line-number="12"><span class="co"># igraph::plot.igraph(covid_bcell_igraph[[4]],vertex.label=NA,vertex.size=7+(.06*covid_bcell_igraph[[2]]$frequency),vertex.color=factor(covid_bcell_igraph[[2]]$mouse))</span></a>
+<a class="sourceLine" id="cb20-13" data-line-number="13"><span class="co"># </span></a></code></pre></div>
+<p>For more details see the documentation of the VDJ_network function, but essentially information such as clonal frequency and which sample (here still indicated by the “mouse” column) are stored in the second element of the output list. Here we can see only a few clones that are showing connections (produced by edges between those with 8 amino acid or less distance between heavy and light chain paired CDR3 sequence homology)</p>
+</div>
+<div id="germline-gene-usage-heatmaps" class="section level3">
+<h3>3.11 Germline gene usage heatmaps</h3>
+<p>It is also possible to produce heatmaps of the germline gene usage in the context of heavy chain V gene and light chain V gene. The output of the VDJ_Vgene_usage function is a matrix for each repertoire corresponding to the order specified by VDJ_analyze. The outer list corresponds to the sample and the inner list corresponds to matrix, where the rows correspond to the heavy chain V genes and the columns correspond to the light chains of the V genes. Therefore the output[[1]][i,j] corresponds to the number of clones using the combination of IGH-Vgene[i] and IGK/L-Vgene[j]. Can be easily plotted as a heatmap to observe patterns between repertoires or can be used to calculate V gene correlation.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="co"># covid_vj_gene_usage &lt;- Platypus::VDJ_Vgene_usage(VDJ.clonotype.output = covid_vdj_repertoire_bcells)</span></a>
+<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="co"># print(class(covid_vj_gene_usage[[1]]))</span></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="co"># print(head(rownames(covid_vj_gene_usage[[1]])))</span></a>
+<a class="sourceLine" id="cb21-6" data-line-number="6"><span class="co"># print(head(colnames(covid_vj_gene_usage[[1]])))</span></a></code></pre></div>
+</div>
+</div>
+<div id="integrating-repertoire-and-gene-expression" class="section level2">
+<h2>4. Integrating repertoire and gene expression</h2>
+<p>The strength of the current 5’ sequencing protocols are that the gene expression (GEX) and repertoire (VDJ) libraries are extracted from the same sample, which can then be linked back to demonstrate that a given T cell has a certain gene expression pattern and also a certain T cell receptor sequence. The following functions are meant to integrate these two pieces of information.</p>
+<div id="integrating-transcriptional-clusters-to-the-vdj-objects" class="section level3">
+<h3>4.1 Integrating transcriptional clusters to the VDJ objects</h3>
+<p>One thing we may ask is how similar the B or T cells in a given clonal family are on the transcriptional level. One way we can do this is to take advantage of the transcriptional clustering performed in the automate_GEX function and then supply this information to the repertoire information. This can either be done on the level of the clone (e.g. in the format of the output of VDJ_analyze) or on the level of the cell (e.g. in the format of the output of VDJ_per_clone). Below is the example of the clonal level. The output is the same as the VDJ_analyze output, except now there are columns corresponding to the majority transcriptome cluster (e.g. if the majority of cells within the clone are in cluster 1, then this column will have a 1). Next to this there is the column that tells you the cluster percentage for all cells in that clone. Finally there is the cell index in the GEX object so you can see which cells are found in the GEX object and can explicitly call them.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="co"># covid_integrating_clonal_level &lt;- Platypus::VDJ_GEX_integrate(GEX.object = covid_gex[[1]], </span></a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="co">#                                                  clonotype.list =  covid_vdj_repertoire_bcells,</span></a>
+<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="co">#                                                  VDJ.per.clone = covid_single_cell,</span></a>
+<a class="sourceLine" id="cb22-5" data-line-number="5"><span class="co">#                                                  clonotype.level = TRUE)</span></a>
+<a class="sourceLine" id="cb22-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb22-7" data-line-number="7"><span class="co"># print(head(covid_integrating_clonal_level[[1]]$majority_cluster))</span></a>
+<a class="sourceLine" id="cb22-8" data-line-number="8"><span class="co"># print(head(covid_integrating_clonal_level[[1]]$cluster_membership_percent))</span></a>
+<a class="sourceLine" id="cb22-9" data-line-number="9"><span class="co"># print(head(covid_integrating_clonal_level[[1]]$cell_index))</span></a></code></pre></div>
+<p>And now on the cell level - the output has a similar structure to the VDJ_per_clone function output. Again we can print out the cluster membership and the cell indicies for the 5th clone from the first patient’s repertoire. If the cell is only found in the VDJ repertoire and not in the GEX repertoire, it will be a blank element. As seen by the 6th cell in this clonal family.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="co"># covid_integrating_cell_level &lt;- VDJ_GEX_integrate(GEX.object = covid_gex[[1]], </span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="co">#                                                  clonotype.list =  covid_vdj_repertoire_bcells[1:1],</span></a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="co">#                                                  VDJ.per.clone = covid_single_cell[1:1],</span></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="co">#                                                  clonotype.level = FALSE)</span></a>
+<a class="sourceLine" id="cb23-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb23-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="co"># print(head(covid_integrating_cell_level[[1]][[5]]$cluster_membership))</span></a>
+<a class="sourceLine" id="cb23-9" data-line-number="9"><span class="co"># print(head(covid_integrating_cell_level[[1]][[5]]$cell_index))</span></a></code></pre></div>
+</div>
+<div id="relating-clonal-expansion-to-transcriptional-cluster-membership" class="section level3">
+<h3>4.2 Relating clonal expansion to transcriptional cluster membership</h3>
+<p>The VDJ_GEX_expansion function takes the previously integrated VDJ and GEX datasets and then plots the distribution of transcriptional cluster membership for the specified clones. In the following example, we plot the the top 20 clones and their distribution of cluster membership. We see that some clones did not have any barcodes overlapping between the GEX and VDJ data sets for this particular patient, and therefore has no bar at that given clonal index on the X axis.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="co"># covid_clonotype_clusters_plot &lt;-  Platypus::VDJ_GEX_expansion(GEX.list=covid_gex[[1]],</span></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="co">#                                                               VDJ.GEX.integrate.list=covid_integrating_clonal_level,</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="co">#                                                               highlight.isotype = &quot;None&quot;,</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="co">#                                                               highlight.number=1:20)</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="co"># print(covid_clonotype_clusters_plot[[1]])</span></a></code></pre></div>
+</div>
+<div id="visualizing-clones-on-the-2-dimensional-landscape" class="section level3">
+<h3>4.3 Visualizing clones on the 2 dimensional landscape</h3>
+<p>In the case we want to overlay clones on the tsne/umap space that we previously calculated using automate_GEX, this can be accomplished with the visualize_clones_GEX function. The following code will overlay the top 10 clones on the UMAP space calculated with the automate_GEX function. The group correspond to the clonal order - e.g. group 1 is the first clonal family in the integrated VDJ list. Here we can see that there are a few cells in the T cell cluster, suggesting that there were duplets during cell capture since in this experiment B and T cells were pooled in a single reaction.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="co"># covid_top10_umap &lt;- visualize_clones_GEX(GEX.list=covid_gex,</span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="co">#                      VDJ.GEX.integrate.list=covid_integrating_clonal_level[1:1],</span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="co">#                      highlight.type=&quot;clonotype&quot;,</span></a>
+<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="co">#                      highlight.number=1:10,</span></a>
+<a class="sourceLine" id="cb25-6" data-line-number="6"><span class="co">#                      reduction=&quot;umap&quot;)</span></a>
+<a class="sourceLine" id="cb25-7" data-line-number="7"><span class="co"># print(covid_top10_umap[[1]])</span></a></code></pre></div>
+</div>
+<div id="specific-gene-expression-information-on-the-clonal-level" class="section level3">
+<h3>4.4 Specific gene expression information on the clonal level</h3>
+<p>We previously integrated the GEX information into the format of the VDJ output. However, we may want to ask how the gene expression looks for certain clonotypes. E.g. how many of the cells in the top clone are expressing Fas/GL7 or germinal center cell markers. For this we need to integrate the VDJ information and barcodes into the GEX object. This can first be done by using the clonotype_GEX function and then by the GEX_heatmap function. To save space the output of this function can be assigned to the original automate_GEX output, as it will be another Seurat object. By setting b.or.t to “b”, a panel of pre-selected B cell genes will be displayed. One can also supply custom genes to test specific clonotypes. The group/column colors correspond to given clonal families.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="co"># covid_gex_integrate &lt;- clonotype_GEX(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_cell)</span></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb26-5" data-line-number="5"><span class="co"># covid_bcell_gene_heatmap &lt;- GEX_heatmap(covid_gex_integrate,b.or.t = &quot;b&quot;,clone.rank.threshold = 20,sample.index = 1)</span></a></code></pre></div>
+</div>
+<div id="integrating-clonal-lineage-information-and-transcriptional-cluster-information" class="section level3">
+<h3>4.5 Integrating clonal lineage information and transcriptional cluster information</h3>
+<p>We can also supply transcriptional cluster information into the clonal lineages organized earlier. This can be done using the VDJ_GEX_clonal_lineage_clusters function, which will place the transcriptional cluster information into the Name of the clonal_lineage object. Since we only integrated the first patient in the covid_integrating_cell_level object, we will just take the first patients clonal lineages. Now if we print the name of the first sequence in the first clonal lineage, we see that a cluster5 has been added to the end of the name. This indicates that this particular B cell was found in cluster5 from the original automate_GEX.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="co"># </span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="co"># clonal_lineage_integrate &lt;- VDJ_GEX_clonal_lineage_clusters(covid_integrating_cell_level,covid_clonal_lineages[1:1])</span></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="co"># print(clonal_lineage_integrate[[1]][[1]]$Name[1])</span></a></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

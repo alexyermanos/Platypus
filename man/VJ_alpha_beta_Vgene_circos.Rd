@@ -7,6 +7,7 @@
 VJ_alpha_beta_Vgene_circos(
   VDJ.analyze.output,
   V.or.J,
+  B.or.Tcells,
   label.threshold,
   c.threshold,
   cell.level,
@@ -17,6 +18,8 @@ VJ_alpha_beta_Vgene_circos(
 \item{VDJ.analyze.output}{The output of the VDJ_analyze function. A list of data frames for each sample containing the clonotype informations.}
 
 \item{V.or.J}{Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".}
+
+\item{B.or.Tcells}{Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.}
 
 \item{label.threshold}{Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.}
 
