@@ -4,9 +4,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' cluster.distribution.per.sample <- GEX_cluster_per_sample(automate_GEX.output=automate_GEX_out[[i]])
+#' cluster.distribution.per.sample <- GEX_cluster_membership_per_sample(automate_GEX.output=automate_GEX_out[[i]])
 #'}
-GEX_cluster_per_sample <- function(automate_GEX.output){
+GEX_cluster_membership_per_sample <- function(automate_GEX.output){
   unique_samples <- sort(unique(automate_GEX.output$sample_id),decreasing = F)
   unique_clusters <- sort(unique(automate_GEX.output$seurat_clusters),decreasing = F)
   cells_per_cluster_per_sample <- list()
