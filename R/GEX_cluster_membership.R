@@ -7,9 +7,9 @@
 #' \dontrun{
 #' cluster.distribution.per.sample <- GEX_cluster_membership_per_sample(automate_GEX.output=automate_GEX_out[[i]])
 #'}
-GEX_cluster_membership_per_sample <- function(automate_GEX.output, by.group){
+GEX_cluster_membership <- function(automate_GEX.output, by.group){
   if(missing(by.group)) by.group <- FALSE
-  
+
   if(by.group == FALSE){
   unique_samples <- sort(unique(automate_GEX.output$sample_id),decreasing = F)
   unique_clusters <- sort(unique(automate_GEX.output$seurat_clusters),decreasing = F)
@@ -26,7 +26,7 @@ GEX_cluster_membership_per_sample <- function(automate_GEX.output, by.group){
   colnames(melting) <- c("value", "L2", "Sample")
   output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
   }
-  
+
   if(by.group == TRUE){
     unique_groups <- sort(unique(automate_GEX.output$group_id),decreasing = F)
     unique_clusters <- sort(unique(automate_GEX.output$seurat_clusters),decreasing = F)
@@ -43,6 +43,6 @@ GEX_cluster_membership_per_sample <- function(automate_GEX.output, by.group){
     colnames(melting) <- c("value", "L2", "Group")
     output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Group, y=value, x=L2,group=Group)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
   }
-  
+
   return(output.plot)
 }
