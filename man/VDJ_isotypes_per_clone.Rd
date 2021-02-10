@@ -4,7 +4,13 @@
 \alias{VDJ_isotypes_per_clone}
 \title{Clonal frequency plot displaying the isotype usage of each clone.}
 \usage{
-VDJ_isotypes_per_clone(VDJ_clonotype_output, VDJ_per_clone_output, clones)
+VDJ_isotypes_per_clone(
+  VDJ_clonotype_output,
+  VDJ_per_clone_output,
+  clones,
+  subtypes,
+  species
+)
 }
 \arguments{
 \item{VDJ_clonotype_output}{list of dataframes based on the VDJ_clonotype function output.}
@@ -12,6 +18,10 @@ VDJ_isotypes_per_clone(VDJ_clonotype_output, VDJ_per_clone_output, clones)
 \item{VDJ_per_clone_output}{list of dataframes based on the VDJ_per_clone function output.}
 
 \item{clones}{numeric value indicating the number of clones to be displayed on the clonal expansion plot. Can take values between 1-50. Default value is 50.}
+
+\item{subtypes}{Logical indicating whether to display isotype subtypes or not.}
+
+\item{species}{Character indicating whether the samples are from mouse or human. Default is set to human.}
 }
 \value{
 returns a list containing plots with the percentages of isotypes for each clone on the cell level.
