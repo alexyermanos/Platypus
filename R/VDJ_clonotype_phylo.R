@@ -12,36 +12,42 @@
 #'  homology.threshold=".3")
 #'  }
 VDJ_clonotype_phylo <- function(clonotype.list,
-                          clone.strategy,
-                          homology.threshold){
+                                clone.strategy,
+                                homology.threshold){
   require(stringdist)
-  find.max.common.substring<-function(words){
-    words.split <- strsplit(words, '')
-    words.split <- lapply(words.split, `length<-`, max(nchar(words)))
-    words.mat <- do.call(rbind, words.split)
-    common.substr.length <- which.max(apply(words.mat, 2, function(col) !length(unique(col)) == 1)) - 1
-    res<-substr(words[1], 1, common.substr.length)
-    return(res)
-  }
-  
+  require(foreach)
+  require(doParallel)
+  require(parallel)
+
+  # if(.Platform$OS.type == "unix") options(mc.cores=detectCores()-1, print("Using parallel package"))
+  #else options(mc.cores=1)
   output.clonotype <- list()
   if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) print("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
   if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3   # Setting default homology threshold
-  
+
+  list_dfs<-c()
+
   #Possible strategy options:'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'.
   if(clone.strategy=="cdr3.aa"){
     clonotype.list$new_clone_unique<-paste(clonotype.list$cdr3_aa_HC, clonotype.list$cdr3_aa_LC,sep="")
     list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
-    list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
-  }
-  else if(clone.strategy=="hvj.lvj"){
-    clonotype.list$new_clone_unique <- paste(clonotype.list$v_gene_HC,
-                                                  clonotype.list$j_gene_HC,
-                                                  clonotype.list$v_gene_LC,
-                                                  clonotype.list$j_gene_LC,sep="_")
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {row.names(x)<-NULL;x })
+    list_dfs<-parallel::mclapply(1:length(list_dfs), function(i) list_dfs[[i]])
+    #   list_dfs<-parallel::mclapply(1:length(x), function(i) x[[i]])
+  }else if(clone.strategy=="cdr3.nt"){
+    clonotype.list$new_clone_unique<-paste(clonotype.list$cdr3_nt_HC, clonotype.list$cdr3_nt_LC,sep="")
     list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
-    list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
-    
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {row.names(x)<-NULL;x })
+  }else if(clone.strategy=="hvj.lvj"){
+    clonotype.list$new_clone_unique <- paste(clonotype.list$v_gene_HC,
+                                             clonotype.list$j_gene_HC,
+                                             clonotype.list$v_gene_LC,
+                                             clonotype.list$j_gene_LC,sep="_")
+    list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {row.names(x)<-NULL;x })
   }else if(clone.strategy=="hvj.lvj.cdr3lengths"){
     clonotype.list$new_clone_unique <- paste(clonotype.list$v_gene_HC,
                                              clonotype.list$j_gene_HC,
@@ -50,73 +56,86 @@ VDJ_clonotype_phylo <- function(clonotype.list,
                                              nchar(clonotype.list$cdr3_aa_HC),
                                              nchar(clonotype.list$cdr3_aa_LC),sep="_")
     list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
-    list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
-      
-    }else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
-      clones_temp <- (paste(clonotype.list$v_gene_HC,
-                            clonotype.list$j_gene_HC,
-                            clonotype.list$v_gene_LC,
-                            clonotype.list$j_gene_LC,
-                            nchar(clonotype.list$cdr3_aa_HC),
-                            nchar(clonotype.list$cdr3_aa_LC),sep="_"))
-      clonotype.list$new_clone_unique <- clones_temp
-      list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
-      list_dfs<-lapply(list_dfs, FUN= function(x){
-        if(nrow(x)>=2){
-          vh_distance <- stringdist::stringdistmatrix(x$cdr3_aa_HC,x$cdr3_aa_HC,method = "lv")/nchar(x$cdr3_aa_HC)
-          if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
-            vl_distance <- stringdist::stringdistmatrix(x$cdr3_aa_LC,x$cdr3_aa_LC,method = "lv")/nchar(x$cdr3_aa_LC)
-          }else{
-            vl_distance <- 0
-          }
-          combined_distance <- vh_distance + vl_distance
-          diag(combined_distance) <- NA
-          hclust_combined <- stats::hclust(stats::as.dist(combined_distance)) #convert combined_distance to a distance object
-          hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
-          x$new_clone_unique<- paste(x$new_clone_unique,hclust_combined_cut)
-          x <- split(x, x$new_clone_unique)
-          x<-lapply(1:length(x), function(i) x[[i]])
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {row.names(x)<-NULL;x })
+  }else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+    #View(lapply(clonotype.list$cdr3_nt_HC,function(z) nchar(z)))
+    #View(lapply(clonotype.list$cdr3_nt_LC,function(z) nchar(z)))
+    clones_temp <- (paste(clonotype.list$v_gene_HC,
+                          clonotype.list$j_gene_HC,
+                          clonotype.list$v_gene_LC,
+                          clonotype.list$j_gene_LC,
+                          nchar(clonotype.list$cdr3_aa_HC),
+                          nchar(clonotype.list$cdr3_aa_LC),sep="_"))
+    clonotype.list$new_clone_unique <- clones_temp
+    list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+    list_dfs<-parallel::mclapply(list_dfs, FUN= function(x){
+      if(nrow(x)>=2){
+        #print(nchar(x$cdr3_aa_HC))
+        #print(x$cdr3_aa_H)
+        #print(stringdist::stringdistmatrix(x$cdr3_aa_HC,x$cdr3_aa_HC,method = "lv"))
+        vh_distance <- stringdist::stringdistmatrix(x$cdr3_aa_HC,x$cdr3_aa_HC,method = "lv")/nchar(x$cdr3_aa_HC)
+        #print(vh_distance)
+        if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
+          #print(x$cdr3_aa_LC)
+          vl_distance <- stringdist::stringdistmatrix(x$cdr3_aa_LC,x$cdr3_aa_LC,method = "lv")/nchar(x$cdr3_aa_LC)
+          #print(vl_distance)
         }else{
-          x$new_clone_unique<- paste(x$new_clone_unique,"1")
+          vl_distance <- 0
         }
-         return(x)
-        })
-      list_dfs<-unlist(list_dfs,recursive = FALSE)
-      is.df<-which(sapply(list_dfs, function(z) {
-        inherits(z, "data.frame")}))
-      df_size<-unname(unlist(lapply(unname(is.df), function(z) lengths(list_dfs[z]))))
-      df_size1<-df_size[1]
-      idx<-c()
-      idx<-which(sapply(list_dfs, function(z) {
-       !inherits(z, "data.frame")}))
-      temp<-as.data.frame(matrix(unname(idx), ncol = df_size[1],  byrow = TRUE), stringsAsFactors = FALSE)
-      list_dfs_1<-lapply(1:nrow(temp), function(z) {
-        ident_part<-find.max.common.substring(names(list_dfs[unlist(temp[z,])]))
-        rev_ident_part<-as.vector(sapply(names(list_dfs[unlist(temp[z,])]), function(x) {
-          gsub(x, pattern = ident_part, replacement = "\\1")
-        }))
-        df<-data.frame(matrix(unlist(list_dfs[unlist(temp[z,])]),ncol=length(rev_ident_part),byrow=T),stringsAsFactors=FALSE)
-        names(df)<-rev_ident_part
-        df
-      })
-      list_dfs_2<-list_dfs[is.df]
-      list_dfs<-c(list_dfs_1,list_dfs_2)
-      list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
-    }else{ #if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
-      vh_distance <- stringdist::stringdistmatrix(clonotype.list$cdr3_aa_HC, clonotype.list$cdr3_aa_HC, method = "lv")/nchar(clonotype.list$cdr3_aa_HC)
-      if(clone.strategy=="CDR3.homology"){
-        vl_distance <- stringdist::stringdistmatrix(clonotype.list$cdr3_aa_LC, clonotype.list$cdr3_aa_LC, method = "lv")/nchar(clonotype.list$cdr3_aa_LC)
+        combined_distance <- vh_distance + vl_distance
+        diag(combined_distance) <- NA
+        hclust_combined <- stats::hclust(stats::as.dist(combined_distance)) #convert combined_distance to a distance object
+        # plot(hclust_combined,
+        #     main = "Cluster Dendrogram",
+        #    ylab = "Height")
+        hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+        x$new_clone_unique<- paste(x$new_clone_unique,hclust_combined_cut)
+        x <- split(x, x$new_clone_unique)
+        x<-parallel::mclapply(1:length(x), function(i) x[[i]])
       }else{
-        vl_distance <- 0
+        x$new_clone_unique<- paste(x$new_clone_unique,"1")
       }
-      combined_distance <- vh_distance + vl_distance
-      diag(combined_distance) <- NA
-      hclust_combined <- stats::hclust(stats::as.dist(combined_distance))
-      hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
-      clonotype.list$new_clone_unique <- paste(hclust_combined_cut)
-      list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
-      list_dfs<-lapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+      return(x)
+    })
+    list_dfs<-unlist(list_dfs,recursive = FALSE)
+    is.df<-which(sapply(list_dfs, function(z) {
+      inherits(z, "data.frame")}))
+    df_size<-unname(unlist(parallel::mclapply(unname(is.df), function(z) lengths(list_dfs[z]))))
+    df_size1<-df_size[1]
+    idx<-c()
+    idx<-which(sapply(list_dfs, function(z) {
+      !inherits(z, "data.frame")}))
+    temp<-as.data.frame(matrix(unname(idx), ncol = df_size[1],  byrow = TRUE), stringsAsFactors = FALSE)
+    list_dfs_1<-lapply(1:nrow(temp), function(z) {
+      ident_part<-find.max.common.substring(names(list_dfs[unlist(temp[z,])]))
+      rev_ident_part<-as.vector(sapply(names(list_dfs[unlist(temp[z,])]), function(x) {
+        gsub(x, pattern = ident_part, replacement = "\\1")
+      }))
+      df<-data.frame(matrix(unlist(list_dfs[unlist(temp[z,])]),ncol=length(rev_ident_part),byrow=T),stringsAsFactors=FALSE)
+      names(df)<-rev_ident_part
+      df
+    })
+    list_dfs_2<-list_dfs[is.df]
+    list_dfs<-c(list_dfs_1,list_dfs_2)
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {row.names(x)<-NULL;x })
+  }else if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
+    vh_distance <- stringdist::stringdistmatrix(clonotype.list$cdr3_aa_HC, clonotype.list$cdr3_aa_HC, method = "lv")/nchar(clonotype.list$cdr3_aa_HC)
+    if(clone.strategy=="CDR3.homology"){
+      vl_distance <- stringdist::stringdistmatrix(clonotype.list$cdr3_aa_LC, clonotype.list$cdr3_aa_LC, method = "lv")/nchar(clonotype.list$cdr3_aa_LC)
+    }else{
+      vl_distance <- 0
     }
+    combined_distance <- vh_distance + vl_distance
+    diag(combined_distance) <- NA
+    hclust_combined <- stats::hclust(stats::as.dist(combined_distance))
+    hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+    clonotype.list$new_clone_unique <- paste(hclust_combined_cut)
+    list_dfs <- split(clonotype.list, clonotype.list$new_clone_unique)
+    list_dfs<-parallel::mclapply(list_dfs, FUN = function(x) {x$new_clone_unique  <- NULL;x })
+  }
+
+
   return(list_dfs)
 }
-

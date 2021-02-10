@@ -2,6 +2,7 @@
 #' @param VDJ.clonotype.output Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.
 #' @return Returns a list of matrices containing the number of Vgene heavy/light chain combinations per repertoire.
 #' @seealso
+#' @export
 #' @examples
 #' \dontrun{
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ.clonotype.output = VDJ.clonotype.output)

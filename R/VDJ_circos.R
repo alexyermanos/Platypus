@@ -5,6 +5,7 @@
 #' @param label.threshold Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).
 #' @param axis Option to choose the count axis for each gene. "default", "percent" or "max"  possible. Default: "max".
 #' @return Returns the Circos plot.
+#' @export
 #' @examples
 #' \dontrun{
 #' plot <- VDJ_circos(Vgene_usage_matrix[[1]], group = group)

@@ -11,6 +11,7 @@
 #' \dontrun{
 #'  plots <- VJ_alpha_beta_Vgene_circos(vdj_repertoire_tcells)
 #'}
+#' @export
 
 VJ_alpha_beta_Vgene_circos <- function(VDJ.analyze.output, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold){
 if(missing(V.or.J)){V.or.J <- "both"}

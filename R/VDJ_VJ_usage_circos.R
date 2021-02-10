@@ -10,6 +10,7 @@
 #' \dontrun{
 #'  plots <- VJ_alpha_beta_Vgene_circos(VDJ.analyze.output)
 #'}
+#' @export
 
 VDJ_VJ_usage_circos <- function(VDJ.analyze.output, A.or.B, label.threshold, cell.level, c.threshold, clonotype.per.gene.threshold){
   if(missing(label.threshold)){label.threshold <- 1}
