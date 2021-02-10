@@ -5,13 +5,13 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' clonotype_GEX(GEX.object=automate.GEX.output[[1]], VDJ.per.clone=vdj.per.clone.output)
+#' GEX_clonotype(GEX.object=automate.GEX.output[[1]], VDJ.per.clone=vdj.per.clone.output)
 #'}
 #'
-clonotype_GEX <- function(GEX.object,VDJ.per.clone){
+GEX_clonotype <- function(GEX.object,VDJ.per.clone){
   require(Seurat)
   GEX.object$clonotype_id <- rep(NA,length(colnames(GEX.object)))
-  GEX.object$expanded <- rep(1,length(colnames(GEX.object)))
+  GEX.object$expanded <- rep(NA,length(colnames(GEX.object)))
   GEX.object$clone_rank <- rep(NA,length(colnames(GEX.object)))
 
   for(i in 1:length(VDJ.per.clone)){
