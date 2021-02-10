@@ -10,7 +10,6 @@
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage_barplot_stacked(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T,HC.gene.number = 15, Fraction.HC = 1)
 #'}
 #' @export
-
 VDJ_Vgene_usage_stacked_barplot <- function(clonotype.list, HC.gene.number, Fraction.HC, LC.Vgene, LC.gene.number, Fraction.LC){
   require(ggplot2)
   if (missing(Fraction.HC)) Fraction.HC <- 0
