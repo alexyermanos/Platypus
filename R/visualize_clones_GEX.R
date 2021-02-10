@@ -14,7 +14,7 @@
 #'  highlight.number=1:4,
 #'  reduction="umap")
 #' }
-visualize_clones_GEX <- function(GEX.list, VDJ.GEX.integrate.list, highlight.type, highlight.number, reduction){
+visualize_clones_GEX1 <- function(GEX.list, VDJ.GEX.integrate.list, highlight.type, highlight.number, reduction){
 
   require(ggplot2)
   require(stringr)
@@ -72,11 +72,11 @@ visualize_clones_GEX <- function(GEX.list, VDJ.GEX.integrate.list, highlight.typ
       #holding_all_cells <- toString(VDJ.GEX.integrate.list[[i]]$cell_index[highlight.number])
       #holding_all_cells_integer <- as.integer(str_split(holding_all_cells,pattern = ";")[[1]])
       if(reduction=="tsne"){
-        pl_list[[i]] <- Seurat::DimPlot(GEX.list[[1]], reduction = "tsne", pt.size = 1,cells.highlight = (holding_all_cells_integer),cols.highlight = grDevices::rainbow(length(holding_all_cells_integer))) + ggplot2::ggtitle(paste("tSNE highlighting clonotypes from sample ",i,sep=""))  +
+        pl_list[[i]] <- Seurat::DimPlot(GEX.list[[1]], reduction = "tsne", pt.size = 1,cells.highlight = (holding_all_cells_integer),cols.highlight = grDevices::rainbow(length(holding_all_cells_integer))) + ggplot2::ggtitle(paste("tSNE highlighting clonotypes from sample ",i,sep=""),)  +
           ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
       }
       else if(reduction=="umap"){
-        pl_list[[i]] <- Seurat::DimPlot(GEX.list[[1]], reduction = "umap", pt.size = 1,cells.highlight = (holding_all_cells_integer),cols.highlight = grDevices::rainbow(length(holding_all_cells_integer))) +
+        pl_list[[i]] <- Seurat::DimPlot(GEX.list[[1]], reduction = "umap", pt.size = 1,cells.highlight = (holding_all_cells_integer),cols.highlight = grDevices::rainbow(length(holding_all_cells_integer)),order=as.list(c(paste0("Group_",c(max(highlight.number):min(highlight.number))),"Unselected"))) +
           ggplot2::ggtitle(paste("UMAP highlighting clonotypes from sample ",i,sep="")) +
           ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
       }
