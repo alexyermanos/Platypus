@@ -35,12 +35,13 @@ The package can be installed directly from the tar.gz file on this GitHub. Pleas
 
 # The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in original tar.gz file. 
 
-```
 
 ### Downloading the test data
 # The COVID-19 data (~136 MB size of the zip file) can be found at the following link https://polybox.ethz.ch/index.php/s/fxQJ3NrRSwiPSSo This dataset contains VDJ (separate libraries for B and T cells) and GEX libraries from two convalescent COVID-19 patients.
 
 # After downloading the zip file named "PlatypusTestData.zip", please unzip the file and find the path to the newly formed folder. Typically this will be in the Downloads folder, so the code below should work on MacOS. For windows please uncomment the code and change the user name to match your PC.
+
+```
 
 
 Platypus uses a number of different R packages which need prior installation. These can be installed either from CRAN, Bioconductor using "BiocManager" or GitHub using "devtools":
