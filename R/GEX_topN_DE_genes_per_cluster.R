@@ -28,7 +28,7 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
     if(nrow(topN_filtered) < n.genes) {temp.n.genes <- nrow(topN_filtered)}
 
     if (by_FC) {
-      topN_filtered <- topN_filtered %>% mutate(abs_value = abs(topN_filtered$avg_logFC))
+      topN_filtered <- topN_filtered %>% mutate(abs_value = abs(topN_filtered$avg_log2FC))
       output_list[[i]] <- select(dplyr::slice_max(topN_filtered, n = temp.n.genes, abs_value), !abs_value)
     }
     else {
