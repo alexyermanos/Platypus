@@ -8,13 +8,13 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' visualize_clones_GEX(GEX.list=automate_GEX.output,
+#' GEX_visualize_clones(GEX.list=automate_GEX.output,
 #'  VDJ.per.clone=VDJ_per_clone.output,
 #'  highlight.type="clonotype",
 #'  highlight.number=1:4,
 #'  reduction="umap")
 #' }
-visualize_clones_GEX1 <- function(GEX.list, VDJ.GEX.integrate.list, highlight.type, highlight.number, reduction){
+GEX_visualize_clones <- function(GEX.list, VDJ.GEX.integrate.list, highlight.type, highlight.number, reduction){
 
   require(ggplot2)
   require(stringr)
