@@ -11,6 +11,8 @@ Platypus has been successfully installed on MacOS X (v10.14.6) and Windows 10 Pr
 
 The package can be installed directly from the tar.gz file on this GitHub. Please see the vignette for examples of how the package can be used. 
 
+```{r}
+
 ### Removing any previous versions of the package
 # First we will ensure that there is no previous version installed locally
 #detach("package:Platypus", unload=TRUE)
@@ -18,7 +20,6 @@ The package can be installed directly from the tar.gz file on this GitHub. Pleas
 
 ### Downloading and installing Platypus
 
-```{r}
 
 # First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. 
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
