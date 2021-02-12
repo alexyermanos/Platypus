@@ -4,10 +4,10 @@
 \alias{GEX_phenotype_per_clone}
 \title{Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
 \usage{
-GEX_phenotype_per_clone(automate_GEX.output, clonotype.ids)
+GEX_phenotype_per_clone(seurat.object, clonotype.ids)
 }
 \arguments{
-\item{automate_GEX.output}{A single seurat object from automate_GEX function. This will likely be supplied as automate_GEX.output[[1]] for an individual set of integrated repertoires.}
+\item{seurat.object}{A single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.}
 
 \item{clonotype.ids}{Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, these repertoires should be found in the automate_GEX library.}
 }
@@ -19,7 +19,7 @@ Integrates VDJ and gene expression libraries by providing cluster membership seq
 }
 \examples{
 \dontrun{
-GEX_phenotype_per_clone_plot <- GEX_phenotype_per_clone(GEX.object = automate.gex.output[[1]], clonotype.ids= c(1,2,3,4,5))
+GEX_phenotype_per_clone_plot <- GEX_phenotype_per_clone(seurat.object = automate.gex.output[[1]], clonotype.ids= c(1,2,3,4,5))
 }
 
 }
