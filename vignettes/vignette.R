@@ -105,8 +105,6 @@ covid_gex[[1]] <- GEX_phenotype(covid_gex[[1]], default = F,
 
 
 
-
-
 ## -----------------------------------------------------------------------------
 Seurat::DimPlot(covid_gex[[1]],reduction = "umap",split.by = "sample_id", group.by = "cell.state") 
 
@@ -135,4 +133,9 @@ covid_heatmap_clusters <- GEX_cluster_genes_heatmap1(automate_GEX.output = covid
                                                               metric = "top_logFC")
 
 print(covid_heatmap_clusters)
+
+## -----------------------------------------------------------------------------
+
+ontology_covid <- GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
+print(ontology_covid)
 
