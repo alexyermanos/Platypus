@@ -13,6 +13,8 @@
 #' @export
 
 VDJ_VJ_usage_circos <- function(VDJ.analyze.output, A.or.B, label.threshold, cell.level, c.threshold, clonotype.per.gene.threshold){
+  require(reshape2)
+  require(ggplot2)
   if(missing(label.threshold)){label.threshold <- 1}
   if(missing(A.or.B)){A.or.B <- "both"}
   if(missing(cell.level)){cell.level <- F}

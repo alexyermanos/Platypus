@@ -18,7 +18,14 @@ VDJ_clonotype_phylo <- function(clonotype.list,
   require(foreach)
   require(doParallel)
   require(parallel)
-
+  find.max.common.substring<-function(words){
+    words.split <- strsplit(words, '')
+    words.split <- parallel::mclapply(words.split, `length<-`, max(nchar(words)))
+    words.mat <- do.call(rbind, words.split)
+    common.substr.length <- which.max(apply(words.mat, 2, function(col) !length(unique(col)) == 1)) - 1
+    res<-substr(words[1], 1, common.substr.length)
+    return(res)
+  }
   # if(.Platform$OS.type == "unix") options(mc.cores=detectCores()-1, print("Using parallel package"))
   #else options(mc.cores=1)
   output.clonotype <- list()

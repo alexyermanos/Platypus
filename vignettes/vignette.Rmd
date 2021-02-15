@@ -20,6 +20,7 @@ The output from cellranger's count function returns gene expression information 
 
 In the example below two directories are supplied to two distinct list elements, and thus these distinct transcriptomes (corresponding to two distinct repertoires) will each be associated to a distinct Seurat object.
 ```{r, fig.show='hold', message=FALSE}
+
 ### Removing any previous versions of the package
 # First we will ensure that there is no previous version installed locally
 #detach("package:Platypus", unload=TRUE)
@@ -73,6 +74,7 @@ class(covid_gex_patients_not_integrated) ## output is a list
 class(covid_gex_patients_not_integrated[[1]]) ## Seurat object 
 ncol(covid_gex_patients_not_integrated[[1]]) ## 6871 cells
 ncol(covid_gex_patients_not_integrated[[2]]) ## 6055 cells
+
 ```
 
 Now we can visualize the 2D plots for each patient individually. By default, UMAP, PCA, and TSNE reductions are included in the object. Under default parameters this will display all cells in the GEX library from Patient1. By changing to the second list element we can view the cells from Patient2.
@@ -94,8 +96,8 @@ directory_to_covid_patients_integrated <- list()
 directory_to_covid_patients_integrated[[1]] <- c("~/Downloads/PlatypusTestData/Patient1_GEX/",
                                                  "~/Downloads/PlatypusTestData/Patient2_GEX/")
 
-
-covid_gex <- automate_GEX(GEX.outs.directory.list = directory_to_covid_patients_integrated[1:1],integration.method = "scale.data",mito.filter = 20,cluster.resolution = 0.5,VDJ.gene.filter = T)
+## Here we use the previous version of automate_GEX to produce the identical UMAP seen in the manuscript. 
+covid_gex <- Platypus::automate_GEX(GEX.outs.directory.list = directory_to_covid_patients_integrated[1:1],integration.method = "scale.data",mito.filter = 20,cluster.resolution = 0.5,VDJ.gene.filter = T)
 
 ### In this case, patient1 is the covid_gex[[1]]$sample_id==1 and patient2 is the covid_gex[[1]]$sample_id==2.
 
@@ -122,7 +124,7 @@ In this current UMAP we do not see which cells are coming from which patient. To
 ```{r, fig.show='hold'}
 Seurat::DimPlot(covid_gex[[1]],reduction = "umap",split.by = "sample_id") 
 
-DimPlot(covid_gex[[1]],reduction = "umap")
+Seurat::DimPlot(covid_gex[[1]],reduction = "umap")
 ```
 
 
@@ -130,7 +132,7 @@ We can visually observe that the majority of clusters have cells from both patie
 
 
 ```{r}
-GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
+Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
 
 ```
 
@@ -142,9 +144,9 @@ Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4","CD8A",
 
 We can see that both patients seem to have B cells (CD19+), CD4 T cells, and CD8 T cells. Platypus also allows us to assigning cell type/state identity to the different clusters by using the GEX_phenotype. This functon takes the Seurat object as input and uses canonical markers to easily match the clustering to known cell types. The user also has the possibility to use a custom list of markers and their associate cell types/states.
 ```{r}
-covid_gex_phenotype <- GEX_phenotype(covid_gex[[1]], default = T)
+covid_gex_phenotype <- Platypus::GEX_phenotype(covid_gex[[1]], default = T)
 
-covid_gex[[1]] <- GEX_phenotype(covid_gex[[1]], default = F,
+covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
                                             cell.state.markers=c("CD8A+;CCL5+;CD44+;IL7R-;CD19-",
                           "CD8A+;CCL5-;CD44+;IL7R+;CD19-"),
                         cell.state.names=c("EffectorCD8",
@@ -191,7 +193,7 @@ It is also possible using Platypus to create a heatmap displaying the differenti
 
 ```{r, fig.show='hold'}
 
-covid_heatmap_clusters <- GEX_cluster_genes_heatmap1(automate_GEX.output = covid_gex[[1]],
+covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap1(automate_GEX.output = covid_gex[[1]],
                                                               GEX_cluster_genes.output = gene_expression_cluster,
                                                               n.genes.per.cluster = 3,max.cell = 30,
                                                               metric = "top_logFC")
@@ -206,22 +208,22 @@ Earlier we say how we can match the unbiased clustering to known cell types usin
 
 ```{r}
 
-ontology_covid <- GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
+ontology_covid <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
 print(ontology_covid)
 ```
 
 We can additionally extract the top N genes per cluster directly (with filtering) using the following function:
 
 ```{r}
-top_10_genes_per_cluster <- GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output = gene_expression_cluster, n.genes = 10, by_FC = T)
-head(top_10_genes_per_cluster)
+#top_10_genes_per_cluster <- Platypus::GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output = gene_expression_cluster, n.genes = 10, by_FC = T)
+#head(top_10_genes_per_cluster)
 
 ```
 
 We can also perform a Gene Set Enrichment Analysis (GSEA) using the GEX_GSEA function. For this, the user needs to provide the path to a gmt file containing the gene sets, which can be downloaded for example from MSigDB. For instance we can perform GSEA for cluster0 and look at the most significant pathways.
 
 ```{r}
-gsea_covid <- GEX_GSEA(GEX.cluster.genes.output = gene_expression_cluster[[1]], MT.Rb.filter = T, path_to_pathways = "~/Downloads/c7.all.v7.2.symbols.gmt")
+#gsea_covid <- Platypus::GEX_GSEA(GEX.cluster.genes.output = gene_expression_cluster, MT.Rb.filter = T, path_to_pathways = "~/Downloads/c7.all.v7.2.symbols.gmt")
 ```
 
 
@@ -230,7 +232,7 @@ We can also extract and test for differentially expressed genes between the two 
 This function allows us to also create a heatmap displaying the top most up or down regulated genes for each cluster based on log fold change (avg_logFC) or p value (adj_p_value). Additionally, the user can determine the number of up and downreulated genes to be displayed for each sample. In this case the output returns a list where the first element contains the dataframe with the differntial expression information and the second element contains the heatmap displaying the most regulated genes.  
 
 ```{r, fig.show='hold'}
-DE_genes_per_sample <- GEX_DEgenes_persample(automate.GEX=covid_gex[[1]],min.pct = .25,sample1 = "1",sample2 = "2",return.plot = TRUE,up.genes = 10,down.genes = 10,logFC = F)
+DE_genes_per_sample <- Platypus::GEX_DEgenes_persample(automate.GEX=covid_gex[[1]],min.pct = .25,sample1 = "1",sample2 = "2",return.plot = TRUE,up.genes = 10,down.genes = 10,logFC = F)
 
 head(DE_genes_per_sample) 
 nrow(DE_genes_per_sample[[1]]) ##71 rows 
@@ -308,7 +310,7 @@ So far the functions have been at the clonal level, thereby ignoring cell-specif
 
 
 ```{r, fig.show='hold'}
-covid_single_clone <- VDJ_per_clone(clonotype.list = covid_vdj_repertoire_bcells,VDJ.out.directory =VDJ.out.directory.list)
+covid_single_cell <- Platypus::VDJ_per_clone(clonotype.list = covid_vdj_repertoire_bcells,VDJ.out.directory =VDJ.out.directory.list)
 
 
 print(paste("There are",length(covid_single_cell[[1]]),"unique nucleotide B cell clones in patient1"),sep="")
@@ -317,7 +319,7 @@ print(paste("There are",nrow(covid_single_cell[[2]][[1]]),"unique B cells in the
 
 print(colnames(covid_single_cell[[1]][[1]]))
 
-covid_single_clone_tcells <- VDJ_per_cell(clonotype.list = covid_vdj_repertoire_tcells,VDJ.out.directory =VDJ.out.directory.list_TCR)
+covid_single_clone_tcells <- Platypus::VDJ_per_clone(clonotype.list = covid_vdj_repertoire_tcells,VDJ.out.directory =VDJ.out.directory.list_TCR)
 
 ```
 
@@ -348,7 +350,7 @@ Extracting the germline column can be accomplished using the VDJ_extract_germlin
 
 ```{r, fig.show='hold'}
 
-extracted_covid_germline <- VDJ_extract_germline(VDJ.per.clone=covid_single_cell,mixcr.directory="~/Downloads/mixcr-3.0.12/mixcr",extract.VDJRegion=T,species = "hsa")
+extracted_covid_germline <- Platypus::VDJ_extract_germline(VDJ.per.clone=covid_single_cell,mixcr.directory="~/Downloads/mixcr-3.0.12/mixcr",extract.VDJRegion=T,species = "hsa")
 
 print(colnames(extracted_covid_germline[[1]][[1]])) ## column names of the germlines from the repertoire corresponding to patient1. 
 print(nrow(extracted_covid_germline[[1]][[1]])) ## germline sequences corresponding to 2298 clones in the first patient 
@@ -378,12 +380,12 @@ The function VDJ_per_clone additionally supplies trimmed VDJ sequences and the c
 #covid_single_clone_with_JSON <- VDJ_per_cell(clonotype.list = covid_vdj_repertoire_bcells,VDJ.out.directory =VDJ.out.directory.list,JSON = T)
 
 
-# covid_single_clone was the object from VDJ_per_clone
+# covid_single_cell was the object from VDJ_per_clone
 
-#print(covid_single_clone[[1]][[1]]$trimmed_HC_sequence[1])  # trimmmed sequence 
-#print(covid_single_clone[[1]][[1]]$trimmed_HC_germline[1])  # trimmmed germline sequence 
+#print(covid_single_clone_with_JSON[[1]][[1]]$trimmed_HC_sequence[1])  # trimmmed sequence 
+#print(covid_single_clone_with_JSON[[1]][[1]]$trimmed_HC_germline[1])  # trimmmed germline sequence 
 
-#stringdist::stringdist(covid_single_clone[[1]][[1]]$sequence_HC[1], VDJ.per.cell[[1]][[1]]$trimmed_ref_HC[1]) 
+#stringdist::stringdist(covid_single_clone_with_JSON[[1]][[1]]$sequence_HC[1], VDJ.per.cell[[1]][[1]]$trimmed_ref_HC[1]) 
 ```
 
 
@@ -395,7 +397,7 @@ After extracting the germline sequences and the full-length VDJRegion sequences,
 ```{r, fig.show='hold'}
 
 
-covid_clonal_lineages <- VDJ_clonal_lineages(call_MIXCR.output=covid_vdj_region, VDJ_extract_germline.output=extracted_covid_germline,as.nucleotide=F,with.germline=T)
+covid_clonal_lineages <- Platypus::VDJ_clonal_lineages(call_MIXCR.output=covid_vdj_region, VDJ_extract_germline.output=extracted_covid_germline,as.nucleotide=F,with.germline=T)
 
 print(colnames(covid_clonal_lineages[[1]][[1]])) ## dataframe with the columns Seq and Name. 
 
@@ -421,7 +423,7 @@ The output of the VDJ_clonal_lineage function can be used as input to the VDJ_tr
 ```{r, fig.show='hold'}
 
 
-covid_trees <- VDJ_tree(clonal.lineages = covid_clonal_lineages,with.germline=T,min.sequences = 5,max.sequences = 30,unique.sequences = T)
+covid_trees <- Platypus::VDJ_tree(clonal.lineages = covid_clonal_lineages,with.germline=T,min.sequences = 5,max.sequences = 30,unique.sequences = T)
 plot(covid_trees[[1]][[1]])
 
 
@@ -434,11 +436,11 @@ Additional VDJ functions include plotting isotype distribution per clone. This c
 
 ```{r, fig.show='hold'}
 
-covid_isotypes <- VDJ_isotypes_per_clone3(VDJ_clonotype_output = covid_vdj_repertoire_bcells, VDJ_per_clone_output = covid_single_cell, clones = 30)
+covid_isotypes <- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_repertoire_bcells, VDJ_per_clone_output = covid_single_cell, clones = 30)
 
-covid_isotypes_aa_clonotype <- VDJ_isotypes_per_clone3(VDJ_clonotype_output = covid_vdj_germline_clonotype, VDJ_per_clone_output = covid_single_cell, clones = 30)
+covid_isotypes_aa_clonotype <- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_germline_clonotype, VDJ_per_clone_output = covid_single_cell, clones = 30)
 
-covid_isotypes_germline_clonotype <- VDJ_isotypes_per_clone3(VDJ_clonotype_output = covid_vdj_aminoacid_clonotype, VDJ_per_clone_output = covid_single_cell, clones = 30)
+covid_isotypes_germline_clonotype <- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_aminoacid_clonotype, VDJ_per_clone_output = covid_single_cell, clones = 30)
 
 print(covid_isotypes[[1]])
 
@@ -486,10 +488,10 @@ It is also possible to produce heatmaps of the germline gene usage in the contex
 ```{r, fig.show='hold'}
 
 #First calculate adjacency matrix for V gene usage
-covid_Vgene_usage <- VDJ_Vgene_usage(VDJ.clonotype.output = covid_vdj_repertoire_bcells)
+covid_Vgene_usage <- Platypus::VDJ_Vgene_usage(VDJ.clonotype.output = covid_vdj_repertoire_bcells)
 library(pheatmap)
 
-pheatmap(covid_Vgene_usage[[1]],show_rownames = F,show_colnames = F)
+pheatmap::pheatmap(covid_Vgene_usage[[1]],show_rownames = F,show_colnames = F)
 
 
 print(class(covid_Vgene_usage[[1]]))
@@ -500,11 +502,11 @@ This can then be easily plotted as a heatmap to observe patterns between reperto
 
 Platypus also allows a seperate analysis of V gene usage for HC and LC. The VDJ_Vgene_usage_barplot allows the user to plot most frequently used IgH or IgK/L Vgenes. By default, this function only provides visulizations for the HC V genes, but can also provide for the LC if LC.Vgene is set to TRUE. The User can also select the number of most used genes to be depicted.
 ```{r}
-covid_Vgene_usage_barplot <- VDJ_Vgene_usage_barplot(covid_vdj_repertoire_bcells, HC.gene.number = 10, LC.Vgene = T, LC.gene.number = 10)
+covid_Vgene_usage_barplot <- Platypus::VDJ_Vgene_usage_barplot(covid_vdj_repertoire_bcells, HC.gene.number = 10, LC.Vgene = T, LC.gene.number = 10)
 print(covid_Vgene_usage_barplot[[1]])
 
 
-example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = F,HC.gene.number = 10, Fraction.HC = 1)
+example.vdj.vgene_usage <- Platypus::VDJ_Vgene_usage_stacked_barplot(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = F,HC.gene.number = 10, Fraction.HC = 1)
 example.vdj.vgene_usage[[1]]
 
 ```
@@ -519,8 +521,6 @@ Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:1], c.threshold = 1,
 
 
 
-Platypus::VJ_alpha_beta_Vgene_circos(top10p1, c.threshold = 1,label.threshold=0,cell.level = T,V.or.J = "V")
-
 
 ```
 
@@ -531,7 +531,7 @@ Platypus::VJ_alpha_beta_Vgene_circos(top10p1, c.threshold = 1,label.threshold=0,
 Finally, one can also look at any specific HC and LC CDR3 aminoacid patterns arising across the different clones. Using the VDJ_logoplot function the user can plot a logoplot of the CDR3 region od a certain length, specyfied by the length_cdr3 argument. For instance, the logoplot below corresponds to all those CDR3 aminoacid sequences of length 25
 
 ```{r}
-covid_CDR3_logoplot <- VDJ_logoplot(VDJ.object = covid_vdj_repertoire_bcells, length_cdr3 = 25)
+covid_CDR3_logoplot <- Platypus::VDJ_logoplot(VDJ.object = covid_vdj_repertoire_bcells, length_cdr3 = 25)
 ```
 
 
@@ -608,7 +608,7 @@ In the case we want to overlay clones on the tsne/umap space that we previously 
 
 ```{r, fig.show='hold'}
 
-covid_top10_umap <- GEX_visualize_clones(GEX.list=covid_gex,
+covid_top10_umap <- Platypus::GEX_visualize_clones(GEX.list=covid_gex,
                      VDJ.GEX.integrate.list=covid_integrating_clonal_level_tcell[2:2],
                      highlight.type="clonotype",
                      highlight.number=1:10,
@@ -625,19 +625,19 @@ We previously integrated the GEX information into the format of the VDJ output. 
 
 ```{r, fig.height=20}
 
-covid_gex_integrate <- GEX_clonotype(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_clone_tcells)
+covid_gex_integrate <- Platypus::GEX_clonotype(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_clone_tcells)
 
-covid_gex_integrate_bcells <- GEX_clonotype(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_clone)
+covid_gex_integrate_bcells <- Platypus::GEX_clonotype(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_cell)
 
 
-GEX_phenotype_per_clone_plot <- GEX_phenotype_per_clone(seurat.object = covid_gex_integrate, clonotype.ids= c(1,2,3,4,5))
+GEX_phenotype_per_clone_plot <- Platypus::GEX_phenotype_per_clone(seurat.object = covid_gex_integrate, clonotype.ids= c(1,2,3,4,5))
 
 print(GEX_phenotype_per_clone_plot)
 
-covid_tcell_gene_heatmap <- GEX_heatmap(covid_gex_integrate,b.or.t = "t",clone.rank.threshold = 20,sample.index = 1)
+covid_tcell_gene_heatmap <- Platypus::GEX_heatmap(covid_gex_integrate,b.or.t = "t",clone.rank.threshold = 20,sample.index = 1)
 
 
-covid_bcell_gene_heatmap <- GEX_heatmap(covid_gex_integrate_bcells,b.or.t = "b",clone.rank.threshold = 20,sample.index = 1)
+covid_bcell_gene_heatmap <- Platypus::GEX_heatmap(covid_gex_integrate_bcells,b.or.t = "b",clone.rank.threshold = 20,sample.index = 1)
 
 
 
@@ -651,7 +651,7 @@ We can also supply transcriptional cluster information into the clonal lineages 
 
 ```{r, fig.show='hold'}
 
-clonal_lineage_integrate <- VDJ_GEX_clonal_lineage_clusters(covid_integrating_cell_level,covid_clonal_lineages[1:1])
+clonal_lineage_integrate <- Platypus::VDJ_GEX_clonal_lineage_clusters(covid_integrating_cell_level,covid_clonal_lineages[1:1])
 
 print(clonal_lineage_integrate[[1]][[1]]$Name[1])
 
@@ -659,5 +659,13 @@ print(clonal_lineage_integrate[[1]][[1]]$Name[1])
 
 ```
 
+### 5 Version information
+
+```{r, fig.show='hold'}
+
+sessionInfo()
+
+
+```
 
 

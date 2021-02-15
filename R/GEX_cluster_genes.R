@@ -9,7 +9,7 @@
 #' genes_per_cluster <- GEX_cluster_genes(automate_GEX.output=automate_GEX_output[[i]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
 #'}
 GEX_cluster_genes <- function(automate_GEX.output, min.pct, filter){
-
+  require(stringr)
   if(missing(min.pct)) min.pct <- 0.25
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
 
@@ -22,7 +22,7 @@ GEX_cluster_genes <- function(automate_GEX.output, min.pct, filter){
     cluster_markers[[i]]$cluster <- rep((i-1), nrow(cluster_markers[[i]]))
     exclude <- c()
     for (j in filter) {
-      exclude <- c(exclude, str_which(rownames(cluster_markers[[i]]), j))
+      exclude <- c(exclude, stringr::str_which(rownames(cluster_markers[[i]]), j))
     }
     cluster_markers[[i]] <- cluster_markers[[i]][-exclude,]
   }

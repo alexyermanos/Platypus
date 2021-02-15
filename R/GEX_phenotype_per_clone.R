@@ -11,6 +11,7 @@
 GEX_phenotype_per_clone <- function(seurat.object,clonotype.ids){
   require(ggplot2)
   require(reshape2)
+  require(Seurat)
   # dca<-dcast(seurat.object@meta.data,clonotype_id~cell.state,value.var="cell.state",length)
   # dca$Sum <- rowSums(dca[-1])
   # dca[2:(ncol(dca)-1)]<- dca[2:(ncol(dca)-1)]/dca$Sum
