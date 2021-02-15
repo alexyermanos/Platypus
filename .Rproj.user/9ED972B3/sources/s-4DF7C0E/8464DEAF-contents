@@ -1,0 +1,239 @@
+Infer_Networks <- function(lineage.list,distance.calculation,network.algorithm,weighted.edges,weighted.germline,random.seed,resolve.ties){
+  
+  library(igraph)
+  library(stringdist)
+  if(missing(distance.calculation)) distance.calculation <- "lv"
+  if(missing(network.algorithm)) network.algorithm <- "naive"
+  if(missing(weighted.edges)) weighted.edges <- F
+  if(missing(weighted.germline)) weighted.germline <- F
+  if(missing(random.seed)) random.seed <- 1
+  if(missing(resolve.ties)) resolve.ties <- "random"
+  
+  
+  # global parameters
+  set.seed(random.seed)
+  num.networks <- length(lineage.list)
+  cells.per.network <- rep(0,num.networks)
+  variants.per.network <- rep(0,num.networks)
+  variant.sequences <- list()
+  network.objects <- list()
+  distance.matrices <- list()
+  adj.matrices <- list()
+  return.list <- list()
+  germline.index.list <- list()
+  
+  # nested list parameters
+  cells.per.variant <- list()
+  cell.indicies.per.variant <- list()
+  pasted.variant.names <- list()
+  
+  new.variant.names <- list()
+  
+  ## total isotype states and total transcriptome states 
+  
+  temp_rbind <- (do.call("rbind",lineage.list))
+  #unique.clusters <- 
+  #unique.isotypes <- 
+  isotype.per.cell <- list()
+  transcriptome.cluster.per.cell <- list()
+  isotype.per.variant <- list()
+  transcriptome.cluster.per.variant <- list()
+  
+  ## for each lineage loop
+  for(i in 1:length(lineage.list)){
+    ## record global parameters
+    cells.per.network[i] <- length(lineage.list[[i]]$Seq)
+    variant.sequences[[i]] <- unique(lineage.list[[i]]$Seq)
+    variants.per.network[i] <- length(variant.sequences[[i]])
+    return.list[[i]] <- list()
+    
+    ## per cell parameters
+    ## need to extract cluster - remove all things before the first two _
+    clusters <- gsub(".*_","",lineage.list[[i]]$Name)
+    clusters_integer <- as.integer(gsub("[^0-9.]", "",  clusters))
+    clusters_integer <- clusters_integer - 1
+    clusters_integer[is.na(clusters_integer)==T] <- "Unknown"
+    clusters_integer[which(grepl(lineage.list[[i]]$Name,pattern = "germline")==T)] <- "Germline"
+    transcriptome.cluster.per.cell[[i]] <- clusters_integer
+    print(transcriptome.cluster.per.cell[[i]])
+    isotypes <- sub(".*?_", "", lineage.list[[i]]$Name)
+    isotypes1 <- sub(".*?_", "", isotypes)
+    isotypes2 <- gsub("_.*","",isotypes1)
+    isotypes2[which(grepl(lineage.list[[i]]$Name,pattern = "germline")==T)] <- "Germline"
+    isotype.per.cell[[i]] <- isotypes2
+    #print(isotype.per.cell[[i]])
+    isotype.per.variant[[i]] <- rep("",variants.per.network[i])
+    transcriptome.cluster.per.variant[[i]] <- rep("",variants.per.network[i])
+    
+    ## generate nested list for per variant object
+    cells.per.variant[[i]] <- rep(0,variants.per.network[i])
+    cell.indicies.per.variant[[i]] <- list()
+    pasted.variant.names[[i]] <- rep("",variants.per.network[i])
+    
+    new.variant.names[[i]] <- rep("",variants.per.network[i])
+    
+    ## extracting per variant information
+    for(j in 1:length(variant.sequences[[i]])){
+      cell.indicies.per.variant[[i]][[j]] <- which(lineage.list[[i]]$Seq==variant.sequences[[i]][j])
+      cells.per.variant[[i]][j] <- length(cell.indicies.per.variant[[i]][[j]])
+      pasted.variant.names[[i]][j] <- paste(lineage.list[[i]]$Name[cell.indicies.per.variant[[i]][[j]]],sep="",collapse = ";")
+      isotype.per.variant[[i]][j] <- paste(isotype.per.cell[[i]][cell.indicies.per.variant[[i]][[j]]],sep="",collapse = ";")
+      transcriptome.cluster.per.variant[[i]][j] <- paste(transcriptome.cluster.per.cell[[i]][cell.indicies.per.variant[[i]][[j]]],sep="",collapse = ";")
+      
+      
+    }
+    ## now including lineage number, 
+    new.variant.names[[i]] <- paste("L",i,"_","v",1:length(new.variant.names[[i]]),"_","c",cells.per.variant[[i]],sep="")
+    
+    ## now need to change variant to germline 
+    new.variant.names[[i]][which(grepl(pasted.variant.names[[i]],pattern = "germline")==T)] <- paste("L",i,"_Germline",sep="")
+    
+    
+    # Simple case, no pruning
+    if(network.algorithm=="naive"){
+      distance.matrices[[i]] <- stringdistmatrix(variant.sequences[[i]],variant.sequences[[i]],method=distance.calculation)
+      rownames(distance.matrices[[i]]) <- new.variant.names[[i]]
+      colnames(distance.matrices[[i]]) <- new.variant.names[[i]]
+      
+      adj.matrices[[i]] <- matrix(0,nrow=nrow(distance.matrices[[i]]),ncol=ncol(distance.matrices[[i]]))
+      rownames(adj.matrices[[i]]) <- new.variant.names[[i]]
+      colnames(adj.matrices[[i]]) <- new.variant.names[[i]]
+      germline.index <- which(grepl(new.variant.names[[i]],pattern = "Germline")==T)
+      germline.index.list[[i]] <- germline.index
+      #distance.matrices[[i]][upper.tri(distance.matrices[[i]])] <- Inf
+      diag(distance.matrices[[i]]) <- Inf
+      all.nodes <- 1:nrow(distance.matrices[[i]])
+      current.nodes.in.network <- germline.index
+      nodes.not.in.network <- all.nodes[-current.nodes.in.network]
+      j <- 1
+      while(length(nodes.not.in.network)>0){
+        print(j)
+        if(j==1){         
+          x <- distance.matrices[[i]][germline.index,]
+          closest.nodes <- which(x==min(x))
+          
+          if(weighted.germline==F) gl.dist <- 1
+          else if(weighted.germline==T) gl.dist <- min(distance.matrices[[i]][germline.index,])
+          for(k in 1:length(closest.nodes)){
+            
+            adj.matrices[[i]][germline.index,closest.nodes[k]] <- gl.dist
+            adj.matrices[[i]][closest.nodes[k],germline.index] <- gl.dist
+            
+          }
+          current.nodes.in.network <- unique(c(current.nodes.in.network,closest.nodes))
+          nodes.not.in.network <- all.nodes[-current.nodes.in.network]
+        }## germline set
+        if(j>1){ ############################################################################
+          print(paste('current nodes in network are',paste(current.nodes.in.network,collapse = ';')))
+          print(paste('current nodes not in network are',paste(nodes.not.in.network,collapse = ';')))          
+          x <- distance.matrices[[i]]
+          x[nodes.not.in.network,] <- Inf
+          x[,current.nodes.in.network] <- Inf
+          
+          next.min.distance <- min(x)
+          
+          next.min.distance.indices <- which(x == min(x), arr.ind = TRUE)
+          print((next.min.distance.indices))
+          print(class(next.min.distance.indices))
+          new.unique.newnodes <- unique(next.min.distance.indices[,2])
+          unique.column.nodes <- (which(duplicated(next.min.distance.indices[,2])==F))
+          
+          if(resolve.ties=='first'){
+            duplicated.index <- which(duplicated(next.min.distance.indices[,2])==T)
+            closest.nodes.to.current <- matrix(next.min.distance.indices[unique.column.nodes,],nrow=length(unique.column.nodes))
+          }
+          else if(resolve.ties=='random'){
+            new.unique.newnodes <- unique(next.min.distance.indices[,2])
+            if(length(next.min.distance.indices[,2])==length(unique(next.min.distance.indices[,2]))){
+              closest.nodes.to.current <- (next.min.distance.indices)
+            }
+            else{
+              keep.row <- rep(NA,length(new.unique.newnodes))
+              for(m in 1:length(new.unique.newnodes)){
+                temp.which <- which(next.min.distance.indices[,2]==new.unique.newnodes[m]) # 1 and 3
+                print(temp.which)
+                if(length(temp.which)>1){
+                  sample.which <- sample(temp.which,size = 1)
+                  keep.row[m] <- sample.which
+                }
+                else{
+                  keep.row[m] <- temp.which
+                }
+                
+                
+              }
+              closest.nodes.to.current <- matrix(next.min.distance.indices[keep.row,],nrow=length(new.unique.newnodes))
+            }
+            print(closest.nodes.to.current)
+            print(paste('nrow of closest.nodes.to.current:',nrow(closest.nodes.to.current)))
+            
+            ## need to get row and column indices of each one, then update the adj matrix
+            if(weighted.edges==F) next.min.distance <- 1
+            else if(weighted.edges==T) next.min.distance <- min(x)
+            
+            adj.row.index <- rep(NA,nrow(closest.nodes.to.current))
+            adj.col.index <- rep(NA,nrow(closest.nodes.to.current))
+            
+            for(k in 1:nrow(closest.nodes.to.current)){
+              print(paste('which(rownames(distance.matrices[[i]])==rownames(x)[closest.nodes.to.current[k,1]])',rownames(x)[closest.nodes.to.current[k,1]]))
+              
+              adj.row.index[k] <- closest.nodes.to.current[k,1]
+              adj.col.index[k] <- closest.nodes.to.current[k,2]
+              adj.matrices[[i]][adj.row.index[k],adj.col.index[k]] <- next.min.distance
+              adj.matrices[[i]][adj.col.index[k],adj.row.index[k]] <- next.min.distance
+              
+            }
+          }
+          ## need to move the rows to in network
+          current.nodes.in.network <- unique(c(current.nodes.in.network,adj.col.index))
+          print(paste('current nodes in network are',paste(current.nodes.in.network,collapse = ';')))
+          nodes.not.in.network <- all.nodes[-current.nodes.in.network]
+          print(paste('current nodes not in network are',paste(nodes.not.in.network,collapse = ';')))          
+          #if(j==15) nodes.not.in.network <- NULL
+        }## end of j not 1
+        j <- j + 1
+        
+      }
+    }
+    ## Your algorithm
+    else if(network.algorithm=="pruning"){
+      distance.matrices[[i]] <- stringdistmatrix(variant.sequences[[i]],variant.sequences[[i]],method=distance.calculation)
+      rownames(distance.matrices[[i]]) <- new.variant.names[[i]]
+      colnames(distance.matrices[[i]]) <- new.variant.names[[i]]
+      germline.index <- which(grepl(new.variant.names[[i]],pattern = "Germline")==T)
+      
+      ## Your algorithm
+      
+      
+      
+    }
+    diag(adj.matrices[[i]]) <- NA
+    network.objects[[i]] <- igraph::graph_from_adjacency_matrix(adj.matrices[[i]], mode = c("undirected"), weighted = NULL, diag = FALSE,add.colnames = NULL, add.rownames = NA)
+  }
+  return.list[[1]] <- network.objects
+  return.list[[2]] <- distance.matrices
+  return.list[[3]] <- adj.matrices
+  return.list[[4]] <- cells.per.network
+  return.list[[5]] <- variants.per.network
+  return.list[[6]] <- variant.sequences
+  return.list[[7]] <- cells.per.variant
+  return.list[[8]] <- cell.indicies.per.variant
+  return.list[[9]] <- pasted.variant.names
+  return.list[[10]] <- new.variant.names
+  return.list[[11]] <- germline.index.list
+  return.list[[12]] <- isotype.per.cell
+  return.list[[13]] <- transcriptome.cluster.per.cell
+  return.list[[14]] <- isotype.per.variant
+  return.list[[15]] <- transcriptome.cluster.per.variant
+  
+  return(return.list)
+}
+#save(Manuscript_LCMV_clonal_lineages,file='~/PHD/lcmv_10/Manuscript_LCMV_clonal_lineages.RData')
+#load('Manuscript_LCMV_clonal_lineages.RData')
+#testing_network <- Manuscript_LCMV_clonal_lineages[[1]][1:2]
+network.function.seed1 <- Infer_Networks(testing_network,random.seed=1,resolve.ties = "random")
+network.function.seed3 <- Infer_Networks(testing_network,random.seed=3,resolve.ties = "random")
+
+plot(network.function.seed1[[1]][[1]],vertex.label=1:33)
+plot(network.function.seed3[[1]][[1]],vertex.label=1:33)
+

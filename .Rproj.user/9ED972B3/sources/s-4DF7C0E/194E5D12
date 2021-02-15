@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612979754523.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3562791035",
+    "id" : "194E5D12",
+    "lastKnownWriteTime" : 1606846473,
+    "last_content_update" : 1606846473,
+    "path" : "~/PHD/lcmv_10/Naive_network_code_manuscript.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 27,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

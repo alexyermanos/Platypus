@@ -1,0 +1,10 @@
+"0","pdf(""~/PHD/_platypus/Submission/SubmissionR1/submission_r1_images/Figure4D_dimplot_top10clones.pdf"",height=3,width=3.5)
+print(covid_top10_umap[[1]]+ NoLegend()) 
+dev.off()
+"
+"1","RStudioGD "
+"1","
+"
+"1","        2 "
+"1","
+"

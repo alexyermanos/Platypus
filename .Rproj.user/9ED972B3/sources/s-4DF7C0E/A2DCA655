@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612541985841.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "A2DCA655",
+    "lastKnownWriteTime" : 1612448339,
+    "last_content_update" : 1612448339,
+    "path" : "~/Documents/GitHub/Platypus/R/VDJ_network.R",
+    "project_path" : "R/VDJ_network.R",
+    "properties" : {
+        "cursorPosition" : "9,10",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

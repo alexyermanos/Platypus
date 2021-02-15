@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1613054466238.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "ED27E250",
+    "lastKnownWriteTime" : 1612434525,
+    "last_content_update" : 1612434525,
+    "path" : "~/Documents/GitHub/Platypus/R/VDJ_logoplot.R",
+    "project_path" : "R/VDJ_logoplot.R",
+    "properties" : {
+        "cursorPosition" : "12,0",
+        "scrollLine" : "1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 26,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

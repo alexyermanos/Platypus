@@ -1,0 +1,4 @@
+"0","GEX_phenotype_per_clone_plot <- GEX_phenotype_per_clone(seurat.object = covid_gex[[1]], clonotype.ids= c(1,2,3,4,5))
+"
+"2","Error in FUN(X[[i]], ...) : object 'clonotype_id' not found
+"

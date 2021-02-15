@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612958088818.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EE8A7563",
+    "lastKnownWriteTime" : 1612988945,
+    "last_content_update" : 1612988945490,
+    "path" : "~/Documents/GitHub/Platypus/R/GEX_GSEA.R",
+    "project_path" : "R/GEX_GSEA.R",
+    "properties" : {
+        "cursorPosition" : "27,18",
+        "scrollLine" : "20"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

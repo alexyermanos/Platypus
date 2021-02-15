@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612522038782.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "45D49A15",
+    "lastKnownWriteTime" : 1613050726,
+    "last_content_update" : 1613050726986,
+    "path" : "~/Downloads/vignetteAA1_AY1.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "816,0",
+        "scrollLine" : "547"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

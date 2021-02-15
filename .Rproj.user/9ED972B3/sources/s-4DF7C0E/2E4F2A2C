@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612973198462.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1650363515",
+    "id" : "2E4F2A2C",
+    "lastKnownWriteTime" : 1613220923,
+    "last_content_update" : 1613220923455,
+    "path" : "~/Documents/GitHub/Platypus/R/GEX_phenotype_per_clone.R",
+    "project_path" : "R/GEX_phenotype_per_clone.R",
+    "properties" : {
+        "cursorPosition" : "36,26",
+        "scrollLine" : "7"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 19,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612979746840.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2045199623",
+    "id" : "8464DEAF",
+    "lastKnownWriteTime" : 1606296596,
+    "last_content_update" : 1606296596,
+    "path" : "~/PHD/lcmv_10/Network_code_LCMV_manuscript.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 26,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

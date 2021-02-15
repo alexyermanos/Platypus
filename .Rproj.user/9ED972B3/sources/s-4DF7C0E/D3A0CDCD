@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612976298536.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D3A0CDCD",
+    "lastKnownWriteTime" : 1612957064,
+    "last_content_update" : 1612957064,
+    "path" : "~/Documents/GitHub/Platypus/R/VDJ_isotypes_per_clone.R",
+    "project_path" : "R/VDJ_isotypes_per_clone.R",
+    "properties" : {
+        "cursorPosition" : "135,479",
+        "scrollLine" : "132"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 21,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

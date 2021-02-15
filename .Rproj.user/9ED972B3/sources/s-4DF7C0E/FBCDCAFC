@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612956873934.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "FBCDCAFC",
+    "lastKnownWriteTime" : 1612962808,
+    "last_content_update" : 1612962808743,
+    "path" : "~/Documents/GitHub/Platypus/R/VDJ_Vgene_usage_stacked_barplot.R",
+    "project_path" : "R/VDJ_Vgene_usage_stacked_barplot.R",
+    "properties" : {
+        "cursorPosition" : "141,21",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

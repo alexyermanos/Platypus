@@ -1,0 +1,107 @@
+---
+title: "README"
+author: "Andreas Agrafiotis"
+date: "February 11, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Platypus
+
+Platypus is an R toolkit designed to facilitate the data analysis of single-cell immune repertoire sequencing experiments. 
+
+# System requirements
+
+Platypus has been successfully installed on Mac OS X and Windows, and used on R verson 4.0.0
+
+# Installation
+
+The package can be installed directly from GitHub?
+
+Platypus uses a number of different R packages which need prior installation. These can be installed either from CRAN, Bioconductor using "BiocManager" or GitHub using "devtools":
+
+MiXCR??????
+
+## CRAN
+
+### ape  
+### circlize
+### do
+### dplyr
+### ggplot2
+### ggseqlogo
+### igraph
+### jsonlite
+### phytools 
+### reshape2
+### seqinr
+### Seurat
+### scales
+### stringdist
+### stringr
+### tibble
+### tidyverse
+### useful 
+### utils 
+
+Code to install the packages from CRAN:
+```{r}
+install.packages("ape")
+install.packages("circlize")
+install.packages("do")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggseqlogo")
+install.packages("igraph")
+install.packages("jsonlite")
+install.packages("phytools")
+install.packages("reshape2")
+install.packages("seqinr")
+install.packages("Seurat")
+install.packages("scales")
+install.packages("stringdist")
+install.packages("stringr")
+install.packages("tibble")
+install.packages("tidyverse")
+install.packages("useful")
+install.packages("utils")
+```
+
+## GitHub
+
+### harmony 
+
+Code for installing harmony:
+```{r}
+install.packages("devtools")
+library(devtools)
+install_github("immunogenomics/harmony")
+```
+
+
+##Bioconductor
+
+### Biostrings  
+### org.Mm.eg.db 
+### edgeR
+### fgsea
+### msa 
+
+Code for installing the packages from Bioconductor:
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+    
+BiocManager::install("Biostrings")
+BiocManager::install("org.Mm.eg.db")
+BiocManager::install("edgeR")
+BiocManager::install("fgsea")
+BiocManager::install("msa")
+```
+
+
+Please post on the github page with any questions or if you would like to contribute.
+

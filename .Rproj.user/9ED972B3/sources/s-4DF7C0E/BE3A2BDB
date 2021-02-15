@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1613221428009.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "BE3A2BDB",
+    "lastKnownWriteTime" : 1613221459,
+    "last_content_update" : 1613221459661,
+    "path" : "~/Documents/GitHub/Platypus/R/GEX_cluster_genes.R",
+    "project_path" : "R/GEX_cluster_genes.R",
+    "properties" : {
+        "cursorPosition" : "10,15",
+        "scrollLine" : "2"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 31,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

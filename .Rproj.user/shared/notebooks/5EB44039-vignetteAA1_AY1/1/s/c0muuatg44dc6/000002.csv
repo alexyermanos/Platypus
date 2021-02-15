@@ -1,0 +1,6 @@
+"0","# Now we can load the installed package into the R environment. In case of problems with instally other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
+library(Platypus)
+"
+"2","package ‘dplyr’ was built under R version 3.6.2"
+"2","package ‘S4Vectors’ was built under R version 3.6.3"
+"2","package ‘IRanges’ was built under R version 3.6.2"

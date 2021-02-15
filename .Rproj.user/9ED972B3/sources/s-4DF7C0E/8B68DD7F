@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612957844714.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8B68DD7F",
+    "lastKnownWriteTime" : 1611320905,
+    "last_content_update" : 1611320905,
+    "path" : "~/Documents/GitHub/Platypus/R/VDJ_GEX_integrate.R",
+    "project_path" : "R/VDJ_GEX_integrate.R",
+    "properties" : {
+        "cursorPosition" : "11,2",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
