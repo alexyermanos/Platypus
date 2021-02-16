@@ -22,9 +22,9 @@ In the example below two directories are supplied to two distinct list elements,
 ```{r, fig.show='hold', message=FALSE}
 
 ### Removing any previous versions of the package
-# First we will ensure that there is no previous version installed locally
-#detach("package:Platypus", unload=TRUE)
-#remove.packages("Platypus")
+#First we will ensure that there is no previous version installed locally
+detach("package:Platypus", unload=TRUE)
+remove.packages("Platypus")
 
 ### Downloading and installing Platypus
 
@@ -32,14 +32,14 @@ In the example below two directories are supplied to two distinct list elements,
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
 # For MacOS useres it may look like this
-#install.packages("~/Downloads/Platypus_2.0.4.tar.gz", repos = NULL, type="source")
+install.packages("~/Downloads/Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
 # For windows it will likely look something like this. 
 # WARNING: You will need to replace YourPCName with your User name for the windows account in the directory. 
 # install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
 # Now we can load the installed package into the R environment. In case of problems with instally other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
-#library(Platypus)
+library(Platypus)
 
 # The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is an folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in original tar.gz file. 
 
