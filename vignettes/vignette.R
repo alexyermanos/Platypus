@@ -1,9 +1,9 @@
 ## ---- fig.show='hold', message=FALSE------------------------------------------
 
 ### Removing any previous versions of the package
-# First we will ensure that there is no previous version installed locally
-#detach("package:Platypus", unload=TRUE)
-#remove.packages("Platypus")
+#First we will ensure that there is no previous version installed locally
+detach("package:Platypus", unload=TRUE)
+remove.packages("Platypus")
 
 ### Downloading and installing Platypus
 
@@ -11,14 +11,14 @@
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
 # For MacOS useres it may look like this
-#install.packages("~/Downloads/Platypus_2.0.4.tar.gz", repos = NULL, type="source")
+install.packages("~/Downloads/Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
 # For windows it will likely look something like this. 
 # WARNING: You will need to replace YourPCName with your User name for the windows account in the directory. 
 # install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
 # Now we can load the installed package into the R environment. In case of problems with instally other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
-#library(Platypus)
+library(Platypus)
 
 # The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is an folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in original tar.gz file. 
 
@@ -94,9 +94,9 @@ Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
 
 
 ## ---- fig.show='hold'---------------------------------------------------------
-Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4","CD8A","CD3E","CD19"),split.by = "sample_id")
+Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4"))
 
-## -----------------------------------------------------------------------------
+## ---- results='hide'----------------------------------------------------------
 covid_gex_phenotype <- Platypus::GEX_phenotype(covid_gex[[1]], default = T)
 
 covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
@@ -108,7 +108,7 @@ covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
 
 
 ## -----------------------------------------------------------------------------
-Seurat::DimPlot(covid_gex[[1]],reduction = "umap",split.by = "sample_id", group.by = "cell.state") 
+Seurat::DimPlot(covid_gex[[1]],reduction = "umap", group.by = "cell.state") 
 
 
 
@@ -136,10 +136,10 @@ covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap1(automate_GEX.outp
 
 print(covid_heatmap_clusters)
 
-## -----------------------------------------------------------------------------
+## ----results='hide'-----------------------------------------------------------
 
 ontology_covid <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
-print(ontology_covid)
+#print(ontology_covid)
 
 ## -----------------------------------------------------------------------------
 #top_10_genes_per_cluster <- Platypus::GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output = gene_expression_cluster, n.genes = 10, by_FC = T)
