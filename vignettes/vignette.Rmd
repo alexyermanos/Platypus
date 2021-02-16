@@ -11,7 +11,7 @@ vignette: >
 
 ## 1. Introduction
 
-Platypus is a package designed to facilitate the analysis of single-cell immune repertoire sequencing experiments. The package can be used to separately analyze gene expression (GEX) or immune receptor repertoire (VDJ) sequencing data, in addition to integrating the two data sets to combine phenotypic features with repertoire analysis. The package is designed to primarily analyze the output from 10x genomics cellranger (output from count for GEX and vdj for enriched immune receptor libraries). The functions could work with other barcode-based scSeq technologies assume the input columns are added correctly. The gene expression analysis relies heavily upon Seurat, a commonly used R package for single-cell sequencing (scSeq). 
+Platypus is a package designed to facilitate the analysis of single-cell immune repertoire sequencing experiments. The package can be used to separately analyze gene expression (GEX) or immune receptor repertoire (VDJ) sequencing data, in addition to integrating the two data sets to combine phenotypic features with repertoire analysis. The package is designed to primarily analyze the output from 10x genomics cellranger (output from count for GEX and VDJ for enriched immune receptor libraries). The functions could work with other barcode-based scSeq technologies assume the input columns are added correctly. The gene expression analysis relies heavily upon Seurat, a commonly used R package for single-cell sequencing (scSeq). 
 
 
 ## 2. Gene expression analysis
@@ -22,9 +22,9 @@ In the example below two directories are supplied to two distinct list elements,
 ```{r, fig.show='hold', message=FALSE}
 
 ### Removing any previous versions of the package
-#First we will ensure that there is no previous version installed locally
-detach("package:Platypus", unload=TRUE)
-remove.packages("Platypus")
+#First can ensure that there is no previous version installed locally
+#detach("package:Platypus", unload=TRUE)
+#remove.packages("Platypus")
 
 ### Downloading and installing Platypus
 
@@ -204,12 +204,12 @@ print(covid_heatmap_clusters)
 After plotting the ggplot object we can clearly see genes enricheded in the various clusters - mainly indicated by the diagonal. 
 
 
-Earlier we say how we can match the unbiased clustering to known cell types using canonical markers. Platypus also allows us to run a GO or KEGG term analysis in order to obtain information on the most significant GO/KEGG terms and their visualizations using the GEX_GOterm function. (To do this, we first need to organize the top genes that define each Seurat cluster and convert them into a single dataframe. This is done using the GEX_topN_DE_genes_per_cluster function)
+Earlier we say how we can match the unbiased clustering to known cell types using canonical markers. Platypus also allows us to run a GO or KEGG term analysis in order to obtain information on the most significant GO/KEGG terms and their visualizations using the GEX_GOterm function. (To do this, we first need to organize the top genes that define each Seurat cluster and convert them into a single dataframe. This is done using the GEX_topN_DE_genes_per_cluster function). This function has been commented out because it requires an internet connection. 
 
 ```{r,results='hide'}
 
 ontology_covid <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
-#print(ontology_covid)
+head(ontology_covid[[1]])
 ```
 
 We can additionally extract the top N genes per cluster directly (with filtering) using the following function:

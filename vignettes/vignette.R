@@ -1,9 +1,9 @@
 ## ---- fig.show='hold', message=FALSE------------------------------------------
 
 ### Removing any previous versions of the package
-#First we will ensure that there is no previous version installed locally
-detach("package:Platypus", unload=TRUE)
-remove.packages("Platypus")
+#First can ensure that there is no previous version installed locally
+#detach("package:Platypus", unload=TRUE)
+#remove.packages("Platypus")
 
 ### Downloading and installing Platypus
 
@@ -139,7 +139,7 @@ print(covid_heatmap_clusters)
 ## ----results='hide'-----------------------------------------------------------
 
 ontology_covid <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
-#print(ontology_covid)
+head(ontology_covid[[1]])
 
 ## -----------------------------------------------------------------------------
 #top_10_genes_per_cluster <- Platypus::GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output = gene_expression_cluster, n.genes = 10, by_FC = T)
