@@ -138,12 +138,12 @@ Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
 
 Finally we can also look at the B, CD4 and CD8 clusters for each patient.
 ```{r, fig.show='hold'}
-Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4","CD8A","CD3E","CD19"),split.by = "sample_id")
+Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4"))
 ```
 
 
 We can see that both patients seem to have B cells (CD19+), CD4 T cells, and CD8 T cells. Platypus also allows us to assigning cell type/state identity to the different clusters by using the GEX_phenotype. This functon takes the Seurat object as input and uses canonical markers to easily match the clustering to known cell types. The user also has the possibility to use a custom list of markers and their associate cell types/states.
-```{r}
+```{r, results='hide'}
 covid_gex_phenotype <- Platypus::GEX_phenotype(covid_gex[[1]], default = T)
 
 covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
@@ -157,7 +157,7 @@ covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
 The resulting Seurat object now contains a "cell.state" column which can be used for annotation in the DimPlot function of the Seurat package.
 
 ```{r}
-Seurat::DimPlot(covid_gex[[1]],reduction = "umap",split.by = "sample_id", group.by = "cell.state") 
+Seurat::DimPlot(covid_gex[[1]],reduction = "umap", group.by = "cell.state") 
 
 
 ```
@@ -206,10 +206,10 @@ After plotting the ggplot object we can clearly see genes enricheded in the vari
 
 Earlier we say how we can match the unbiased clustering to known cell types using canonical markers. Platypus also allows us to run a GO or KEGG term analysis in order to obtain information on the most significant GO/KEGG terms and their visualizations using the GEX_GOterm function. (To do this, we first need to organize the top genes that define each Seurat cluster and convert them into a single dataframe. This is done using the GEX_topN_DE_genes_per_cluster function)
 
-```{r}
+```{r,results='hide'}
 
 ontology_covid <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
-print(ontology_covid)
+#print(ontology_covid)
 ```
 
 We can additionally extract the top N genes per cluster directly (with filtering) using the following function:
