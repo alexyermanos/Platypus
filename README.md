@@ -90,7 +90,7 @@ install.packages("stringr")
 install.packages("tibble")
 install.packages("tidyverse")
 install.packages("useful")
-install.packages("utils")
+#install.packages("utils")
 ```
 
 ## GitHub
