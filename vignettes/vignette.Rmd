@@ -11,12 +11,12 @@ vignette: >
 
 ## 1. Introduction
 
-Platypus is a package designed to facilitate the analysis of single-cell immune repertoire sequencing experiments. The package can be used to separately analyze gene expression (GEX) or immune receptor repertoire (VDJ) sequencing data, in addition to integrating the two data sets to combine phenotypic features with repertoire analysis. The package is designed to primarily analyze the output from 10x genomics cellranger (output from count for GEX and VDJ for enriched immune receptor libraries). The functions could work with other barcode-based scSeq technologies assume the input columns are added correctly. The gene expression analysis relies heavily upon Seurat, a commonly used R package for single-cell sequencing (scSeq). 
+Platypus is a package designed to facilitate the analysis of single-cell immune repertoire sequencing experiments. The package can be used to separately analyze gene expression (GEX) or immune receptor repertoire (VDJ) sequencing data, in addition to integrating the two data sets to combine phenotypic features with repertoire analysis. The package is designed to primarily analyze the output from 10x genomics cellranger (output from count for GEX and VDJ for enriched immune receptor libraries). The functions could work with other barcode-based scSeq technologies assuming the input columns are added correctly. The gene expression analysis relies heavily upon Seurat, a commonly used R package for single-cell sequencing (scSeq). 
 
 
 ## 2. Gene expression analysis
 
-The output from cellranger's count function returns gene expression information in the form of an expression matrix, barcodes, and gene identifiers. The function automate_GEX allows us to automates the transcriptional analysis of the gene expression libraries from cellranger. The input directory should be set to the directory containing these three files (barcodes.tsv.gz, features.tsv.gz, matrix.mtx.gz). If it is desired to analyze multiple distinct transcriptomes (e.g. on separate UMAP space), these directories should go into separate list objects. For example if there are 20 repertoires and it is wanted to analyze them separately (20 separate UMAPs, 20 separate repertoires) then each outer list element of the input directories will contain the directory for the individual repertoire/GEX files. The output of this function is a Seurat object similar to the standard pipeline demonstrated in the Seurat vignette. This involves scaling, normalizing, clustering, and performing dimension reductionality (tSNE and UMAP by default). At this stage there is no incorporation of repertoire features, which need to be explicitly integrated using subsequent functions in Platypus.
+The output from cellranger's count function returns gene expression information in the form of an expression matrix, barcodes, and gene identifiers. The function automate_GEX allows us to automate the transcriptional analysis of the gene expression libraries from cellranger. The input directory should be set to the directory containing these three files (barcodes.tsv.gz, features.tsv.gz, matrix.mtx.gz). If it is desired to analyze multiple distinct transcriptomes (e.g. on separate UMAP space), these directories should go into separate list objects. For example if there are 20 repertoires and it is wanted to analyze them separately (20 separate UMAPs, 20 separate repertoires) then each outer list element of the input directories will contain the directory for the individual repertoire/GEX files. The output of this function is a Seurat object similar to the standard pipeline demonstrated in the Seurat vignette. This involves scaling, normalizing, clustering, and performing dimensionality reduction (tSNE and UMAP by default). At this stage there is no incorporation of repertoire features, which need to be explicitly integrated using subsequent functions in Platypus.
 
 In the example below two directories are supplied to two distinct list elements, and thus these distinct transcriptomes (corresponding to two distinct repertoires) will each be associated to a distinct Seurat object.
 ```{r, fig.show='hold', message=FALSE}
@@ -31,17 +31,17 @@ In the example below two directories are supplied to two distinct list elements,
 # First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. 
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
-# For MacOS useres it may look like this
+# For MacOS users it may look like this
 install.packages("~/Downloads/Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
 # For windows it will likely look something like this. 
-# WARNING: You will need to replace YourPCName with your User name for the windows account in the directory. 
+# WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
 # install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
-# Now we can load the installed package into the R environment. In case of problems with instally other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
+# Now we can load the installed package into the R environment. In case of problems with installing other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
 library(Platypus)
 
-# The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is an folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in original tar.gz file. 
+# The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment in case not all functions are desired. These functions are actively updated and may include more features than the in original tar.gz file. 
 
 
 ### Downloading the test data
