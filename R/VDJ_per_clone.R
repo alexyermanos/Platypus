@@ -60,7 +60,7 @@ VDJ_per_clone <- function(clonotype.list,
         utils::setTxtProgressBar(value = j/nrow(clonotype.list[[i]]),pb = holding_bar)
 
         temp.cell.number <- clonotype.list[[i]]$frequency[j]
-        print(temp.cell.number)
+
         temp_concat_ref_HC <- gsub(pattern = "_consensus_",replacement = "_concat_ref_",x = contig.list[[i]]$raw_consensus_id[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")][1])
         temp_concat_ref_LC <- gsub(pattern = "_consensus_",replacement = "_concat_ref_",x = contig.list[[i]]$raw_consensus_id[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGK")][1])
         temp_concat_ref_HC_seq <- as.character(reference.list[[i]][which(names(reference.list[[i]])==temp_concat_ref_HC)])
