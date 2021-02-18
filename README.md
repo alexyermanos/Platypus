@@ -11,6 +11,8 @@ Platypus has been successfully installed on MacOS X (v10.14.6) and Windows 10 Pr
 
 The package can be installed directly from the tar.gz file on this GitHub. Please see the vignette for examples of how the package can be used. 
 
+Please scroll down for instructions on how to install the necessary dependencies. 
+
 ```{r}
 
 ### Removing any previous versions of the package
@@ -45,7 +47,7 @@ The package can be installed directly from the tar.gz file on this GitHub. Pleas
 ```
 
 
-Platypus uses a number of different R packages which need prior installation. These can be installed either from CRAN, Bioconductor using "BiocManager" or GitHub using "devtools":
+Platypus uses a number of different R packages, some of which need prior installation. These can be installed either from CRAN, Bioconductor using "BiocManager" or GitHub using "devtools":
 
 
 ## CRAN
@@ -95,7 +97,7 @@ install.packages("useful")
 
 ## GitHub
 
-### harmony 
+### Harmony (but not required if not using the Harmony integration method)
 
 Code for installing harmony:
 ```{r}
