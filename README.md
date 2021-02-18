@@ -1,4 +1,4 @@
-
+![alt text](https://repository-images.githubusercontent.com/297313954/10e0a180-713e-11eb-9a23-ef93a9d86e8b)
 # Platypus
 
 Platypus is an R toolkit designed to facilitate the data analysis of single-cell immune repertoire sequencing experiments. 
