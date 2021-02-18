@@ -515,10 +515,9 @@ Furthermore, we can also produce a circular visualization of how V and J genes a
 
 ```{r}
 
-Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_bcells[2:2], c.threshold = 1,label.threshold=50,cell.level = T)
+vj_circos_bcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_bcells[2:2], c.threshold = 1,label.threshold=50,cell.level = T)
 
-Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:1], c.threshold = 1,label.threshold=50,cell.level = T)
-
+vj_circos_tcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:1], c.threshold = 1,label.threshold=50,cell.level = T)
 
 
 
