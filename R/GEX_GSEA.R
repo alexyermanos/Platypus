@@ -13,13 +13,14 @@
 #' df <- GEX_cluster_genes(gex_combined[[1]])
 #' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = "./c5.go.bp.v7.2.symbols.gmt")
 #' cowplot::plot_grid(plotlist=output[[2]], ncol=2)
+#' View(gex_gsea[[1]])
 #'}
 
 GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pathways, metric_colname, pval_adj_cutoff, Enrichment.Plots){
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
   if (missing(metric_colname)) {metric_colname <- "avg_logFC"}
   if (missing(pval_adj_cutoff)) {pval_adj_cutoff <- 0.001}
-
+  
   require(dplyr)
   require(fgsea)
   require(tibble)
@@ -28,23 +29,30 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
   require(ggplot2)
 
   # change metric colname to 'stats' for further downstream analysis
-  print(head(df))
+  # print(head(GEX.cluster.genes.output))
   colnames <- names(GEX.cluster.genes.output)[names(GEX.cluster.genes.output) == metric_colname] <- 'stats'
   # if symbols are given as rownames, put them in own column
   if(!is.character(GEX.cluster.genes.output$symbol)){
     GEX.cluster.genes.output$symbol <- rownames(GEX.cluster.genes.output)
   }
-  print(head(df))
+  # print(head(GEX.cluster.genes.output))
     # Filter out RBS, RBL and MT genes if desired
     if (MT.Rb.filter==T){
       exclude <- c()
       for (j in filter) {
-        print(j)
         exclude <- c(exclude, str_which(GEX.cluster.genes.output$symbol, j))
-        print(str_which(GEX.cluster.genes.output$symbol, j))
       }
-      df <- GEX.cluster.genes.output[-exclude,]
-    } # fgsea_res_Tidy %>%
+      if(length(exclude) > 0){
+        print(paste0("Filtering ", length(exclude), "genes"))
+        df <- GEX.cluster.genes.output[-exclude,]
+      }else{
+        print("No genes matching filter found")
+        df <- GEX.cluster.genes.output
+      }
+    }else{
+      df <- GEX.cluster.genes.output
+    }
+  # fgsea_res_Tidy %>%
     #   dplyr::select(-leadingEdge, -ES) %>%
     #   arrange(padj) %>%
     #   DT::datatable()-> data.table
@@ -53,7 +61,6 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     df %>% dplyr::filter(., p_val_adj<pval_adj_cutoff)%>% dplyr::select("symbol","stats")%>% na.omit()%>%dplyr::arrange(-stats)%>% distinct(symbol, .keep_all = TRUE)-> df_ranked
     df_ranked <- deframe(df_ranked)
     pathway_MSig <- gmtPathways(path_to_pathways)
-    print(df_ranked)
     #Run GSEA %>% safe as df
     fgsea_res <- fgsea(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)
     print(fgsea_res)
@@ -64,19 +71,14 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     topPathwaysUp <- fgsea_res[ES > 0][head(order(pval), n=10), pathway]
     topPathwaysDown <- fgsea_res[ES < 0][head(order(pval), n=10), pathway]
     topPathways<- c(topPathwaysUp, rev(topPathwaysDown))
-    print(topPathwaysUp)
-    print(length(topPathwaysUp))
 
     plotsUp <- list()
     if(length(topPathwaysUp)>0){
       for (k in 1:length(topPathwaysUp)){
-        print(k)
         plotsUp[[k]]<- plotEnrichment(pathway_MSig[[topPathwaysUp[[k]]]],
                        df_ranked) + labs(title=topPathwaysUp[[k]])
       }
     }
-    print(topPathwaysDown)
-    print(length(topPathwaysDown))
     plotsDown <- list()
     if(length(topPathwaysDown)>0){
       for (k in 1:length(topPathwaysDown)){
