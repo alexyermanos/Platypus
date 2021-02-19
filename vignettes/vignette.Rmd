@@ -190,11 +190,11 @@ print(sapply(gene_expression_cluster,nrow))
 ```
 
 
-It is also possible using Platypus to create a heatmap displaying the differentially expressed genes for each cluster. This can be customized to sub-sample cells in case certain clusters are too large for visualization purposes. Additionally, the user can determine the number of genes to display for each cluster based on the n.genes.per.cluster argument. The function GEX_cluster_genes_heatmap1 can be used to produce a ggplot object, based on the DoHeatmap from Seurat. 
+It is also possible using Platypus to create a heatmap displaying the differentially expressed genes for each cluster. This can be customized to sub-sample cells in case certain clusters are too large for visualization purposes. Additionally, the user can determine the number of genes to display for each cluster based on the n.genes.per.cluster argument. The function GEX_cluster_genes_heatmap can be used to produce a ggplot object, based on the DoHeatmap from Seurat. 
 
 ```{r, fig.show='hold'}
 
-covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap1(automate_GEX.output = covid_gex[[1]],
+covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],
                                                               GEX_cluster_genes.output = gene_expression_cluster,
                                                               n.genes.per.cluster = 3,max.cell = 30,
                                                               metric = "top_logFC")

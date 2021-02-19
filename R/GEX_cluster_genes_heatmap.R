@@ -10,7 +10,7 @@
 #' \dontrun{
 #' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(automate_GEX.output=automate_GEX_output[[i]],GEX_cluster_genes.output=GEX_cluster_genes_output,n.genes.per.cluster=5,metric="p.value",max.cell=5)
 #'}
-GEX_cluster_genes_heatmap1 <- function(automate_GEX.output,GEX_cluster_genes.output,n.genes.per.cluster,metric,max.cell){
+GEX_cluster_genes_heatmap <- function(automate_GEX.output,GEX_cluster_genes.output,n.genes.per.cluster,metric,max.cell){
   if(missing(max.cell)) max.cell <- 100
   if(missing(n.genes.per.cluster)) n.genes.per.cluster <- 5
   if(missing(metric)) metric <- "p.value"
