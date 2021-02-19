@@ -1,38 +1,38 @@
 ## ---- fig.show='hold', message=FALSE------------------------------------------
 
 ### Removing any previous versions of the package
-# First we will ensure that there is no previous version installed locally
+#First, ensure there is no previous version installed locally
 #detach("package:Platypus", unload=TRUE)
 #remove.packages("Platypus")
 
 ### Downloading and installing Platypus
 
-# First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. 
+# Download most recent version from master branch at https://github.com/alexyermanos/Platypus We can install the package using the following command. 
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
-# For MacOS useres it may look like this
-#install.packages("~/Downloads/Platypus_2.0.4.tar.gz", repos = NULL, type="source")
+# For MacOS users it may look like this:
+install.packages("~/Downloads/Platypus_2.0.5.tar.gz", repos = NULL, type="source")
 
-# For windows it will likely look something like this. 
-# WARNING: You will need to replace YourPCName with your User name for the windows account in the directory. 
+# For windows it will likely look something like this: 
+# WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
 # install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.4.tar.gz", repos = NULL, type="source")
 
-# Now we can load the installed package into the R environment. In case of problems with instally other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
-#library(Platypus)
+# Now we can load the installed package into the R environment. In case of problems with installing other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
+library(Platypus)
 
-# The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is an folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in original tar.gz file. 
+# Individual R functions can additionally be found on the github Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment in case not all functions are desired. These functions are actively updated and may include more features than the in original tar.gz file. 
 
 
 ### Downloading the test data
 # The COVID-19 data (~136 MB size of the zip file) can be found at the following link https://polybox.ethz.ch/index.php/s/fxQJ3NrRSwiPSSo This dataset contains VDJ (separate libraries for B and T cells) and GEX libraries from two convalescent COVID-19 patients.
 
-# After downloading the zip file named "PlatypusTestData.zip", please unzip the file and find the path to the newly formed folder. Typically this will be in the Downloads folder, so the code below should work on MacOS. For windows please uncomment the code and change the user name to match your PC.
+# After downloading the zip file named "PlatypusTestData.zip", please unzip the file and find the path to the newly formed folder. Typically this will be in the Downloads folder, so the code below should work on MacOS. For Windows please uncomment the code and change the user name to match your PC.
 
 directory_to_covid_patients_gex <- list()
 directory_to_covid_patients_gex[[1]] <- c("~/Downloads/PlatypusTestData/Patient1_GEX/")
 directory_to_covid_patients_gex[[2]] <- c("~/Downloads/PlatypusTestData/Patient2_GEX/")
 
-# For windows: 
+# For Windows: 
 #directory_to_covid_patients_gex[[1]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient1_GEX")
 #directory_to_covid_patients_gex[[2]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient2_GEX")
 
@@ -94,9 +94,10 @@ Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
 
 
 ## ---- fig.show='hold'---------------------------------------------------------
-Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4","CD8A","CD3E","CD19"),split.by = "sample_id")
+#Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4","CD8A","CD19"))
+Seurat::FeaturePlot(covid_gex[[1]],reduction = "umap",features = c("CD4"))
 
-## -----------------------------------------------------------------------------
+## ---- results='hide'----------------------------------------------------------
 covid_gex_phenotype <- Platypus::GEX_phenotype(covid_gex[[1]], default = T)
 
 covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
@@ -108,7 +109,7 @@ covid_gex[[1]] <- Platypus::GEX_phenotype(covid_gex[[1]], default = F,
 
 
 ## -----------------------------------------------------------------------------
-Seurat::DimPlot(covid_gex[[1]],reduction = "umap",split.by = "sample_id", group.by = "cell.state") 
+Seurat::DimPlot(covid_gex[[1]],reduction = "umap", group.by = "cell.state") 
 
 
 
@@ -136,10 +137,10 @@ covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap1(automate_GEX.outp
 
 print(covid_heatmap_clusters)
 
-## -----------------------------------------------------------------------------
+## ----results='hide'-----------------------------------------------------------
 
 ontology_covid <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster, topNgenes = 10, go.plots = F)
-print(ontology_covid)
+head(ontology_covid[[1]])
 
 ## -----------------------------------------------------------------------------
 #top_10_genes_per_cluster <- Platypus::GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output = gene_expression_cluster, n.genes = 10, by_FC = T)
@@ -265,11 +266,11 @@ print(colnames(covid_clonal_lineages[[1]][[1]])) ## dataframe with the columns S
 print(covid_clonal_lineages[[1]][[1]]$Seq[1])
 
 print(covid_clonal_lineages[[1]][[1]]$Name[1]) #"clonotype3_1_IGHA1_AACCATGAGTGGAGTC-1"
-## Here we can see that the above sequence corresponds to the original clonotype3 but is now the first clonal lineage (as seen by the _1_ before the isotype). Furthermore, the isotype of this cell was of the IGHA1. Lastly we have the barcode of the cell at the end, allowing us to look back at other cell-specific properties if wanted. 
+## Here we can see that the above sequence corresponds to the original clonotype3 but is now the first clonal lineage (as seen by the _1_ before the isotype). Furthermore, the isotype of this cell was of the IGHA1. Lastly, we have the barcode of the cell at the end, allowing us to look back at other cell-specific properties if wanted. 
 
 
 print(covid_clonal_lineages[[1]][[3]]$Name[3]) #"clonotype7_3_IGHA1_AGTGAGGTCGAGAACG-1"
-## Again, this was originally the 7th clonotype, and is now the third most clonally expanded lineage ("_3_"). Again of the IGHA1 isotype with the following barcode. 
+## Again, this was originally the 7th clonotype, and is now the third most clonally expanded lineage ("_3_") of the IGHA1 isotype with given barcode. 
 
 print(tail(covid_clonal_lineages[[1]][[3]]$Name))  ## here at the end of the dataframe the user can also see the germline sequence, which has the "Name" of "germline". 
 
@@ -342,10 +343,9 @@ example.vdj.vgene_usage[[1]]
 
 ## -----------------------------------------------------------------------------
 
-Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_bcells[2:2], c.threshold = 1,label.threshold=50,cell.level = T)
+vj_circos_bcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_bcells[2:2], c.threshold = 1,label.threshold=50,cell.level = T)
 
-Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:1], c.threshold = 1,label.threshold=50,cell.level = T)
-
+vj_circos_tcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:1], c.threshold = 1,label.threshold=50,cell.level = T)
 
 
 
