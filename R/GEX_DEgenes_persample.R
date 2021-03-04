@@ -9,18 +9,20 @@
 #' @param logFC Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).
 #' @param up.genes Integer specifying the number of upregulated genes to be shown.
 #' @param down.genes Integer specifying the number of downregulated genes to be shown. 
+#' @param base The base with respect to which logarithms are computed. Default: 2
 #' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
 #' @export
 #' @examples
 #' \dontrun{
 #' check_de_genes2 <- GEX_DEgenes_persample(automate.GEX=automate.GEX.output[[i]],min.pct = .25,sample1 = "2",sample2 = "3")
 #'}
-GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.group, filter, return.plot, logFC, up.genes, down.genes){
+GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.group, filter, return.plot, logFC, up.genes, down.genes, base){
 
     if(missing(return.plot)) return.plot <- FALSE  
     if(missing(logFC)) logFC <- TRUE 
     if(missing(up.genes)) up.genes <- 15 
     if(missing(down.genes)) down.genes <- 15 
+    if(missing(base)){base <- 2}
     
     if(missing(by.group)) by.group <- FALSE
     if (missing(filter)) filter <- c("MT-", "RPL", "RPS")
@@ -29,7 +31,8 @@ GEX_DEgenes_persample <- function(automate.GEX, min.pct, sample1, sample2, by.gr
     if(by.group==TRUE) Seurat::Idents(automate.GEX) <- automate.GEX$group_id
     if(by.group==FALSE) Seurat::Idents(automate.GEX) <- automate.GEX$sample_id
 
-    cluster_markers <- Seurat::FindMarkers(automate.GEX, min.pct = min.pct, ident.1 = as.character(sample1), ident.2 = as.character(sample2))
+    cluster_markers <- Seurat::FindMarkers(automate.GEX, min.pct = min.pct, ident.1 = as.character(sample1), ident.2 = as.character(sample2), base=base)
+    colnames(cluster_markers)[2] <- "avg_logFC"
     cluster_markers$SYMBOL <- rownames(cluster_markers)
     
     exclude <- c()
