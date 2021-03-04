@@ -14,7 +14,7 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
   require(stringr)
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
   if (missing(by_FC)) {by_FC <- TRUE}
-
+  
   output_list <- list()
   for(i in 1:length(GEX_cluster_genes.output)) {
     temp.n.genes <- n.genes
@@ -24,7 +24,12 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
     for (j in filter) {
       exclude <- c(exclude, str_which(rownames(GEX_cluster_genes.output[[i]]), j))
     }
-    topN_filtered <- GEX_cluster_genes.output[[i]][-exclude,]
+
+    if(length(exclude)>0){
+      topN_filtered <- GEX_cluster_genes.output[[i]][-exclude,]
+    }else{
+      topN_filtered <- GEX_cluster_genes.output[[i]]
+    }
     if(nrow(topN_filtered) < n.genes) {temp.n.genes <- nrow(topN_filtered)}
 
     if (by_FC) {
@@ -35,6 +40,7 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
       output_list[[i]] <- dplyr::slice_min(topN_filtered, n = temp.n.genes, p_val)
     }
   }
+  
   output_unlist <- do.call("rbind", output_list)
 
   return(output_unlist)
