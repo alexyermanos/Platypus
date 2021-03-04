@@ -2,13 +2,14 @@
 #' @param vdj.gex.integrate.output The output of the VDJ_GEX_integrate function. A list of data frames for each sample containing the clonotype information and cluster membership information.
 #' @param TopX Plots only the top X most expanded clonotypes. By default all clonotypes are shown.
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
+#' @param c.count Show clonotype or cell count on Circos plot. Default = T.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
 #'  plots <- VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
 #'}
 
-VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.threshold, axis){
+VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.threshold, axis, c.count){
   if(missing(topX)){topX <- "all"}
   if(missing(label.threshold)){label.threshold <- 1}
   if(topX != "all"){
@@ -17,6 +18,7 @@ VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.
     }
   }
   if(missing(axis)){axis <- "max"}
+  if(missing(c.count)){c.count <-T}
 
   adj.matrix <- list()
   clonotypes <- c()
@@ -56,7 +58,7 @@ VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.
     nm = unique(unlist(dimnames(adj.matrix[[i]])))
     group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
     group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))
-    plot[[i]] <- VDJ_circos(adj.matrix[[i]], group = group, grid.col = grid.col, label.threshold = label.threshold, axis = axis)
+    plot[[i]] <- VDJ_circos(adj.matrix[[i]], group = group, grid.col = grid.col, label.threshold = label.threshold, axis = axis, c.count=c.count)
   }
   plot[[i+1]] <- adj.matrix
   return(plot)

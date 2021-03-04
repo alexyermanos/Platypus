@@ -5,6 +5,7 @@
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
+#' @param c.count Show clonotype or cell count on Circos plot. Default = T.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
@@ -12,7 +13,7 @@
 #'}
 #' @export
 
-VDJ_VJ_usage_circos <- function(VDJ.analyze.output, A.or.B, label.threshold, cell.level, c.threshold, clonotype.per.gene.threshold){
+VDJ_VJ_usage_circos <- function(VDJ.analyze.output, A.or.B, label.threshold, cell.level, c.threshold, clonotype.per.gene.threshold, c.count){
   require(reshape2)
   require(ggplot2)
   if(missing(label.threshold)){label.threshold <- 1}
@@ -20,6 +21,7 @@ VDJ_VJ_usage_circos <- function(VDJ.analyze.output, A.or.B, label.threshold, cel
   if(missing(cell.level)){cell.level <- F}
   if(missing(c.threshold)){c.threshold <- 0}
   if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
+  if(missing(c.count)){c.count <- T}
 
   #filter out clonotypes with less then c.threshold cells
   for(i in 1:length(VDJ.analyze.output)){
@@ -138,7 +140,7 @@ VDJ_VJ_usage_circos <- function(VDJ.analyze.output, A.or.B, label.threshold, cel
 
   plots <- list()
   for (i in 1:length(Vgene_usage_matrix)){
-    plots[[i]] <- VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold)
+    plots[[i]] <- VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold, c.count=c.count)
   }
   plots[[i+1]] <- Vgene_usage_matrix
   return(plots)
