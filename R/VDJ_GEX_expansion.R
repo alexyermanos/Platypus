@@ -37,7 +37,7 @@ VDJ_GEX_expansion <- function(GEX.list, VDJ.GEX.integrate.list, highlight.isotyp
     temp_melt <- reshape2::melt(holding_all_clusters_integer)
     temp_melt$cluster <- names(unlist(holding_all_clusters_integer))
     temp_melt$cluster <-  factor(temp_melt$cluster, levels = (names(holding_all_clusters_integer[[1]])))
-    pl_list[[i]] <- ggplot2::ggplot(temp_melt, ggplot2::aes(fill = cluster, y=value, x=L1)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Percentage of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
+    pl_list[[i]] <- ggplot2::ggplot(temp_melt, ggplot2::aes(fill = cluster, y=value, x=as.integer(L1))) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Percentage of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5), breaks = c(1:length(highlight.number)))
   }
   return(pl_list)
 }
