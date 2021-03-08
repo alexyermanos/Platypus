@@ -130,7 +130,7 @@ print(sapply(gene_expression_cluster,nrow))
 
 ## ---- fig.show='hold'---------------------------------------------------------
 
-covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap1(automate_GEX.output = covid_gex[[1]],
+covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],
                                                               GEX_cluster_genes.output = gene_expression_cluster,
                                                               n.genes.per.cluster = 3,max.cell = 30,
                                                               metric = "top_logFC")

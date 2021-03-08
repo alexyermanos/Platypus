@@ -14,7 +14,8 @@ GEX_DEgenes_persample(
   return.plot,
   logFC,
   up.genes,
-  down.genes
+  down.genes,
+  base
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ GEX_DEgenes_persample(
 \item{up.genes}{Integer specifying the number of upregulated genes to be shown.}
 
 \item{down.genes}{Integer specifying the number of downregulated genes to be shown.}
+
+\item{base}{The base with respect to which logarithms are computed. Default: 2}
 }
 \value{
 Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.

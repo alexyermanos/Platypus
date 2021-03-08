@@ -4,7 +4,7 @@
 \alias{VDJ_circos}
 \title{Plots a Circos diagram from an adjacency matrix. Uses the Circlize chordDiagram function. Is called by VDJ_clonotype_clusters_circos(), VDJ_alpha_beta_Vgene_circos() and VDJ_VJ_usage_circos() functions or works on its own when supplied with an adjacency matrix.}
 \usage{
-VDJ_circos(Adj_matrix, group, grid.col, label.threshold, axis)
+VDJ_circos(Adj_matrix, group, grid.col, label.threshold, axis, c.count)
 }
 \arguments{
 \item{Adj_matrix}{Adjacency matrix to be plotted. Rownames and Colnames correspond to genes to be matched and entries determine the weight of the connection between the genes (eg. number of clonotypes expressing these two genes).}
@@ -16,6 +16,8 @@ VDJ_circos(Adj_matrix, group, grid.col, label.threshold, axis)
 \item{label.threshold}{Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).}
 
 \item{axis}{Option to choose the count axis for each gene. "default", "percent" or "max"  possible. Default: "max".}
+
+\item{c.count}{Show clonotype or cell count on Circos plot.}
 }
 \value{
 Returns the Circos plot.
