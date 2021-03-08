@@ -411,7 +411,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## Running Louvain algorithm...
 ## Maximum modularity in 10 random starts: 0.8933
 ## Number of communities: 12
-## Elapsed time: 3 seconds</code></pre>
+## Elapsed time: 2 seconds</code></pre>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="co">### In this case, patient1 is the covid_gex[[1]]$sample_id==1 and patient2 is the covid_gex[[1]]$sample_id==2.</span></a>
 <a class="sourceLine" id="cb19-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb19-3" data-line-number="3"><span class="kw">class</span>(covid_gex) <span class="co">## list</span></a></code></pre></div>
@@ -499,7 +499,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw">print</span>(<span class="kw">sapply</span>(gene_expression_cluster,nrow))</a></code></pre></div>
 <pre><code>##  [1]  168  155  345  381  200  178  214  636   19  744  795 1265</code></pre>
 <p>It is also possible using Platypus to create a heatmap displaying the differentially expressed genes for each cluster. This can be customized to sub-sample cells in case certain clusters are too large for visualization purposes. Additionally, the user can determine the number of genes to display for each cluster based on the n.genes.per.cluster argument. The function GEX_cluster_genes_heatmap can be used to produce a ggplot object, based on the DoHeatmap from Seurat.</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1">covid_heatmap_clusters &lt;-<span class="st"> </span>Platypus<span class="op">::</span><span class="kw">GEX_cluster_genes_heatmap</span>(<span class="dt">automate_GEX.output =</span> covid_gex[[<span class="dv">1</span>]],</a>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1">covid_heatmap_clusters &lt;-<span class="st"> </span><span class="kw">GEX_cluster_genes_heatmap</span>(<span class="dt">automate_GEX.output =</span> covid_gex[[<span class="dv">1</span>]],</a>
 <a class="sourceLine" id="cb52-2" data-line-number="2">                                                              <span class="dt">GEX_cluster_genes.output =</span> gene_expression_cluster,</a>
 <a class="sourceLine" id="cb52-3" data-line-number="3">                                                              <span class="dt">n.genes.per.cluster =</span> <span class="dv">3</span>,<span class="dt">max.cell =</span> <span class="dv">30</span>,</a>
 <a class="sourceLine" id="cb52-4" data-line-number="4">                                                              <span class="dt">metric =</span> <span class="st">&quot;top_logFC&quot;</span>)</a>
