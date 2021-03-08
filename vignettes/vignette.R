@@ -113,3 +113,27 @@ Seurat::DimPlot(covid_gex[[1]],reduction = "umap", group.by = "cell.state")
 
 
 
+## ---- fig.show='hold'---------------------------------------------------------
+## Warning: running this function will take a while
+gene_expression_cluster <- Platypus::GEX_cluster_genes(covid_gex[[1]],min.pct = 0.25) 
+
+length(gene_expression_cluster) ## length of 12, corresponding to 12 clusters
+length(unique(covid_gex[[1]]$seurat_clusters)) ## length of 12 
+
+## -----------------------------------------------------------------------------
+
+head(gene_expression_cluster[[1]])
+
+
+## -----------------------------------------------------------------------------
+print(sapply(gene_expression_cluster,nrow))
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+covid_heatmap_clusters <- GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],
+                                                              GEX_cluster_genes.output = gene_expression_cluster,
+                                                              n.genes.per.cluster = 3,max.cell = 30,
+                                                              metric = "top_logFC")
+
+print(covid_heatmap_clusters)
+
