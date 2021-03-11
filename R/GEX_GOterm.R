@@ -139,16 +139,17 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   if (go.plots==T){
       top_pathways=top.N.go.terms.plots
       for (i in 1:length(list[[1]])){
-        plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i)
-        if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(list[[1]][[i]])
-        list[[1]][[i]]$ratio<-list[[1]][[i]]$DE/list[[1]][[i]]$N
-        list[[1]][[i]]$Term <- paste0(rownames(list[[1]][[i]]), "_", list[[1]][[i]]$Term)
-        names(list[[1]][[i]])<-c("GO_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
-        list[[1]][[i]]<-list[[1]][[i]][1:top_pathways,]
-        list[[1]][[i]]$GO_term <- factor(list[[1]][[i]]$GO_term, levels = list[[1]][[i]]$GO_term[order(list[[1]][[i]]$p_adj, decreasing = TRUE)])
+        dummy_list <- list[[1]][[i]]
+        plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i-1)
+        if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(dummy_list)
+        dummy_list$ratio<-dummy_list$DE/dummy_list$N
+        dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
+        names(dummy_list)<-c("GO_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
+        dummy_list<-dummy_list[1:top_pathways,]
+        dummy_list$GO_term <- factor(dummy_list$GO_term, levels = dummy_list$GO_term[order(dummy_list$p_adj, decreasing = TRUE)])
 
 
-        g1[[i]]<-ggplot(list[[1]][[i]], aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
+        g1[[i]]<-ggplot(dummy_list, aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
           geom_point()+
           theme_bw()+
           scale_color_gradient(low="blue", high="red")+
@@ -163,7 +164,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         print(g1[[i]])
         dev.off()
 
-        g2[[i]]<-ggplot(list[[1]][[i]], aes(-log(p_adj), GO_term, colour=DE_genes))+
+        g2[[i]]<-ggplot(dummy_list, aes(-log(p_adj), GO_term, colour=DE_genes))+
           geom_point(size=5)+
           theme_bw()+
           scale_color_gradient(low="blue", high="red")+
@@ -190,16 +191,17 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   if (kegg.plots==T&kegg==T){
     top_pathways=top.N.kegg.terms.plots
     for (i in 1:length(list[[2]])){
-      plot_title<-paste0("KEGG_top",top_pathways,"terms_cluster",i)
-      if (nrow(list[[2]][[i]])<top_pathways) top_pathways=nrow(list[[2]][[i]])
-      list[[2]][[i]]$ratio<-list[[2]][[i]]$DE/list[[2]][[i]]$N
-      list[[2]][[i]]$Term <- paste0(rownames(list[[2]][[i]]), "_", list[[2]][[i]]$Term)
-      names(list[[2]][[i]])<-c("KEGG_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
-      list[[2]][[i]]<-list[[2]][[i]][1:top_pathways,]
-      list[[2]][[i]]$KEGG_term <- factor(list[[2]][[i]]$KEGG_term, levels = list[[2]][[i]]$KEGG_term[order(list[[2]][[i]]$p_adj, decreasing = TRUE)])
+      dummy_list <- list[[2]][[i]]
+      plot_title<-paste0("KEGG_top",top_pathways,"terms_cluster",i-1)
+      if (nrow(dummy_list)<top_pathways) top_pathways=nrow(dummy_list)
+      dummy_list$ratio<-dummy_list$DE/dummy_list$N
+      dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
+      names(dummy_list)<-c("KEGG_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
+      dummy_list<-dummy_list[1:top_pathways,]
+      dummy_list$KEGG_term <- factor(dummy_list$KEGG_term, levels = dummy_list$KEGG_term[order(dummy_list$p_adj, decreasing = TRUE)])
       
       
-      g3[[i]]<-ggplot(list[[2]][[i]], aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
+      g3[[i]]<-ggplot(dummy_list, aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
         geom_point()+
         theme_bw()+
         scale_color_gradient(low="blue", high="red")+
@@ -214,7 +216,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
       print(g3[[i]])
       dev.off()
       
-      g4[[i]]<-ggplot(list[[2]][[i]], aes(-log(p_adj), KEGG_term, colour=DE_genes))+
+      g4[[i]]<-ggplot(dummy_list, aes(-log(p_adj), KEGG_term, colour=DE_genes))+
         geom_point(size=5)+
         theme_bw()+
         scale_color_gradient(low="blue", high="red")+
