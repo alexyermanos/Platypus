@@ -32,11 +32,11 @@ In the example below two directories are supplied to two distinct list elements,
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
 # For MacOS users it may look like this:
-install.packages("~/Downloads/Platypus_2.0.5.tar.gz", repos = NULL, type="source")
+#install.packages("~/Downloads/Platypus_2.0.5.tar.gz", repos = NULL, type="source")
 
 # For windows it will likely look something like this: 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
-# install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.4.tar.gz", repos = NULL, type="source")
+# install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.6.tar.gz", repos = NULL, type="source")
 
 # Now we can load the installed package into the R environment. In case of problems with installing other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
 library(Platypus)
@@ -194,7 +194,7 @@ It is also possible using Platypus to create a heatmap displaying the differenti
 
 ```{r, fig.show='hold'}
 
-covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],
+covid_heatmap_clusters <- GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],
                                                               GEX_cluster_genes.output = gene_expression_cluster,
                                                               n.genes.per.cluster = 3,max.cell = 30,
                                                               metric = "top_logFC")

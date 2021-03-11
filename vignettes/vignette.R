@@ -11,7 +11,7 @@
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
 # For MacOS users it may look like this:
-install.packages("~/Downloads/Platypus_2.0.5.tar.gz", repos = NULL, type="source")
+#install.packages("~/Downloads/Platypus_2.0.5.tar.gz", repos = NULL, type="source")
 
 # For windows it will likely look something like this: 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
@@ -130,7 +130,7 @@ print(sapply(gene_expression_cluster,nrow))
 
 ## ---- fig.show='hold'---------------------------------------------------------
 
-covid_heatmap_clusters <- Platypus::GEX_cluster_genes_heatmap1(automate_GEX.output = covid_gex[[1]],
+covid_heatmap_clusters <- GEX_cluster_genes_heatmap(automate_GEX.output = covid_gex[[1]],
                                                               GEX_cluster_genes.output = gene_expression_cluster,
                                                               n.genes.per.cluster = 3,max.cell = 30,
                                                               metric = "top_logFC")

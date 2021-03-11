@@ -11,7 +11,8 @@ VJ_alpha_beta_Vgene_circos(
   label.threshold,
   c.threshold,
   cell.level,
-  clonotype.per.gene.threshold
+  clonotype.per.gene.threshold,
+  c.count
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ VJ_alpha_beta_Vgene_circos(
 \item{cell.level}{Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.}
 
 \item{clonotype.per.gene.threshold}{How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.}
+
+\item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
