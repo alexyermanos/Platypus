@@ -71,7 +71,7 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
   cmd<-c()
   for(i in 1:length(cell.state.names)){
 
-    cmd[i]<-paste0(cell.state.names[i],"<-WhichCells(seurat.object, slot = 'counts', expression =", cell.state.markers[i],")")
+    cmd[i]<-paste0(cell.state.names[i],"<-Seurat::WhichCells(seurat.object, slot = 'counts', expression =", cell.state.markers[i],")")
     is.exist<-tryCatch(expr=length(eval(parse(text=cmd[i]))), error = function(x){
       x<-F
       return(x)})
