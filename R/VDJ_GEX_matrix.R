@@ -109,7 +109,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   #FOR GEX_automate_single
-  if(missing(mito.filter)) mito.filter <- 5
+  if(missing(mito.filter)) mito.filter <- 20
   if(missing(VDJ.gene.filter)) VDJ.gene.filter <- T
   if(missing(norm.scale.factor)) norm.scale.factor <- 10000
   if(missing(n.count.rna.min)) n.count.rna.min <- 0
