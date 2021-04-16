@@ -1,7 +1,15 @@
 ![alt text](https://repository-images.githubusercontent.com/297313954/10e0a180-713e-11eb-9a23-ef93a9d86e8b)
 # Platypus
 
-Platypus is an R toolkit designed to facilitate the data analysis of single-cell immune repertoire sequencing experiments. 
+Platypus is an R toolkit designed to facilitate the data analysis of single-cell immune repertoire sequencing experiments. The manuscript corresponding to Platypus v2 can be found here at Yermanos et al NARGAB 2021 https://doi.org/10.1093/nargab/lqab023
+
+# Ongoing updates in the Platypus pipeline due to 
+Due to the recent changes of the default clonotyping strategy in Cellranger (version 5 and version 6) we are currently rebuilding v3 of Platypus to revolve around the VDJ_GEX_matrix function. This function integrates both repertoire and transcriptome information and will serve as the input to all secondary functions in  future iterations of the package. The advantage of this is having all repertoire and transcriptome information at a per-cell level. 
+
+The change in clonotyping can be found here - https://support.10xgenomics.com/single-cell-vdj/software/pipelines/latest/algorithms/clonotyping
+
+The VDJ_GEX_matrix function will soon be found in the newest version of the R package (v3.0) with special thanks to Victor Kreiner. The current functions and documentation can be found already at https://github.com/alexyermanos/Platypus/tree/Functions/R
+
 
 # System requirements
 
