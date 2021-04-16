@@ -9,8 +9,9 @@
 #'  plots <- VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
 #'}
 
-VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.threshold, axis, c.count){
+VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.threshold, axis, c.count, n_cluster){
   if(missing(topX)){topX <- "all"}
+  if(missing(n_cluster)){print("Please specify cluster number n_cluster")}
   if(missing(label.threshold)){label.threshold <- 1}
   if(topX != "all"){
     for(k in 1:length(vdj.gex.integrate.output)){
@@ -24,9 +25,9 @@ VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.
   clonotypes <- c()
   for (k in 1:length(vdj.gex.integrate.output)){
     print(k)
-    adj.matrix[[k]] <- matrix(nrow =nrow(vdj.gex.integrate.output[[k]]), ncol = 11)
+    adj.matrix[[k]] <- matrix(nrow =nrow(vdj.gex.integrate.output[[k]]), ncol = n_cluster)
     for (i in 1:nrow(vdj.gex.integrate.output[[k]])){
-      for (j in 1:11){
+      for (j in 1:n_cluster){
         adj.matrix[[k]][i,j]<-as.numeric(str_split(vdj.gex.integrate.output[[k]]$cluster_membership_percent, pattern = ",")[[i]])[j]
         adj.matrix[[k]][i,j] <- adj.matrix[[k]][i,j]*length(str_split(vdj.gex.integrate.output[[k]]$cell_index[[i]], pattern=";")[[1]])/100 #Put here #cell_index -> has to be splitted by ; to get length()
         rownames(adj.matrix[[k]]) <- vdj.gex.integrate.output[[k]]$clonotype_id
@@ -42,7 +43,7 @@ VDJ_clonotype_clusters_circos <- function(vdj.gex.integrate.output, topX, label.
     if ((diff(h) %% 360) < 1) h[2] <- h[2] - 360/n
     hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
   }
-  cluster_col <- ggplotColours(n=11)
+  cluster_col <- ggplotColours(n=n_cluster)
 
   clonotypes <- unique(clonotypes)
   cluster_col <- setNames(cluster_col,colnames(adj.matrix[[1]]))
