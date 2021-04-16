@@ -1188,10 +1188,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   names(out.list) <- c("VDJ", "GEX", "VDJ.GEX.stats", "Running params", "sessionInfo")
 
   print("Done")
-  if(class(out.list[[2]])=="Seurat"){
-    out.list[[2]]$sample_id <- as.integer(gsub(pattern = "s",replacement = "",sub("_.*", "", names(out.list[[2]]$orig_barcode))))
-    out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
-  }
+  # if(class(out.list[[2]])=="Seurat"){
+  #   out.list[[2]]$sample_id <- as.integer(gsub(pattern = "s",replacement = "",sub("_.*", "", names(out.list[[2]]$orig_barcode))))
+  #   out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
+  # }
 
   if(class(out.list[[1]])=="data.frame") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
   return(out.list)
