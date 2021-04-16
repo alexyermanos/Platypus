@@ -10,6 +10,8 @@ The change in clonotyping can be found here - https://support.10xgenomics.com/si
 
 The VDJ_GEX_matrix function will soon be found in the newest version of the R package (v3.0) with special thanks to Victor Kreiner. The current functions and documentation can be found already at https://github.com/alexyermanos/Platypus/tree/Functions/R
 
+Stay tuned for updates https://twitter.com/AlexYermanos
+
 
 # System requirements
 
