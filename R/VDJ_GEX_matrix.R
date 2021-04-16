@@ -1193,6 +1193,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
   }
 
-  if(out.list[[1]]=="none") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
+  if(out.list[[1]]!="none") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
   return(out.list)
 }
