@@ -602,7 +602,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
     curr.contigs <- contigs[which(contigs$barcode == barcodes & tolower(contigs$is_cell) == "true" & tolower(contigs$high_confidence) == "true" & tolower(contigs$productive) == "true" & tolower(contigs$full_length) == "true"),]
-
     if(curr.contigs$raw_clonotype_id[1] != ''){
       curr.references <- references[which(str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]} else {curr.references <- ""}
 
@@ -894,6 +893,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       barcodes_GEX[[i]] <- colnames(gex.list[[i]])
 
       barcodes_VDJ[[i]] <- unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")])
+      #barcodes_VDJ[[i]] <- gsub(unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")]),pattern = "-1",replacement = "")
 
       print(paste0("For sample ", i, ": ", length(barcodes_GEX[[i]])," cell assigned barcodes in GEX, ", length(barcodes_VDJ[[i]]), " cell assigned high confidence barcodes in VDJ. Overlap: ", sum(barcodes_GEX[[i]] %in% barcodes_VDJ[[i]])))
 
@@ -951,7 +951,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
 
   #exclude cells based on marker expression
-  #handlers copied from GEX_phenotype. Thanks to Alex :)
+  #handlers copied from GEX_phenotype.
   if(exclude.on.cell.state.markers[1] != "none" & gex.loaded == T){
 
     #rename to match GEX_phenotype variables
@@ -1193,6 +1193,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
   }
 
-  if(out.list[[1]]!="none") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
+  if(class(out.list[[1]])=="data.frame") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
   return(out.list)
 }
