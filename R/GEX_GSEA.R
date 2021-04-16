@@ -62,8 +62,10 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     df_ranked <- deframe(df_ranked)
     pathway_MSig <- gmtPathways(path_to_pathways)
     #Run GSEA %>% safe as df
-    fgsea_res <- fgsea(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)
+    print("pre-gsea")
+    fgsea_res <- fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)
     print(fgsea_res)
+    print("post-gsea")
     fgsea_res_Tidy <- fgsea_res %>%
       as_tibble() %>%
       arrange(desc(NES))

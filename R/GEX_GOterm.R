@@ -196,10 +196,9 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
       if (nrow(dummy_list)<top_pathways) top_pathways=nrow(dummy_list)
       dummy_list$ratio<-dummy_list$DE/dummy_list$N
       dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
-      names(dummy_list)<-c("KEGG_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
+      names(dummy_list)<-c("KEGG_term", "nb_tot_genes", "DE_genes", "p_adj","ratio")
       dummy_list<-dummy_list[1:top_pathways,]
       dummy_list$KEGG_term <- factor(dummy_list$KEGG_term, levels = dummy_list$KEGG_term[order(dummy_list$p_adj, decreasing = TRUE)])
-      
       
       g3[[i]]<-ggplot(dummy_list, aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
         geom_point()+
