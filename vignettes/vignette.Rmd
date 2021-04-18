@@ -286,7 +286,7 @@ Seurat::DimPlot(covid_gex[[1]],reduction = "umap", group.by = "cell.state")
 
 
 
-## 3. Differential Gene Analysis
+## 5. Differential Gene Analysis
 
 After scaling, normalizing, and clustering the cells from the GEX libraries we can now investigate which genes are differentially expressed between either clusters or samples. First, we can investigate the genes that define each of the clusters by using the GEX_cluster_genes function that takes the output from the automate_GEX function. Depending on the size of the dataset and the number of cells this function can by quite slow. The output of this function is a list in which each element contains the differentially expressed genes for a given cluster. For example, the first element of the list will correspond to a dataframe describing the genes for cluster0 that we previously observed on the UMAP. This list object will correspond to the length of the number of clusters that were previously calculated, and has the same format as the FindMarkers function from Seurat. The pct.1 will correspond to the percentage of cells expressing the gene in the cluster of interest, and the pct.2 to the percentage of cells in all other clusters. 
 
@@ -364,9 +364,9 @@ nrow(DE_genes_per_sample[[1]]) ##71 rows
 
 
 
-## 3. VDJ Repertoire anaylsis 
+## 6. VDJ Repertoire anaylsis 
 
-### 3.1 Reading in the clonotype data
+### 6.1 Reading in the clonotype data
 
 
 Now we can analyze the VDJ repertoire data before integrating GEX libraries. This may be useful if only VDJ libraries have been sequenced without the accompanying gene expression data. We first start by reading in the clonotypes based on the default 10x cellranger clonotyping strategy and augmenting the amount of clonal information in the dataframe containing the clonotype information. The first step is to use the VDJ_analyze function on the directory of the outputs from cellranger vdj. The larger BAM files can be removed to save space as the current pipeline does not require these files. 
@@ -400,7 +400,7 @@ print(colnames(covid_vdj_repertoire_bcells[[1]]))
 ```
 
 
-### 3.2 Changing the clonotype strategy
+### 6.2 Changing the clonotype strategy
 
 
 Often paired nucleotide CDRH3 and CDRL3 clonotyping may not be the best strategy given somatic hypermutation may occur in the CDR3 region. Therefore, there could be highly similar clones that likely bind the same antigen that are officially part of different clonal families. To address this, we have added a function that allows for various heuristic clonotyping strategies. This involves clonotyping by identical amino acid CDRH3 + CDRL3 seuqence, identical germline usage, or seqeunce homology requirements. This will then update the original clonotyping object from VDJ_analyze by updating the clonotype_id column with the new amino acid acid (or other strategy) used for clonotyping. Similarly, the new clonal family determinant can be found in the new_unique_clone. In the case below, the new_unique_clone will contain the amino acid sequence of  heavy chain and light chain pasted together. If multiple nucleotide clones are merged by changing the clonotyping strategy, their barcodes can be found in the "barcodes" column.  
@@ -426,7 +426,7 @@ nrow(covid_vdj_germline_clonotype[[1]]) # 1956 unique clones in patient 1 when c
 We can see that the clonotype_id column now contains the new ids based on this clonotyping strategy. We can always recover the nucleotide ids by looking at the nt_clones_ids.
 
 
-### 3.3 Getting clonal information at the level of the single cell
+### 6.3 Getting clonal information at the level of the single cell
 
 So far the functions have been at the clonal level, thereby ignoring cell-specific features that may vary across a clonal family, such as isotypes, sequence variants, etc. The VDJ_per_clone function will provide this information by returning a nested list in which the outer list element corresponds to the repertoire (e.g., list[[1]] is the first directory given as input to the VDJ_analyze function). The inner list element corresponds to a dataframe for each clone. Within this dataframe it is possible to extract information such as the germline gene usage for heavy and light chains (e.g., HC_Vgene is the V gene of the IGH for antibodies or the V gene of the TRB for T cells). Furthermore, one can extract the full sequence of the heavy and light chain for each cell barcode based on the output from cellranger. One issue is that the sequence returned from the fasta files from cellranger extend beyond the FR1 to FR4 region (e.g. constant region, signal peptide), which may be problematic for downstream experimental validation/expression. The same occurs for the germline sequence - again as determined by cellranger. The germline information can be found in the full_HC_germline and full_LC_germline columns in the inner list elements. To obtain the B/TCR sequence that is clonable, one can either proceed with the call_MIXCR function or export the sequences and use a different alignment tool. 
 
@@ -447,7 +447,7 @@ covid_single_clone_tcells <- Platypus::VDJ_per_clone(clonotype.list = covid_vdj_
 
 
 
-### 3.4 Extracting full-length sequences from the VDJRegion
+### 6.4 Extracting full-length sequences from the VDJRegion
 
 To quantify the number of somatic variants or to extract full-length sequences for expression, it is often useful to have the nucleotide sequence from framework region 1 (FR1) to framework region 4 (FR4). Using the call_MIXCR function, the full-length VDJRegion sequences can be added to the clonal information and easily extracted thereafter. This function works on UNIX/Mac and furthermore requires that mixcr is already downloaded locally (with license agreement). One just needs to supply the directory to the executable in the call_MIXCR function as below. Either "mmu" or "hsa" for mouse and human, respectively. Again, the format is similar to the input, in that the outer list corresponds to the individual repertoire and the inner list is a dataframe with various information, including the full-length VDJ sequences (e.g., VDJ.AA.LC and VDJ.AA.HC for the light and heavy chain amino acid sequence). One will notice that the germline sequence is still very long (e.g., in the example below the "full_HC_germline" length is over 600 nucleotides). This will be filled in using the separate function VDJ_extract_germline. 
 
@@ -466,7 +466,7 @@ print(nchar(covid_vdj_region[[1]][[1]]$full_HC_germline[1]))
 ```
 
 
-### 3.5 Extracting full-length germline sequence corresponding to the VDJRegion
+### 6.5 Extracting full-length germline sequence corresponding to the VDJRegion
 
 Extracting the germline column can be accomplished using the VDJ_extract_germline, which takes the germline sequence as determined by cellranger. The output contains all the germline sequences in dataframe format for a given repertoire. The original clonotype identifier can be found in the descrR1 column, as seen below. 
 
@@ -493,7 +493,7 @@ print(nchar(extracted_covid_germline[[1]][[1]]$VDJ.AA.LC[2])) ### just light cha
 ```
 
 
-### 3.6 Extracting trimmmed VDJ region sequence and germline
+### 6.6 Extracting trimmmed VDJ region sequence and germline
 
 The function VDJ_per_clone additionally supplies trimmed VDJ sequences and the corresponding trimmed germline sequences in the case that the all_contig_annotations.json file is available. This can be useful to compute the somatic hypermutation rate only on the VDJ region for single cells in the clonotype. The columns named "full_seq_", "sequence_", and "trimmed_ref_" represent the sequence returned from the fasta files from cellranger, the sequence trimmed at the VDJ region, and the germline sequence trimmed at the VDJ region (followed by HC for Heavy Chain and LC for Light Chain). This data does not require MiXCR alignment, however, it is not necessarily starting at Framework1 so please use with caution if future plans involve cloning BCR/TCR. We have commented this out as the test data did not include the JSON file at the time. 
 
@@ -511,7 +511,7 @@ The function VDJ_per_clone additionally supplies trimmed VDJ sequences and the c
 ```
 
 
-### 3.7 Organizing full-length sequences into clonal lineages easily exportable for phylogenetics. 
+### 6.7 Organizing full-length sequences into clonal lineages easily exportable for phylogenetics. 
 
 After extracting the germline sequences and the full-length VDJRegion sequences, we can combine this information and group the sequences into clonal lineages that can individually be exported for downstream phylogenetics or into the VDJ_tree function within Platypus. The output list is similar to the output of other VDJ functions, in which the outer list element corresponds to the repertoire and the inner list element corresponds to the individual clone/clonal families. Here the heavy chain and light chain have been pasted together but in case one wants to separate them, the information can be found in the output of the VDJ_extract_germline function. For example, the output of the VDJ_extract_germline function above was extracted_covid_germline[[1]][[1]]$VDJ.AA.HC.LC[2]. In this sequence there is a "_" at the end of the heavy chain and light chain sequences. So one can split the strings at "_" and use this sequence to create the phylogenetic trees. 
 
@@ -538,7 +538,7 @@ print(tail(covid_clonal_lineages[[1]][[3]]$Name))  ## here at the end of the dat
 
 ```
 
-### 3.8 Neighbor-joining phylogenetic trees
+### 6.8 Neighbor-joining phylogenetic trees
 
 The output of the VDJ_clonal_lineage function can be used as input to the VDJ_tree to produce quick, neighbor-joining phylogenetic trees. It is important that the VDJRegion is considered (or that the sequences from 10x have been trimmed) as this function does not involve a multiple string alignment - instead it creates a distance matrix from all sequences. The min number of unique sequences can be specified (e.g., if there are 50 cells in a clonal lineage, but only one unique antibody sequence, this tree will not be produced). Similarly, the max number of sequences can be specified, which will then result in random sampling from all sequences. Plotting the first tree we can see the that there is one variant (named Seq_1) that has 90 cells (seen by the Freq_90) and it is very close to the germline (Seq_6_Freq_1). We know it is the germline because it is the highest sequence variant and it is set as the root. 
 
@@ -552,7 +552,7 @@ plot(covid_trees[[1]][[1]])
 ```
 
 
-### 3.9 Plotting per-cell isotype information 
+### 6.9 Plotting per-cell isotype information 
 
 Additional VDJ functions include plotting the isotype distribution per clone. This can be performed by the VDJ_isotypes_per_clone function and setting the number of clones to show. The following code extracts and plots the isotype distribution of the top 30 clones. We can see a clear IgA isotype majority of the top four clones in the first patient when using the default clonotyping strategy. We can additionally use the new clonotyping strategies to compare how changing the clonal defintion impacts the clonal expansion profiles. We simply supply the output from VDJ_clonotype  
 
@@ -575,7 +575,7 @@ In the second patient (second repertoire entered in original VDJ_analyze) we als
 print(covid_isotypes[[2]])
 ```
 
-### 3.10 Sequence similarity networks
+### 6.10 Sequence similarity networks
 
 Other functions are specifically tailored to repertoire analysis - such as VDJ_network, which creates a sequence similarity network between repertoires or within a repertoire by connecting those clones with sequence similarity. This function relies upon igraph to visually display and construct the graph - which means that networks with high number of sequences will not display easily. In the following example we take the top 60 most expanded clones from the output of VDJ_analyze and use this as input into the network construction function. Setting the per.mouse argument to false indicates that one network for multiple repertoires should be produced.  
 
@@ -602,7 +602,7 @@ igraph::plot.igraph(covid_bcell_igraph_d14[[4]],vertex.label=NA,vertex.size=7+(.
 For more details see the documentation of the VDJ_network function, but essentially information such as clonal frequency and which sample (here still indicated by the "mouse" column) are stored in the second element of the output list. Here we can see only a few clones that are showing connections (produced by edges between those with a distance of 8 amino acids or less between heavy and light chain paired CDR3 sequence homology)
 
 
-### 3.11 Germline gene usage heatmaps 
+### 6.11 Germline gene usage heatmaps 
 
 It is also possible to produce heatmaps of the germline gene usage in the context of heavy chain V gene and light chain V gene. The output of the VDJ_Vgene_usage function is a matrix for each repertoire corresponding to the order specified by VDJ_analyze. The outer list corresponds to the sample and the inner list corresponds to a matrix, where the rows correspond to the heavy chain V genes and the columns correspond to the light chains of the V genes. Therefore the output[[1]][i,j] corresponds to the number of clones using the combination of IGH-Vgene[i] and IGK/L-Vgene[j]. 
 
@@ -646,7 +646,7 @@ vj_circos_tcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:
 
 
 
-### 3.12 Assessing CDR3 sequence similarity
+### 6.12 Assessing CDR3 sequence similarity
 
 Finally, one can also look at any specific HC and LC CDR3 amino acid patterns arising across the different clones. Using the VDJ_logoplot function the user can plot a logoplot of the CDR3 region od a certain length, specyfied by the length_cdr3 argument. For instance, the logoplot below corresponds to all those CDR3 aminoacid sequences of length 25
 
@@ -655,11 +655,11 @@ covid_CDR3_logoplot <- Platypus::VDJ_logoplot(VDJ.object = covid_vdj_repertoire_
 ```
 
 
-## 4. Integrating repertoire and gene expression
+## 7. Integrating repertoire and gene expression
  
 The strength of the current 5' sequencing protocols are that the gene expression (GEX) and repertoire (VDJ) libraries are extracted from the same sample, which can then be linked back to demonstrate that a given T cell has a certain gene expression pattern and also a certain T cell receptor sequence. The following functions are meant to integrate these two pieces of information.
 
-### 4.1 Integrating transcriptional clusters to the VDJ objects
+### 7.1 Integrating transcriptional clusters to the VDJ objects
 
 One thing we may ask is how similar the B or T cells in a given clonal family are on the transcriptional level. One way we can do this, is to take advantage of the transcriptional clustering performed in the automate_GEX function and then supply this information to the repertoire information. This can either be done on the level of the clone (e.g., in the format of the output of VDJ_analyze) or on the level of the cell (e.g., in the format of the output of VDJ_per_clone). Below is the example of the clonal level. The output is the same as the VDJ_analyze output, except now there are columns corresponding to the majority transcriptome cluster (e.g., if the majority of cells within the clone are in cluster 1, then this column will have a 1). Next to this there is a column that tells you the cluster percentage for all cells in that clone. Finally, there is the cell index in the GEX object so you can see which cells are found in the GEX object and can explicitly call them. 
 
@@ -696,7 +696,7 @@ print(head(covid_integrating_cell_level[[1]][[5]]$cell_index))
 ```
 
 
-### 4.2 Relating clonal expansion to transcriptional cluster membership
+### 7.2 Relating clonal expansion to transcriptional cluster membership
 
 The VDJ_GEX_expansion function takes the previously integrated VDJ and GEX datasets and then plots the distribution of transcriptional cluster membership for the specified clones. In the following example, we plot the the top 20 clones and their distribution of cluster membership. 
 
@@ -722,7 +722,7 @@ print(covid_clonotype_clusters_plot_tcells[[2]])
 We see that some clones did not have any barcodes overlapping between the GEX and VDJ data sets for this particular patient and therefore there is no bar at that given clonal index on the X axis. 
 
 
-### 4.3 Visualizing clones on the 2 dimensional landscape
+### 7.3 Visualizing clones on the 2 dimensional landscape
 
 In the case we want to overlay clones on the tSNE/UMAP space that we previously calculated using automate_GEX, this can be accomplished with the visualize_clones_GEX function. The following code will overlay the top 10 clones on the UMAP space calculated with the automate_GEX function. The group correspond to the clonal order - e.g., group 1 is the first clonal family in the integrated VDJ list. Here we can see that there are a few cells in the T cell cluster, suggesting that there were duplets during cell capture since in this experiment B and T cells were pooled in a single reaction. 
 
@@ -739,7 +739,7 @@ print(covid_top10_umap[[1]])
 
 
 
-### 4.4 Specific gene expression information on the clonal level
+### 7.4 Specific gene expression information on the clonal level
 
 We previously integrated the GEX information into the format of the VDJ output. However, we may want to ask how the gene expression looks for certain clonotypes (e.g., how many of the cells in the top clone are expressing Fas/GL7 or germinal center cell markers). Therefore, we need to integrate the VDJ information and barcodes into the GEX object. This can be done by using the clonotype_GEX function followed by the GEX_heatmap function. To save space, the output of this function can be assigned to the original automate_GEX output, as it will be another Seurat object. By setting b.or.t to "b", a panel of pre-selected B cell genes will be displayed. One can also supply custom genes to test specific clonotypes. The group/column colors correspond to given clonal families. 
 
@@ -764,7 +764,7 @@ covid_bcell_gene_heatmap <- Platypus::GEX_heatmap(covid_gex_integrate_bcells,b.o
 ```
 
 
-### 4.5 Integrating clonal lineage information and transcriptional cluster information
+### 7.5 Integrating clonal lineage information and transcriptional cluster information
 
 We can supply transcriptional cluster information into the clonal lineages organized earlier. This can be done using the VDJ_GEX_clonal_lineage_clusters function, which will place the transcriptional cluster information into the Name of the clonal_lineage object. Since we only integrated the first patient in the covid_integrating_cell_level object, we will just take the first patients clonal lineages. Now if we print the name of the first sequence in the first clonal lineage, we see that a cluster5 has been added to the end of the name. This indicates that this particular B cell was found in cluster5 from the original automate_GEX. 
 
@@ -779,7 +779,7 @@ print(clonal_lineage_integrate[[1]][[1]]$Name[1])
 
 ```
 
-### 5 Version information
+### 8 Version information
 
 ```{r, fig.show='hold'}
 
