@@ -564,9 +564,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         GEX.list[[i]]@meta.data$group_id <- group.id[i]
       }
     }
-
-    VDJ_comb[[2]]@meta.data$aaaa <- 1
-    
     for(i in 1:length(GEX.list)){
 
                                                      
