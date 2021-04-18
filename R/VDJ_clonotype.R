@@ -5,7 +5,7 @@
 #' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
 #' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
 #' @param VDJ.GEX.matrix Output from the VDJ.GEX.matrix function. The output object should have the VDJ information (e.g., the original VDJ_GEX_matrix call should have had cellranger's VDJ output supplied as input).
-#' @param output.dataframe Logical that specifies whether the output should return a list element of dataframes, where each dataframe contains the cell-level information for a given clone. By default this is set to false, which will instead update the "clonotype_id" column in the VDJ.GEX.matrix[[1]] element.
+#' @param output.format String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframe", or "dataframe.per.clone". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframe" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.
 #' @param global.clonotype Logical specifying whether clonotyping should occur across samples or only within a single sample.
 #' @param VDJ.VJ.1chain Logical specifying whether cells with multiple VDJ and VJ chains should be removed from the clonotyping. Can be either T or F for those definitions not requiring germline genes or homology thresholds, as calculating the later is difficult when multiple chains are present.
 #' @return Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.
@@ -22,13 +22,13 @@ VDJ_clonotype <- function(clonotype.list,
                           homology.threshold,
                           platypus.version,
                           VDJ.GEX.matrix,
-                          output.dataframe,
+                          output.format,
                           global.clonotype,
                           VDJ.VJ.1chain){
   require(stringdist)
   if(missing(platypus.version)) platypus.version <- "v2"
   if(missing(VDJ.GEX.matrix)) VDJ.GEX.matrix <- list()
-  if(missing(output.dataframe)) output.dataframe <- FALSE
+  if(missing(output.format)) output.format <- "vgm"
   if(missing(global.clonotype)) global.clonotype <- FALSE
   if(missing(clone.strategy)) clone.strategy <- "cdr3.nt"
   if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
@@ -233,17 +233,33 @@ VDJ_clonotype <- function(clonotype.list,
       }####STOP sample loop
     }####STOP global.clonotype==F
     else if(global.clonotype==T){####START global.clonotype==T
+      print("global.clonotype coming soon")
 
     }####STOP global.clonotype==T
 
-    if(output.dataframe==T){
+    if(output.format=="dataframe.per.sample"){
       return(sample_dfs)
     }
-    else if(output.dataframe==F){
+    else if(output.format=="vgm"){
 
       VDJ.GEX.matrix[[1]] <- do.call("rbind",sample_dfs)
       return(VDJ.GEX.matrix)
     }
+    else if(output.format=="clone.level.dataframe"){####START clone.dataframe
+      # clonal.dataframes <- list()
+      # for(i in 1:length(repertoire.number)){
+      #
+      #
+      # }
+
+      print("clone.level.dataframe coming soon")
+
+    }####STOP clone.dataframe
+    else if(output.format=="dataframe.per.clone"){####START clone.dataframe
+      print("dataframe.per.clone coming soon")
+
+
+    }####STOP clone.dataframe
 
 
   }####STOP v3
