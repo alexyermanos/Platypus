@@ -1,8 +1,8 @@
 Package: Platypus
 Type: Package
 Title: Single-cell immune repertoire analysis
-Version: 2.0.6
-Date: 2021-03-08
+Version: 3.0
+Date: 2021-04-18
 Author: Alexander Yermanos
 Maintainer: Alexander Yermanos <ayermano@ethz.ch>
 Depends:
