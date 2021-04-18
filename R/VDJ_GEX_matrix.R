@@ -190,7 +190,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
 
   #DEF OF FUNCTIONS
-  
+
 
   #' Gives stats on number and quality of reads.
   #' @param VDJ.out.directory List of paths with each element containing the path to the output of cellranger VDJ runs. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
@@ -565,11 +565,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
     }
 
-    VDJ_comb[[2]]@meta.data$aaaa <- 1
-    
+
     for(i in 1:length(GEX.list)){
 
-                                                     
+
       holding_upper_gene_names <- toupper(rownames(GEX.list[[i]]))
       if(VDJ.gene.filter==T){
         antibody_gene_indices <- which(grepl((holding_upper_gene_names),pattern = "^IGHA")==F &
