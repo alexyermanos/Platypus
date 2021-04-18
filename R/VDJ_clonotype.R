@@ -219,7 +219,7 @@ VDJ_clonotype <- function(clonotype.list,
           sample_dfs[[i]]$new_clonal_rank[which(sample_dfs[[i]]$new_clonal_feature==new.clonal.order[j])] <- j
 
         }
-        sample_dfs[[i]]$new_clonotype_id <- paste0("clonotype",sample_dfs[[i]]$new_clonal_rank)
+        sample_dfs[[i]]$clonotype_id <- paste0("clonotype",sample_dfs[[i]]$new_clonal_rank)
         ####STOP new clonotype_id
 
         ####START clonal rank including ties
