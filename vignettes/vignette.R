@@ -385,3 +385,167 @@ print(tail(covid_clonal_lineages[[1]][[3]]$Name))  ## here at the end of the dat
 
 
 
+## ---- fig.show='hold'---------------------------------------------------------
+
+
+covid_trees <- Platypus::VDJ_tree(clonal.lineages = covid_clonal_lineages,with.germline=T,min.sequences = 5,max.sequences = 30,unique.sequences = T)
+plot(covid_trees[[1]][[1]])
+
+
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+covid_isotypes <- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_repertoire_bcells, VDJ_per_clone_output = covid_single_cell, clones = 30)
+
+covid_isotypes_aa_clonotype <- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_germline_clonotype, VDJ_per_clone_output = covid_single_cell, clones = 30)
+
+covid_isotypes_germline_clonotype <- Platypus::VDJ_isotypes_per_clone(VDJ_clonotype_output = covid_vdj_aminoacid_clonotype, VDJ_per_clone_output = covid_single_cell, clones = 30)
+
+print(covid_isotypes[[1]])
+
+
+
+## ---- fig.show='hold'---------------------------------------------------------
+print(covid_isotypes[[2]])
+
+## ---- fig.show='hold'---------------------------------------------------------
+## Take the output from VDJ_analyze (or subsample as in this case the top 60 clones)
+network_clones_covid <- list()
+network_clones_covid[[1]] <- covid_vdj_repertoire_bcells[[1]][1:60,]
+network_clones_covid[[2]] <- covid_vdj_repertoire_bcells[[2]][1:60,]
+network_clones_covid <- list()
+network_clones_covid[[1]] <- covid_vdj_repertoire_tcells[[1]][1:60,]
+network_clones_covid[[2]] <- covid_vdj_repertoire_tcells[[2]][1:60,]
+
+covid_bcell_igraph <- Platypus::VDJ_network(network_clones_covid[1:2],per.sample = F,distance.cutoff = 10,connected = F)
+covid_bcell_igraph_d14 <- Platypus::VDJ_network(network_clones_covid[1:2],per.sample = F,distance.cutoff = 14,connected = F)
+
+
+igraph::plot.igraph(covid_bcell_igraph[[4]],vertex.label=NA,vertex.size=7+(.06*covid_bcell_igraph[[2]]$frequency),vertex.color=factor(covid_bcell_igraph[[2]]$mouse))
+igraph::plot.igraph(covid_bcell_igraph_d14[[4]],vertex.label=NA,vertex.size=7+(.06*covid_bcell_igraph_d14[[2]]$frequency),vertex.color=factor(covid_bcell_igraph_d14[[2]]$mouse))
+
+
+
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+#First calculate adjacency matrix for V gene usage
+covid_Vgene_usage <- Platypus::VDJ_Vgene_usage(VDJ.clonotype.output = covid_vdj_repertoire_bcells)
+library(pheatmap)
+
+pheatmap::pheatmap(covid_Vgene_usage[[1]],show_rownames = F,show_colnames = F)
+
+
+print(class(covid_Vgene_usage[[1]]))
+print(head(rownames(covid_Vgene_usage[[1]])))
+print(head(colnames(covid_Vgene_usage[[1]])))
+
+## -----------------------------------------------------------------------------
+covid_Vgene_usage_barplot <- Platypus::VDJ_Vgene_usage_barplot(covid_vdj_repertoire_bcells, HC.gene.number = 10, LC.Vgene = T, LC.gene.number = 10)
+print(covid_Vgene_usage_barplot[[1]])
+
+
+example.vdj.vgene_usage <- Platypus::VDJ_Vgene_usage_stacked_barplot(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = F,HC.gene.number = 10, Fraction.HC = 1)
+example.vdj.vgene_usage[[1]]
+
+
+## -----------------------------------------------------------------------------
+
+vj_circos_bcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_bcells[2:2], c.threshold = 1,label.threshold=50,cell.level = T)
+
+vj_circos_tcells <- Platypus::VDJ_VJ_usage_circos(covid_vdj_repertoire_tcells[1:1], c.threshold = 1,label.threshold=50,cell.level = T)
+
+
+
+
+## -----------------------------------------------------------------------------
+covid_CDR3_logoplot <- Platypus::VDJ_logoplot(VDJ.object = covid_vdj_repertoire_bcells, length_cdr3 = 25)
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+covid_integrating_clonal_level <- Platypus::VDJ_GEX_integrate(GEX.object = covid_gex[[1]], 
+                                                 clonotype.list =  covid_vdj_repertoire_bcells,
+                                                 VDJ.per.clone = covid_single_cell,
+                                                 clonotype.level = TRUE)
+covid_integrating_clonal_level_tcell <- Platypus::VDJ_GEX_integrate(GEX.object = covid_gex[[1]], 
+                                                 clonotype.list =  covid_vdj_repertoire_tcells,
+                                                 VDJ.per.clone = covid_single_cell,
+                                                 clonotype.level = TRUE)
+
+print(head(covid_integrating_clonal_level[[1]]$majority_cluster))
+print(head(covid_integrating_clonal_level[[1]]$cluster_membership_percent))
+print(head(covid_integrating_clonal_level[[1]]$cell_index))
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+covid_integrating_cell_level <- Platypus::VDJ_GEX_integrate(GEX.object = covid_gex[[1]], 
+                                                 clonotype.list =  covid_vdj_repertoire_bcells[1:1],
+                                                 VDJ.per.clone = covid_single_cell[1:1],
+                                                 clonotype.level = FALSE)
+
+
+print(head(covid_integrating_cell_level[[1]][[5]]$cluster_membership))
+print(head(covid_integrating_cell_level[[1]][[5]]$cell_index))
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+covid_clonotype_clusters_plot <-  Platypus::VDJ_GEX_expansion(GEX.list=covid_gex[[1]],
+                                                              VDJ.GEX.integrate.list = covid_integrating_clonal_level,
+                                                              highlight.isotype = "None",
+                                                              highlight.number=1:10)
+
+
+covid_clonotype_clusters_plot_tcells <-  Platypus::VDJ_GEX_expansion(GEX.list=covid_gex[[1]],
+                                                              VDJ.GEX.integrate.list = covid_integrating_clonal_level_tcell,
+                                                              highlight.isotype = "None",
+                                                              highlight.number=1:10)
+
+print(covid_clonotype_clusters_plot_tcells[[2]])
+
+
+
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+covid_top10_umap <- Platypus::GEX_visualize_clones(GEX.list=covid_gex,
+                     VDJ.GEX.integrate.list=covid_integrating_clonal_level_tcell[2:2],
+                     highlight.type="clonotype",
+                     highlight.number=1:10,
+                     reduction="umap")
+print(covid_top10_umap[[1]]) 
+
+
+## ---- fig.height=20-----------------------------------------------------------
+
+covid_gex_integrate <- Platypus::GEX_clonotype(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_clone_tcells)
+
+covid_gex_integrate_bcells <- Platypus::GEX_clonotype(GEX.object=covid_gex[[1]],VDJ.per.clone = covid_single_cell)
+
+
+GEX_phenotype_per_clone_plot <- Platypus::GEX_phenotype_per_clone(seurat.object = covid_gex_integrate, clonotype.ids= c(1,2,3,4,5))
+
+print(GEX_phenotype_per_clone_plot)
+
+covid_tcell_gene_heatmap <- Platypus::GEX_heatmap(covid_gex_integrate,b.or.t = "t",clone.rank.threshold = 20,sample.index = 1)
+
+
+covid_bcell_gene_heatmap <- Platypus::GEX_heatmap(covid_gex_integrate_bcells,b.or.t = "b",clone.rank.threshold = 20,sample.index = 1)
+
+
+
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+clonal_lineage_integrate <- Platypus::VDJ_GEX_clonal_lineage_clusters(covid_integrating_cell_level,covid_clonal_lineages[1:1])
+
+print(clonal_lineage_integrate[[1]][[1]]$Name[1])
+
+
+
+
+## ---- fig.show='hold'---------------------------------------------------------
+
+sessionInfo()
+
+
+

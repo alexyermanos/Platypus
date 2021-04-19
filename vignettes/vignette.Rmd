@@ -79,7 +79,7 @@ GEX.out.directory.list[[2]] <- c("~/Downloads/Platypus_CNS_data/GEX_S2/")
 #directory_to_covid_patients_gex[[2]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient2_GEX")
 
 # We will call the output vgm (short for Vdj_Gex_Matrix) - this object can be supplied as input to downstream functions in v3 of the package.
-vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
                                GEX.out.directory.list = GEX.out.directory.list,
                                GEX.integrate = T,
                                VDJ.combine = T,
