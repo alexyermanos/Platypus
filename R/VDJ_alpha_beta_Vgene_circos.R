@@ -1,5 +1,5 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
-#' @param VDJ.GEX.matrix The output of the VDJ_analyze function. A list of data frames for each sample containing the clonotype informations.
+#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.
 #' @param V.or.J Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
@@ -7,6 +7,7 @@
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param B.or.Tcells Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
+#' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
@@ -14,20 +15,20 @@
 #'}
 #' @export
 
-VJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, version, filter1H1L){
+VJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L){
 if(missing(V.or.J)){V.or.J <- "both"}
 if(missing(label.threshold)){label.threshold <- 0}
 if(missing(c.threshold)){c.threshold <- 0}
 if(missing(cell.level)){cell.level <- F}
 if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
 if(missing(c.count)){c.count <- T}
-if(missing(version)){version ="new"}
+if(missing(platypus.version)){platypus.version ="v2"}
 if(missing(filter1H1L)){filter1H1L <- T}
 
   
-if(version=="new"){
+if(platypus.version=="v3"){
   #########################################################################
-  print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus X.X.X is being used. Output of VDJ_GEX_matrix() required as input.")
+  print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
   clonotype <- "clonotype_id_10x"
   
   if(missing(B.or.Tcells)){
@@ -270,11 +271,11 @@ if(version=="new"){
   
 
   
-}else{
+}else if(platypus.version=="v2"){
   
   
   ###############################################################################
-  print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [version = new] for compatibility with VDJ_GEX_matrix().")
+  print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = new] for compatibility with VDJ_GEX_matrix().")
   
   if(missing(B.or.Tcells)){
     for(i in 1:nrow(VDJ.GEX.matrix[[1]])){
@@ -468,6 +469,8 @@ if(version=="new"){
         plots[[i]] <- VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold, c.count = c.count)
       }
       plots[[i+1]] <- Vgene_usage_matrix
+}else{
+  print("Please specify platypus platypus.version as either v2 or v3.")
   }
   
   return(plots)
