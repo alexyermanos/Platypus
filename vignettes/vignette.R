@@ -49,7 +49,7 @@ GEX.out.directory.list[[2]] <- c("~/Downloads/Platypus_CNS_data/GEX_S2/")
 #directory_to_covid_patients_gex[[2]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient2_GEX")
 
 # We will call the output vgm (short for Vdj_Gex_Matrix) - this object can be supplied as input to downstream functions in v3 of the package.
-vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
                                GEX.out.directory.list = GEX.out.directory.list,
                                GEX.integrate = T,
                                VDJ.combine = T,
@@ -83,7 +83,7 @@ head(vgm[[1]]$VDJ_cdr3s_aa)
 
 # In Platypus version 2, the output from GEX_automate was used as input to other GEX functions. These functions are still compatible with v3 if the vgm[[2]] seurat object is supplied as input.
 # For example, the following function can be used to calculate the DE genes for each cluster, as before. 
-genes_per_cluster <- GEX_cluster_genes(vgm[[2]])
+genes_per_cluster <- Platypus::GEX_cluster_genes(vgm[[2]])
 head(genes_per_cluster[[1]]) ## Can see the top DE genes for cluster 0. 
 
 

@@ -113,7 +113,7 @@ head(vgm[[1]]$VDJ_cdr3s_aa)
 
 # In Platypus version 2, the output from GEX_automate was used as input to other GEX functions. These functions are still compatible with v3 if the vgm[[2]] seurat object is supplied as input.
 # For example, the following function can be used to calculate the DE genes for each cluster, as before. 
-genes_per_cluster <- GEX_cluster_genes(vgm[[2]])
+genes_per_cluster <- Platypus::GEX_cluster_genes(vgm[[2]])
 head(genes_per_cluster[[1]]) ## Can see the top DE genes for cluster 0. 
 
 

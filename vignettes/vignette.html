@@ -12,7 +12,7 @@
 
 <meta name="author" content="Alexander Yermanos" />
 
-<meta name="date" content="2021-04-18" />
+<meta name="date" content="2021-04-19" />
 
 <title>Platypus vignette</title>
 
@@ -318,7 +318,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Platypus vignette</h1>
 <h4 class="author">Alexander Yermanos</h4>
-<h4 class="date">2021-04-18</h4>
+<h4 class="date">2021-04-19</h4>
 
 
 
@@ -379,7 +379,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb2-16" data-line-number="16"><span class="co">#directory_to_covid_patients_gex[[2]] &lt;- c(&quot;C:\Users\YourPCName\Downloads\PlatypusTestData\Patient2_GEX&quot;)</span></a>
 <a class="sourceLine" id="cb2-17" data-line-number="17"></a>
 <a class="sourceLine" id="cb2-18" data-line-number="18"><span class="co"># We will call the output vgm (short for Vdj_Gex_Matrix) - this object can be supplied as input to downstream functions in v3 of the package.</span></a>
-<a class="sourceLine" id="cb2-19" data-line-number="19">vgm &lt;-<span class="st"> </span><span class="kw">VDJ_GEX_matrix</span>(<span class="dt">VDJ.out.directory.list =</span> VDJ.out.directory.list,</a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">vgm &lt;-<span class="st"> </span>Platypus<span class="op">::</span><span class="kw">VDJ_GEX_matrix</span>(<span class="dt">VDJ.out.directory.list =</span> VDJ.out.directory.list,</a>
 <a class="sourceLine" id="cb2-20" data-line-number="20">                               <span class="dt">GEX.out.directory.list =</span> GEX.out.directory.list,</a>
 <a class="sourceLine" id="cb2-21" data-line-number="21">                               <span class="dt">GEX.integrate =</span> T,</a>
 <a class="sourceLine" id="cb2-22" data-line-number="22">                               <span class="dt">VDJ.combine =</span> T,</a>
@@ -858,7 +858,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb12-4" data-line-number="4"></a>
 <a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co"># In Platypus version 2, the output from GEX_automate was used as input to other GEX functions. These functions are still compatible with v3 if the vgm[[2]] seurat object is supplied as input.</span></a>
 <a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co"># For example, the following function can be used to calculate the DE genes for each cluster, as before. </span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">genes_per_cluster &lt;-<span class="st"> </span><span class="kw">GEX_cluster_genes</span>(vgm[[<span class="dv">2</span>]])</a>
+<a class="sourceLine" id="cb12-7" data-line-number="7">genes_per_cluster &lt;-<span class="st"> </span>Platypus<span class="op">::</span><span class="kw">GEX_cluster_genes</span>(vgm[[<span class="dv">2</span>]])</a>
 <a class="sourceLine" id="cb12-8" data-line-number="8"><span class="kw">head</span>(genes_per_cluster[[<span class="dv">1</span>]]) <span class="co">## Can see the top DE genes for cluster 0. </span></a></code></pre></div>
 <pre><code>##                p_val avg_logFC pct.1 pct.2    p_val_adj  SYMBOL cluster
 ## FCMR    3.734083e-63  2.370659 0.809 0.068 1.182995e-58    FCMR       0
@@ -985,7 +985,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## Running Louvain algorithm...
 ## Maximum modularity in 10 random starts: 0.8928
 ## Number of communities: 13
-## Elapsed time: 2 seconds</code></pre>
+## Elapsed time: 3 seconds</code></pre>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co">### In this case, patient1 is the covid_gex[[1]]$sample_id==1 and patient2 is the covid_gex[[1]]$sample_id==2.</span></a>
 <a class="sourceLine" id="cb33-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb33-3" data-line-number="3"><span class="kw">class</span>(covid_gex) <span class="co">## list</span></a></code></pre></div>

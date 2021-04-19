@@ -111,7 +111,6 @@ GEX.out.directory.list[[1]] <- c("~/GEX/S1/")
 GEX.out.directory.list[[2]] <- c("~/GEX/S2/")
 VDJ_comb_gex <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,GEX.out.directory.list = GEX.out.directory.list,GEX.integrate = T,VDJ.combine = T,integrate.GEX.to.VDJ = T,integrate.VDJ.to.GEX = T,exclude.GEX.not.in.VDJ = F,filter.overlapping.barcodes.GEX = F,filter.overlapping.barcodes.VDJ = F,get.VDJ.stats = T,parallel.processing = "none",subsample.barcodes = F,trim.and.align = F,group.id = c(1,2))
 }
-
 Gives stats on number and quality of reads.
 \dontrun{
 stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4),metrics10x = T,save.csv = T ,filename = "stats.csv")
