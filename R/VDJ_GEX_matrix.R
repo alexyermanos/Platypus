@@ -29,7 +29,6 @@
 #' GEX.out.directory.list[[2]] <- c("~/GEX/S2/")
 #' VDJ_comb_gex <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,GEX.out.directory.list = GEX.out.directory.list,GEX.integrate = T,VDJ.combine = T,integrate.GEX.to.VDJ = T,integrate.VDJ.to.GEX = T,exclude.GEX.not.in.VDJ = F,filter.overlapping.barcodes.GEX = F,filter.overlapping.barcodes.VDJ = F,get.VDJ.stats = T,parallel.processing = "none",subsample.barcodes = F,trim.and.align = F,group.id = c(1,2))
 #' }
-#'
 VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            GEX.out.directory.list,
                            VDJ.combine,
@@ -58,7 +57,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            neighbor.dim,
                            mds.dim,
                            subsample.barcodes,
-                           group.id,...){ #LAST ONE only for development to reduce runtime on test runs. Will be removed once the function is stable
+                           group.id){ #LAST ONE only for development to reduce runtime on test runs. Will be removed once the function is stable
 
   #garbage collector to clear some ram
   gc()
@@ -79,8 +78,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(group.id)){
     if(missing(GEX.out.directory.list)) group.id <- 1:length(VDJ.out.directory.list)
     if(missing(VDJ.out.directory.list)) group.id <- 1:length(GEX.out.directory.list)
+    if(missing(VDJ.out.directory.list) == F & missing(GEX.out.directory.list) == F) group.id <- 1:length(VDJ.out.directory.list)
   }
-
 
   if(missing(GEX.out.directory.list)) GEX.out.directory.list <- "none"
   if(missing(VDJ.out.directory.list)) VDJ.out.directory.list <- "none"
@@ -126,10 +125,67 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(length(VDJ.out.directory.list) != length(GEX.out.directory.list)){stop("Different number of paths supplied for VDJ and GEX")}}
 
   #save runtime parameters for later
-  params <- do.call("rbind", as.list(environment()))
+  #params <- do.call("rbind", as.list(environment()))
+  params <- c(paste0(do.call(c,as.list(VDJ.out.directory.list)), collapse = " / "),
+              paste0(do.call(c,as.list(GEX.out.directory.list)), collapse = " / "),
+              VDJ.combine,
+              GEX.integrate,
+              integrate.GEX.to.VDJ,
+              integrate.VDJ.to.GEX,
+              exclude.GEX.not.in.VDJ,
+              filter.overlapping.barcodes.GEX,
+              filter.overlapping.barcodes.VDJ,
+              paste0(exclude.on.cell.state.markers,collapse = ";"),
+              get.VDJ.stats,
+              numcores,
+              trim.and.align,
+              gap.opening.cost,
+              gap.extension.cost,
+              parallel.processing,
+              integration.method,
+              VDJ.gene.filter,
+              mito.filter,
+              norm.scale.factor,
+              n.feature.rna,
+              n.count.rna.min,
+              n.count.rna.max,
+              n.variable.features,
+              cluster.resolution,
+              paste0(neighbor.dim, collapse = ";"),
+              paste0(mds.dim, collapse = ";"),
+              subsample.barcodes,
+              paste0(group.id, collapse = ";"))
+  names(params) <- c("VDJ.out.directory.list",
+                     "GEX.out.directory.list",
+                     "VDJ.combine",
+                     "GEX.integrate",
+                     "integrate.GEX.to.VDJ",
+                     "integrate.VDJ.to.GEX",
+                     "exclude.GEX.not.in.VDJ",
+                     "filter.overlapping.barcodes.GEX",
+                     "filter.overlapping.barcodes.VDJ",
+                     "exclude.on.cell.state.markers",
+                     "get.VDJ.stats",
+                     "numcores",
+                     "trim.and.align",
+                     "gap.opening.cost",
+                     "gap.extension.cost",
+                     "parallel.processing",
+                     "integration.method",
+                     "VDJ.gene.filter",
+                     "mito.filter",
+                     "norm.scale.factor",
+                     "n.feature.rna",
+                     "n.count.rna.min",
+                     "n.count.rna.max",
+                     "n.variable.features",
+                     "cluster.resolution",
+                     "neighbor.dim",
+                     "mds.dim",
+                     "subsample.barcodes",
+                     "group.id")
   gex.list <- list()
   out.list <- list() #open list containing matrices
-
 
 
   #DEF OF FUNCTIONS
@@ -461,7 +517,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                   cluster.resolution,
                                   neighbor.dim,
                                   mds.dim,
-                                  groups){
+                                  group.id){
 
     if(missing(GEX.integrate)) GEX.integrate <- T
 
@@ -488,8 +544,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(GEX.integrate == T & length(GEX.list) > 1){ #combine all GEX into one seurat object and add s%number%_ to the FRONT of the barcode
       GEX.merged <- GEX.list[[1]]
       GEX.merged <- RenameCells(GEX.merged, new.names = paste0("s",1,"_",colnames(GEX.merged)))
+      GEX.merged@meta.data$sample_id <- paste0("s",1)
+      GEX.merged@meta.data$group_id <- group.id[1]
       for(i in 2:length(GEX.list)){
         GEX.list[[i]] <- RenameCells(GEX.list[[i]], new.names = paste0("s",i,"_",colnames(GEX.list[[i]])))
+        GEX.list[[i]]@meta.data$sample_id <- paste0("s",i)
+        GEX.list[[i]]@meta.data$group_id <- group.id[i]
         GEX.merged <- merge(GEX.merged, y = GEX.list[[i]], add.cell.ids = c("",""))
       }
 
@@ -498,10 +558,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {
       for(i in 1:length(GEX.list)){ #or do not integrate, but still add the sample identifier to the FRONT of the barcode. This is to make the output uniform and to deal with the possibility of integrating VDJ but not GEX
         GEX.list[[i]] <- RenameCells(GEX.list[[i]], new.names = paste0("s",i,"_",colnames(GEX.list[[i]])))
+        #add sample and group ID
+        GEX.list[[i]]@meta.data$sample_id <- paste0("s",i)
+        GEX.list[[i]]@meta.data$group_id <- group.id[i]
       }
     }
 
+
     for(i in 1:length(GEX.list)){
+
 
       holding_upper_gene_names <- toupper(rownames(GEX.list[[i]]))
       if(VDJ.gene.filter==T){
@@ -602,7 +667,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
     curr.contigs <- contigs[which(contigs$barcode == barcodes & tolower(contigs$is_cell) == "true" & tolower(contigs$high_confidence) == "true" & tolower(contigs$productive) == "true" & tolower(contigs$full_length) == "true"),]
-
     if(curr.contigs$raw_clonotype_id[1] != ''){
       curr.references <- references[which(str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]} else {curr.references <- ""}
 
@@ -894,10 +958,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       barcodes_GEX[[i]] <- colnames(gex.list[[i]])
 
       barcodes_VDJ[[i]] <- unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")])
+      #barcodes_VDJ[[i]] <- gsub(unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")]),pattern = "-1",replacement = "")
 
       print(paste0("For sample ", i, ": ", length(barcodes_GEX[[i]])," cell assigned barcodes in GEX, ", length(barcodes_VDJ[[i]]), " cell assigned high confidence barcodes in VDJ. Overlap: ", sum(barcodes_GEX[[i]] %in% barcodes_VDJ[[i]])))
-
-
 
       #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
       if(exclude.GEX.not.in.VDJ == T){
@@ -951,7 +1014,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
 
   #exclude cells based on marker expression
-  #handlers copied from GEX_phenotype. Thanks to Alex :)
+  #handlers copied from GEX_phenotype.
   if(exclude.on.cell.state.markers[1] != "none" & gex.loaded == T){
 
     #rename to match GEX_phenotype variables
@@ -1056,7 +1119,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       VDJ.proc$orig_barcode <- VDJ.proc$barcode
       VDJ.proc$barcode <- paste0("s",i,"_",VDJ.proc$barcode)
       VDJ.proc$sample_id <- paste0("s",i)
-      VDJ.proc$group_id <- paste0("s",i)
+      VDJ.proc$group_id <- group.id[i]
       VDJ.proc.list[[i]] <- VDJ.proc
 
       #add frequency column (e.g. all cells in clonotype 2 will have the same entry, that is the number of cells in clonotype 2)
@@ -1088,7 +1151,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                     n.variable.features = n.variable.features,
                                     cluster.resolution = cluster.resolution,
                                     neighbor.dim = neighbor.dim,
-                                    mds.dim = mds.dim)
+                                    mds.dim = mds.dim,
+                                    group.id = group.id)
 
     for(i in 1:length(GEX.proc)){
       #remove possible extra underscores before barcode
@@ -1136,14 +1200,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #set barcodes as columns for merging
         seur_meta$barcode <- rownames(seur_meta)
         #merge
-        seur_meta <- merge(seur_meta, VDJ.proc, by = "barcode", all.x = T)
+        drop <- c("sample_id", "group_id", "orig.ident", "seurat_clusters", "orig_barcode.x", "orig.barcode.y","orig_barcode", "GEX_available")
+        seur_meta <- merge(seur_meta, VDJ.proc[,-(which(names(VDJ.proc) %in% drop))], by = "barcode", all.x = T) #these columns are excluded here because they already exist in the seurat object
         #add rownames to new dataframe, otherwise AddMetaData fails
         rownames(seur_meta) <- seur_meta$barcode
         #add metadata
         GEX.proc <- AddMetaData(GEX.proc, seur_meta[,c(10:ncol(seur_meta))], col.name = names(seur_meta)[c(10:ncol(seur_meta))])
 
       }
-
 
     } else if(class(VDJ.proc) == "data.frame" & length(GEX.proc) > 1){ #one VDJ multiple GEX (improbable...)
       for(i in 1:length(GEX.proc)){
@@ -1188,12 +1252,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   names(out.list) <- c("VDJ", "GEX", "VDJ.GEX.stats", "Running params", "sessionInfo")
 
   print("Done")
-  if(class(out.list[[2]])=="Seurat"){
-    out.list[[2]]$sample_id <- as.integer(gsub(pattern = "s",replacement = "",sub("_.*", "", names(out.list[[2]]$orig_barcode))))
-    out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
-  }
+  # if(class(out.list[[2]])=="Seurat"){
+  #   out.list[[2]]$sample_id <- as.integer(gsub(pattern = "s",replacement = "",sub("_.*", "", names(out.list[[2]]$orig_barcode))))
+  #   out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
+  # }
 
-
-
+  if(class(out.list[[1]])=="data.frame") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
   return(out.list)
 }

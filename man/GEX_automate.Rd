@@ -22,7 +22,7 @@ GEX_automate(
 )
 }
 \arguments{
-\item{GEX.outs.directory.list}{The path to the output of cellranger vdj runs. Multiple repertoires to be integrated together should be supplied as a character vector in the first element of a list. For example, if two separate VDJ repertoires should be integrated together (e.g. on the same tSNE plot), GEX.outs.directory.list[[1]] <- c("my.VDJ1.path/outs/","my.VDJ2.path/outs/") should be stored as input. If these repertoires should be analyzed separately, >GEX.outs.directory.list[[1]] <-  "my.VDJ1.path/outs/"  >GEX.outs.directory.list[[2]] <-  "my.VDJ2.path/outs/"  should be supplied..
+\item{GEX.outs.directory.list}{The path to the output of cellranger vdj runs. Multiple repertoires to be integrated together should be supplied as a character vector in the first element of a list. For example, if two separate VDJ repertoires should be integrated together (e.g. on the same tSNE plot), GEX.outs.directory.list[[1]] <- c("my.VDJ1.path/outs/","my.VDJ2.path/outs/") should be stored as input. If these repertoires should be analyzed separately, >GEX.outs.directory.list[[1]] <-  "my.VDJ1.path/outs/"  >GEX.outs.directory.list[[2]] <-  "my.VDJ2.path/outs/"  should be supplied.
 This can be left blank if supplying the clonotypes and all_contig files diretly as input. Multiple analyses can be stored}
 
 \item{GEX.list}{List containing the output from Seurat Read10x. This must be supplied if GEX.out.directory is not provided.}

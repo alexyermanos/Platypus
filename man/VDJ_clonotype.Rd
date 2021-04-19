@@ -4,15 +4,34 @@
 \alias{VDJ_clonotype}
 \title{Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.}
 \usage{
-VDJ_clonotype(clonotype.list, clone.strategy, homology.threshold)
+VDJ_clonotype(
+  clonotype.list,
+  clone.strategy,
+  homology.threshold,
+  platypus.version,
+  VDJ.GEX.matrix,
+  output.format,
+  global.clonotype,
+  VDJ.VJ.1chain
+)
 }
 \arguments{
 \item{clonotype.list}{Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.}
 
-\item{clone.strategy}{String describing the clonotyping strategy. Possible options include 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'CDR3aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
+\item{clone.strategy}{String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'CDR3aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 All homology calculations are performed on the amino acid level.}
 
 \item{homology.threshold}{Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.}
+
+\item{platypus.version}{Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".}
+
+\item{VDJ.GEX.matrix}{Output from the VDJ.GEX.matrix function. The output object should have the VDJ information (e.g., the original VDJ_GEX_matrix call should have had cellranger's VDJ output supplied as input).}
+
+\item{output.format}{String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframe", or "dataframe.per.clone". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframe" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.}
+
+\item{global.clonotype}{Logical specifying whether clonotyping should occur across samples or only within a single sample.}
+
+\item{VDJ.VJ.1chain}{Logical specifying whether cells with multiple VDJ and VJ chains should be removed from the clonotyping. Can be either T or F for those definitions not requiring germline genes or homology thresholds, as calculating the later is difficult when multiple chains are present.}
 }
 \value{
 Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.

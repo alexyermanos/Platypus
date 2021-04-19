@@ -4,12 +4,14 @@
 \alias{GEX_cluster_membership}
 \title{Plots the cluster membership for each of the distinct samples in the Seurat object from the automate_GEX function. The distinct samples are determined by "sample_id" field in the Seurat object.}
 \usage{
-GEX_cluster_membership(automate_GEX.output, by.group)
+GEX_cluster_membership(GEX.output, by.group, platypus.version)
 }
 \arguments{
-\item{automate_GEX.output}{Output Seurat object containing gene expression data from automate_GEX function that contained at least two distinct biological samples. The different biological samples correspond to integer values in the order of the working directories initially supplied to the automate_GEX function.}
+\item{GEX.output}{Output Seurat object containing gene expression data from automate_GEX (platypus.version = "v2") or VDJ_GEX_matrix (platypus.version = "v3")function that contained at least two distinct biological samples. The different biological samples correspond to integer values (v2) or factor values (v3) in the order of the working directories initially supplied to the automate_GEX function.}
 
-\item{by.group}{Logical indicating whether to look at the cluster distributin per group. Default is set to FALSE.}
+\item{by.group}{Logical indicating whether to look at the cluster distribution per group (using the group_id column). Default is set to FALSE.}
+
+\item{platypus.version}{Version of platypus to use. Defaults to "v2". If an output of the GEX_automate function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"}
 }
 \value{
 Returns a ggplot in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.
@@ -19,6 +21,6 @@ Plots the cluster membership for each of the distinct samples in the Seurat obje
 }
 \examples{
 \dontrun{
-cluster.distribution.per.sample <- GEX_cluster_membership_per_sample(automate_GEX.output=automate_GEX_out[[i]])
+cluster.distribution.per.sample <- GEX_cluster_membership(GEX.output=automate_GEX_out[[i]])
 }
 }
