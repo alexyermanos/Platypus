@@ -9,7 +9,8 @@ VDJ_clonotype_clusters_circos(
   topX,
   label.threshold,
   axis,
-  c.count
+  c.count,
+  n_cluster
 )
 }
 \arguments{

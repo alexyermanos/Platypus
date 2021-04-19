@@ -1,6 +1,114 @@
 ## ---- fig.show='hold', message=FALSE------------------------------------------
 
 ### Removing any previous versions of the package
+#First can ensure that there is no previous version installed locally
+#detach("package:Platypus", unload=TRUE)
+#remove.packages("Platypus")
+
+### Dependencies 
+#install.packages("stringr")
+
+
+### Downloading and installing Platypus
+
+# First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. 
+# WARNING: This needs to be replaced with your own directory where the downloaded package is found
+
+# For MacOS users it may look like this
+#install.packages("~/Downloads/Platypus_3.0.tar.gz", repos = NULL, type="source")
+
+# For windows it will likely look something like this. 
+# WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
+# install.packages("C:\Users\YourPCName\Downloads\Platypus_3.0.tar.gz", repos = NULL, type="source")
+
+# Now we can load the installed package into the R environment. In case of problems with installing other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
+#library(Platypus)
+
+# The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment in case not all functions are desired. These functions are actively updated and may include more features than the in original tar.gz file. 
+
+
+
+
+## ---- fig.show='hold', message=FALSE------------------------------------------
+
+### Downloading the test data for VDJ_GEX_matrix 
+# While the Platypus manuscript uses the COVID-19 data, the vignette for Platypus v3 will use the data from B cells in the aged CNS, which can be found at the following link https://polybox.ethz.ch/index.php/s/fxQJ3NrRSwiPSSo This small dataset contains VDJ (separate libraries for B) and GEX libraries from the central nervous system of two murine samples. More information can be found https://doi.org/10.1098/rspb.2020.2793
+
+# After downloading the zip file named "Platypus_CNS_data.zip", please unzip the file and find the path to the newly formed folder. Typically this will be in the Downloads folder, so the code below should work on MacOS. For windows please uncomment the code and change the user name to match your PC.
+
+VDJ.out.directory.list <- list() ### Set directory to the outs folder of cellranger vdj
+VDJ.out.directory.list[[1]] <- c("~/Downloads/Platypus_CNS_data/VDJ_S1/")
+VDJ.out.directory.list[[2]] <- c("~/Downloads/Platypus_CNS_data/VDJ_S2/")
+
+GEX.out.directory.list <- list() ### Set directory to the outs folder of cellranger count
+GEX.out.directory.list[[1]] <- c("~/Downloads/Platypus_CNS_data/GEX_S1/")
+GEX.out.directory.list[[2]] <- c("~/Downloads/Platypus_CNS_data/GEX_S2/")
+
+# For windows: 
+#directory_to_covid_patients_gex[[1]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient1_GEX")
+#directory_to_covid_patients_gex[[2]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient2_GEX")
+
+# We will call the output vgm (short for Vdj_Gex_Matrix) - this object can be supplied as input to downstream functions in v3 of the package.
+vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+                               GEX.out.directory.list = GEX.out.directory.list,
+                               GEX.integrate = T,
+                               VDJ.combine = T,
+                               integrate.GEX.to.VDJ = T,
+                               integrate.VDJ.to.GEX = T,
+                               exclude.GEX.not.in.VDJ = F,
+                               filter.overlapping.barcodes.GEX = F,
+                               filter.overlapping.barcodes.VDJ = F,
+                               get.VDJ.stats = T,
+                               parallel.processing = "none",
+                               subsample.barcodes = F,
+                               trim.and.align = F,
+                               group.id = c(1,2))
+## The output will be a list - 
+# vgm[[1]] corresponds to the VDJ master dataframe
+# vgm[[2]] corresponds to the GEX in the form of a seurat object
+# vgm[[3]] corresponds to the output of VDJ_stats subfunction - which provides information about the number of chains, sequencing reads, etc
+# vgm[[4]] holds the input parameters 
+# vgm[[5]] holds the sessionInfo output at the time of function call
+
+head(colnames(vgm[[1]]))
+
+## By setting integrate.GEX.to.VDJ and integrate.VDJ.to.GEX to T, VDJ and GEX information will be found in vgm[[1]] and vgm[[2]] objects.
+# For example, the seurat-determined cluster is attached to each cell in the VDJ library by
+head(vgm[[1]]$seurat_clusters)
+# which corresponds to cells with the following VDJ_cdr3 
+head(vgm[[1]]$VDJ_cdr3s_aa)
+# an NA indicates that the cell barcode in the VDJ library was not detected in the GEX object (or was filtered out, depending on mitochondrial gene limits, etc)
+
+## Setting trim.and.align to TRUE will dramatically increase the run time but will also provide full-length VDJ and VJ sequences. 
+
+# In Platypus version 2, the output from GEX_automate was used as input to other GEX functions. These functions are still compatible with v3 if the vgm[[2]] seurat object is supplied as input.
+# For example, the following function can be used to calculate the DE genes for each cluster, as before. 
+genes_per_cluster <- GEX_cluster_genes(vgm[[2]])
+head(genes_per_cluster[[1]]) ## Can see the top DE genes for cluster 0. 
+
+
+## This function can similarly be used when only VDJ or GEX data is present. Simply leave the list 
+# VDJ_comb_gex <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+#                                #GEX.out.directory.list = GEX.out.directory.list,
+#                                GEX.integrate = F,
+#                                VDJ.combine = T,
+#                                integrate.GEX.to.VDJ = F,
+#                                integrate.VDJ.to.GEX = F,
+#                                exclude.GEX.not.in.VDJ = F,
+#                                filter.overlapping.barcodes.GEX = F,
+#                                filter.overlapping.barcodes.VDJ = F,
+#                                get.VDJ.stats = F,
+#                                parallel.processing = "none",
+#                                subsample.barcodes = F,
+#                                trim.and.align = F,
+#                                group.id = c(1,2))
+
+
+
+
+## ---- fig.show='hold', message=FALSE------------------------------------------
+
+### Removing any previous versions of the package
 #First, ensure there is no previous version installed locally
 #detach("package:Platypus", unload=TRUE)
 #remove.packages("Platypus")
@@ -15,7 +123,7 @@
 
 # For windows it will likely look something like this: 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
-# install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.4.tar.gz", repos = NULL, type="source")
+# install.packages("C:\Users\YourPCName\Downloads\Platypus_2.0.6.tar.gz", repos = NULL, type="source")
 
 # Now we can load the installed package into the R environment. In case of problems with installing other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
 library(Platypus)
@@ -90,7 +198,7 @@ Seurat::DimPlot(covid_gex[[1]],reduction = "umap",split.by = "sample_id")
 Seurat::DimPlot(covid_gex[[1]],reduction = "umap")
 
 ## -----------------------------------------------------------------------------
-Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
+#Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
 
 
 ## ---- fig.show='hold'---------------------------------------------------------

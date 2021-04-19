@@ -16,10 +16,11 @@
 #' \dontrun{
 #' test <- GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
 #' test2 <- GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP", go.plots = T)
+#' Can install the needed database with
+#' if (!requireNamespace("BiocManager", quietly = TRUE))
+#'install.packages("BiocManager")
+#'BiocManager::install("org.Mm.eg.db")
 #'}
-
-
-
 GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.go.terms.plots, kegg.plots, top.N.kegg.terms.plots){
 
   require(dplyr)
@@ -38,7 +39,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   if (missing(top.N.go.terms.plots)){top.N.go.terms.plots <- 10}
   if (missing(top.N.kegg.terms.plots)){top.N.kegg.terms.plots <- 10}
   if (missing(kegg.plots)){kegg.plots <- F}
-  
+
   gene.list <- list()
   list_topGO <- list()
   list_topKEGG <- list()
@@ -179,15 +180,15 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         pdf(paste(plot_title,"_2.pdf",sep=""))
         print(g2[[i]])
         dev.off()
-        
+
       }
-      
-      
+
+
       list[[3]] <- g1
       list[[4]] <- g2
 
     }
-  
+
   if (kegg.plots==T&kegg==T){
     top_pathways=top.N.kegg.terms.plots
     for (i in 1:length(list[[2]])){
@@ -199,41 +200,41 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
       names(dummy_list)<-c("KEGG_term", "nb_tot_genes", "DE_genes", "p_adj","ratio")
       dummy_list<-dummy_list[1:top_pathways,]
       dummy_list$KEGG_term <- factor(dummy_list$KEGG_term, levels = dummy_list$KEGG_term[order(dummy_list$p_adj, decreasing = TRUE)])
-      
+
       g3[[i]]<-ggplot(dummy_list, aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
         geom_point()+
         theme_bw()+
         scale_color_gradient(low="blue", high="red")+
-        
+
         scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
-        
+
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
               panel.background = element_blank(), axis.line = element_line(colour = "black"))+
         ggtitle(plot_title)
-      
+
       pdf(paste(plot_title,".pdf",sep=""))
       print(g3[[i]])
       dev.off()
-      
+
       g4[[i]]<-ggplot(dummy_list, aes(-log(p_adj), KEGG_term, colour=DE_genes))+
         geom_point(size=5)+
         theme_bw()+
         scale_color_gradient(low="blue", high="red")+
-        
+
         scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
-        
+
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
               panel.background = element_blank(), axis.line = element_line(colour = "black"))+
         ggtitle(plot_title)
-      
-      
+
+
       pdf(paste(plot_title,"_2.pdf",sep=""))
       print(g4[[i]])
       dev.off()
-      
+
     }
-    
-    
+
+
     list[[3]] <- g1
     list[[4]] <- g2
     list[[5]] <- g3

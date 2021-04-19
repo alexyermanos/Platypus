@@ -7,9 +7,9 @@
 VDJ_logoplot(VDJ.object, length_cdr3)
 }
 \arguments{
-\item{length_cdr3}{Integer indicating the length of the CDR3 regions that are selected to be plotted.}
+\item{VDJ.object}{Output of the VDJ_analyze function}
 
-\item{GEX.object}{Output of the automate_GEX function}
+\item{length_cdr3}{Integer indicating the length of the CDR3 regions that are selected to be plotted.}
 }
 \value{
 Returns the logo plot.

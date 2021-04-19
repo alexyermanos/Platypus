@@ -32,6 +32,9 @@ Can stay tuned for updates https://twitter.com/AlexYermanos
 #detach("package:Platypus", unload=TRUE)
 #remove.packages("Platypus")
 
+### Dependencies 
+#install.packages("stringr")
+
 
 ### Downloading and installing Platypus
 
@@ -39,14 +42,14 @@ Can stay tuned for updates https://twitter.com/AlexYermanos
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 
 # For MacOS users it may look like this
-install.packages("~/Downloads/Platypus_3.0.tar.gz", repos = NULL, type="source")
+#install.packages("~/Downloads/Platypus_3.0.tar.gz", repos = NULL, type="source")
 
 # For windows it will likely look something like this. 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
 # install.packages("C:\Users\YourPCName\Downloads\Platypus_3.0.tar.gz", repos = NULL, type="source")
 
 # Now we can load the installed package into the R environment. In case of problems with installing other R packages that are used in Platypus, please see the README file at the https://github.com/alexyermanos/Platypus, where we outline how to install the other R packages for both Windows and MacOS.
-library(Platypus)
+#library(Platypus)
 
 # The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment in case not all functions are desired. These functions are actively updated and may include more features than the in original tar.gz file. 
 
@@ -76,7 +79,7 @@ GEX.out.directory.list[[2]] <- c("~/Downloads/Platypus_CNS_data/GEX_S2/")
 #directory_to_covid_patients_gex[[2]] <- c("C:\Users\YourPCName\Downloads\PlatypusTestData\Patient2_GEX")
 
 # We will call the output vgm (short for Vdj_Gex_Matrix) - this object can be supplied as input to downstream functions in v3 of the package.
-vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
                                GEX.out.directory.list = GEX.out.directory.list,
                                GEX.integrate = T,
                                VDJ.combine = T,
@@ -253,7 +256,7 @@ We can observe that the majority of clusters have cells from both patients, sugg
 
 
 ```{r}
-Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
+#Platypus::GEX_cluster_membership(automate_GEX.output = covid_gex[[1]])
 
 ```
 
