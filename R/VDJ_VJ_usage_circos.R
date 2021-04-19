@@ -29,7 +29,7 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
   
   # If new version with VDJ_GEX_matric output should be used
   if(platypus.version=="v3"){
-      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus X.X.X is being used. Output of VDJ_GEX_matrix() required as input.")
+      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus 3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
       clonotype <- "clonotype_id_10x"
       
       #filter for 1H1L
