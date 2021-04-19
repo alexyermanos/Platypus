@@ -12,7 +12,7 @@
 #' \dontrun{
 #' cluster.distribution.per.sample <- GEX_cluster_membership_per_sample(GEX.output=automate_GEX_out[[i]])
 #'}
-GEX_diversity <- function(VDJ.matrix,
+VDJ_diversity <- function(VDJ.matrix,
                           feature.columns,
                           grouping.column,
                           metric,
