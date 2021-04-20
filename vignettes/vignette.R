@@ -29,7 +29,7 @@
 
 
 
-## ---- fig.show='hold', message=FALSE------------------------------------------
+## ---- fig.show='hold', message=FALSE,results = 'hide'-------------------------
 
 ### Downloading the test data for VDJ_GEX_matrix 
 # While the Platypus manuscript uses the COVID-19 data, the vignette for Platypus v3 will use the data from B cells in the aged CNS, which can be found at the following link https://polybox.ethz.ch/index.php/s/fxQJ3NrRSwiPSSo This small dataset contains VDJ (separate libraries for B) and GEX libraries from the central nervous system of two murine samples. More information can be found https://doi.org/10.1098/rspb.2020.2793
@@ -69,6 +69,9 @@ vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 # vgm[[3]] corresponds to the output of VDJ_stats subfunction - which provides information about the number of chains, sequencing reads, etc
 # vgm[[4]] holds the input parameters 
 # vgm[[5]] holds the sessionInfo output at the time of function call
+
+
+## ---- fig.show='hold', message=FALSE------------------------------------------
 
 head(colnames(vgm[[1]]))
 

@@ -5,20 +5,23 @@
 \title{Makes a Circos plot from the VDJ_GEX_integrate output. Connects the clonotypes with the corresponding clusters.}
 \usage{
 VDJ_clonotype_clusters_circos(
-  vdj.gex.integrate.output,
+  VDJ.GEX.matrix,
   topX,
   label.threshold,
   axis,
   c.count,
-  n_cluster
+  n_cluster,
+  platypus.version
 )
 }
 \arguments{
-\item{vdj.gex.integrate.output}{The output of the VDJ_GEX_integrate function. A list of data frames for each sample containing the clonotype information and cluster membership information.}
+\item{VDJ.GEX.matrix}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.}
 
 \item{label.threshold}{Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.}
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
+
+\item{platypus.version}{Which platypus.version of platypus is beeing used. Default = v2.}
 
 \item{TopX}{Plots only the top X most expanded clonotypes. By default all clonotypes are shown.}
 }

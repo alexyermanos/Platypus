@@ -5,18 +5,20 @@
 \title{Makes a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.}
 \usage{
 VJ_alpha_beta_Vgene_circos(
-  VDJ.analyze.output,
+  VDJ.GEX.matrix,
   V.or.J,
   B.or.Tcells,
   label.threshold,
   c.threshold,
   cell.level,
   clonotype.per.gene.threshold,
-  c.count
+  c.count,
+  platypus.version,
+  filter1H1L
 )
 }
 \arguments{
-\item{VDJ.analyze.output}{The output of the VDJ_analyze function. A list of data frames for each sample containing the clonotype informations.}
+\item{VDJ.GEX.matrix}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.}
 
 \item{V.or.J}{Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".}
 
@@ -31,6 +33,8 @@ VJ_alpha_beta_Vgene_circos(
 \item{clonotype.per.gene.threshold}{How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.}
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
+
+\item{platypus.version}{Which platypus.version of platypus is beeing used. Default = v2.}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
