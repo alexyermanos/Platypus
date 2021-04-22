@@ -126,8 +126,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #save runtime parameters for later
   #params <- do.call("rbind", as.list(environment()))
-  params <- c(paste0(do.call(c,as.list(VDJ.out.directory.list)), collapse = " / "),
-              paste0(do.call(c,as.list(GEX.out.directory.list)), collapse = " / "),
+  params <- c(paste0(do.call("c",as.list(VDJ.out.directory.list)), collapse = " / "),
+              paste0(do.call("c",as.list(GEX.out.directory.list)), collapse = " / "),
               VDJ.combine,
               GEX.integrate,
               integrate.GEX.to.VDJ,
