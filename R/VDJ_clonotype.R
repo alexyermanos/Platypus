@@ -1,11 +1,11 @@
 #' Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
 #' @param clonotype.list Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.
-#' @param clone.strategy String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'CDR3aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
+#' @param clone.strategy String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 #' All homology calculations are performed on the amino acid level.
 #' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
 #' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
 #' @param VDJ.GEX.matrix Output from the VDJ.GEX.matrix function. The output object should have the VDJ information (e.g., the original VDJ_GEX_matrix call should have had cellranger's VDJ output supplied as input).
-#' @param output.format String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframe", or "dataframe.per.clone". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframe" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.
+#' @param output.format String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframes", or "phylo.dataframe". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframes" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.
 #' @param global.clonotype Logical specifying whether clonotyping should occur across samples or only within a single sample.
 #' @param VDJ.VJ.1chain Logical specifying whether cells with multiple VDJ and VJ chains should be removed from the clonotyping. Can be either T or F for those definitions not requiring germline genes or homology thresholds, as calculating the later is difficult when multiple chains are present.
 #' @return Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.
@@ -165,6 +165,10 @@ VDJ_clonotype <- function(clonotype.list,
       sample_dfs <- list()
       for(i in 1:length(repertoire.number)){ ####START sample loop
         sample_dfs[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id==repertoire.number[i]),]
+        if(clone.strategy=="10x.default"){ ####START cdr3.nt
+
+          sample_dfs[[i]]$new_clonal_feature <- sample_dfs[[i]]$clonotype_id_10x
+        } ####STOP cdr3.nt
         if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
 
           sample_dfs[[i]]$new_clonal_feature <- paste0(sample_dfs[[i]]$VDJ_cdr3s_nt,
@@ -197,6 +201,7 @@ VDJ_clonotype <- function(clonotype.list,
                                                         nchar(sample_dfs[[i]]$VJ_cdr3s_aa),sep="_")
 
         } ####STOP hvj.lvj.cdr3lengths
+
         ####START homology based clonotyping - to add still for v3
         ####STOP homology based clonotyping - to add still for v3
 
@@ -245,21 +250,30 @@ VDJ_clonotype <- function(clonotype.list,
       VDJ.GEX.matrix[[1]] <- do.call("rbind",sample_dfs)
       return(VDJ.GEX.matrix)
     }
-    else if(output.format=="clone.level.dataframe"){####START clone.dataframe
-      # clonal.dataframes <- list()
-      # for(i in 1:length(repertoire.number)){
-      #
-      #
-      # }
-
-      print("clone.level.dataframe coming soon")
-
-    }####STOP clone.dataframe
-    else if(output.format=="dataframe.per.clone"){####START clone.dataframe
-      print("dataframe.per.clone coming soon")
+    else if(output.format=="clone.level.dataframes"){####START clone.level.dataframes
+      clone.dataframe.list <- list()
+      for(i in 1:length(sample_dfs)){
+        clone.dataframe.list[[i]] <- sample_dfs[[i]]
+        unique_clonotype_ids <- unique(sample_dfs[[i]]$clonotype_id)
+        ## Now convert into a dataframe where each clone has a single row
 
 
-    }####STOP clone.dataframe
+      }
+      return(clone.dataframe.list)
+
+    }####STOP clone.level.dataframes
+
+    else if(output.format=="phylo.dataframes"){####START phylo.dataframes
+      phylo.dataframe.list <- list()
+      for(i in 1:length(sample_dfs)){
+        if(VDJ.VJ.1chain==T){
+          sample_dfs[[i]] <- sample_dfs[[i]][which(sample_dfs[[i]]$clonotype_id!="clonotypeNA"),]
+        }
+        phylo.dataframe.list[[i]] <- split(sample_dfs[[i]],sample_dfs[[i]]$clonotype_id)
+        ## need to split the dataframe by clonotype_id column into lists
+      }
+      return(phylo.dataframe.list)
+    }####STOP phylo.dataframes
 
 
   }####STOP v3
