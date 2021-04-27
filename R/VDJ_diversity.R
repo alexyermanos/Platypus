@@ -38,6 +38,15 @@ VDJ_diversity <- function(VDJ.matrix,
   }
   if(grouping.column != "none" & !grouping.column %in% names(VDJ.matrix)){stop("The provided grouping.column was not found in VDJ.matrix. Please provide a valid name or 'none' to avoid grouping")}
   
+  #remove any rows that do not contain an entry for a given feature
+  to_remove <- c()
+  for(n in 1:nrow(VDJ.matrix)){
+    if("" %in% VDJ.matrix[n,c(feature.columns)]){
+      to_remove <- c(to_remove, n)}
+  }
+  VDJ.matrix <- VDJ.matrix[-to_remove,]
+  
+  
   #get basic dataframe with pasted features and group
   if(grouping.column == "none"){
     grouping <- data.frame("group" = rep(1, nrow(VDJ.matrix)))
@@ -69,9 +78,9 @@ VDJ_diversity <- function(VDJ.matrix,
   out <- c(out,exp(vegan::renyi(freq, scales = 0, hill= F)))
   title_out <- "Species richness"
   } else if (metric == "remyparker"){
-  #reny parker "remyparker"
+  #remy parker "remyparker"
   out <- c(out,max(freq)/sum(freq))
-  title_out <- "Reny-Parker index"
+  title_out <- "Remy-Parker index"
   } else if (metric == "simpson"){
   #simpson "simpson"
   out <- c(out,-diversity(freq, "simpson") + 1) #read gini simpson to understand
