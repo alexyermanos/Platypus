@@ -29,9 +29,18 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   if(missing(axis.label.size)) axis.label.size <- 4
   if(missing(add.barcode.table)) add.barcode.table <- T
   
+  #remove any rows that do not contain an entry for a given feature
+  to_remove <- c()
+  for(n in 1:nrow(VDJ.matrix.output)){
+    if("" %in% VDJ.matrix.output[n,c(feature.columns)]){
+      to_remove <- c(to_remove, n)}
+  }
+  print("removed")
+  VDJ.matrix.output <- VDJ.matrix.output[-to_remove,]
+
   grouping <- data.frame("group" = VDJ.matrix.output[, grouping.column])
   if(length(feature.columns) > 1){
-    grouping$pasted <- do.call(paste, c(VDJ.matrix.output[, c(feature.columns)], sep="/"))
+    grouping$pasted <- do.call(paste, c(VDJ.matrix.output[,c(feature.columns)], sep="/"))
   } else {
     grouping$pasted <- VDJ.matrix.output[, c(feature.columns)]
   }
