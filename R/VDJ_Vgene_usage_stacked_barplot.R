@@ -186,6 +186,12 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
     print(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
     
+    if(LC.Vgene == F){
+    
+    Vgene_usage_plot <- list()
+    HC_Vgene_usage <- list()
+    HC_Vgene_usage_top <- list()
+    HC_Vgene_usage_fraction <- list()
     
     
     for (i in 1:length(clonotype.list)){
@@ -255,7 +261,8 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
       theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       ylab("% of unique clones") + scale_y_continuous(expand = c(0,0)) + ggtitle(paste0("IgH V gene stacked"))
     
-    if(LC.Vgene ==TRUE){
+    
+    }else if(LC.Vgene ==TRUE){
       
       LC_Vgene_usage <- list()
       LC_Vgene_usage_top <- list()
