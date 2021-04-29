@@ -48,7 +48,7 @@ plot_SHM <- function(VDJ.matrix,
   
   #BOXPLOT COMPARING SHM PER GROUP
   
-  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_boxplot(width=0.6) + geom_jitter(alpha = 0.5, width = 0.5) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name) 
+  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_boxplot(width=0.6, outlier.alpha = 0) + geom_jitter(alpha = 0.5, width = 0.5) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name) 
   #SCATTERPLOT FOR EVERY GROUP
   
   out.list <- list()
@@ -61,7 +61,7 @@ plot_SHM <- function(VDJ.matrix,
     qx_HC <- quantile(curr_to_plot$VDJ_SHM, probs = quantile.label)
     qx_LC <- quantile(curr_to_plot$VJ_SHM, probs = quantile.label)
     
-    out.list[[j+1]] <- ggplot(curr_to_plot, aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + geom_point(show.legend = T, size = 3, alpha = 1) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ geom_text_repel(inherit.aes = T, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black") + scale_color_viridis_c(option = "B", end = 0.9)
+    out.list[[j+1]] <- ggplot(curr_to_plot, aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + geom_jitter(show.legend = T, size = 3, alpha = 1) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ geom_text_repel(inherit.aes = T, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black") + scale_color_viridis_c(option = "B", end = 0.9)
     
   }
   
