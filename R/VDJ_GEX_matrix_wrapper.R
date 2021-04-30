@@ -1,5 +1,4 @@
 #' Processes both raw VDJ and GEX Cellranger output to compile a single cell level table containing all available information for each cell.
-#' REQUIRES helper functions: GEX_automate_single, barcode_VDJ_iteration and VDJ_GEX_stats
 #' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
 #'@param GEX.out.directory.list Same as VDJ.out.directory, but for GEX. Order of list items must be the same as for VDJ.
 #'@param VDJ.combine Boolean. Defaults to TRUE. Whether to integrate repertoires. A sample identifier will be appended to each barcode both in GEX as well as in VDJ. Recommended for all later functions
@@ -326,7 +325,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
         vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
         gex.list[[i]] <- AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ.available")
-        gex.list[[i]] <- subset(gex.list[[i]], subset = VDJ.available == T)
+        gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ.available == T)])
         print(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries"))
       }
     }
