@@ -75,6 +75,8 @@ VDJ_Vgene_usage <- function(VDJ.clonotype.output,
       sample_list <- list()
       for(i in 1:length(unique(VDJ.matrix$sample_id))){
         sample_list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
+        #removing extra cells cells to leave only 1 per clonotype
+        sample_list[[i]] <- sample_list[[i]][duplicated(sample_list[[i]]$clonotype_id_10x) == F,]
       }
       
       for (k in 1:length(sample_list)){
@@ -109,3 +111,5 @@ VDJ_Vgene_usage <- function(VDJ.clonotype.output,
       return(Vgene_usage_matrix)
     }
 }
+
+

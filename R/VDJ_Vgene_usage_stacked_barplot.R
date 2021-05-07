@@ -182,6 +182,8 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
     clonotype.list <- list()
     for(i in 1:length(unique(VDJ.matrix$sample_id))){
       clonotype.list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
+      #get unique clones
+      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == F,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
     print(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
