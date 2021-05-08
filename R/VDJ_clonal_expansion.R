@@ -222,7 +222,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
           clones_per_isotype_all[[i]] <- subset(clones_per_isotype_all[[i]], !ClonalRank %in% to_del)
           #redistribute clonal ranks
           newrank <- 1
-          if(nrow(clones_per_isotype_all[[i]])){stop("No clones for these isotypes found in the dataset")}
+          if(nrow(clones_per_isotype_all[[i]]) == 0){stop("No clones for these isotypes found in the dataset")}
           for(k in seq(1,nrow(clones_per_isotype_all[[i]]), 6)){
             clones_per_isotype_all[[i]]$ClonalRank[k:(k+5)] <- newrank
             newrank <- newrank +1
