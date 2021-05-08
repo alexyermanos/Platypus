@@ -657,34 +657,34 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #' \dontrun{
   #' Do not run as standalone!
   #' }
-
+  
   #FUN to call in parlapply mclapply or lapply
   barcode_VDJ_iteration <- function(barcodes, contigs, references, annotations, gap.opening.cost, gap.extension.cost,trim.and.align){
-
+    
     require(stringr)
     require(Biostrings)
-
+    
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
     curr.contigs <- contigs[which(contigs$barcode == barcodes & tolower(contigs$is_cell) == "true" & tolower(contigs$high_confidence) == "true" & tolower(contigs$productive) == "true" & tolower(contigs$full_length) == "true"),]
     if(curr.contigs$raw_clonotype_id[1] != ''){
       curr.references <- references[which(str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]} else {curr.references <- ""}
-
+    
     #getting the relevant annotations
     curr.annotations <- annotations[str_detect(annotations$contig_id, barcodes),]
-
+    
     #set up data structure
     cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
     curr.barcode <- stats::setNames(data.frame(matrix(ncol = length(cols), nrow = 1)), cols)
-
+    
     #fill in information that do not need processing
     #Contig info on light/a and heavy/b chains is put into different columns (see cols)
     #If only one contig is available, the fields of the other are left blank
     #If more than two contigs of one chain (e.g. 2 TRB) are present, the elements will be pasted separated by a ";" into the relevant fields (in the case of TRB, into the Hb columns)
-
+    
     #open temporary data format. This is used as a bridge between raw contigs and the curr.barcode table. It provides the flexibility needed to process both cells with 0, 1 or more Heavy/b or Light/a chains
     contigs_pasted <- setNames(data.frame(matrix(ncol = ncol(curr.contigs), nrow = length(unique(curr.contigs$chain)))), names(curr.contigs)) #the dataframe may be one or two rows too long, this will not matter / ROW 1 = Heavy chain information / ROW 2 = Light chain information. This order is maintained even if one of the two chains is not present!
-
+    
     #Heavy/b chain count
     if(stringr::str_count(paste0(curr.contigs$chain, collapse= " "), pattern = "(TRB|IGH)") == 1){
       contigs_pasted[1,] <- curr.contigs[which(str_detect(curr.contigs$chain, pattern = "(TRB|IGH)") == T),]
@@ -695,7 +695,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {
       contigs_pasted[1,] <- ""
     }
-
+    
     #Light/a chain count
     if(stringr::str_count(paste0(curr.contigs$chain, collapse= " "), pattern = "(TRA|IG(K|L))") == 1){
       contigs_pasted[2,] <- curr.contigs[which(stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))") == T),]
@@ -706,7 +706,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {
       contigs_pasted[2,] <- ""
     }
-
+    
     #fill in the pasted info to curr.barcode
     curr.barcode$barcode <- curr.contigs$barcode[1]
     curr.barcode$clonotype_id_10x <- curr.contigs$raw_clonotype_id[1]
@@ -721,7 +721,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
     curr.barcode$Nr_of_VDJ_chains <- stringr::str_count(paste0(curr.contigs$chain, collapse= " "), pattern = "(TRB|IGH)")
     curr.barcode$Nr_of_VJ_chains <- stringr::str_count(paste0(curr.contigs$chain, collapse= " "), pattern = "(TRA|IG(K|L))")
-
+    
     curr.barcode$VDJ_cdr3s_aa <- contigs_pasted$cdr3[1]
     curr.barcode$VJ_cdr3s_aa <- contigs_pasted$cdr3[2]
     curr.barcode$VDJ_cdr3s_nt <- contigs_pasted$cdr3_nt[1]
@@ -739,26 +739,27 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     curr.barcode$VJ_cgene <- contigs_pasted$c_gene[2]
     curr.barcode$VDJ_raw_consensus_id <- stringr::str_split(contigs_pasted$raw_consensus_id[1],";",simplify = T)[1]
     curr.barcode$VJ_raw_consensus_id <- stringr::str_split(contigs_pasted$raw_consensus_id[2],";",simplify = T)[1] #Because we may have more than one consensus ID for light chains, we need to get one of them. Because the consensus ids are always the same for different light or heavy chains of the same cell, we can just take the first element of the str_split
-
+    
     #Now on to the actual sequences
     reference_HC <- curr.references[which(names(curr.references) == gsub("_consensus_","_concat_ref_",curr.barcode$VDJ_raw_consensus_id))]
     reference_LC <- curr.references[which(names(curr.references) == gsub("_consensus_","_concat_ref_",curr.barcode$VJ_raw_consensus_id))]
-
-    if(trim.and.align == T){
-      #from the annotations extract sequence and paste
-      #Heavy/b
-      to_paste <- c()
-      to_paste_trimmed <- c()
-      to_paste_aa <- c()
-      to_paste_ref_trimmed <- c()
-      #looping contigs in annotation
-      for(l in 1:nrow(curr.annotations)){
-        #looping over Hb contig ids (as there may be more than 1)
-        for(c in 1:length(stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T))){
-          #find a match
-          if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T)[c]){
-            #get sequence
-            to_paste <- append(to_paste, curr.annotations$sequence[l])
+    
+    
+    #from the annotations extract sequence and paste
+    #Heavy/b
+    to_paste <- c()
+    to_paste_trimmed <- c()
+    to_paste_aa <- c()
+    to_paste_ref_trimmed <- c()
+    #looping contigs in annotation
+    for(l in 1:nrow(curr.annotations)){
+      #looping over Hb contig ids (as there may be more than 1)
+      for(c in 1:length(stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T))){
+        #find a match
+        if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T)[c]){
+          #get sequence
+          to_paste <- append(to_paste, curr.annotations$sequence[l])
+          if(trim.and.align == T){
             #trim sequence
             to_paste_trimmed <- append(to_paste_trimmed, substr(curr.annotations$sequence[l], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
             #translate trimmed sequence
@@ -776,27 +777,33 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             }, error=function(e){
               to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "ALIGNMENT ERROR")
             })
+          } else {
+            to_paste_trimmed <- append(to_paste_trimmed, "")
+            to_paste_aa <- append(to_paste_aa, "")
+            to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
           }
         }
       }
-      curr.barcode$VDJ_sequence_nt_raw <- paste0(to_paste, collapse = ";")
-      curr.barcode$VDJ_sequence_nt_trimmed <- paste0(to_paste_trimmed, collapse = ";")
-      curr.barcode$VDJ_sequence_aa <- paste0(to_paste_aa, collapse = ";")
-      curr.barcode$VDJ_trimmed_ref <- paste0(to_paste_ref_trimmed, collapse = ";")
-
-      #Light/a
-      to_paste <- c()
-      to_paste_trimmed <- c()
-      to_paste_aa <- c()
-      to_paste_ref_trimmed <- c()
-      #looping contigs in annotation
-      for(l in 1:nrow(curr.annotations)){
-        #looping over Hb contig ids (as there may be more than 1)
-        for(c in 1:length(stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T))){
-          #find a match
-          if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T)[c]){
-            #get sequence
-            to_paste <- append(to_paste, curr.annotations$sequence[l])
+    }
+    curr.barcode$VDJ_sequence_nt_raw <- paste0(to_paste, collapse = ";")
+    curr.barcode$VDJ_sequence_nt_trimmed <- paste0(to_paste_trimmed, collapse = ";")
+    curr.barcode$VDJ_sequence_aa <- paste0(to_paste_aa, collapse = ";")
+    curr.barcode$VDJ_trimmed_ref <- paste0(to_paste_ref_trimmed, collapse = ";")
+    
+    #Light/a
+    to_paste <- c()
+    to_paste_trimmed <- c()
+    to_paste_aa <- c()
+    to_paste_ref_trimmed <- c()
+    #looping contigs in annotation
+    for(l in 1:nrow(curr.annotations)){
+      #looping over Hb contig ids (as there may be more than 1)
+      for(c in 1:length(stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T))){
+        #find a match
+        if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T)[c]){
+          #get sequence
+          to_paste <- append(to_paste, curr.annotations$sequence[l])
+          if(trim.and.align == T){
             #trim sequence
             to_paste_trimmed <- append(to_paste_trimmed, substr(curr.annotations$sequence[l], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
             #translate trimmed sequence
@@ -814,28 +821,30 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             }, error=function(e){
               to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "ALIGNMENT ERROR")
             })
+          } else {
+            to_paste_trimmed <- append(to_paste_trimmed, "")
+            to_paste_aa <- append(to_paste_aa, "")
+            to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
           }
         }
       }
-      curr.barcode$VJ_sequence_nt_raw <- paste0(to_paste, collapse = ";")
-      curr.barcode$VJ_sequence_nt_trimmed <- paste0(to_paste_trimmed, collapse = ";")
-      curr.barcode$VJ_sequence_aa <- paste0(to_paste_aa, collapse = ";")
-      curr.barcode$VJ_trimmed_ref <- paste0(to_paste_ref_trimmed, collapse = ";")
-
-    }else {
-      curr.barcode$VDJ_sequence_nt_raw <- NA
+    }
+    curr.barcode$VJ_sequence_nt_raw <- paste0(to_paste, collapse = ";")
+    curr.barcode$VJ_sequence_nt_trimmed <- paste0(to_paste_trimmed, collapse = ";")
+    curr.barcode$VJ_sequence_aa <- paste0(to_paste_aa, collapse = ";")
+    curr.barcode$VJ_trimmed_ref <- paste0(to_paste_ref_trimmed, collapse = ";")
+    
+    if(trim.and.align == F){
       curr.barcode$VDJ_sequence_nt_trimmed <- NA
       curr.barcode$VDJ_sequence_aa <- NA
       curr.barcode$VDJ_trimmed_ref <- NA
-
-      curr.barcode$VJ_sequence_nt_raw <- NA
+      
       curr.barcode$VJ_sequence_nt_trimmed <- NA
       curr.barcode$VJ_sequence_aa <- NA
       curr.barcode$VJ_trimmed_ref <- NA
     }
     return(curr.barcode)
   }
-
   print("Loaded functions")
 
   print("Loading in data")
@@ -846,7 +855,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     vdj_load_error <- tryCatch({
       VDJ.out.directory_clonotypes <- paste(VDJ.out.directory.list,"/clonotypes.csv",sep="")
       VDJ.out.directory_reference <- paste(VDJ.out.directory.list,"/concat_ref.fasta",sep="")
-      VDJ.out.directory_contigs <- paste(VDJ.out.directory.list,"/all_contig_annotations.csv",sep="")
+      VDJ.out.directory_contigs <- paste(VDJ.out.directory.list,"/filtered_contig_annotations.csv",sep="")
       VDJ.out.directory_annotations <- paste(VDJ.out.directory.list,"/all_contig_annotations.json",sep="")
 
       clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
@@ -967,8 +976,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         print("Removing all barcodes from GEX, which are not present in VDJ.")
 
         vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
-        gex.list[[i]] <- AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ.available")
-        gex.list[[i]] <- subset(gex.list[[i]], subset = VDJ.available == T)
+        gex.list[[i]]@meta.data$VDJ.available <- vdj.gex.available
+        gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ.available == TRUE)])
         print(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries"))
       }
     }
