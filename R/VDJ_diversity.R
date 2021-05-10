@@ -2,7 +2,7 @@
 #' @param VDJ.matrix VDJ dataframe output from either the VDJ_analyse (platypus.version = "v2") or from the VDJ_GEX_matrix function (platypus.version = "v3")
 #' @param feature.columns Character vector. One or more column names from the VDJ.matrix of which diversity or overlap metrics are calculated. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation. Defaults to "CDRH3_aa" if platypus.version == "v2" and "VDJ_cdr3s_aa" if platypus.version == "v3".
 #' @param grouping.column Character. Column name of a column to group metrics by. This could be "sample_id" to calculate the metric for each sample. This column is required if metric = "simpson". If so, the simpson overlap index will be calculated pairwise for all combinations of elements in the grouping.column. Defaults to "none".
-#' @param metric Character. Diversity or overlap metric to calculate. Can be c("richness", "remyparker", "simpson", "ginisimpson", "shannon", "shannonevenness", "jaccard"). Defaults to "shannon". If jaccard is selected, a heatmap with the pairwise comparisons between all groups is returned. If any of the others is selected, a dotplot is returned
+#' @param metric Character. Diversity or overlap metric to calculate. Can be c("richness", "bergerparker", "simpson", "ginisimpson", "shannon", "shannonevenness", "jaccard"). Defaults to "shannon". If jaccard is selected, a heatmap with the pairwise comparisons between all groups is returned. If any of the others is selected, a dotplot is returned
 #' @param pvalues.label.size Numeric. Only used if overlap indices are calculated. Defaults to 4. Is passed on to ggplot theme
 #' @param axis.label.size Numeric. Only used if overlap indices are calculated. Defaults to 12. Is passed on to ggplot theme
 #' @param platypus.version Version of platypus to use. Defaults to "v2". If an output of the VDJ_analyze function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"
@@ -65,7 +65,7 @@ VDJ_diversity <- function(VDJ.matrix,
 
   #loop over group.names => get index for every group => return table to use for geom_point()
   #to check if a correct metric was selected or whether to go for overlap metrics
-  if(metric %in% c("richness", "remyparker", "simpson", "ginisimpson", "shannon", "shannonevenness")){
+  if(metric %in% c("richness", "bergerparker", "simpson", "ginisimpson", "shannon", "shannonevenness")){
   
   out <- c()
   for(i in 1:length(group.names)){
@@ -77,10 +77,10 @@ VDJ_diversity <- function(VDJ.matrix,
   #species richness  "richness"
   out <- c(out,exp(vegan::renyi(freq, scales = 0, hill= F)))
   title_out <- "Species richness"
-  } else if (metric == "remyparker"){
+  } else if (metric == "bergerparker"){
   #remy parker "remyparker"
   out <- c(out,max(freq)/sum(freq))
-  title_out <- "Remy-Parker index"
+  title_out <- "Berger-Parker index"
   } else if (metric == "simpson"){
   #simpson "simpson"
   out <- c(out,-diversity(freq, "simpson") + 1) #read gini simpson to understand
@@ -96,12 +96,12 @@ VDJ_diversity <- function(VDJ.matrix,
   title_out <- "Shannon diversity"
   } else if (metric == "shannonevenness"){ 
   #shannon evenness "shannoneveness"
-  out <- c(out,exp(diversity(freq, "shannon")) /length(freq))
+  out <- c(out,(diversity(freq, "shannon") /log(length(freq)))) 
   title_out <- "Shannon evenness"
   }
   }
   
-  out_df <- data.frame("groups" = group.names, "metric" = out, colors = rainbow(length(group.names)))
+  out_df <- data.frame("index" = title_out,"groups" = group.names, "metric" = out, colors = rainbow(length(group.names)))
 
   #plot
   plot_out <- ggplot(out_df, aes(x = groups, y = metric, col = colors)) + geom_point(size = 3,show.legend = F) + labs(title = title_out, x = "", y = title_out) + theme(panel.background = element_blank(), axis.ticks.x = element_blank(), legend.position = "none")
