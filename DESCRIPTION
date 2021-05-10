@@ -12,7 +12,6 @@ Depends:
     Seurat,
     reshape2,
     knitr,
-    igraph,
     seqinr,
     dplyr,
     jsonlite,
@@ -21,7 +20,8 @@ Depends:
     stringr,
     do,
     useful,
-    tidyverse
+    tidyverse,
+    tidyr
 Description: Allows the analysis of single cell immune repertoire data. 
 License: GPL-2
 Encoding: UTF-8

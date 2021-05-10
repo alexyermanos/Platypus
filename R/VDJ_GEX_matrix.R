@@ -205,12 +205,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4),metrics10x = T,save.csv = T ,filename = "stats.csv")
   #' }
 
+
+
   VDJ_GEX_stats <- function(VDJ.out.directory,
                             GEX.out.directory,
                             sample.names,
                             metrics10x,
                             save.csv,
-                            filename){
+                            filename){####START VDJ_GEX_stats
 
     require(seqinr)
     require(jsonlite)
@@ -261,6 +263,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     if(missing(sample.names)){sample.names <- c(1:length(VDJ.out.directory))}
 
+
+    ### VDJ stats - mainly info coming from the annotated contigs csv
     VDJ.stats.list <- list()
     for(k in 1:length(clonotype.list)){
 
@@ -428,6 +432,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           }
         }
 
+        #### meant to make sure that different samples from different cellranger versions will be bound together
         #get ncols
         ncols <- do.call("c", lapply(VDJ.metrics.list, function(x) ncol(x)))
         #check if length if identical
@@ -493,7 +498,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     return(VDJ.stats.all)
   }
 
-  ###########################################################################################
+  ########################################################################################### STOP VDJ_GEX_stats
 
   #' Processes GEX in the function VDJ_GEX_matrix. Do not run as standalone
   #' @param ALL_PARAMS Provided by VDJ_GEX_matrix function.
@@ -695,6 +700,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {
       contigs_pasted[1,] <- ""
     }
+    ### Order of CDRs with multiple chains is determined here
 
     #Light/a chain count
     if(stringr::str_count(paste0(curr.contigs$chain, collapse= " "), pattern = "(TRA|IG(K|L))") == 1){
@@ -836,6 +842,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     return(curr.barcode)
   }
 
+  ##### Start of function
   print("Loaded functions")
 
   print("Loading in data")
@@ -854,6 +861,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
       contig.table <- lapply(VDJ.out.directory_contigs, function(x) utils::read.csv(x,sep=",",header=T, )) #better using the table format downstream
 
+      ## pulls out the three important features: featureRegions, and of featureRegions. Used for trimming where the V region starts and where the C region ends.
       annotations.table <- list()
       for(i in 1:length(annotations.list)){
         #get annotation table to make parlapply function faster
@@ -876,7 +884,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                        "sequence" = y$sequence,
                        "temp_start" = temp_start,
                        "temp_end" = temp_end
-            )}))
+            )}))### returns this dataframe with these four outputs. if you dont have annotations sufficient for both, then you will just an empty character vector. For high confidence cells we have start and stop.
       }
 
 
@@ -962,13 +970,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       print(paste0("For sample ", i, ": ", length(barcodes_GEX[[i]])," cell assigned barcodes in GEX, ", length(barcodes_VDJ[[i]]), " cell assigned high confidence barcodes in VDJ. Overlap: ", sum(barcodes_GEX[[i]] %in% barcodes_VDJ[[i]])))
 
+      vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
+      gex.list[[i]] <- AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ.available")
       #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
       if(exclude.GEX.not.in.VDJ == T){
         print("Removing all barcodes from GEX, which are not present in VDJ.")
 
-        vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
-        gex.list[[i]] <- AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ.available")
-        gex.list[[i]] <- subset(gex.list[[i]], subset = VDJ.available == T)
+
+        gex.list[[i]] <- Seurat::subset(gex.list[[i]], subset = VDJ.available == TRUE)
         print(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries"))
       }
     }
@@ -982,7 +991,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }}
   if(gex.loaded == F & vdj.loaded == T){
     barcodes_VDJ <- list()
-    for(i in 1:length(contig.table)){
+    for(i in 1:length(contig.table)){##barcodes_VDJ holds the unique barcodes
       barcodes_VDJ[[i]] <- unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")])
       print(paste0("For sample ", i, ": ", length(barcodes_VDJ[[i]]), " cells assigned with high confidence barcodes in VDJ"))
     }
@@ -994,7 +1003,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       barcodes_GEX_c <- do.call("c", lapply(gex.list, function(x) x$orig_barcode))
       unique_barcodes <- names(table(barcodes_GEX_c)[table(barcodes_GEX_c) == 1])
       for(i in 1:length(gex.list)){
-        gex.list[[i]] <- subset(gex.list[[i]], subset = orig_barcode %in% unique_barcodes)
+        gex.list[[i]] <- Seurat::subset(gex.list[[i]], subset = orig_barcode %in% unique_barcodes)
       }
       print(paste0("Removed a total of ", length(unique(barcodes_GEX_c)) - length(unique_barcodes), " cells with non unique barcodes in GEX"))
     }
