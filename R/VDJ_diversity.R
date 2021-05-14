@@ -3,6 +3,7 @@
 #' @param feature.columns Character vector. One or more column names from the VDJ.matrix of which diversity or overlap metrics are calculated. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation. Defaults to "CDRH3_aa" if platypus.version == "v2" and "VDJ_cdr3s_aa" if platypus.version == "v3".
 #' @param grouping.column Character. Column name of a column to group metrics by. This could be "sample_id" to calculate the metric for each sample. This column is required if metric = "simpson". If so, the simpson overlap index will be calculated pairwise for all combinations of elements in the grouping.column. Defaults to "none".
 #' @param metric Character. Diversity or overlap metric to calculate. Can be c("richness", "bergerparker", "simpson", "ginisimpson", "shannon", "shannonevenness", "jaccard"). Defaults to "shannon". If jaccard is selected, a heatmap with the pairwise comparisons between all groups is returned. If any of the others is selected, a dotplot is returned
+#' @param subsample.to.same.n Boolean defaults to TRUE. Whether to subsample larger groups down to the size of the smallest group 
 #' @param pvalues.label.size Numeric. Only used if overlap indices are calculated. Defaults to 4. Is passed on to ggplot theme
 #' @param axis.label.size Numeric. Only used if overlap indices are calculated. Defaults to 12. Is passed on to ggplot theme
 #' @param platypus.version Version of platypus to use. Defaults to "v2". If an output of the VDJ_analyze function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"
@@ -16,6 +17,7 @@ VDJ_diversity <- function(VDJ.matrix,
                           feature.columns,
                           grouping.column,
                           metric,
+                          subsample.to.same.n, 
                           pvalues.label.size,
                           axis.label.size,
                           platypus.version){
@@ -26,6 +28,7 @@ VDJ_diversity <- function(VDJ.matrix,
   if(missing(grouping.column)) grouping.column <- "none"
   if(missing(platypus.version)) platypus.version <- "v2"
   if(missing(metric)) metric <- "shannon"
+  if(missing(subsample.to.same.n)) subsample.to.same.n <- T
   if(missing(feature.columns)){
     if(platypus.version == "v2"){feature.columns <- "CDR3H_aa"}
     else if(platypus.version == "v3"){feature.columns <- "VDJ_cdr3s_aa"}
@@ -66,13 +69,33 @@ VDJ_diversity <- function(VDJ.matrix,
   #loop over group.names => get index for every group => return table to use for geom_point()
   #to check if a correct metric was selected or whether to go for overlap metrics
   if(metric %in% c("richness", "bergerparker", "simpson", "ginisimpson", "shannon", "shannonevenness")){
-  
+
   out <- c()
   for(i in 1:length(group.names)){
   
-  #get frequences
-  freq <- table(subset(grouping, group == group.names[i])$pasted)
+  if(subsample.to.same.n){
+    min_group <- table(grouping$group)[which.min(table(grouping$group))]
+    if(length(which(grouping$group == group.names[i])) > min_group){
+      sampled <- subset(grouping, group == group.names[i])
+      sampled <- dplyr::sample_n(grouping, min_group)
+      
+      print(paste0("Subsampled group ", group.names[i], " to ", min_group, " entries"))
+      
+      #get frequences
+      freq <- table(sampled$pasted)
+    } else {
+      #get frequences
+      freq <- table(subset(grouping, group == group.names[i])$pasted)
+      
+      print(paste0("Used group ", group.names[i], " as a reference for subsampling with ", min_group , " entries"))
+      
+    }
+  } else {
+    #get frequences
+    freq <- table(subset(grouping, group == group.names[i])$pasted)
+  }  
     
+
   if(metric == "richness"){
   #species richness  "richness"
   out <- c(out,exp(vegan::renyi(freq, scales = 0, hill= F)))
