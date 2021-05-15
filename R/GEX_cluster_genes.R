@@ -1,15 +1,27 @@
-#' Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX.
-#' @param automate_GEX.output Output Seurat object containing gene expression data from automate_GEX function that contained at least two distinct biological samples. The different biological samples correspond to integer values in the order of the working directories initially supplied to the automate_GEX function.
+#' Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX or VDJ_GEX_matrix
+#' @param GEX Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 
 #' @param min.pct The minimum percentage of cells expressing a gene in either of the two groups to be compared. Default is 0.25
 #' @param filter Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.
 #' @param base The base with respect to which logarithms are computed. Default: 2
-#' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene. Ech element in the list corresponds to the clusters in numerical order. For example, the first element in the list output[[1]] corresponds to the genes differentially expressed in cluster 0 in the automate_GEX.output object.
+#' @param platypus.version is set automatically
+#' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene. Ech element in the list corresponds to the clusters in numerical order. For example, the first element in the list output[[1]] corresponds to the genes deferentially expressed in cluster 0 in GEX
 #' @export
 #' @examples
 #' \dontrun{
-#' genes_per_cluster <- GEX_cluster_genes(automate_GEX.output=automate_GEX_output[[i]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
+#' #Platypus version v2
+#' genes_per_cluster <- GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
+#' 
+#' #Platypus version v3
+#' genes_per_cluster <- GEX_cluster_genes(GEX = VDJ.GEX.matrix.output[[2]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
 #'}
-GEX_cluster_genes <- function(automate_GEX.output, min.pct, filter, base){
+GEX_cluster_genes <- function(GEX, 
+                              min.pct, 
+                              filter, 
+                              base, 
+                              platypus.version){
+  platypus.version <- "does not matter"
+  automate_GEX.output <- GEX
+  
   require(stringr)
   if(missing(min.pct)) min.pct <- 0.25
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
