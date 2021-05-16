@@ -51,13 +51,13 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
     df.list[[i]] <- unique(subset(grouping, grouping[,1] == unique(grouping[,1])[i])[,2])#get unique values of pasted feature columns per grouping / per repertoire 
   }
   names(df.list) <- sample.names
-
+  
   if(length(sample.names) > 2){
-  combs <- as.data.frame(t(combn(sample.names, m = 2,simplify = TRUE)))#get combinations to test
+  combs <- as.data.frame(t(combn(as.character(sample.names), m = 2,simplify = TRUE)))#get combinations to test
 
   combs[,1] <- ordered(as.factor(combs[,1]), levels = rev(sample.names))
   combs[,2] <- ordered(as.factor(combs[,2]), levels = sample.names)
-  
+
   } else {
     combs <- data.frame(sample.names[1], sample.names[2])
   }
@@ -134,4 +134,6 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   print(plot_out)
   return(list(plot_out,combs,ov_df))  
 }
+
+
 
