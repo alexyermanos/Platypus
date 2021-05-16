@@ -976,8 +976,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(exclude.GEX.not.in.VDJ == T){
         print("Removing all barcodes from GEX, which are not present in VDJ.")
 
-
-        gex.list[[i]] <- Seurat::subset(gex.list[[i]], subset = VDJ.available == TRUE)
+        vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
+        gex.list[[i]]@meta.data$VDJ.available <- vdj.gex.available
+        gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ.available == T)])
         print(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries"))
       }
     }
