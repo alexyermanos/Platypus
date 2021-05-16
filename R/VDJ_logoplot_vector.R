@@ -18,14 +18,13 @@ VDJ_logoplot_vector <- function(cdr3.vector,
 
   cdr3.vector <- as.character(cdr3.vector)
   cdr3.vector[is.na(cdr3.vector)] <- ""
+  cdr3.vector <- cdr3.vector[-which(cdr3.vector == "")]
   
   if(length_cdr3 == "auto"){
-    length_cdr3 <- which.max(table(nchar(cdr3.vector)))
-  }
-  if (length_cdr3 < min(nchar(cdr3.vector))) {
+    length_cdr3 <- names(which.max(table(nchar(cdr3.vector))))
+  } else if (length_cdr3 < min(nchar(cdr3.vector))) {
     length_cdr3 <- min(nchar(cdr3.vector))
-  }
-  if (length_cdr3 > max(nchar(cdr3.vector))) {
+  } else if (length_cdr3 > max(nchar(cdr3.vector))) {
     length_cdr3 <- max(nchar(cdr3.vector))
   }
   if(!as.character(length_cdr3) %in% names(table(nchar(cdr3.vector)))){
