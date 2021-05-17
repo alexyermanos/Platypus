@@ -1004,7 +1004,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       barcodes_GEX_c <- do.call("c", lapply(gex.list, function(x) x$orig_barcode))
       unique_barcodes <- names(table(barcodes_GEX_c)[table(barcodes_GEX_c) == 1])
       for(i in 1:length(gex.list)){
-        gex.list[[i]] <- Seurat::subset(gex.list[[i]], subset = orig_barcode %in% unique_barcodes)
+        gex.list[[i]] <- subset(gex.list[[i]], subset = orig_barcode %in% unique_barcodes)
       }
       print(paste0("Removed a total of ", length(unique(barcodes_GEX_c)) - length(unique_barcodes), " cells with non unique barcodes in GEX"))
     }
