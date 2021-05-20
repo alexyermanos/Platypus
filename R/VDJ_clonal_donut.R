@@ -13,10 +13,10 @@
 #' @examples
 #' \dontrun{
 #' 
-#' VDJ_expansion_pie(VDJ.matrix = VDJ.matrix.output[[1]])
+#' VDJ_clonal_donut(VDJ.matrix = VDJ.matrix.output[[1]])
 #'
 #'}
-VDJ_expansion_pie <- function(VDJ.matrix,
+VDJ_clonal_donut <- function(VDJ.matrix,
                               label.size,
                               not.expanded.label.vjust,
                               not.expanded.label.hjust,
