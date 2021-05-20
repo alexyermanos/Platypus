@@ -31,7 +31,7 @@ if(missing(label.size)) label.size <- 5
 if(missing(not.expanded.label.vjust)) not.expanded.label.vjust <- -0.2
 if(missing(not.expanded.label.hjust)) not.expanded.label.hjust <- 1.4
 if(missing(total.label.vjust)) total.label.vjust <- 3
-if(missing(total.label.hjust)) total.label.hjust <- 0.7
+if(missing(total.label.hjust)) total.label.hjust <- 0.5
 if(missing(expanded.colors)) expanded.colors <- c("darkorchid4","darkorchid1","mediumorchid1","mediumpurple3")
 if(missing(non.expanded.color)) non.expanded.color <- "black"
 
