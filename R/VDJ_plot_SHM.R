@@ -9,13 +9,13 @@
 #' \dontrun{
 #' 
 #' Standard plot
-#' SHM_plots <- plot_SHM(VDJ.matrix = VDJ_comb[[1]], group.by = "sample_id", quantile.label = 0.9)
+#' SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_comb[[1]], group.by = "sample_id", quantile.label = 0.9)
 #' 
 #' Group by transcriptional cluster and label only top 1%
-#' SHM_plots <- plot_SHM(VDJ.matrix = VDJ_comb[[1]], group.by = "seurat_clusters", quantile.label = 0.99)
+#' SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_comb[[1]], group.by = "seurat_clusters", quantile.label = 0.99)
 #'}
 
-plot_SHM <- function(VDJ.matrix, 
+VDJ_plot_SHM <- function(VDJ.matrix,
                      group.by, 
                      quantile.label,
                      platypus.version){
@@ -31,7 +31,7 @@ plot_SHM <- function(VDJ.matrix,
   
   #get data
   if(!"VDJ_SHM" %in% names(VDJ.matrix) | !"VJ_SHM" %in% names(VDJ.matrix)){
-    stop("VDJ_SHM and VJ_SHM column not found in the input dataframe. Please provide a output dataframe of the VDJ_call_MIXCR function")
+    stop("VDJ_SHM or VJ_SHM column not found in the input dataframe. Please provide a output dataframe of the VDJ_call_MIXCR function")
   }
   
   if((group.by %in% names(VDJ.matrix)) == F){
@@ -48,7 +48,7 @@ plot_SHM <- function(VDJ.matrix,
   
   #BOXPLOT COMPARING SHM PER GROUP
   
-  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_boxplot(width=0.6, outlier.alpha = 0) + geom_jitter(alpha = 0.5, width = 0.5) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name) 
+  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_boxplot(width=0.55, outlier.alpha = 0) + geom_jitter(alpha = 0.3, width = 0.35) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name) 
   #SCATTERPLOT FOR EVERY GROUP
   
   out.list <- list()
@@ -61,9 +61,11 @@ plot_SHM <- function(VDJ.matrix,
     qx_HC <- quantile(curr_to_plot$VDJ_SHM, probs = quantile.label)
     qx_LC <- quantile(curr_to_plot$VJ_SHM, probs = quantile.label)
     
-    out.list[[j+1]] <- ggplot(curr_to_plot, aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + geom_jitter(show.legend = T, size = 3, alpha = 1) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ geom_text_repel(inherit.aes = T, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black") + scale_color_viridis_c(option = "B", end = 0.9)
+    pos <- position_jitter(width = 0.3, seed = 2)
+    
+    out.list[[j+1]] <- ggplot(curr_to_plot, aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + geom_jitter(show.legend = T, size = 3, alpha = 0.8, position = pos) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ geom_text_repel(inherit.aes = F, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black", position = pos) + scale_color_viridis_c(option = "B", end = 0.9)
     
   }
-  
+  print("Done")
   return(out.list)
 }

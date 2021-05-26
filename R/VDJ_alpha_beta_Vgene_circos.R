@@ -1,5 +1,5 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
-#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.
+#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.
 #' @param V.or.J Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
@@ -11,11 +11,11 @@
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
-#'  plots <- VJ_alpha_beta_Vgene_circos(vdj_repertoire_tcells)
+#'  plots <- VDJ_alpha_beta_Vgene_circos(VDJ.GEX.matrix[[1]])
 #'}
 #' @export
 
-VJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L){
+VDJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L){
 if(missing(V.or.J)){V.or.J <- "both"}
 if(missing(label.threshold)){label.threshold <- 0}
 if(missing(c.threshold)){c.threshold <- 0}
@@ -27,9 +27,18 @@ if(missing(filter1H1L)){filter1H1L <- T}
 
   
 if(platypus.version=="v3"){
+  
+  
+  
+  
   #########################################################################
   print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
   clonotype <- "clonotype_id_10x"
+  
+  #swapping to a list to not change the whole function
+  bk <- VDJ.GEX.matrix
+  VDJ.GEX.matrix <- list()
+  VDJ.GEX.matrix[[1]] <- bk
   
   if(missing(B.or.Tcells)){
     for(i in 1:nrow(VDJ.GEX.matrix[[1]])){
@@ -76,12 +85,14 @@ if(platypus.version=="v3"){
   
   #split up into samples to plot individually
   VDJ.GEX_list <- list()
-  for (i in 1:length(table(VDJ.GEX.matrix[[1]]$sample_id))){
-    VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id==paste0("s",i)),]
+  for (i in 1:length(unique(VDJ.GEX.matrix[[1]]$sample_id))){
+    VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id== unique(VDJ.GEX.matrix[[1]]$sample_id)[i]),]
   }
   
   
   for (i in 1:length(VDJ.GEX_list)){
+    
+    print(paste0("Plotting for sample ", unique(VDJ.GEX.matrix[[1]]$sample_id)[i]))  
     
     VDJ.GEX_list[[i]]$alpha_beta_Vgene <- paste(VDJ.GEX_list[[i]]$VJ_vgene, VDJ.GEX_list[[i]]$VDJ_vgene, sep = "_")
     VDJ.GEX_list[[i]]$alpha_beta_Jgene <- paste(VDJ.GEX_list[[i]]$VJ_jgene, VDJ.GEX_list[[i]]$VDJ_jgene, sep = "_")
@@ -132,7 +143,6 @@ if(platypus.version=="v3"){
     
     if(cell.level == T){
       print("---")
-      print(paste0("Processing sample ", k))
       dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$alpha_beta_Vgene))
       colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
       dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$alpha_beta_Jgene))

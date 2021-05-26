@@ -15,13 +15,16 @@ VDJ_logoplot_vector <- function(cdr3.vector,
   require(ggseqlogo)
   if(missing(length_cdr3)) length_cdr3 <- "auto"
   if(missing(seq_type)) seq_type <- "auto"
-
+  
   cdr3.vector <- as.character(cdr3.vector)
   cdr3.vector[is.na(cdr3.vector)] <- ""
-  cdr3.vector <- cdr3.vector[-which(cdr3.vector == "")]
-  
+  if("" %in% cdr3.vector){
+  cdr3.vector <- cdr3.vector[-c(which(cdr3.vector == ""))]}
+
   if(length_cdr3 == "auto"){
-    length_cdr3 <- names(which.max(table(nchar(cdr3.vector))))
+    length_cdr3 <- as.numeric(names(which.max(table(nchar(cdr3.vector)))))
+    print("Length distribution of input sequences")
+    print(table(nchar(cdr3.vector)))
   } else if (length_cdr3 < min(nchar(cdr3.vector))) {
     length_cdr3 <- min(nchar(cdr3.vector))
   } else if (length_cdr3 > max(nchar(cdr3.vector))) {
@@ -29,7 +32,7 @@ VDJ_logoplot_vector <- function(cdr3.vector,
   }
   if(!as.character(length_cdr3) %in% names(table(nchar(cdr3.vector)))){
     print("No CDR3s of chosen length present. Setting length_cdr3 to mode of length of input sequences")
-    length_cdr3 <- names(which.max(table(nchar(cdr3.vector))))
+    length_cdr3 <- as.numeric(names(which.max(table(nchar(cdr3.vector)))))
   }
   print(paste0("Returning logoplot based on ", length(cdr3.vector[which(nchar(cdr3.vector)==length_cdr3)]), " sequences of a total ", length(cdr3.vector), " input sequences"))
   return(ggseqlogo(cdr3.vector[which(nchar(cdr3.vector)==length_cdr3)], method='prob', seq_type= seq_type))

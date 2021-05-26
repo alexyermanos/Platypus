@@ -17,31 +17,36 @@ GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_
   
   output_list <- list()
   for(i in 1:length(GEX_cluster_genes.output)) {
+    
+    if("avg_log2FC" %in% names(GEX_cluster_genes.output[[i]])){
+      names(GEX_cluster_genes.output[[i]])[which(names(GEX_cluster_genes.output[[i]]) == "avg_log2FC")] <- "avg_logFC"
+    } 
+
     temp.n.genes <- n.genes
     GEX_cluster_genes.output[[i]]$SYMBOL <- rownames(GEX_cluster_genes.output[[i]])
-    GEX_cluster_genes.output[[i]]$cluster <- rep((i-1), nrow(GEX_cluster_genes.output[[i]]))
+    GEX_cluster_genes.output[[i]]$cluster <- rep((i - 1),nrow(GEX_cluster_genes.output[[i]]))
     exclude <- c()
     for (j in filter) {
-      exclude <- c(exclude, str_which(rownames(GEX_cluster_genes.output[[i]]), j))
+      exclude <- c(exclude, str_which(rownames(GEX_cluster_genes.output[[i]]),j))
     }
-
-    if(length(exclude)>0){
+    if (length(exclude) > 0) {
       topN_filtered <- GEX_cluster_genes.output[[i]][-exclude,]
-    }else{
-      topN_filtered <- GEX_cluster_genes.output[[i]]
-    }
-    if(nrow(topN_filtered) < n.genes) {temp.n.genes <- nrow(topN_filtered)}
-
-    if (by_FC) {
-      topN_filtered <- topN_filtered %>% mutate(abs_value = abs(topN_filtered$avg_logFC))
-      output_list[[i]] <- select(dplyr::slice_max(topN_filtered, n = temp.n.genes, abs_value), !abs_value)
     }
     else {
-      output_list[[i]] <- dplyr::slice_min(topN_filtered, n = temp.n.genes, p_val)
+      topN_filtered <- GEX_cluster_genes.output[[i]]
+    }
+    if (nrow(topN_filtered) < n.genes) {
+      temp.n.genes <- nrow(topN_filtered)
+    }
+    if (by_FC) {
+      topN_filtered <- topN_filtered %>% mutate(abs_value = abs(topN_filtered$avg_logFC))
+      output_list[[i]] <- dplyr::select(dplyr::slice_max(topN_filtered,n = temp.n.genes, abs_value),!abs_value)
+    }
+    else {
+      output_list[[i]] <- dplyr::slice_min(topN_filtered, 
+                                           n = temp.n.genes, p_val)
     }
   }
-  
   output_unlist <- do.call("rbind", output_list)
-
   return(output_unlist)
 }

@@ -63,7 +63,7 @@ GEX_pairwise_DEGs <- function(GEX.matrix,
       degs <- degs[order(degs$p_val_adj),]
       degs_rel <- degs[1:label.n.top.genes,]
       
-      if(genes.to.label != "none"){
+      if(genes.to.label[1] != "none"){
         extra_genes <- subset(degs, gene %in% genes.to.label)
         if(nrow(extra_genes) > 0){
           degs_rel <- rbind(degs_rel, extra_genes)

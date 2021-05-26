@@ -98,7 +98,7 @@ VDJ_diversity <- function(VDJ.matrix,
 
   if(metric == "richness"){
   #species richness  "richness"
-  out <- c(out,exp(vegan::renyi(freq, scales = 0, hill= F)))
+  out <- c(out,length(freq))
   title_out <- "Species richness"
   } else if (metric == "bergerparker"){
   #remy parker "remyparker"
@@ -127,7 +127,7 @@ VDJ_diversity <- function(VDJ.matrix,
   out_df <- data.frame("index" = title_out,"groups" = group.names, "metric" = out, colors = rainbow(length(group.names)))
 
   #plot
-  plot_out <- ggplot(out_df, aes(x = groups, y = metric, col = colors)) + geom_point(size = 3,show.legend = F) + labs(title = title_out, x = "", y = title_out) + theme(panel.background = element_blank(), axis.ticks.x = element_blank(), legend.position = "none")
+  plot_out <- ggplot(out_df, aes(x = groups, y = metric, fill = colors)) + geom_bar(show.legend = F, stat = "identity") + labs(title = title_out, x = "", y = title_out) + theme(panel.background = element_blank(), axis.ticks.x = element_blank(), legend.position = "none") + scale_y_continuous(expand = c(0,0))
   
   return(plot_out)
   
@@ -150,7 +150,7 @@ VDJ_diversity <- function(VDJ.matrix,
     title_out <- "Jaccard index"
   }  
     
-    plot_out <- ggplot(combs, aes(x = combs[,2], y = combs[,1],fill=metric)) + geom_tile() +geom_text(aes(label=metric), size = pvalues.label.size)+ scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$metric)) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line.x = element_blank(),axis.line.y = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "white"), legend.position = "none", plot.title = element_text(hjust = 0.5, size = 25), plot.subtitle = element_text(size = 15),axis.text.x = element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = element_text(size = axis.label.size)) + labs(title = title_out, x = "", y = "", fill = "")
+    plot_out <- ggplot(combs, aes(x = combs[,2], y = combs[,1],fill=metric)) + geom_tile() +geom_text(aes(label=metric), size = pvalues.label.size)+ scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$metric)) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line.x = element_blank(),axis.line.y = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "white"), legend.position = "none", plot.title = element_text(hjust = 0.5, size = 25), plot.subtitle = element_text(size = 15),axis.text.x = element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = element_text(size = axis.label.size)) + labs(title = title_out, x = "", y = "", fill = "") 
     
     return(plot_out)
   } else {stop("Please input a metric from the available selection listed in the doc")}

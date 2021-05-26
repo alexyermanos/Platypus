@@ -25,6 +25,7 @@ VDJ_variants_per_clone <- function(VDJ.matrix,
   #function to use in lapply iterating over clonotypes
   find_vars <- function(clonotypes, dat){
     
+    #for clones 
     cur_clone <- subset(dat, clonotype == clonotypes) 
     n_var <- length(unique(cur_clone$pasted)) #number of variants
     n_tot <- nrow(cur_clone) #nr of total sequences for that clone
@@ -43,8 +44,13 @@ VDJ_variants_per_clone <- function(VDJ.matrix,
       max_stringdist <- NA
       min_stringdist <- NA
     }
-    out <- c(as.character(cur_clone$split[1]),clonotypes, n_tot, n_var, m_stringdist, max_stringdist, min_stringdist,most_frequent)
-    names(out) <- c("split_group","clonotype_id","n sequences", "n variants", "mean variants distance", "max variants distance", "min variants distance","most frequent variant")
+    
+    #for isotypes
+    n_iso_var <- length(unique(cur_clone$VDJ_cgene)) #number of variants
+    most_frequent_iso <- names(which.max(table(cur_clone$VDJ_cgene)))
+    
+    out <- c(as.character(cur_clone$split[1]),clonotypes, n_tot, n_var, m_stringdist, max_stringdist, min_stringdist,most_frequent, n_iso_var, most_frequent_iso)
+    names(out) <- c("split_group","clonotype_id","n sequences", "n variants", "mean variants distance", "max variants distance", "min variants distance","most frequent variant", "n VDJ cgene variants", "most frequent VDJ cgene")
     return(out)
   }
   
@@ -77,6 +83,13 @@ if(length(variants.of) > 1){
   grouping$pasted <- VDJ.matrix[, c(variants.of)]
 }
   
+#add isotype information
+if("VDJ_cgene" %in% names(VDJ.matrix)){
+  grouping$VDJ_cgene <- VDJ.matrix$VDJ_cgene
+} else {
+  print("VDJ_cgene column not found; Isotype info will not be attached")
+}
+
 #loop over split.by
 if(split.by == "none"){grouping$split <- "1"
 } else {grouping$split <- VDJ.matrix[,c(split.by)]}
@@ -90,7 +103,8 @@ for(j in 1:length(unique(grouping$split))){
   out_vars <- as.data.frame(bind_rows(out_vars))
   
   for(i in 3:(ncol(out_vars)-1)){
-    out_vars[,i] <- as.numeric(out_vars[,i])
+    if(names(out_vars)[i] != "most frequent variant"){
+    out_vars[,i] <- as.numeric(out_vars[,i])}
   }
   out_vars[,"mean variants distance"] <- round(out_vars[,"mean variants distance"],2)
   
