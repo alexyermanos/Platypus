@@ -1,12 +1,12 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
-#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.
+#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.
 #' @param A.or.B Determines whether to plot the V J gene pairing of the alpha or beta chain. "A", "B" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
-#' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
+#' @param platypus.version Which platypus.version of platypus is being used. Default = v2.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
@@ -29,11 +29,18 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
   
   # If new version with VDJ_GEX_matric output should be used
   if(platypus.version=="v3"){
-      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus 3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
+      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus 3.0.0 is being used. The output VDJ dataframe of the VDJ_GEX_matrix required as input.")
       clonotype <- "clonotype_id_10x"
       
-      #filter for 1H1L
+      if(class(VDJ.GEX.matrix) == "list"){
+        stop("Please input the VDJ matrix from the VGM output (usually VDJ_GEX_matrix.output[[1]])")
+      }
+      #swapping to a list to not change the whole function
+      bk <- VDJ.GEX.matrix
+      VDJ.GEX.matrix <- list()
+      VDJ.GEX.matrix[[1]] <- bk
       
+      #filter for 1H1L
       if(filter1H1L==T){
         VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][which((VDJ.GEX.matrix[[1]]$Nr_of_VDJ_chains==1)&(VDJ.GEX.matrix[[1]]$Nr_of_VJ_chains==1)),]
       }
@@ -54,13 +61,15 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
       
       #split up into samples to plot individually
       VDJ.GEX_list <- list()
-      for (i in 1:length(table(VDJ.GEX.matrix[[1]]$sample_id))){
-        VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id==paste0("s",i)),]
+      for (i in 1:length(unique(VDJ.GEX.matrix[[1]]$sample_id))){
+        VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id== unique(VDJ.GEX.matrix[[1]]$sample_id)[i]),]
       }
-    
+
       
       for (i in 1:length(VDJ.GEX_list)){
     
+      print(paste0("Plotting for sample ", unique(VDJ.GEX.matrix[[1]]$sample_id)[i]))  
+        
         VDJ.GEX_list[[i]]$alpha_VJ_gene <- paste(VDJ.GEX_list[[i]]$VJ_vgene, VDJ.GEX_list[[i]]$VJ_jgene, sep = "_")
         VDJ.GEX_list[[i]]$beta_VJ_gene <- paste(VDJ.GEX_list[[i]]$VDJ_vgene, VDJ.GEX_list[[i]]$VDJ_jgene, sep = "_")
     
@@ -180,7 +189,7 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
 
   # In Case old platypus.version of Platypus is being used: VDJ_analyze output is the input
     
-    print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = new] for compatibility with VDJ_GEX_matrix().")
+    print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = 'v3'] for compatibility with VDJ_GEX_matrix().")
     for (i in 1:length(VDJ.GEX.matrix)) {
       VDJ.GEX.matrix[[i]] <- VDJ.GEX.matrix[[i]][which(VDJ.GEX.matrix[[i]]$frequency >= 
                                                                  c.threshold), ]
