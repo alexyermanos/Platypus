@@ -119,7 +119,7 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
     plot.out <- ggplot(cluster_markers, aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + geom_point(show.legend = F, size = 3, alpha = 0.7) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line = element_line(size = 2), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30)) + labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + geom_text_repel(data = cluster_markers_rel, aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + scale_colour_viridis_c(option = "B")
     
   }
-  if (return.plot=="none") cluster_markers_heatmap <- NULL
+  if (return.plot=="none") plot.out <- NULL
   
   return(list(cluster_markers, plot.out))
 }
