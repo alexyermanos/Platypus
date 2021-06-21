@@ -55,8 +55,8 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   if(length(sample.names) > 2){
   combs <- as.data.frame(t(combn(as.character(sample.names), m = 2,simplify = TRUE)))#get combinations to test
 
-  combs[,1] <- ordered(as.factor(combs[,1]), levels = rev(sample.names))
-  combs[,2] <- ordered(as.factor(combs[,2]), levels = sample.names)
+  combs[,1] <- ordered(as.factor(combs[,1]), levels = (sample.names))
+  combs[,2] <- ordered(as.factor(combs[,2]), levels = (sample.names))
 
   } else {
     combs <- data.frame(sample.names[1], sample.names[2])
@@ -85,7 +85,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   if(add.barcode.table == T){
     if(!"barcode" %in% names(VDJ.matrix.output)) stop("'barcode' column must be present in input dataframe to add barcode table")
   
-    ov_all <- do.call(c, ov_temp_list)
+    ov_all <- do.call("c", ov_temp_list)
     if(length(ov_all) > 1){
     ov_df <- data.frame("overlapping_items" = ov_all)
     if(length(feature.columns) > 1){
@@ -129,7 +129,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   combs$overlap_lab <- as.character(combs$overlap)
   combs$overlap_lab[is.na(combs$overlap)] <- "NA"
   
-  plot_out <- ggplot(combs, aes(x = combs[,2], y = combs[,1],fill=overlap)) + geom_tile() +geom_text(aes(label=overlap_lab), size = pvalues.label.size)+ scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$overlap)) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line.x = element_blank(),axis.line.y = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "white"), legend.position = "none", plot.title = element_text(hjust = 0.5, size = 25), plot.subtitle = element_text(size = 15),axis.text.x = element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = element_text(size = axis.label.size)) + labs(title = "", x = "", y = "", subtitle = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), fill = "")
+  plot_out <- ggplot(combs, aes(x = combs[,1], y = combs[,2],fill=overlap)) + geom_tile() +geom_text(aes(label=overlap_lab), size = pvalues.label.size)+ scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$overlap)) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line.x = element_blank(),axis.line.y = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "white"), legend.position = "none", plot.title = element_text(hjust = 0.5, size = 25), plot.subtitle = element_text(size = 15),axis.text.x = element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = element_text(size = axis.label.size)) + labs(title = "", x = "", y = "", subtitle = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), fill = "") + scale_y_discrete(limits=rev)
   
   print(plot_out)
   return(list(plot_out,combs,ov_df))  
