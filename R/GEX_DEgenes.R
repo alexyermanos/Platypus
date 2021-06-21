@@ -8,7 +8,7 @@
 #' @param min.pct The minimum percentage of cells expressing a gene in either of the two groups to be compared.
 #' @param base The base with respect to which logarithms are computed. Default: 2
 #' @param logFC Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).
-#' @param return.plot Character specifying if a "deg.heatmap", "comp.heatmap" or a "volcano" or "none" is to be returned. If TRUE then @return is a list where the first element is a dataframe and the second a heatmap (see @return). Defaults to none
+#' @param return.plot Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none
 #' @param up.genes FOR HEATMAP Integer specifying the number of upregulated genes to be shown.
 #' @param down.genes FOR HEATMAP Integer specifying the number of downregulated genes to be shown. 
 #' @param genes.to.label FOR VOLCANO Character vector of genes to label irregardless of their p value. 
@@ -23,10 +23,10 @@
 #' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2")
 #' 
 #' #Getting DEGs between two seurat clusters
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping_column = "seurat_clusters",group1 = "1",group2 = "4")
+#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
 #' 
 #' #Getting DEGs between two custom groups, possibly cellypes
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping_column = "Column with cell type information",group1 = "T memory cells",group2 = "T effector cells")
+#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "Column with cell type information",group1 = "T memory cells",group2 = "T effector cells")
 #' 
 #' Plotting a heatmap by foldchange of sample markers 
 #' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap", up.genes = 10, down.genes = 10m, logFC = TRUE)
@@ -42,6 +42,16 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
   
   if(missing(FindMarkers.out)) FindMarkers.out <- "none"
   if(missing(return.plot)) return.plot <- "none"  
+  if(return.plot == T){
+    print("Please set return.plot to either 'volcano', 'heatmap' or 'none'")
+    print("Setting return.plot to 'heatmap' for now")
+    return.plot <- "heatmap"
+  } 
+  if(return.plot == F){
+    print("Please set return.plot to either 'volcano', 'heatmap' or 'none'")
+    print("Setting return.plot to 'none' for now")
+    return.plot <- "none"
+  } 
   if(missing(label.n.top.genes)) label.n.top.genes <- 30
   if(missing(genes.to.label)) genes.to.label <- "none"
   if(missing(logFC)) logFC <- TRUE 
