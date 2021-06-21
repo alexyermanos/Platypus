@@ -63,8 +63,6 @@ plot.list <- list()
 for(i in 1:length(unique(clonotypes$sample_id))){
   cur_c <- subset(clonotypes, sample_id == unique(clonotypes$sample_id)[i])
   
-  print(head(cur_c))
-  
   total_cells <- sum(cur_c$clonotype_frequency)
   expanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == T])
   nonexpanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == F])
@@ -98,10 +96,11 @@ for(i in 1:length(unique(clonotypes$sample_id))){
   #generate palette
   pal_cl <- c(rep(expanded.colors,500)[1:(nrow(cur_c[which(cur_c$expanded == T),]))], non.expanded.color)
   
-  plot_out <- ggplot(c_out, aes(x=sample_id, fill= clonotype_id_10x))+ geom_bar(width = 1, show.legend = F)+ scale_fill_manual(values = pal_cl)+ coord_polar("y", direction = -1)+ theme(panel.background = element_blank(),axis.text.x = element_blank(),axis.text.y = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "grey"),legend.key.height = NULL,legend.key.width = NULL, legend.position = "right",legend.direction = "vertical", plot.title = element_text(size = 20,hjust = 0.5)) + labs(x = "", y = "", title = paste0(unique(clonotypes$sample_id)[i])) + geom_text(x = 1, hjust = not.expanded.label.hjust, vjust = not.expanded.label.vjust, y = 1, label = paste0(length(which(cur_c$expanded == F))), color = "white", fontface = "bold", size = 5) + geom_point(inherit.aes = F, aes(x = 0, y = 1), color = "white", size = 25) + geom_text(x = 1, y = 1, vjust = total.label.vjust, hjust = total.label.hjust, label = paste0(nrow(cur_c)," \n(", total_cells, ")"), color = "black", fontface = "bold", size = 5) 
+  plot_out <- ggplot(c_out, aes(x=sample_id, fill= clonotype_id_10x))+ geom_bar(width = 1, show.legend = F)+ scale_fill_manual(values = pal_cl)+ coord_polar("y", direction = -1)+ theme(panel.background = element_blank(),axis.text.x = element_blank(),axis.text.y = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "grey"),legend.key.height = NULL,legend.key.width = NULL, legend.position = "right",legend.direction = "vertical", plot.title = element_text(size = 20,hjust = 0.5)) + labs(x = "", y = "", title = paste0(unique(clonotypes$sample_id)[i])) + geom_text(x = 1, hjust = not.expanded.label.hjust, vjust = not.expanded.label.vjust, y = 1, label = paste0(length(which(cur_c$expanded == F))), color = "white", fontface = "bold", size = label.size) + geom_point(inherit.aes = F, aes(x = 0, y = 1), color = "white", size = 25) + geom_text(x = 1, y = 1, vjust = total.label.vjust, hjust = total.label.hjust, label = paste0(nrow(cur_c)," \n(", total_cells, ")"), color = "black", fontface = "bold", size = label.size) 
   plot.list[[i]] <- plot_out
   }
 }
 return(plot.list)
 }
+
 
