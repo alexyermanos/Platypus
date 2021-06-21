@@ -50,7 +50,9 @@ GEX_pairwise_DEGs <- function(GEX.matrix,
   plot.list <- list()
   for(i in 1:nrow(combs)){
     print(paste0("Calculating pairwise DEGs ", i, " of ", nrow(combs)))
-    degs <- FindMarkers(GEX.matrix, ident.1 = combs[i,1], ident.2 = combs[i,2],min.pct = min.pct)
+    print(combs[i,1])
+    print(combs[i,2])
+    degs <- Seurat::FindMarkers(GEX.matrix, ident.1 = combs[i,1], ident.2 = combs[i,2],min.pct = min.pct)
     
     degs$gene <- rownames(degs)
     
@@ -70,8 +72,8 @@ GEX_pairwise_DEGs <- function(GEX.matrix,
         }
       }
     
-    plot.out <- ggplot(degs, aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + geom_point(show.legend = F, size = 3, alpha = 0.7) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line = element_line(size = 2), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30)) + labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)") + geom_text_repel(data = degs_rel, aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + scale_colour_viridis_c(option = "B")
-    
+    plot.out <- ggplot(degs, aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + geom_point(show.legend = F, size = 3, alpha = 0.7) + theme(legend.position = "none",panel.background = element_blank(),axis.text = element_text(size = 30), axis.line = element_line(size = 2), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30)) + labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)")+ geom_text_repel(data = degs_rel, aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + scale_colour_viridis_c(option = "B")
+
     if(save.plot == T){
       ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 400, width = 10, height = 10)
     }
@@ -82,3 +84,4 @@ GEX_pairwise_DEGs <- function(GEX.matrix,
   }
   return(list(plot.list, degs.list))
 }
+
