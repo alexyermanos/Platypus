@@ -1,7 +1,7 @@
 #' Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. 
 #' @param VDJ.matrix VDJ dataframe generated using the VDJ_GEX_matrix function 
 #' @param celltype Character. Either "Tcells" or "Bcells". If set to Tcells bars will not be colored by default and the parameters treat_incomplete_cells, treat_incomplete_clones, subtypes and species are ignored. The color.by and group.by arguments work identically for both celltypes. If none provided it will detect this param from the celltype column.    
-#' @param clones numeric value indicating the number of clones to be displayed on the clonal expansion plot. Can take values between 1-50. Default value is 50.
+#' @param clones numeric value indicating the number of clones to be considered for the clonal expansion plot. Default value is 50. For a standard plot more than 50 is discouraged. When showing only one - possibly rare - isotype via isotypes.to.plot it may be useful to set this number higher (e.g. 100-200)
 #' @param subtypes Logical indicating whether to display isotype subtypes or not.
 #' @param isotypes.to.plot Character vector. Defaults to "all". This can be set to any number of specific Isotypes, that are to be shown exclusively. For example, to show only clones containing IgG, input "IGHG". If only wanting to check clones with IgA and IgD input c("IGHA","IGHD"). Works equally if subtypes are set to TRUE. Is ignored if color.by is not set to "isotype"
 #' @param species Character indicating whether the samples are from "Mouse" or "Human". Default is "Human".
@@ -16,14 +16,21 @@
 #' \dontrun{
 #' 
 #' #Standard B cell plot for platypus version v3 / Will generate one plot per sample (from sample_id column)
-#' a <- VDJ_isotypes_per_clone(VDJ.matrix = VDJ.GEX.matrix.out[[1]], celltype = "Bcells", clones = 30,subtypes = F, species = "Mouse",treat.incomplete.clones = "exclude",treat.incomplete.cells = "proportional")
+#' a <- VDJ_clonal_expansion(VDJ.matrix = VDJ.GEX.matrix.out[[1]], celltype = "Bcells", clones = 30,subtypes = F, species = "Mouse",treat.incomplete.clones = "exclude",treat.incomplete.cells = "proportional")
 #'
 #'#Regrouped and recolored plot in v3 / Will generate a plot for each seurat cluster. Bars are filled by the sample with the highest proportion of cells in a given clonotype
-#'VDJ_isotypes_per_clone(VDJ.matrix = VDJ.GEX.matrix.out[[1]], celltype = "Bcells", clones = 30,subtypes = F, species = "Mouse",treat.incomplete.clones = "exclude",treat.incomplete.cells = "proportional", group.by = "seurat_clusters", color_by = "sample_id")
-#'
+#'clonal_out  <- VDJ_clonal_expansion(VDJ.matrix = VDJ.GEX.matrix.out[[1]], celltype = "Bcells", clones = 30,subtypes = F, species = "Mouse",treat.incomplete.clones = "exclude",treat.incomplete.cells = "proportional", group.by = "seurat_clusters", color_by = "sample_id")
+#'clonal_out[[1]] #list of plots
+#'clonal_out[[2]] #list of source dataframes
+
 #'#T cell plot with recoloring by vgene
-#'VDJ_isotypes_per_clone(VDJ.matrix = VDJ.GEX.matrix.out[[1]], celltype = "Tcells", clones = 30, group.by = "sample_id", color_by = "VDJ_vgene")
+#'clonal_out  <- VDJ_clonal_expansion(VDJ.matrix = VDJ.GEX.matrix.out[[1]], celltype = "Tcells", clones = 30, group.by = "sample_id", color_by = "VDJ_vgene")
 #'
+#'Plotting only IgD clones. Increased the value for clones to scan more of the dataset
+#'clonal_out <- VDJ_clonal_expansion(VDJ.matrix = VDJ_comb[[1]], celltype = "Bcells", clones = 150,subtypes = F, species = "Mouse",treat.incomplete.clones = "include",treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")
+#'
+#'Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)
+#'clonal_out <- VDJ_clonal_expansion(VDJ.matrix = VDJ_comb[[1]], celltype = "Bcells", clones = 150,subtypes = T, species = "Mouse",treat.incomplete.clones = "proportional",treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")
 #'}
 VDJ_clonal_expansion <- function(VDJ.matrix,
                                    celltype,
@@ -89,7 +96,8 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
     VDJ.matrix[is.na(VDJ.matrix[,group.by]),group.by] <- "NONE"
     VDJ.matrix.all <- VDJ.matrix
     
-    if(clones<1 | clones>50){stop("Number of clones must be an integer value between 1 and 50")}
+    #Disabled due to the possibility of having low abundance of isotypes of interest. If filtered by isotype, 50 clones may not be enought to get a decent plot. 
+    #if(clones<1 | clones > 50){stop("Number of clones must be an integer value between 1 and 50")}
 
     VDJ_per_clone_output_all <- list()
     clones_per_isotype <- list()
@@ -129,6 +137,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
             }
           }
           if(length(clones_to_del > 0)){
+            print(paste0("For sample ", sample.names[i]," removing ", length(clones_to_del), " clones of which no cell contains a VDJ chain which is ", round((length(clones_to_del)/nrow(clono_freq)*100),2), " % of all clones"))
             clono_freq <- clono_freq[-clones_to_del,]} #remove these clones entirely
           clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),] #reorder, to make sure
         }
@@ -209,14 +218,14 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
           clones_per_isotype_all[[i]]$ClonalRank <- clones_per_isotype_all[[i]]$ClonalRank_2
           #reorder the dataframe the sum_counts order by decreasing sum, the clonal rank is there to keep clones that have the same count sum together as a group of rows
 
-          print("New ranking based only on present HC chains: ")
+          print("New ranking based only on present VDJ chains: ")
           print(unique(clones_per_isotype_all[[i]]$clonotype_id))
         }
-        
 
         #Delete clones not of interest
         if(color.by == "isotype" & isotypes.to.plot[1] != "all"){
-          if(!isotypes.to.plot %in% unique(clones_per_isotype_all[[i]]$Isotype)){stop("isotype.to.plot input not found in dataframe. Please check if the isotype is spelled correclty")}
+          
+          if(!any(isotypes.to.plot %in% unique(clones_per_isotype_all[[i]]$Isotype))){stop("isotype.to.plot input not found in dataframe. Please check if the isotype is spelled correctly")}
           to_del <- c()
           for(k in 1:length(unique(clones_per_isotype_all[[i]]$ClonalRank))){
             if(sum(clones_per_isotype_all[[i]]$Counts[which(clones_per_isotype_all[[i]]$ClonalRank == unique(clones_per_isotype_all[[i]]$ClonalRank)[k] & clones_per_isotype_all[[i]]$Isotype %in% isotypes.to.plot)]) == 0){
@@ -225,14 +234,24 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
           }
           clones_per_isotype_all[[i]] <- subset(clones_per_isotype_all[[i]], !ClonalRank %in% to_del)
           #redistribute clonal ranks
-          newrank <- 1
-          if(nrow(clones_per_isotype_all[[i]]) == 0){stop("No clones for these isotypes found in the dataset")}
-          for(k in seq(1,nrow(clones_per_isotype_all[[i]]), 6)){
-            clones_per_isotype_all[[i]]$ClonalRank[k:(k+5)] <- newrank
-            newrank <- newrank +1
+          
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
+          for(l in 1:nrow(rank_raw)){
+            clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
           }
+          clones_per_isotype_all[[i]]$ClonalRank <- clones_per_isotype_all[[i]]$ClonalRank_2
+          
+          #newrank <- 1
+          #if(nrow(clones_per_isotype_all[[i]]) == 0){stop("No clones for these isotypes found in the dataset")}
+          #for(k in seq(1,nrow(clones_per_isotype_all[[i]]), 6)){
+          #  clones_per_isotype_all[[i]]$ClonalRank[k:(k+5)] <- newrank
+          #  newrank <- newrank +1
+          #}
+          
+          print("New ranking based only on selected isotypes: ")
+          print(unique(clones_per_isotype_all[[i]]$clonotype_id))
         }
-        
         
         if(color.by == "isotype"){
         output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual(values = c("IGHG" = "green4", "IGHM" = "black", "IGHA" = "red3", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells")
@@ -351,12 +370,11 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
 
           print("New ranking based only on present HC chains: ")
           print(unique(clones_per_isotype_all[[i]]$clonotype_id))
-
         }
 
         #Delete clones not of interest
         if(color.by == "isotype" & isotypes.to.plot[1] != "all"){
-          if(any(!isotypes.to.plot %in% unique(clones_per_isotype_all[[i]]$Isotype))){stop("isotype.to.plot input not found in dataframe. Please check if the isotype is spelled correclty")}
+          if(!any(isotypes.to.plot %in% unique(clones_per_isotype_all[[i]]$Isotype))){stop("isotype.to.plot input not found in dataframe. Please check if the isotype is spelled correctly")}
           to_del <- c()
           for(k in 1:length(unique(clones_per_isotype_all[[i]]$ClonalRank))){
             if(sum(clones_per_isotype_all[[i]]$Counts[which(clones_per_isotype_all[[i]]$ClonalRank == unique(clones_per_isotype_all[[i]]$ClonalRank)[k] & clones_per_isotype_all[[i]]$Isotype %in% isotypes.to.plot)]) == 0){
@@ -366,14 +384,25 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
           }
           clones_per_isotype_all[[i]] <- subset(clones_per_isotype_all[[i]], !ClonalRank %in% to_del)
           #redistribute clonal ranks
-          newrank <- 1
-          nisotypes <- length(unique(clones_per_isotype_all[[i]]$Isotype))
-          if(nisotypes == 0){stop("No clones for these isotypes found in the dataset")}
-          for(k in seq(1,nrow(clones_per_isotype_all[[i]]), nisotypes)){
-            clones_per_isotype_all[[i]]$ClonalRank[k:(k+nisotypes-1)] <- newrank
-            newrank <- newrank +1
+          
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
+          for(l in 1:nrow(rank_raw)){
+            clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
           }
+          clones_per_isotype_all[[i]]$ClonalRank <- clones_per_isotype_all[[i]]$ClonalRank_2
+          
+          #newrank <- 1
+          #nisotypes <- length(unique(clones_per_isotype_all[[i]]$Isotype))
+          #if(nisotypes == 0){stop("No clones for these isotypes found in the dataset")}
+          #for(k in seq(1,nrow(clones_per_isotype_all[[i]]), nisotypes)){
+          #  clones_per_isotype_all[[i]]$ClonalRank[k:(k+nisotypes-1)] <- newrank
+          #  newrank <- newrank +1
+          #}
+          print("New ranking based only on selected isotypes: ")
+          print(unique(clones_per_isotype_all[[i]]$clonotype_id))
         }
+
         
         if (species == "Human"){
           output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "green","IGHG2" = "green3", "IGHG3"="green4", "IGHG4"="darkgreen", "IGHM" = "black", "IGHA1" = "red", "IGHA2"= "red4", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
@@ -474,4 +503,3 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
       return(list(output_plot,clones_per_isotype_all))
 }
 }
-
