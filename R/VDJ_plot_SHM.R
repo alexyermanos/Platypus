@@ -119,4 +119,3 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
   return(out.list)
 }
 
-SHM_plots <- VDJ_plot_SHM(VDJ.mixcr.matrix = mixcr_vdj, group.by = "seurat_clusters", quantile.label = 0.99)
