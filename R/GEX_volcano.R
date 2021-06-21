@@ -75,13 +75,15 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
       if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
         if(by.logFC == F) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+          posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
+          negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
         } 
         if(by.logFC == T) {
+          l <- dim(findmarkers.output)[1]
           findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_log2FC),]
+          posFC_genes <- findmarkers.output$genes[1:n.label.up]
+          negFC_genes <- findmarkers.output$genes[(l-n.label.down-1):l]
         } 
-        
-        posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
-        negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
         label.genes <- c(posFC_genes,negFC_genes)
         
         output.plot <- ggplot2::ggplot(findmarkers.output, aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
@@ -105,12 +107,15 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
       if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
         if(by.logFC == F) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+          posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
+          negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
         } 
         if(by.logFC == T) {
+          l <- dim(findmarkers.output)[1]
           findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_log2FC),]
+          posFC_genes <- findmarkers.output$genes[1:n.label.up]
+          negFC_genes <- findmarkers.output$genes[(l-n.label.down-1):l]
         } 
-        posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
-        negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
         label.genes <- c(posFC_genes,negFC_genes)
         
         output.plot <- ggplot2::ggplot(findmarkers.output, aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
@@ -156,14 +161,17 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
           if(by.logFC == F) {
             findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
+            posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
+            negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
           } 
           if(by.logFC == T) {
+            l <- dim(findmarkers.output[[i]])[1]
             findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$avg_logFC),]
-          } 
-          findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
-          posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
-          negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
+            posFC_genes <- findmarkers.output[[i]]$SYMBOL[1:n.label.up]
+            negFC_genes <- findmarkers.output[[i]]$SYMBOL[(l-n.label.down-1):l]
+          }
           label.genes <- c(posFC_genes,negFC_genes)
+          
           
           cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") + 
@@ -186,12 +194,15 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
           if(by.logFC == F) {
             findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
+            posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
+            negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
           } 
           if(by.logFC == T) {
+            l <- dim(findmarkers.output[[i]])[1]
             findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$avg_logFC),]
+            posFC_genes <- findmarkers.output[[i]]$SYMBOL[1:n.label.up]
+            negFC_genes <- findmarkers.output[[i]]$SYMBOL[(l-n.label.down-1):l]
           }
-          posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
-          negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
           label.genes <- c(posFC_genes,negFC_genes)
           
           cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
