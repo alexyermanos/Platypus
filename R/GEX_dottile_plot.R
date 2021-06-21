@@ -9,14 +9,17 @@
 #' \dontrun{
 #' 
 #' To return a plot detailing the expression of common genes by seurat cluster
-#'coef_out <- GEX_dottile_plot(GEX.matrix = VDJ.GEX.matrix.output[[2]], genes = c("CD19", "EBF1","CD3E","CD8A","MKI67"), group.by = "seurat_clusters")
+#'GEX_dottile_plot(GEX.matrix = VDJ.GEX.matrix.output[[2]], genes = c("CD19", "EBF1","CD3E","CD8A","MKI67"), group.by = "seurat_clusters", threshold.to.plot = 5)
 #'}
 
 GEX_dottile_plot <- function(GEX.matrix, 
                              genes, 
                              group.by,
+                             threshold.to.plot,
                              platypus.version){
   platypus.version <- "v3"
+  
+  if(missing(threshold.to.plot)) threshold.to.plot <- 5
   
   if(missing(genes)){
     if(GEX.matrix$celltype[1] == "T cell"){
@@ -59,7 +62,7 @@ GEX_dottile_plot <- function(GEX.matrix,
   
   to_plot_sum_f$name <- ordered(as.factor(to_plot_sum_f$name), levels = rev(genes))
   
-  to_plot_sum_f$perc_expressing_cells[to_plot_sum_f$perc_expressing_cells < 5] <- NA
+  to_plot_sum_f$perc_expressing_cells[to_plot_sum_f$perc_expressing_cells < threshold.to.plot] <- NA
   
   plot_out <- ggplot(to_plot_sum_f, aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + geom_point(show.legend = T)  + theme(panel.background = element_blank(),panel.border = element_rect(colour = "black", fill=NA, size=3),axis.text = element_text(size = 30), axis.text.x = element_text(angle = 60, vjust = 0.95, hjust=1), axis.line = element_blank(), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30), legend.key = element_rect(fill = "white", color = "white"), legend.position = "right") + labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + scale_color_viridis_c(option = "B", end = 0.9) +scale_size_binned(range = c(1,9.5)) 
   
