@@ -10,6 +10,7 @@
 #' @param label.logfc.threshold numeric specifying the absolute logFC threshold for genes to be labeled via geom_text_repel. Default is set to 0.75.
 #' @param n.label.up numeric specifying the number of top upregulated genes to be labeled via geom_text_repel. Genes will be ordered by adjusted p-value. Overrides the "label.p.threshold" and "label.logfc.threshold" parameters.
 #' @param n.label.down numeric specifying the number of top downregulated genes to be labeled via geom_text_repel. Genes will be ordered by adjusted p-value. Overrides the "label.p.threshold" and "label.logfc.threshold" parameters.
+#' @param by.logFC logical. If set to TRUE n.label.up and n.label.down will label genes ordered by logFC instead of adjusted p-value. 
 #' @param maximum.overlaps integer specifying removal of labels with too many overlaps. Default is set to Inf.
 #' @param plot.adj.pvalue logical specifying whether adjusted p-value should by plotted on the y-axis. 
 #' @return Returns a volcano plot from the output of the FindMarkers function from the Seurat package, which is a ggplot object that can be modified or plotted. Infinite p-values are set defined value of the highest -log(p) + 100.
@@ -22,7 +23,7 @@
 #' #using the GEX_cluster_genes output
 #' GEX_volcano_3 <- GEX_volcano(findmarkers.output = GEX_cluster_genes.Output, cluster.genes.output =T)
 #'}
-GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, condition.2, explicit.title, RP.MT.filter, color.p.threshold, color.log.threshold, label.p.threshold, label.logfc.threshold, n.label.up, n.label.down ,maximum.overlaps ,plot.adj.pvalue) {
+GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, condition.2, explicit.title, RP.MT.filter, color.p.threshold, color.log.threshold, label.p.threshold, label.logfc.threshold, n.label.up, n.label.down, by.logFC ,maximum.overlaps ,plot.adj.pvalue) {
   require(ggrepel)
   
   if(missing(cluster.genes.output)){cluster.genes.output <- F}
@@ -36,6 +37,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
   if(missing(label.logfc.threshold)){label.logfc.threshold <- 0.75}
   if(missing(n.label.up)){n.label.up <- F}
   if(missing(n.label.down)){n.label.down <- F}
+  if(missing(by.logFC)){by.logFC <- F}
   if(missing(maximum.overlaps)) {maximum.overlaps <- Inf}
   if(missing(plot.adj.pvalue)){plot.adj.pvalue <- F}
   
@@ -71,7 +73,13 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
       }
       
       if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
-        findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+        if(by.logFC == F) {
+          findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+        } 
+        if(by.logFC == T) {
+          findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_log2FC),]
+        } 
+        
         posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
         negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
         label.genes <- c(posFC_genes,negFC_genes)
@@ -95,7 +103,12 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
       }
       
       if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
-        findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+        if(by.logFC == F) {
+          findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+        } 
+        if(by.logFC == T) {
+          findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_log2FC),]
+        } 
         posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
         negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
         label.genes <- c(posFC_genes,negFC_genes)
@@ -141,6 +154,12 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         }
         
         if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
+          if(by.logFC == F) {
+            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
+          } 
+          if(by.logFC == T) {
+            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$avg_logFC),]
+          } 
           findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
           posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
           negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
@@ -165,7 +184,12 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         }
         
         if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
-          findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
+          if(by.logFC == F) {
+            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
+          } 
+          if(by.logFC == T) {
+            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$avg_logFC),]
+          }
           posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
           negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
           label.genes <- c(posFC_genes,negFC_genes)
