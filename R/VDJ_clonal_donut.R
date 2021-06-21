@@ -63,8 +63,6 @@ plot.list <- list()
 for(i in 1:length(unique(clonotypes$sample_id))){
   cur_c <- subset(clonotypes, sample_id == unique(clonotypes$sample_id)[i])
   
-  print(head(cur_c))
-  
   total_cells <- sum(cur_c$clonotype_frequency)
   expanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == T])
   nonexpanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == F])
@@ -104,4 +102,5 @@ for(i in 1:length(unique(clonotypes$sample_id))){
 }
 return(plot.list)
 }
+
 
