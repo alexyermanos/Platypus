@@ -1,6 +1,6 @@
 #' Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 #' @param seurat.object A single seurat object from automate_GEX function
-#' @param cell.state.markers Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containng the c("CD4+;CD44-","CD4+;IL7R+;CD44+").
+#' @param cell.state.names Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containng the c("CD4+;CD44-","CD4+;IL7R+;CD44+").
 #' @return Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.
 #' @param cell.state.markers Character vector containing the cell state labels defined by the markers in cell.state.markers parameter. Example is c("NaiveCd4","MemoryCd4").
 #' @param default Default is TRUE - will use premade gene sets and cell states.

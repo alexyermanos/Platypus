@@ -6,6 +6,8 @@
 #' @param fasta.list Contains the full-length sequence information in the same format as filtered_contig.fasta file from the output of cellranger.
 #' @param reference.list Contains the reference sequence information in the same format as concat_ref.fasta file from the output of cellranger.
 #' @param filtered.contigs Logical indicating if the filtered contigs file should be used. TRUE will read VDJ information from only the filtered output of cellranger. FALSE will read the all contigs file from cellranger. Default set to TRUE (filtered output)
+#' @param annotations.json Optional input from loaded all_contig_annotations.json. Will be read in automatically if not provided
+#' @param JSON Boolean. Defaults to FALSE. Whether to load all_contig_annotations.json
 #' @return Returns a list of dataframes containing
 #' @export
 #' @examples

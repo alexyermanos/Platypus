@@ -2,6 +2,8 @@
 #' @param VDJ.mixcr.matrix Output dataframe from the VDJ_call_MIXCR function or a dataframe generated using the VDJ_GEX_matrix function and supplemented with MIXCR information
 #' @param group.by Character. Defaults to "sample_id". Column name of VDJ.matrix to split VDJ.matrix by. For each unique entry in that column a set of plots will be generated. This can be useful to plot SHM by expansion or by transcriptomics-derived clusters
 #' @param quantile.label Numeric. Defaults to 0.9. Which points to label in the SHM scatterplot. If set to 0.9, the top 10\% of cells by SHM number will be labelled. If ggrepel throws a warning, concerning overlap it is recommended to attempt to lable less points to avoid cluttering
+#' @param point.size Size of points in plots. Passed to geom_jitter()
+#' @param mean.line.color Color of mean bar in dotplots. Passed to geom_errorbar()
 #' @param platypus.version Character. Only "v3" available.
 #' @return Returns a list of ggplot objects. out\[\[1\]\] is a boxplot comparing SHM by group.by. out\[\[2\]\] to out\[\[n\]\] are plots for each group that visualize VDJ and VJ SHM distribution for each group. Data for any plot can be accessed via out \[\[any\]\]$data
 #' @export
