@@ -3,7 +3,7 @@
 #' @param topX Plots only the top X most expanded clonotypes. By default all clonotypes are shown.
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param axis Character. Defaults to "max". Passed to VDJ_circos
-#' @param n.cluster Integer. No default.
+#' @param n_cluster Integer. No default.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
 #' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.

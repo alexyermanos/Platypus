@@ -8,6 +8,7 @@
 #' @param Enrichment.Plots List of Gene-set names which should be plotted as Enrichment plots in addition to the top 10 Up and Downregulated Genesets.
 #' @param my_own_geneset A list, where each element contains a gene list and is named with the corresponding pathway name. Default is set to FALSE, so that gene sets from MSigDB are used. Should not contain ".gmt" in name.
 #' @return Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.
+#' @importFrom dplyr %>%
 #' @export
 #' @examples
 #' \dontrun{
@@ -15,21 +16,32 @@
 #' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = "./c5.go.bp.v7.2.symbols.gmt")
 #' cowplot::plot_grid(plotlist=output[[2]], ncol=2)
 #' View(gex_gsea[[1]])
-#' 
+#'
 #' #Directly downloading gene set collection from MSigDB to perform gsea
 #' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = c("Mus musculus", "C7"))
-#' 
+#'
 #' #Using your own gene list to perform gsea
 #' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, my_own_geneset = my_geneset)
 #'}
 
 GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pathways, metric_colname, pval_adj_cutoff, Enrichment.Plots, my_own_geneset){
+
+  gmt.download <- NULL
+  p_val_adj <- NULL
+  stats <- NULL
+  symbol <- NULL
+  NES <- NULL
+  ES <- NULL
+  pval <- NULL
+  pathway <- NULL
+
+
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
   if (missing(metric_colname)) {metric_colname <- "avg_logFC"}
   if (missing(pval_adj_cutoff)) {pval_adj_cutoff <- 0.001}
   if (missing(my_own_geneset)) {my_own_geneset <- F}
   if (missing(gmt.download)) {path_to_pathways <- c("Mus musculus", "C7")}
-  
+
   require(dplyr)
   require(fgsea)
   require(tibble)
@@ -50,7 +62,7 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     if (MT.Rb.filter==T){
       exclude <- c()
       for (j in filter) {
-        exclude <- c(exclude, str_which(GEX.cluster.genes.output$symbol, j))
+        exclude <- c(exclude, stringr::str_which(GEX.cluster.genes.output$symbol, j))
       }
       if(length(exclude) > 0){
         print(paste0("Filtering ", length(exclude), "genes"))
@@ -68,28 +80,29 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     #   DT::datatable()-> data.table
 
     # create ranked list
-    df %>% dplyr::filter(., p_val_adj<pval_adj_cutoff)%>% dplyr::select("symbol","stats")%>% na.omit()%>%dplyr::arrange(-stats)%>% distinct(symbol, .keep_all = TRUE)-> df_ranked
-    df_ranked <- deframe(df_ranked)
-    
+    df %>% dplyr::filter( p_val_adj<pval_adj_cutoff)%>% dplyr::select("symbol","stats")%>% na.omit()%>%dplyr::arrange(-stats)%>% distinct(symbol, .keep_all = TRUE)-> df_ranked
+    df_ranked <- tibble::deframe(df_ranked)
+
     if (class(my_own_geneset) == "logical"){
       if(grepl(".gmt$", path_to_pathways) == TRUE){
-        pathway_MSig <- gmtPathways(path_to_pathways)
+        pathway_MSig <- fgsea::gmtPathways(path_to_pathways)
       } else{
-        pathway_MSig <- msigdbr(species = path_to_pathways[[1]], category=path_to_pathways[[2]])
+        #PACKAGE is not loaded! Please revise!
+        pathway_MSig <- msigdbr::msigdbr(species = path_to_pathways[[1]], category=path_to_pathways[[2]])
         pathway_MSig <-  split(x = toupper(pathway_MSig$gene_symbol), f = pathway_MSig$gs_name)
       }
     } else{
       pathway_MSig <- my_own_geneset
     }
-    
+
     #Run GSEA %>% safe as df
     print("pre-gsea")
-    fgsea_res <- fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)
+    fgsea_res <- fgsea::fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)
     print(fgsea_res)
     print("post-gsea")
     fgsea_res_Tidy <- fgsea_res %>%
-      as_tibble() %>%
-      arrange(desc(NES))
+      tidyr::as_tibble() %>%
+      dplyr::arrange(IRanges::desc(NES))
     print(fgsea_res_Tidy)
     topPathwaysUp <- fgsea_res[ES > 0][head(order(pval), n=10), pathway]
     topPathwaysDown <- fgsea_res[ES < 0][head(order(pval), n=10), pathway]
@@ -98,23 +111,23 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     plotsUp <- list()
     if(length(topPathwaysUp)>0){
       for (k in 1:length(topPathwaysUp)){
-        plotsUp[[k]]<- plotEnrichment(pathway_MSig[[topPathwaysUp[[k]]]],
-                       df_ranked) + labs(title=topPathwaysUp[[k]])
+        plotsUp[[k]]<- fgsea::plotEnrichment(pathway_MSig[[topPathwaysUp[[k]]]],
+                       df_ranked) + ggplot2::labs(title=topPathwaysUp[[k]])
       }
     }
     plotsDown <- list()
     if(length(topPathwaysDown)>0){
       for (k in 1:length(topPathwaysDown)){
-        plotsDown[[k]]<- plotEnrichment(pathway_MSig[[topPathwaysDown[[k]]]],
-                                      df_ranked) + labs(title=topPathwaysDown[[k]])
+        plotsDown[[k]]<- fgsea::plotEnrichment(pathway_MSig[[topPathwaysDown[[k]]]],
+                                      df_ranked) + ggplot2::labs(title=topPathwaysDown[[k]])
       }
     }
 
     plotsCustom <- list()
     if (!missing(Enrichment.Plots)) {
     for (k in 1:length(Enrichment.Plots)){
-      plotsCustom[[k]]<- plotEnrichment(pathway_MSig[[Enrichment.Plots[[k]]]],
-                                      df_ranked) + labs(title=Enrichment.Plots[[k]])
+      plotsCustom[[k]]<- fgsea::plotEnrichment(pathway_MSig[[Enrichment.Plots[[k]]]],
+                                      df_ranked) + ggplot2::labs(title=Enrichment.Plots[[k]])
     }
     }
     output <- list()
@@ -123,7 +136,4 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     output[[3]] <- plotsDown
     output[[4]] <- plotsCustom
     return(output)
-
-
-
 }

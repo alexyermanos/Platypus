@@ -11,6 +11,7 @@
 #' @param kegg.plots logical, if top KEGG-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.kegg.terms.plots) KEGG-terms for each cluster will be plotted to the working directory and saved as a list element. Plots are made both based on padj and ratio.
 #' @param top.N.kegg.terms.plots The number of most significant KEGG-terms to be incluted in the kegg.plots. Default: 10.
 #' @return Returns a list of data frames and plots containing the TopGO and the TopKEGG output containing the significant GO/KEGG terms and their visualizations.
+#' @importFrom dplyr %>%
 #' @export
 #' @examples
 #' \dontrun{
@@ -22,6 +23,13 @@
 #'BiocManager::install("org.Mm.eg.db")
 #'}
 GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.go.terms.plots, kegg.plots, top.N.kegg.terms.plots){
+
+  org.Mm.eg.db <- NULL
+  p_val_adj <- NULL
+  ratio <- NULL
+  GO_term <- NULL
+  p_adj <- NULL
+  DE_genes <- NULL
 
   require(dplyr)
   require(org.Mm.eg.db)
@@ -74,27 +82,27 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
 
       for (i in 1:length(GEX.cluster.genes.output)){
         #Add entrez-ID
-        rownames(GEX.cluster.genes.output[[i]])<- str_to_title(rownames( GEX.cluster.genes.output[[i]])) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
-        GEX.cluster.genes.output[[i]]$symbol <- select(org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+        rownames(GEX.cluster.genes.output[[i]])<- stringr::str_to_title(rownames( GEX.cluster.genes.output[[i]])) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
+        GEX.cluster.genes.output[[i]]$symbol <- dplyr::select(org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
 
         #filter for positive logfoldchanges and arrange for increasing logfoldchanges
         if(up.or.down=="down"){
-          GEX.cluster.genes.output[[i]] %>% filter(., GEX.cluster.genes.output[[i]]$avg_logFC < 0) %>% arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
+          GEX.cluster.genes.output[[i]] %>% dplyr::filter(GEX.cluster.genes.output[[i]]$avg_logFC < 0) %>% dplyr::arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
         }else{
-          GEX.cluster.genes.output[[i]] %>% filter(., GEX.cluster.genes.output[[i]]$avg_logFC > 0) %>% arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
+          GEX.cluster.genes.output[[i]] %>% dplyr::filter(GEX.cluster.genes.output[[i]]$avg_logFC > 0) %>% dplyr::arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
         }
 
         if(missing(topNgenes)){
           print("missing topNgenes argument: all genes will be used")
           gene.list[[i]] <- GEX.cluster.genes.output[[i]]$symbol$ENTREZID
         }else{
-          gene.list[[i]] <- head(GEX.cluster.genes.output[[i]]$symbol$ENTREZID, topNgenes)
+          gene.list[[i]] <- utils::head(GEX.cluster.genes.output[[i]]$symbol$ENTREZID, topNgenes)
         }
       }
   }else{
 
     GEX.cluster.genes.output <- data.frame(symbol=GEX.cluster.genes.output, dummy=NA) #add dummy, otherwise filter does not recognize df
-    rownames(GEX.cluster.genes.output) <- str_to_upper((GEX.cluster.genes.output$symbol))
+    rownames(GEX.cluster.genes.output) <- stingr::str_to_upper((GEX.cluster.genes.output$symbol))
 
     if(MT.Rb.filter==T){
         #Filter Genes
@@ -114,21 +122,21 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         GEX.cluster.genes.output <- GEX.cluster.genes.output_filtered
     }
 
-    rownames(GEX.cluster.genes.output)<- str_to_title((GEX.cluster.genes.output$symbol)) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
-    GEX.cluster.genes.output$symbol <- select(org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+    rownames(GEX.cluster.genes.output)<- stringr::str_to_title((GEX.cluster.genes.output$symbol)) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
+    GEX.cluster.genes.output$symbol <- dplyr::select(org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
     gene.list[[1]] <- GEX.cluster.genes.output$symbol$ENTREZID
   }
 
   for (i in 1:length(gene.list)){
 
     #Do GO-Term analysis
-    go <- goana(gene.list[[i]], species = species)
-    list_topGO[[i]] <- topGO(go, ontology = ontology, number = Inf)
+    go <- limma::goana(gene.list[[i]], species = species)
+    list_topGO[[i]] <- limma::topGO(go, ontology = ontology, number = Inf)
 
     if (kegg == T){
       #if requested to also KEGG-pathway analysis
-      keg <- kegga(gene.list[[i]], species = species)
-      list_topKEGG[[i]] <- topKEGG(keg)
+      keg <- limma::kegga(gene.list[[i]], species = species)
+      list_topKEGG[[i]] <- limma::topKEGG(keg)
     }
   }
   list[[1]]<-list_topGO
@@ -150,36 +158,36 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         dummy_list$GO_term <- factor(dummy_list$GO_term, levels = dummy_list$GO_term[order(dummy_list$p_adj, decreasing = TRUE)])
 
 
-        g1[[i]]<-ggplot(dummy_list, aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
-          geom_point()+
-          theme_bw()+
-          scale_color_gradient(low="blue", high="red")+
+        g1[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
+          ggplot2::geom_point()+
+          ggplot2::theme_bw()+
+          ggplot2::scale_color_gradient(low="blue", high="red")+
 
-          scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+          ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
-          theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-          ggtitle(plot_title)
+          ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+                panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+          ggplot2::ggtitle(plot_title)
 
-        pdf(paste(plot_title,".pdf",sep=""))
+        grDevices::pdf(paste(plot_title,".pdf",sep=""))
         print(g1[[i]])
-        dev.off()
+        grDevices::dev.off()
 
-        g2[[i]]<-ggplot(dummy_list, aes(-log(p_adj), GO_term, colour=DE_genes))+
-          geom_point(size=5)+
-          theme_bw()+
-          scale_color_gradient(low="blue", high="red")+
+        g2[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(-log(p_adj), GO_term, colour=DE_genes))+
+          ggplot2::geom_point(size=5)+
+          ggplot2::theme_bw()+
+          ggplot2::scale_color_gradient(low="blue", high="red")+
 
-          scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+          ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
-          theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-          ggtitle(plot_title)
+          ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+                panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+          ggplot2::ggtitle(plot_title)
 
 
-        pdf(paste(plot_title,"_2.pdf",sep=""))
+        grDevices::pdf(paste(plot_title,"_2.pdf",sep=""))
         print(g2[[i]])
-        dev.off()
+        grDevices::dev.off()
 
       }
 
@@ -201,36 +209,36 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
       dummy_list<-dummy_list[1:top_pathways,]
       dummy_list$KEGG_term <- factor(dummy_list$KEGG_term, levels = dummy_list$KEGG_term[order(dummy_list$p_adj, decreasing = TRUE)])
 
-      g3[[i]]<-ggplot(dummy_list, aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
-        geom_point()+
-        theme_bw()+
-        scale_color_gradient(low="blue", high="red")+
+      g3[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(ratio, KEGG_term, colour=-log(p_adj), size=DE_genes))+
+        ggplot2::geom_point()+
+        ggplot2::theme_bw()+
+        ggplot2::scale_color_gradient(low="blue", high="red")+
 
-        scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+        ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
-        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-              panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-        ggtitle(plot_title)
+        ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+              panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+        ggplot2::ggtitle(plot_title)
 
-      pdf(paste(plot_title,".pdf",sep=""))
+      grDevices::pdf(paste(plot_title,".pdf",sep=""))
       print(g3[[i]])
-      dev.off()
+      grDevices::dev.off()
 
-      g4[[i]]<-ggplot(dummy_list, aes(-log(p_adj), KEGG_term, colour=DE_genes))+
-        geom_point(size=5)+
-        theme_bw()+
-        scale_color_gradient(low="blue", high="red")+
+      g4[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(-log(p_adj), KEGG_term, colour=DE_genes))+
+        ggplot2::geom_point(size=5)+
+        ggplot2::theme_bw()+
+        ggplot2::scale_color_gradient(low="blue", high="red")+
 
-        scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+        ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
-        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-              panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-        ggtitle(plot_title)
+        ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+              panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+        ggplot2::ggtitle(plot_title)
 
 
-      pdf(paste(plot_title,"_2.pdf",sep=""))
+      grDevices::pdf(paste(plot_title,"_2.pdf",sep=""))
       print(g4[[i]])
-      dev.off()
+      grDevices::dev.off()
 
     }
 

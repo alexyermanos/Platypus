@@ -2,7 +2,7 @@
 #' @param GEX.matrix GEX seurat object generated with VDJ_GEX_matrix
 #' @param genes Character vector. Genes of those in rownames(GEX.matrix) to plot. Can be any number, but more then 30 is discuraged because of cluttering
 #' @param group.by Character. Name of a column in GEX.matrix@meta.data to split the plot by. If set to "none", a plot with a single column will be produced.
-#' @threshold.to.plot Integer 1-100. % of cells which must be expressing the feature to plot a point. If below, the field will be left empty
+#' @param threshold.to.plot Integer 1-100. % of cells which must be expressing the feature to plot a point. If below, the field will be left empty
 #' @param platypus.version This is coded for "v3" only, but in practice any Seurat Object can be fed in
 #' @return Returns a ggplot object
 #' @export
@@ -16,6 +16,12 @@ GEX_dottile_plot <- function(GEX.matrix,
                              group.by,
                              threshold.to.plot,
                              platypus.version){
+
+  group <- NULL
+  name <- NULL
+  value <- NULL
+  mean_scaled_expression <- NULL
+
   platypus.version <- "v3"
 
   if(missing(threshold.to.plot)) threshold.to.plot <- 5
@@ -50,20 +56,20 @@ GEX_dottile_plot <- function(GEX.matrix,
   }
 
 
-  to_plot_f <- FetchData(GEX.matrix, vars = c(group.by, genes))
+  to_plot_f <- SeuratObject::FetchData(GEX.matrix, vars = c(group.by, genes))
 
   #pivot
-  to_plot_f <- pivot_longer(to_plot_f, cols = c(2:ncol(to_plot_f)))
+  to_plot_f <- tidyr::pivot_longer(to_plot_f, cols = c(2:ncol(to_plot_f)))
   names(to_plot_f)[1] <- "group"
   #summarize and group
   #for now by cluster
-  to_plot_sum_f <- to_plot_f %>% group_by(group,name) %>% summarise(mean_scaled_expression = mean(value[value > 0]), perc_expressing_cells = (length(value[value > 0])/n()*100))
+  to_plot_sum_f <- to_plot_f %>% dplyr::group_by(group,name) %>% dplyr::summarise(mean_scaled_expression = mean(value[value > 0]), perc_expressing_cells = (length(value[value > 0])/n()*100))
 
   to_plot_sum_f$name <- ordered(as.factor(to_plot_sum_f$name), levels = rev(genes))
 
   to_plot_sum_f$perc_expressing_cells[to_plot_sum_f$perc_expressing_cells < threshold.to.plot] <- NA
 
-  plot_out <- ggplot(to_plot_sum_f, aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + geom_point(show.legend = T)  + theme(panel.background = element_blank(),panel.border = element_rect(colour = "black", fill=NA, size=3),axis.text = element_text(size = 30), axis.text.x = element_text(angle = 60, vjust = 0.95, hjust=1), axis.line = element_blank(), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30), legend.key = element_rect(fill = "white", color = "white"), legend.position = "right") + labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + scale_color_viridis_c(option = "B", end = 0.9) +scale_size_binned(range = c(1,9.5))
+  plot_out <- ggplot::ggplot(to_plot_sum_f, ggplot::aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + ggplot::geom_point(show.legend = T)  + ggplot::theme(panel.background = ggplot::element_blank(),panel.border = ggplot::element_rect(colour = "black", fill=NA, size=3),axis.text = ggplot::element_text(size = 30), axis.text.x = ggplot::element_text(angle = 60, vjust = 0.95, hjust=1), axis.line = ggplot::element_blank(), axis.ticks = ggplot::element_line(size = 2), axis.ticks.length = ggplot::unit(0.3, "cm"), text = ggplot::element_text(size=30), legend.key = ggplot::element_rect(fill = "white", color = "white"), legend.position = "right") + ggplot::labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + ggplot::scale_color_viridis_c(option = "B", end = 0.9) + ggplot::scale_size_binned(range = c(1,9.5))
 
     return(plot_out)
 }

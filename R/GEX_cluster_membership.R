@@ -12,6 +12,10 @@ GEX_cluster_membership <- function(GEX.output,
                                    by.group,
                                    platypus.version){
 
+  Sample <- NULL
+  value <- NULL
+  L2 <- NULL
+  Group <- NULL
 
   if(missing(by.group)) by.group <- FALSE
   if(missing(platypus.version)) platypus.version <- "v2"
