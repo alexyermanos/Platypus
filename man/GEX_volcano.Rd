@@ -33,6 +33,8 @@ GEX_volcano(
 
 \item{explicit.title}{logical specifying whether the title should include logFC information for each condition.}
 
+\item{RP.MT.filter}{Boolean. Defaults to TRUE. Whether to exclude ribosomal and mitochondrial genes.}
+
 \item{color.p.threshold}{numeric specifying the adjusted p-value threshold for geom_points to be colored. Default is set to 0.01.}
 
 \item{color.log.threshold}{numeric specifying the absolute logFC threshold for geom_points to be colored. Default is set to 0.25.}

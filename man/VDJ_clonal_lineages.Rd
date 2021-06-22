@@ -22,9 +22,9 @@ VDJ_clonal_lineages(
 
 \item{with.germline}{Logical determining whether the germline sequence as determined by cellranger should be included in the output list of sequences. If so, the germline will be added to the last row of each dataframe object.}
 
-\item{platypus.version}{Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".}
+\item{VDJ_GEX_matrix}{Output from the VDJ.GEX.matrix function. The output object should have the VDJ information (e.g., the original VDJ_GEX_matrix call should have had cellranger's VDJ output supplied as input).}
 
-\item{VDJ.GEX.matrix}{Output from the VDJ.GEX.matrix function. The output object should have the VDJ information (e.g., the original VDJ_GEX_matrix call should have had cellranger's VDJ output supplied as input).}
+\item{platypus.version}{Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".}
 }
 \value{
 returns a list containing the sequences for each clonal family as determined by the input clonotyping strategy to call_MIXCR and VDJ_extract_germline. The outer list corresponds to distinct repertoires supplied to the call_MIXCR function (e.g. VDJ.clonal.lineage.output[[i]][[j]] will contain a dataframe of the j'th clone in the i'th repertoire)

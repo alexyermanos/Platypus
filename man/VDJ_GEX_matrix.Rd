@@ -87,6 +87,8 @@ VDJ_GEX_matrix(
 
 \item{filter.overlapping.barcodes.VDJ}{Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.}
 
+\item{exclude.on.cell.state.markers}{Character vector. If no input is provided or input is "none", no cells are excluded. Input format should follow: Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Example: c("CD4+;CD44-","CD4+;IL7R+;CD44+"). All cells which match any of the given states (in the example case any of the 2) are excluded. This is useful in case different and non lymphocyte cells were co-sequenced. It should give the option to e.g. exclude B cells in the analysis of T cells in a dataset.}
+
 \item{get.VDJ.stats}{Boolean. defaults to TRUE. Whether to generate general statistics table for VDJ repertoires. This is appended as element [[3]] of the output list.}
 
 \item{numcores}{Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)}
@@ -99,23 +101,31 @@ VDJ_GEX_matrix(
 
 \item{parallel.processing}{Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required}
 
+\item{integration.method}{String specifying which data normalization and integration pipeline should be used. Default is "scale.data", which correspondings to the ScaleData function internal to harmony package. 'sct'specifies SCTransform from the Seurat package. "harmony" should be specificied to perform harmony integration. This method requires the harmony package from bioconductor.}
+
+\item{VDJ.gene.filter}{Logical indicating if variable genes from the b cell receprot and t cell receptor should be removed from the analysis. True is highly recommended to avoid clonal families clustering together.}
+
+\item{mito.filter}{Numeric specifying which percent of genes are allowed to be composed of mitochondrial genes. This value may require visual inspection and can be specific to each sequencing experiment. Users can visualize the percentage of genes corresponding to mitochondrial genes using the function "investigate_mitochondial_genes".}
+
+\item{norm.scale.factor}{Scaling factor for the standard Seurat pipeline. Default is set to 10000 as reported in Seurat documentation.}
+
+\item{n.feature.rna}{Numeric that specifies which cells should be filtered out due to low number of detected genes. Default is set to 0. Seurat standard pipeline uses 2000.}
+
+\item{n.count.rna.min}{Numeric that specifies which cells should be filtered out due to low RNA count.Default is set to 0. Seurat standard pipeline without VDJ information uses 200.}
+
+\item{n.count.rna.max}{Numeric that specifies which cells should be filtered out due to high RNA count.Default is set to infinity. Seurat standard pipeline without VDJ information uses 2500.}
+
+\item{n.variable.features}{Numeric specifying the number of variable features. Default set to 2000 as specified in Seurat standard pipeline.}
+
+\item{cluster.resolution}{Numeric specifying the resolution that will be supplied to Seurat's FindClusters function. Default is set to 0.5. Increasing this number will increase the number of distinct Seurat clusters. Suggested to examine multiple parameters to ensure gene signatures differentiating clusters remains constant.}
+
+\item{neighbor.dim}{Numeric vector specifying which dimensions should be supplied in the FindNeighbors function from Seurat. Default input is '1:10'.}
+
+\item{mds.dim}{Numeric vector specifying which dimensions should be supplied into dimensional reduction techniques in Seurat and Harmony. Default input is '1:10'.}
+
+\item{subsample.barcodes}{For development purposes only. If set to TRUE the function will run on 100 cells only to increase speeds of debugging}
+
 \item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.}
-
-\item{VDJ.out.directory}{List of paths with each element containing the path to the output of cellranger VDJ runs. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).}
-
-\item{GEX.out.directory}{OPTIONAL list of paths with each element containing the path to the output of cellranger GEX runs. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).}
-
-\item{sample.names}{OPTIONAL: an array of the same length as the input VDJ.out.directory list with custom names for each sample. If not provided samples will be numbered by processing order}
-
-\item{metrics10x}{Whether to append metrics_summary.csv information provided by Cellranger for both VDJ and GEX. Defaults to T}
-
-\item{save.csv}{Boolean. Defaults to TRUE. Whether to directly save the resuts as a comma delimited .csv file in the current working directory.}
-
-\item{filename}{Character ending in .csv. Filename to save .csv as.}
-
-\item{ALL_PARAMS}{Provided by VDJ_GEX_matrix function.}
-
-\item{All_PARAMS}{Inputs provided by VDJ_GEX_matrix}
 
 \item{exclude.on.cell.markers}{Character vector. If no input is provided or input is "none", no cells are excluded. Input format should follow: Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Example: c("CD4+;CD44-","CD4+;IL7R+;CD44+"). All cells which match any of the given states (in the example case any of the 2) are excluded. This is useful in case different and non lymphocyte cells were co-sequenced. It should give the option to e.g. exclude B cells in the analysis of T cells in a dataset.}
 
@@ -123,12 +133,6 @@ VDJ_GEX_matrix(
 }
 \value{
 Single cell matrix including VDJ and GEX info
-
-returns a single matrix where the rows are individual cells and the columns are repertoire features.
-
-GEX matrix
-
-List of tables, with each table containing information one one barcode
 
 Single cell matrix including VDJ and GEX info
 }
@@ -139,6 +143,7 @@ Processes both raw VDJ and GEX Cellranger output to compile a single cell level 
 }
 \examples{
 \dontrun{
+
 VDJ.out.directory.list <- list()
 VDJ.out.directory.list[[1]] <- c("~/VDJ/S1/")
 VDJ.out.directory.list[[2]] <- c("~/VDJ/S2/")
@@ -146,18 +151,6 @@ GEX.out.directory.list <- list()
 GEX.out.directory.list[[1]] <- c("~/GEX/S1/")
 GEX.out.directory.list[[2]] <- c("~/GEX/S2/")
 VDJ_comb_gex <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,GEX.out.directory.list = GEX.out.directory.list,GEX.integrate = T,VDJ.combine = T,integrate.GEX.to.VDJ = T,integrate.VDJ.to.GEX = T,exclude.GEX.not.in.VDJ = F,filter.overlapping.barcodes.GEX = F,filter.overlapping.barcodes.VDJ = F,get.VDJ.stats = T,parallel.processing = "none",subsample.barcodes = F,trim.and.align = F,group.id = c(1,2))
-}
-Gives stats on number and quality of reads.
-\dontrun{
-stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4),metrics10x = T,save.csv = T ,filename = "stats.csv")
-}
-Processes GEX in the function VDJ_GEX_matrix. Do not run as standalone
-\dontrun{
-Do not run as standalone!
-}
-Helper function called in VDJ_GEX_matrix. Do not run as standalone!
-\dontrun{
-Do not run as standalone!
 }
 \dontrun{
 VDJ.out.directory.list <- list()

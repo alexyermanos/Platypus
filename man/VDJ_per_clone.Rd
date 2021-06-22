@@ -27,6 +27,10 @@ VDJ_per_clone(
 \item{reference.list}{Contains the reference sequence information in the same format as concat_ref.fasta file from the output of cellranger.}
 
 \item{filtered.contigs}{Logical indicating if the filtered contigs file should be used. TRUE will read VDJ information from only the filtered output of cellranger. FALSE will read the all contigs file from cellranger. Default set to TRUE (filtered output)}
+
+\item{annotations.json}{Optional input from loaded all_contig_annotations.json. Will be read in automatically if not provided}
+
+\item{JSON}{Boolean. Defaults to FALSE. Whether to load all_contig_annotations.json}
 }
 \value{
 Returns a list of dataframes containing

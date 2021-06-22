@@ -20,6 +20,10 @@ VDJ_plot_SHM(
 
 \item{quantile.label}{Numeric. Defaults to 0.9. Which points to label in the SHM scatterplot. If set to 0.9, the top 10\% of cells by SHM number will be labelled. If ggrepel throws a warning, concerning overlap it is recommended to attempt to lable less points to avoid cluttering}
 
+\item{point.size}{Size of points in plots. Passed to geom_jitter()}
+
+\item{mean.line.color}{Color of mean bar in dotplots. Passed to geom_errorbar()}
+
 \item{platypus.version}{Character. Only "v3" available.}
 }
 \value{

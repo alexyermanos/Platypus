@@ -40,6 +40,10 @@
 #'}
 GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,min.pct, filter, return.plot, logFC, up.genes, down.genes, base, label.n.top.genes, genes.to.label, platypus.version){
 
+  SYMBOL <- NULL
+  avg_logFC <- NULL
+  p_val_adj <- NULL
+
   if(missing(FindMarkers.out)) FindMarkers.out <- "none"
   if(missing(return.plot)) return.plot <- "none"
   if(return.plot == T){
@@ -84,6 +88,7 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
   }
 
   colnames(cluster_markers)[2] <- "avg_logFC"
+  SYMBOL <- NULL
   cluster_markers$SYMBOL <- rownames(cluster_markers)
 
   exclude <- c()
@@ -126,7 +131,7 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
     }
 
 
-    plot.out <- ggplot(cluster_markers, aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + geom_point(show.legend = F, size = 3, alpha = 0.7) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line = element_line(size = 2), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30)) + labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + geom_text_repel(data = cluster_markers_rel, aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + scale_colour_viridis_c(option = "B")
+    plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
 
   }
   if (return.plot=="none") plot.out <- NULL

@@ -51,7 +51,7 @@ GEX_DEgenes(
 
 \item{genes.to.label}{FOR VOLCANO Character vector of genes to label irregardless of their p value.}
 
-\item{platypus.version.}{Function works with V2 and V3, no need to set this parameter}
+\item{platypus.version}{Function works with V2 and V3, no need to set this parameter}
 }
 \value{
 Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
@@ -63,7 +63,7 @@ Extracts the differentially expressed genes between two groups of cells. These g
 \dontrun{
 
 #Basic run between two samples
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2")
+check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", platypus.version = "v3")
 
 #Getting DEGs between two seurat clusters
 check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
@@ -71,14 +71,14 @@ check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "se
 #Getting DEGs between two custom groups, possibly cellypes
 check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "Column with cell type information",group1 = "T memory cells",group2 = "T effector cells")
 
-Plotting a heatmap by foldchange of sample markers 
+Plotting a heatmap by foldchange of sample markers
 check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap", up.genes = 10, down.genes = 10m, logFC = TRUE)
 
 #plotting volcano by p value of sample markers. Label additional genes of interest
 check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
 
 #Generate a heatmap from an already existing FindMarkers output
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]], FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap", up.genes = 10, down.genes = 10, logFC = TRUE)
+check_de_genes <- GEX_DEgenes(GEX= vgm[[2]], FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap", up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 
 }
 }

@@ -9,6 +9,8 @@ GEX_phenotype(seurat.object, cell.state.names, cell.state.markers, default)
 \arguments{
 \item{seurat.object}{A single seurat object from automate_GEX function}
 
+\item{cell.state.names}{Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containng the c("CD4+;CD44-","CD4+;IL7R+;CD44+").}
+
 \item{cell.state.markers}{Character vector containing the cell state labels defined by the markers in cell.state.markers parameter. Example is c("NaiveCd4","MemoryCd4").}
 
 \item{default}{Default is TRUE - will use premade gene sets and cell states.}

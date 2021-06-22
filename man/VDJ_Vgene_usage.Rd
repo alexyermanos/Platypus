@@ -24,6 +24,3 @@ Produces a matrix counting the number of occurences for each VDJ and VJ Vgene co
 example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ.clonotype.output = VDJ.clonotype.output)
 }
 }
-\seealso{
-
-}

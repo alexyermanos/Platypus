@@ -8,6 +8,7 @@
 #' @param platypus.version Set according to input format to either "v2" or "v3". Defaults to "v2"
 #' @return Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.
 #' @export
+#' @examples
 #' \dontrun{
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage_barplot_stacked(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T,HC.gene.number = 15, Fraction.HC = 1)
 #'}

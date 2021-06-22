@@ -17,13 +17,17 @@ VDJ_clonotype_clusters_circos(
 \arguments{
 \item{VDJ.GEX.matrix}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.}
 
+\item{topX}{Plots only the top X most expanded clonotypes. By default all clonotypes are shown.}
+
 \item{label.threshold}{Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.}
+
+\item{axis}{Character. Defaults to "max". Passed to VDJ_circos}
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 
 \item{platypus.version}{Which platypus.version of platypus is beeing used. Default = v2.}
 
-\item{TopX}{Plots only the top X most expanded clonotypes. By default all clonotypes are shown.}
+\item{n.cluster}{Integer. No default.}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.

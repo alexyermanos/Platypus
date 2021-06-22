@@ -15,6 +15,8 @@ VDJ_overlap_heatmap(
 )
 }
 \arguments{
+\item{VDJ.matrix.output}{VDJ matrix from the VDJ_GEX_matrix function}
+
 \item{feature.columns}{A character array of column names of which the overlap should be displayed. The content of these columns is pasted together (separated by "/"). E.g. if the overlap in cells germline gene usage is desired, the input could be c("VDJ_jgene","VDJ_dgene","VDJ_vgene"). These columns would be pasted and compared across the grouping variable.}
 
 \item{grouping.column}{A column which acts as a grouping variable. If repertoires are to be compared use the sample_id column.}
@@ -23,10 +25,9 @@ VDJ_overlap_heatmap(
 
 \item{axis.label.size}{Numeric. Defaults to 4. Is passed on to ggplot theme}
 
-\item{add.barcode.table}{Boolean. Defaults to T. Whether to generate a dataframe with frequencies and barcodes of cells with overlapping features. This is useful to e.g. analyze deferentially expressed genes between cells of two samples or groups expressing the same VDJ or VJ chain
-#' @param platypus.version Character. At the moment this function runs only on the output of the VDJ_GEX_matrix function meaning that it is exclusively part of Platypus "v3". With further updates the functionality will be extended.}
+\item{add.barcode.table}{Boolean. Defaults to T. Whether to generate a dataframe with frequencies and barcodes of cells with overlapping features. This is useful to e.g. analyze deferentially expressed genes between cells of two samples or groups expressing the same VDJ or VJ chain}
 
-\item{VDJ.matrix}{VDJ matrix from the VDJ_GEX_matrix function}
+\item{platypus.version}{Character. At the moment this function runs only on the output of the VDJ_GEX_matrix function meaning that it is exclusively part of Platypus "v3". With further updates the functionality will be extended.}
 }
 \value{
 A list of a ggplot (out[[1]]) and the table from which the ggplot was generated (out[[2]])

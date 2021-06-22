@@ -7,13 +7,13 @@
 GEX_scatter_coexpression(GEX.matrix, gene.1, gene.2, color.theme)
 }
 \arguments{
+\item{GEX.matrix}{GEX seurat object generated with VDJ_GEX_matrix}
+
 \item{gene.1}{Character. Name of a gene in rownames(VDJ.matrix)}
 
 \item{gene.2}{Character. Name of a gene in rownames(VDJ.matrix)}
 
 \item{color.theme}{Character. A color to use for the composite plot}
-
-\item{VDJ.matrix}{GEX seurat object generated with VDJ_GEX_matrix}
 }
 \value{
 Returns a gridplot showing coexpression of gene.1 and gene.2

@@ -32,6 +32,8 @@ VDJ_VJ_usage_circos(
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 
 \item{platypus.version}{Which platypus.version of platypus is being used. Default = v2.}
+
+\item{filter1H1L}{Whether to filter the input VDJ.matrix in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
