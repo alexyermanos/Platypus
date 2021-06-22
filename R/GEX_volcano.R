@@ -27,6 +27,14 @@
 GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, condition.2, explicit.title, RP.MT.filter, color.p.threshold, color.log.threshold, label.p.threshold, label.logfc.threshold, n.label.up, n.label.down, by.logFC ,maximum.overlaps ,plot.adj.pvalue) {
   require(ggrepel)
 
+  avg_log2FC <- NULL
+  minus.log10p <- NULL
+  genes <- NULL
+  p_val_adj <- NULL
+  minus.log10p_adj <- NULL
+  avg_logFC <- NULL
+  SYMBOL <- NULL
+
   if(missing(cluster.genes.output)){cluster.genes.output <- F}
   if(missing(condition.1)){condition.1 <- ""}
   if(missing(condition.2)){condition.2 <- ""}
@@ -67,7 +75,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
       findmarkers.output$minus.log10p[which(findmarkers.output$minus.log10p == Inf)] <- findmarkers.output$minus.log10p[which(sort(findmarkers.output$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
       if(n.label.up == F & n.label.down == F) {
-        output.plot <- ggplot2::ggplot(findmarkers.output, aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
           ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_log2FC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
@@ -87,7 +95,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         }
         label.genes <- c(posFC_genes,negFC_genes)
 
-        output.plot <- ggplot2::ggplot(findmarkers.output, aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
           ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, genes%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")

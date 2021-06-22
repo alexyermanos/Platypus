@@ -9,7 +9,16 @@
 #' \dontrun{
 #' vdj.gex.expansion <- VDJ_GEX_expansion(GEX.list=GEX.list.output[[1]],VDJ.GEX.integrate.list=vdj.gex.integrate.output,highlight.isotype = "None",highlight.number=1:20)
 #' }
-VDJ_GEX_expansion <- function(GEX.list, VDJ.GEX.integrate.list, highlight.isotype, highlight.number){
+VDJ_GEX_expansion <- function(GEX.list,
+                              VDJ.GEX.integrate.list,
+                              highlight.isotype,
+                              highlight.number){
+
+  cluster <- NULL
+  value <- NULL
+  L1 <- NULL
+
+
   require(stringr)
   require(scales)
   if(missing(GEX.list)) stop("No provided list of Seurat objects. Please provide the output of the automate_GEX function.")

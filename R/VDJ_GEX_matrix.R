@@ -74,6 +74,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #garbage collector to clear some ram
   gc()
 
+  orig_barcode <- NULL
+  match_ex_crit <- NULL
+  barcode_VDJ_iteration <- NULL
+  GEX_automate_single <- NULL
+  VDJ_GEX_stats <- NULL
 
   require(seqinr)
   require(jsonlite)
@@ -98,8 +103,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(VDJ.combine)) VDJ.combine <- T
   if(missing(GEX.integrate)) GEX.integrate <- T
   if(missing(parallel.processing)) parallel.processing <- "none"
-  if(missing(numcores)) numcores <- detectCores()
-  if(numcores > detectCores()){numCores <- detectCores()}
+
 
   if(missing(integrate.GEX.to.VDJ)) integrate.GEX.to.VDJ <- T
   if(missing(integrate.VDJ.to.GEX)) integrate.VDJ.to.GEX <- T
@@ -114,9 +118,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   if(missing(exclude.on.cell.state.markers)) exclude.on.cell.state.markers <- "none"
 
-  if(parallel.processing == "parlapply"){
+  if(parallel.processing == "parlapply" | parallel.processing == "mclapply"){
     require(parallel)
     require(doParallel)
+    if(missing(numcores)) numcores <- parallel::detectCores()
+    if(numcores > parallel::detectCores()){numCores <- parallel::detectCores()}
   }
 
   #FOR GEX_automate_single
@@ -217,6 +223,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     require(stringr)
     require(Biostrings)
     require(stringr)
+    require(utils)
 
     if(missing(save.csv)) save.csv <- T
     if(missing(filename)) filename <- "VDJ_stats.csv"
@@ -235,8 +242,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
 
       #needed for VDJ_per_cell_matrix module
-      reference.list <- lapply(VDJ.out.directory_reference, function(x) read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-      annotations.list <- lapply(VDJ.out.directory_annotations, function(x) read_json(x))
+      reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
+      annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
       contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
       VDJ.metrics.list <- lapply(VDJ.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
       vdj.loaded <- T
@@ -536,11 +543,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     if(GEX.integrate == T & length(GEX.list) > 1){ #combine all GEX into one seurat object and add s%number%_ to the FRONT of the barcode
       GEX.merged <- GEX.list[[1]]
-      GEX.merged <- RenameCells(GEX.merged, new.names = paste0("s",1,"_",colnames(GEX.merged)))
+      GEX.merged <- SeuratObject::RenameCells(GEX.merged, new.names = paste0("s",1,"_",colnames(GEX.merged)))
       GEX.merged@meta.data$sample_id <- paste0("s",1)
       GEX.merged@meta.data$group_id <- group.id[1]
       for(i in 2:length(GEX.list)){
-        GEX.list[[i]] <- RenameCells(GEX.list[[i]], new.names = paste0("s",i,"_",colnames(GEX.list[[i]])))
+        GEX.list[[i]] <- SeuratObject::RenameCells(GEX.list[[i]], new.names = paste0("s",i,"_",colnames(GEX.list[[i]])))
         GEX.list[[i]]@meta.data$sample_id <- paste0("s",i)
         GEX.list[[i]]@meta.data$group_id <- group.id[i]
         GEX.merged <- merge(GEX.merged, y = GEX.list[[i]], add.cell.ids = c("",""))
@@ -550,7 +557,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       GEX.list[[1]] <- GEX.merged
     } else {
       for(i in 1:length(GEX.list)){ #or do not integrate, but still add the sample identifier to the FRONT of the barcode. This is to make the output uniform and to deal with the possibility of integrating VDJ but not GEX
-        GEX.list[[i]] <- RenameCells(GEX.list[[i]], new.names = paste0("s",i,"_",colnames(GEX.list[[i]])))
+        GEX.list[[i]] <- SeuratObject::RenameCells(GEX.list[[i]], new.names = paste0("s",i,"_",colnames(GEX.list[[i]])))
         #add sample and group ID
         GEX.list[[i]]@meta.data$sample_id <- paste0("s",i)
         GEX.list[[i]]@meta.data$group_id <- group.id[i]
@@ -1073,7 +1080,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       print(paste0("For sample ", i, ": ", length(barcodes_GEX[[i]])," cell assigned barcodes in GEX, ", length(barcodes_VDJ[[i]]), " cell assigned high confidence barcodes in VDJ. Overlap: ", sum(barcodes_GEX[[i]] %in% barcodes_VDJ[[i]])))
 
       vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
-      gex.list[[i]] <- AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ.available")
+      gex.list[[i]] <- SeuratObject::AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ.available")
       #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
       if(exclude.GEX.not.in.VDJ == T){
         print("Removing all barcodes from GEX, which are not present in VDJ.")
@@ -1153,9 +1160,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         cell.state.markers <- toupper(cell.state.markers)
       }
 
-      cell.state.markers<-Replace(cell.state.markers,from=";", to="&")
-      cell.state.markers<-Replace(cell.state.markers,from="\\+", to=">0")
-      cell.state.markers<-Replace(cell.state.markers,from="-", to="==0")
+      cell.state.markers<-do:Replace(cell.state.markers,from=";", to="&")
+      cell.state.markers<-do:Replace(cell.state.markers,from="\\+", to=">0")
+      cell.state.markers<-do:Replace(cell.state.markers,from="-", to="==0")
 
       #iterate over seurat objects
       for(j in 1:length(gex.list)){
@@ -1203,20 +1210,20 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       print(paste0("Starting VDJ barcode iteration ", i , " of ", length(contig.table)))
       if(parallel.processing == "parlapply" | parallel.processing == "parLapply"){
         #close any open clusters
-        stopImplicitCluster()
+        doParallel::stopImplicitCluster()
         #open cluster for parallel computing
 
-        cl <- makeCluster(numcores)
+        cl <- parallel::makeCluster(numcores)
         print(paste0("Started parlapply cluster with ", numcores, " cores"))
 
-        out.VDJ <- parLapply(cl, barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
+        out.VDJ <- parallel::parLapply(cl, barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
         #close any open clusters
-        stopImplicitCluster()
+        doParallel::stopImplicitCluster()
         gc() #garbage collection to reduce ram impact
 
       } else if(parallel.processing == "mclapply"){
         print(paste0("Started mcapply cluster with ", numcores, " cores"))
-        out.VDJ <- mclapply(X = barcodes_VDJ[[i]], FUN = barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
+        out.VDJ <- parallel::mclapply(X = barcodes_VDJ[[i]], FUN = barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
       } else {
         out.VDJ <- lapply(barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
         gc() #garbage collection to reduce ram impact
@@ -1268,7 +1275,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     for(i in 1:length(GEX.proc)){
       #remove possible extra underscores before barcode
-      GEX.proc[[i]] <- RenameCells(GEX.proc[[i]], new.names = gsub("^_+","",colnames(GEX.proc[[i]])))
+      GEX.proc[[i]] <- SeuratObject::RenameCells(GEX.proc[[i]], new.names = gsub("^_+","",colnames(GEX.proc[[i]])))
     }
 
   }
@@ -1279,7 +1286,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Because a lot of cells are present in only one of the two datasets, we do not add the VDJ table as a metadata item to the Seurat object. This would throw out a lot high confidence VDJ entries. Instead we add metadata columns to both datasets indicating the presence of the cell in the opposing dataset. This should make filtering and joining later easy.
     #Multiple cases:
     if(class(VDJ.proc) == "list" & length(GEX.proc) == 1){ #Multiple VDJ, one GEX
-      GEX.proc[[1]] <- Seurat::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% do.call(c ,lapply(VDJ.proc, function(x) x$barcode)), col.name = "VDJ_available")
+      GEX.proc[[1]] <- SeuratObject::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% do.call(c ,lapply(VDJ.proc, function(x) x$barcode)), col.name = "VDJ_available")
       for(i in 1:length(VDJ.proc)){
         VDJ.proc[[i]]$GEX_available <- VDJ.proc[[i]]$barcode %in% colnames(GEX.proc[[1]])
       }
@@ -1287,7 +1294,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       GEX.proc <- GEX.proc[[1]]
 
     } else if (class(VDJ.proc) == "data.frame" & length(GEX.proc) == 1){ #one VDJ one GEX
-      GEX.proc[[1]] <- Seurat::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% VDJ.proc$barcode, col.name = "VDJ_available")
+      GEX.proc[[1]] <- SeuratObject::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% VDJ.proc$barcode, col.name = "VDJ_available")
       print("Got Barcodes")
       VDJ.proc$GEX_available <- VDJ.proc$barcode %in% colnames(GEX.proc[[1]])
       #Reduce GEX.proc to a seurat object
@@ -1297,7 +1304,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(integrate.GEX.to.VDJ == T){
 
         #get data from Seurat object to add to VDJ. In the future this could become an extra parameter
-        seur_meta <- FetchData(GEX.proc,
+        seur_meta <- SeuratObject::FetchData(GEX.proc,
                                vars = c("orig.ident","orig_barcode","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))
         names(seur_meta)[2] <- "orig_barcode_GEX"
         seur_meta$barcode <- rownames(seur_meta)
@@ -1318,18 +1325,18 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #add rownames to new dataframe, otherwise AddMetaData fails
         rownames(seur_meta) <- seur_meta$barcode
         #add metadata
-        GEX.proc <- AddMetaData(GEX.proc, seur_meta[,c(10:ncol(seur_meta))], col.name = names(seur_meta)[c(10:ncol(seur_meta))])
+        GEX.proc <- SeuratObject::AddMetaData(GEX.proc, seur_meta[,c(10:ncol(seur_meta))], col.name = names(seur_meta)[c(10:ncol(seur_meta))])
 
       }
 
     } else if(class(VDJ.proc) == "data.frame" & length(GEX.proc) > 1){ #one VDJ multiple GEX (improbable...)
       for(i in 1:length(GEX.proc)){
-        GEX.proc[[i]] <- Seurat::AddMetaData(GEX.proc[[i]], colnames(GEX.proc[[i]]) %in% VDJ.proc$barcode, col.name = "VDJ_available")
+        GEX.proc[[i]] <- SeuratObject::AddMetaData(GEX.proc[[i]], colnames(GEX.proc[[i]]) %in% VDJ.proc$barcode, col.name = "VDJ_available")
       }
       VDJ.proc$GEX_available <- VDJ.proc$barcode %in% do.call(c ,lapply(GEX.proc, function(x) colnames(x)))
     } else if(class(VDJ.proc) == "list" & length(GEX.proc) > 1){ #multiple VDJ multiple GEX
       for(i in 1:length(GEX.proc)){
-        GEX.proc[[i]] <- Seurat::AddMetaData(GEX.proc[[i]], colnames(GEX.proc[[i]]) %in% VDJ.proc[[i]]$barcode, col.name = "VDJ_available")
+        GEX.proc[[i]] <- SeuratObject::AddMetaData(GEX.proc[[i]], colnames(GEX.proc[[i]]) %in% VDJ.proc[[i]]$barcode, col.name = "VDJ_available")
         VDJ.proc[[i]]$GEX_available <- VDJ.proc[[i]]$barcode %in% colnames(GEX.proc[[i]])
       }
     }
@@ -1359,7 +1366,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   out.list[[4]] <- params
 
   #finally add session info
-  out.list[[5]] <- sessionInfo()
+  out.list[[5]] <- utils::sessionInfo()
 
   #rename for clarity
   names(out.list) <- c("VDJ", "GEX", "VDJ.GEX.stats", "Running params", "sessionInfo")
