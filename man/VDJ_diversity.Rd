@@ -9,6 +9,7 @@ VDJ_diversity(
   feature.columns,
   grouping.column,
   metric,
+  subsample.to.same.n,
   pvalues.label.size,
   axis.label.size,
   platypus.version
@@ -21,7 +22,9 @@ VDJ_diversity(
 
 \item{grouping.column}{Character. Column name of a column to group metrics by. This could be "sample_id" to calculate the metric for each sample. This column is required if metric = "simpson". If so, the simpson overlap index will be calculated pairwise for all combinations of elements in the grouping.column. Defaults to "none".}
 
-\item{metric}{Character. Diversity or overlap metric to calculate. Can be c("richness", "remyparker", "simpson", "ginisimpson", "shannon", "shannonevenness", "jaccard"). Defaults to "shannon". If jaccard is selected, a heatmap with the pairwise comparisons between all groups is returned. If any of the others is selected, a dotplot is returned}
+\item{metric}{Character. Diversity or overlap metric to calculate. Can be c("richness", "bergerparker", "simpson", "ginisimpson", "shannon", "shannonevenness", "jaccard"). Defaults to "shannon". If jaccard is selected, a heatmap with the pairwise comparisons between all groups is returned. If any of the others is selected, a dotplot is returned}
+
+\item{subsample.to.same.n}{Boolean defaults to TRUE. Whether to subsample larger groups down to the size of the smallest group}
 
 \item{pvalues.label.size}{Numeric. Only used if overlap indices are calculated. Defaults to 4. Is passed on to ggplot theme}
 

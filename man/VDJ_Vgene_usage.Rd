@@ -2,18 +2,22 @@
 % Please edit documentation in R/VDJ_Vgene_usage.R
 \name{VDJ_Vgene_usage}
 \alias{VDJ_Vgene_usage}
-\title{Produces a matrix counting the number of occurencies for each IgH and IgK/L Vgene combinations.}
+\title{Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix}
 \usage{
-VDJ_Vgene_usage(VDJ.clonotype.output)
+VDJ_Vgene_usage(VDJ.clonotype.output, VDJ.matrix, platypus.version)
 }
 \arguments{
-\item{VDJ.clonotype.output}{Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.}
+\item{VDJ.clonotype.output}{Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. IF platypus.version == "v2"}
+
+\item{VDJ.matrix}{Output VDJ dataframe from VDJ_GEX_matrix IF platypus.version == "v3"}
+
+\item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
 }
 \value{
 Returns a list of matrices containing the number of Vgene heavy/light chain combinations per repertoire.
 }
 \description{
-Produces a matrix counting the number of occurencies for each IgH and IgK/L Vgene combinations.
+Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix
 }
 \examples{
 \dontrun{

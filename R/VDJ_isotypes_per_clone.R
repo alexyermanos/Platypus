@@ -7,7 +7,8 @@
 #' #' @param sample.names Character vector with the same length of the VDJ.GEX.matrix.out list. If a VDJ table is provided, length of samples names must be one. These names are used as references to the output and as title for the plots
 #' @param treat_incomplete_clones Character indicating how to proceed with clonotypes lacking a VDJC (in other words, no cell within the clonotype has a VDJC). "exclude" removes these clonotypes from the analysis. This may result in a different frequency ranking of clonotypes than in the output of the VDJ_analyse function with filter.1HC.1LC = FALSE. "include" keeps these clonotypes in the analysis. In the plot they will appear has having an unknown isotype.
 #' @param treat_incomplete_cells Character indicating how to proceed with cells assigned to a clonotype but missing a VDJC. "proportional" to fill in the VDJ isotype according to the proportions present in of clonotype (in case present proportions are not replicable in the total number of cells e.g. 1/3 in 10 cells, values are rounded to the next full integer and if the new counts exceed the total number of cells, 1 is subtracted from the isotype of highest frequency. If the number is below the number of cell, 1 is added to the isotype with lowest frequency to preserve diversity), "exclude" to exclude them from analysis and rank clonotypes only by the number of actual contigs of there heavy chain. This ranking may deviate from the frequency column in the clonotype table. CAVE: if treat_incomplete_cells is set to "exclude", clonotypes lacking a VDJC entierly will be removed from the analysis. This results in a similar but not identical output as when treat_incomplete_clones is set to true. The two parameters are thereby non-redundant.
-#' @param platypus.version
+#' @param platypus.version Either "v3" if working with the output of the VDJ_GEX_matrix function or "v2" is working with the output of the VDJ_analyze function. Defaults to "v2". For a more flexible analysis in v3 use VDJ_clonal_expansion()
+#' @param VDJ.matrix The VDJ table output of the VDJ_GEX_matrix function. Usually VDJ_GEX_matrix.output[[1]]
 #' @return returns a list containing plots with the percentages of isotypes for each clone on the cell level.
 #' @export
 #' @examples
@@ -24,7 +25,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
                                    treat.incomplete.clones,
                                    treat.incomplete.cells,
                                    platypus.version,
-                                   VDJ.GEX.matrix.out){
+                                   VDJ.matrix){
   require(stringr)
   require(ggplot2)
 
@@ -32,7 +33,9 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
   if(missing(clones)) clones <- 50
   if(missing(VDJ_clonotype_output)) VDJ_clonotype_output <- list()
   if(missing(VDJ_per_clone_output)) VDJ_per_clone_output <- list()
-  if(missing(VDJ.GEX.matrix.out)) VDJ.GEX.matrix.out <- list()
+  if(missing(VDJ.matrix)) VDJ.matrix <- list()
+
+  VDJ.GEX.matrix.out <- VDJ.matrix
 
   if(missing(subtypes)) subtypes <- FALSE
   if(missing(species)) species <- "Human"

@@ -17,7 +17,7 @@ VDJ_VJ_usage_circos(
 )
 }
 \arguments{
-\item{VDJ.GEX.matrix}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.}
+\item{VDJ.GEX.matrix}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.}
 
 \item{A.or.B}{Determines whether to plot the V J gene pairing of the alpha or beta chain. "A", "B" or "both" as possible inputs. Default: "both".}
 
@@ -31,7 +31,7 @@ VDJ_VJ_usage_circos(
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 
-\item{platypus.version}{Which platypus.version of platypus is beeing used. Default = v2.}
+\item{platypus.version}{Which platypus.version of platypus is being used. Default = v2.}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.

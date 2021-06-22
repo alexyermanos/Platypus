@@ -14,7 +14,7 @@ VDJ_isotypes_per_clone(
   treat.incomplete.clones,
   treat.incomplete.cells,
   platypus.version,
-  VDJ.GEX.matrix.out
+  VDJ.matrix
 )
 }
 \arguments{
@@ -28,6 +28,10 @@ VDJ_isotypes_per_clone(
 
 \item{species}{Character indicating whether the samples are from mouse or human. Default is set to human.
 #' @param sample.names Character vector with the same length of the VDJ.GEX.matrix.out list. If a VDJ table is provided, length of samples names must be one. These names are used as references to the output and as title for the plots}
+
+\item{platypus.version}{Either "v3" if working with the output of the VDJ_GEX_matrix function or "v2" is working with the output of the VDJ_analyze function. Defaults to "v2". For a more flexible analysis in v3 use VDJ_clonal_expansion()}
+
+\item{VDJ.matrix}{The VDJ table output of the VDJ_GEX_matrix function. Usually VDJ_GEX_matrix.output[[1]]}
 
 \item{treat_incomplete_clones}{Character indicating how to proceed with clonotypes lacking a VDJC (in other words, no cell within the clonotype has a VDJC). "exclude" removes these clonotypes from the analysis. This may result in a different frequency ranking of clonotypes than in the output of the VDJ_analyse function with filter.1HC.1LC = FALSE. "include" keeps these clonotypes in the analysis. In the plot they will appear has having an unknown isotype.}
 

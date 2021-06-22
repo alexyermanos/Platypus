@@ -5,18 +5,21 @@
 \title{Produces a barplot with the most frequently used IgH and IgK/L Vgenes.}
 \usage{
 VDJ_Vgene_usage_barplot(
-  clonotype.list,
+  VDJ.matrix,
   HC.gene.number,
   LC.Vgene,
-  LC.gene.number
+  LC.gene.number,
+  platypus.version
 )
 }
 \arguments{
-\item{clonotype.list}{Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.}
+\item{VDJ.matrix}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])}
 
 \item{LC.Vgene}{Logical indicating whether to make a barplot of the LC V genes distribution. Default is set to FALSE.}
 
 \item{LC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.}
+
+\item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
 
 \item{HC, gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.}
 }

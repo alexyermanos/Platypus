@@ -11,7 +11,8 @@ GEX_GSEA(
   path_to_pathways,
   metric_colname,
   pval_adj_cutoff,
-  Enrichment.Plots
+  Enrichment.Plots,
+  my_own_geneset
 )
 }
 \arguments{
@@ -21,13 +22,15 @@ GEX_GSEA(
 
 \item{filter}{Character vector containing the identifying symbol sequence for the genes which should be filtered out, if MT.Rb.filter == T. By default set to c("MT-", "RPL", "RPS").}
 
-\item{path_to_pathways}{Path to gmt file containing the gene sets. Can be downloaded from MSigDB.}
+\item{path_to_pathways}{Either a path to gmt file containing the gene sets (can be downloaded from MSigDB) or vector where first element specifies species and second element specifies the MSigDB collection abbreviation. E.g.: c("Homo sapiens", "H"). If left empty mouse C7 (immunologic signature) gene set will be used.}
 
 \item{metric_colname}{Name of column which contains the metric used for the ranking of the submitted genelist. "avg_logFC" is used by default.}
 
 \item{pval_adj_cutoff}{Only genes with a more significant adjusted pvalue are considered. Default: 0.001}
 
 \item{Enrichment.Plots}{List of Gene-set names which should be plotted as Enrichment plots in addition to the top 10 Up and Downregulated Genesets.}
+
+\item{my_own_geneset}{A list, where each element contains a gene list and is named with the corresponding pathway name. Default is set to FALSE, so that gene sets from MSigDB are used. Should not contain ".gmt" in name.}
 }
 \value{
 Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.
@@ -41,5 +44,11 @@ df <- GEX_cluster_genes(gex_combined[[1]])
 output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = "./c5.go.bp.v7.2.symbols.gmt")
 cowplot::plot_grid(plotlist=output[[2]], ncol=2)
 View(gex_gsea[[1]])
+
+#Directly downloading gene set collection from MSigDB to perform gsea
+output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = c("Mus musculus", "C7"))
+
+#Using your own gene list to perform gsea
+output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, my_own_geneset = my_geneset)
 }
 }
