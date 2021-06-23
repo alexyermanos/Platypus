@@ -1,10 +1,9 @@
 #' Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
-#' @param clonotype.list Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.
+#' @param VDJ For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
 #' @param clone.strategy String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 #' All homology calculations are performed on the amino acid level.
 #' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
 #' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
-#' @param VDJ.GEX.matrix Output from the VDJ.GEX.matrix function. The output object should have the VDJ information (e.g., the original VDJ_GEX_matrix call should have had cellranger's VDJ output supplied as input).
 #' @param output.format String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframes", or "phylo.dataframe". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframes" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.
 #' @param global.clonotype Logical specifying whether clonotyping should occur across samples or only within a single sample.
 #' @param VDJ.VJ.1chain Logical specifying whether cells with multiple VDJ and VJ chains should be removed from the clonotyping. Can be either T or F for those definitions not requiring germline genes or homology thresholds, as calculating the later is difficult when multiple chains are present.
@@ -12,32 +11,36 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' VDJ_clonotype(clonotype.list=VDJ.analyze.output,
+#' VDJ_clonotype(VDJ=VDJ.analyze.output,
 #'  clone.strategy="Hvj.Lvj.CDR3length.CDR3homology",
 #'  homology.threshold=".3")
 #'  }
 #'
-VDJ_clonotype <- function(clonotype.list,
+VDJ_clonotype <- function(VDJ,
                           clone.strategy,
                           homology.threshold,
                           platypus.version,
-                          VDJ.GEX.matrix,
                           output.format,
                           global.clonotype,
                           VDJ.VJ.1chain){
   require(stringdist)
-  if(missing(platypus.version)) platypus.version <- "v3"
-  if(missing(VDJ.GEX.matrix)) VDJ.GEX.matrix <- list()
+  if(missing(platypus.version)) platypus.version <- "v2"
   if(missing(output.format)) output.format <- "vgm"
   if(missing(global.clonotype)) global.clonotype <- F
   if(missing(clone.strategy)) clone.strategy <- "cdr3.aa"
   if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
-  
+  if(missing(VDJ)) stop("Please provide input data as VDJ")
+
   if(platypus.version=="v2"){####START v2
+
+    #compatibility with input naming scheme
+    clonotype.list <- VDJ
+    VDJ <- NULL
+
     output.clonotype <- list()
     if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) print("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
     if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3   # Setting default homology threshold
-    
+
     #Possible strategy options:'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'.
     for(i in 1:length(clonotype.list)){
       if(clone.strategy=="cdr3.nt"){
@@ -71,7 +74,7 @@ VDJ_clonotype <- function(clonotype.list,
                                                       clonotype.list[[i]]$LC_jgene,
                                                       nchar(clonotype.list[[i]]$CDRH3_aa),
                                                       nchar(clonotype.list[[i]]$CDRL3_aa),sep="_")
-        
+
       }
       else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
         clones_temp <- (paste(clonotype.list[[i]]$HC_vgene,
@@ -123,7 +126,7 @@ VDJ_clonotype <- function(clonotype.list,
       }
       clone_number <-length(unique_clones)
       output.clonotype[[i]] <- data.frame(clonotype_id=paste("clonotype",1:clone_number,sep=""),frequency=rep(NA,clone_number),proportion=rep("",clone_number),cdr3s_aa=rep("",clone_number),cdr3s_nt=rep("",clone_number),HC_count=rep("",clone_number),IGK_count=rep("",clone_number),IGL_count=rep("",clone_number),LC_count=rep("",clone_number),CDRH3_aa=rep("",clone_number),CDRL3_aa=rep("",clone_number),CDRH3_nt=rep("",clone_number),CDRL3_nt=rep("",clone_number),CDR3_aa_pasted=rep("",clone_number),CDR3_nt_pasted=rep("",clone_number),HC_cgene=rep("",clone_number),HC_vgene=rep("",clone_number),HC_dgene=rep("",clone_number),HC_jgene=rep("",clone_number),LC_cgene=rep("",clone_number),LC_vgene=rep("",clone_number),LC_jgene=rep("",clone_number),barcodes=rep("",clone_number),nt_clone_ids=rep("",clone_number),new_unique_clone=unique_clones,nt_clone_cdrh3s=rep("",clone_number),nt_clone_cdrl3s=rep("",clone_number),stringsAsFactors = F)
-      
+
       for(j in 1:length(unique_clones)){
         output.clonotype[[i]]$frequency[j] <- sum(clonotype.list[[i]]$frequency[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])
         output.clonotype[[i]]$proportion[j] <- output.clonotype[[i]]$frequency[j]/sum(clonotype.list[[i]]$frequency)
@@ -133,12 +136,12 @@ VDJ_clonotype <- function(clonotype.list,
         output.clonotype[[i]]$IGK_count[j] <- names(which.max(table(clonotype.list[[i]]$IGK_count[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$IGL_count[j] <- names(which.max(table(clonotype.list[[i]]$IGL_count[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$LC_count[j] <- names(which.max(table(clonotype.list[[i]]$LC_count[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
-        
+
         output.clonotype[[i]]$CDRH3_aa[j] <- names(which.max(table(clonotype.list[[i]]$CDRH3_aa[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$CDRL3_aa[j] <- names(which.max(table(clonotype.list[[i]]$CDRL3_aa[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$CDRH3_nt[j] <- names(which.max(table(clonotype.list[[i]]$CDRH3_nt[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$CDRL3_nt[j] <- names(which.max(table(clonotype.list[[i]]$CDRL3_nt[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
-        
+
         output.clonotype[[i]]$CDR3_aa_pasted[j] <- names(which.max(table(clonotype.list[[i]]$CDR3_aa_pasted[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$CDR3_nt_pasted[j] <- names(which.max(table(clonotype.list[[i]]$CDR3_nt_pasted[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
         output.clonotype[[i]]$HC_cgene[j] <- names(which.max(table(clonotype.list[[i]]$HC_cgene[which(clonotype.list[[i]]$new_clone_unique==unique_clones[j])])))
@@ -156,9 +159,13 @@ VDJ_clonotype <- function(clonotype.list,
     }
     return(output.clonotype)
   }####STOP v2
-  
-  
   if(platypus.version=="v3"){####START v3
+
+    #compatibility with input naming scheme
+    VDJ.GEX.matrix <- list()
+    VDJ.GEX.matrix[[1]] <- VDJ
+    VDJ <- NULL
+
     require(parallel)
     if(global.clonotype==F){ # loop through each repertoire individualually
       repertoire.number <- unique(VDJ.GEX.matrix[[1]]$sample_id)
@@ -169,14 +176,14 @@ VDJ_clonotype <- function(clonotype.list,
         if(VDJ.VJ.1chain== T){
           sample_dfs[[i]]<- sample_dfs[[i]][which(sample_dfs[[i]]$Nr_of_VDJ_chains==1 & sample_dfs[[i]]$Nr_of_VJ_chains==1),]
         }####STOP strict
-        
+
         ####Clonotyping strategies
         if(clone.strategy=="10x.default"){ ####START cdr3.nt
-          
+
           sample_dfs[[i]]$new_clonal_feature <- sample_dfs[[i]]$clonotype_id_10x
         } ####STOP cdr3.nt
         if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
-          
+
           sample_dfs[[i]]$new_clonal_feature <- paste0(sample_dfs[[i]]$VDJ_cdr3s_nt,
                                                        sample_dfs[[i]]$VJ_cdr3s_nt)
         } ####STOP cdr3.nt
@@ -205,33 +212,33 @@ VDJ_clonotype <- function(clonotype.list,
                                                       sample_dfs[[i]]$VJ_jgene,
                                                       nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
                                                       nchar(sample_dfs[[i]]$VJ_cdr3s_aa),sep="_")
-          
+
         } ####STOP hvj.lvj.cdr3lengths
-        
+
         ####START homology based clonotyping - to add still for v3
         ####STOP homology based clonotyping - to add still for v3
-        
+
         ####START recalculating clonotype_id and clonal_frequency
-        
+
         #place holders
         sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
-        
+
         unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
         unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
         for(j in 1:length(unique.clonal.features)){####START assigning new frequency
           unique.clonal.frequencies[j] <- length(which(sample_dfs[[i]]$new_clonal_feature==unique.clonal.features[j]))
           sample_dfs[[i]]$new_clonal_frequency[which(sample_dfs[[i]]$new_clonal_feature==unique.clonal.features[j])] <- unique.clonal.frequencies[j]
         }####STOP assigning new frequency
-        
+
         #assigning new new_clonal_rank
         sample_dfs[[i]] <-sample_dfs[[i]][with(sample_dfs[[i]], order(-new_clonal_frequency)), ]
         unique.clone.frequencies <- unique(sample_dfs[[i]]$new_clonal_frequency)
         for(j in 1:length(unique.clone.frequencies)){
           sample_dfs[[i]]$new_clonal_rank[which(sample_dfs[[i]]$new_clonal_frequency==unique.clone.frequencies[j])] <- j
         }####STOP assigning new new_clonal_rank
-        
+
         #new clonotype id
         unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
         for(j in 1:length(unique.clonal.features)){
@@ -239,11 +246,11 @@ VDJ_clonotype <- function(clonotype.list,
         }####STOP assigning new clonotype id
       }####STOP sample loop
     }####STOP global.clonotype==F
-    
+
     else if(global.clonotype==T){####START global.clonotype == T
       sample_dfs <- VDJ.GEX.matrix[[1]]
       sample_dfs$clonotype_id_10x <- paste0(sample_dfs$clonotype_id_10x,"_",sample_dfs$sample_id)
-      
+
       if(clone.strategy=="10x.default"){ ####START cdr3.nt
         sample_dfs$new_clonal_feature <- sample_dfs$clonotype_id_10x
       } ####STOP cdr3.nt
@@ -277,40 +284,40 @@ VDJ_clonotype <- function(clonotype.list,
                                                nchar(sample_dfs$VDJ_cdr3s_aa),
                                                nchar(sample_dfs$VJ_cdr3s_aa),sep="_")
       }####STOP hvj.lvj.cdr3lengths
-      
+
       if(VDJ.VJ.1chain==T){
         sample_dfs <- sample_dfs[which(sample_dfs$Nr_of_VDJ_chains==1 & sample_dfs$Nr_of_VJ_chains==1), ]}
-      
-      
+
+
       ####START recalculating clonotype_id and clonal_frequency
       #definde placeholder columns
       sample_dfs$new_clonal_frequency <- rep(NA,nrow(sample_dfs))
       sample_dfs$new_clonal_rank <- rep(NA,nrow(sample_dfs))
       sample_dfs$clonotype_id <- rep(NA,nrow(sample_dfs))
       unique.clonal.features <- unique(sample_dfs$new_clonal_feature)
-      
+
       unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
       for(j in 1:length(unique.clonal.features)){####START assigning new frequency
         unique.clonal.frequencies[j] <- length(which(sample_dfs$new_clonal_feature==unique.clonal.features[j]))
         sample_dfs$new_clonal_frequency[which(sample_dfs$new_clonal_feature==unique.clonal.features[j])] <- unique.clonal.frequencies[j]
       }####STOP assigning new frequency
-      
-      
+
+
       #assining new new_clonal_rank
       sample_dfs <-sample_dfs[with(sample_dfs, order(-new_clonal_frequency)), ]
       unique.clone.frequencies <- unique(sample_dfs$new_clonal_frequency)
       for(j in 1:length(unique.clone.frequencies)){
         sample_dfs$new_clonal_rank[which(sample_dfs$new_clonal_frequency==unique.clone.frequencies[j])] <- j
       }###
-      
+
       #new clonotype id
       unique.clonal.features <- unique(sample_dfs$new_clonal_feature)
       for(j in 1:length(unique.clonal.features)){
         sample_dfs$clonotype_id[which(sample_dfs$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
       }
     }####STOP global.clonotype==T
-    
-    
+
+
     if(output.format=="dataframe.per.sample"){
       return(sample_dfs)
     }
@@ -318,7 +325,7 @@ VDJ_clonotype <- function(clonotype.list,
       VDJ.GEX.matrix[[1]] <- do.call("rbind",sample_dfs)
       return(VDJ.GEX.matrix)
     }
-    
+
     #convert into a data frame where each clone has a single row
     else if(output.format=="clone.level.dataframes" & global.clonotype == F){####START clone.level.dataframes
       clone.dataframe.list <- list()
@@ -329,13 +336,13 @@ VDJ_clonotype <- function(clonotype.list,
         clones_unique$VDJ_VJ_trimmed_majority <- rep(NA,nrow(clones_unique))
         clones_unique$VDJ_trimmed_majority <- rep(NA,nrow(clones_unique))
         clones_unique$count.unique.trimVH.trimVL <- rep(NA,nrow(clones_unique))
-        
+
         for (k in 1:nrow(clones_unique)){
           cells.per.clone <- sample_dfs[[i]][sample_dfs[[i]]$clonotype_id %in% clones_unique$clonotype_id[k], ]
           cells.per.clone.stats.VDJ_VJ <- sort(table(cells.per.clone$VDJ_VJ_trimmed),decreasing = T)
           cells.per.clone.stats.VDJ <- sort(table(cells.per.clone$VDJ_sequence_nt_trimmed),decreasing = T)
           cells.per.clone.stats.isotype <- sort(table(cells.per.clone$VDJ_cgene),decreasing = T)
-          
+
           clones_unique$count.VDJ_VJ_trimmed_majority[k] <- cells.per.clone.stats.VDJ_VJ[1]
           clones_unique$VDJ_VJ_trimmed_majority[k] <- names(cells.per.clone.stats.VDJ_VJ)[1]
           clones_unique$count.unique.trimVH.trimVL[k] <- length(unique(cells.per.clone$VDJ_VJ_trimmed))
@@ -345,13 +352,13 @@ VDJ_clonotype <- function(clonotype.list,
           clones_unique$VDJ_cgene[k] <- names(cells.per.clone.stats.isotype)[1]
         }
         clone.dataframe.list[[i]] <- clones_unique
-        
+
       }
       return(clone.dataframe.list)
-      
+
     }####STOP clone.level.dataframes per Sample
-    
-    
+
+
     else if(output.format=="clone.level.dataframes" & global.clonotype == T){####START clone.level.dataframes
       sample_dfs$VDJ_VJ_trimmed <- paste0(sample_dfs$VDJ_sequence_nt_trimmed,sample_dfs$VJ_sequence_nt_trimmed)
       clones_unique <- (sample_dfs[!duplicated(sample_dfs$clonotype_id),])
@@ -359,14 +366,14 @@ VDJ_clonotype <- function(clonotype.list,
       clones_unique$VDJ_VJ_trimmed_majority <- rep(NA,nrow(clones_unique))
       clones_unique$VDJ_trimmed_majority <- rep(NA,nrow(clones_unique))
       clones_unique$count.unique.trimVH.trimVL <- rep(NA,nrow(clones_unique))
-      
+
       for (k in 1:nrow(clones_unique)){
-        
+
         cells.per.clone <- sample_dfs[sample_dfs$clonotype_id %in% clones_unique$clonotype_id[k], ]
         cells.per.clone.stats.VDJ_VJ <- sort(table(cells.per.clone$VDJ_VJ_trimmed),decreasing = T)
         cells.per.clone.stats.VDJ <- sort(table(cells.per.clone$VDJ_sequence_nt_trimmed),decreasing = T)
         cells.per.clone.stats.isotype <- sort(table(cells.per.clone$VDJ_cgene),decreasing = T)
-        
+
         clones_unique$count.VDJ_VJ_trimmed_majority[k] <- cells.per.clone.stats.VDJ_VJ[1]
         clones_unique$VDJ_VJ_trimmed_majority[k] <- names(cells.per.clone.stats.VDJ_VJ)[1]
         clones_unique$count.unique.trimVH.trimVL[k] <- length(unique(cells.per.clone$VDJ_VJ_trimmed))
@@ -377,7 +384,7 @@ VDJ_clonotype <- function(clonotype.list,
       }
       return(clones_unique)
     }####STOP clone.level.dataframes (global)
-    
+
     else if(output.format=="phylo.dataframes"){####START phylo.dataframes
       phylo.dataframe.list <- list()
       for(i in 1:length(sample_dfs)){

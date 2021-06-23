@@ -1,5 +1,5 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
-#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.
+#' @param VDJ The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.
 #' @param V.or.J Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
@@ -10,13 +10,22 @@
 #' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
 #' @param filter1H1L Whether to filter the input VDJ.matrix in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
+#' @export
 #' @examples
 #' \dontrun{
-#'  plots <- VDJ_alpha_beta_Vgene_circos(VDJ.GEX.matrix[[1]])
+#'  plots <- VDJ_alpha_beta_Vgene_circos(VDJ_GEX_matrix.output[[1]])
 #'}
-#' @export
 
-VDJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L){
+VDJ_alpha_beta_Vgene_circos <- function(VDJ,
+                                        V.or.J,
+                                        B.or.Tcells,
+                                        label.threshold,
+                                        c.threshold,
+                                        cell.level,
+                                        clonotype.per.gene.threshold,
+                                        c.count,
+                                        platypus.version,
+                                        filter1H1L){
 if(missing(V.or.J)){V.or.J <- "both"}
 if(missing(label.threshold)){label.threshold <- 0}
 if(missing(c.threshold)){c.threshold <- 0}
@@ -30,13 +39,15 @@ if(missing(filter1H1L)){filter1H1L <- T}
 if(platypus.version=="v3"){
 
   #########################################################################
-  print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
+  print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. VDJ output of VDJ_GEX_matrix() is required as input. (VDJ_GEX_matrix.output[[1]])")
   clonotype <- "clonotype_id_10x"
 
   #swapping to a list to not change the whole function
-  bk <- VDJ.GEX.matrix
+  bk <- VDJ
   VDJ.GEX.matrix <- list()
   VDJ.GEX.matrix[[1]] <- bk
+  bk <- NULL
+  VDJ <- NULL
 
   if(missing(B.or.Tcells)){
     for(i in 1:nrow(VDJ.GEX.matrix[[1]])){
@@ -286,16 +297,16 @@ if(platypus.version=="v3"){
   print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = new] for compatibility with VDJ_GEX_matrix().")
 
   if(missing(B.or.Tcells)){
-    for(i in 1:nrow(VDJ.GEX.matrix[[1]])){
-      if(substr(VDJ.GEX.matrix[[1]]$HC_vgene[[i]],start=1, stop = 2)=="IG"){
+    for(i in 1:nrow(VDJ[[1]])){
+      if(substr(VDJ[[1]]$HC_vgene[[i]],start=1, stop = 2)=="IG"){
         B.or.Tcells <- "B"
         break
       }
-      if(substr(VDJ.GEX.matrix[[1]]$HC_vgene[[1]],start=1, stop = 2)=="TR"){
+      if(substr(VDJ[[1]]$HC_vgene[[1]],start=1, stop = 2)=="TR"){
         B.or.Tcells <- "T"
         break
       }
-      if(i == nrow(VDJ.GEX.matrix[[1]])){
+      if(i == nrow(VDJ[[1]])){
         print("Please specify whether B or T cells are beeing analyzed (Parameter B.or.Tcells)")
         break
       }
@@ -305,8 +316,8 @@ if(platypus.version=="v3"){
       plots <- list()
 
       #filter out clonotypes with less then c.threshold cells
-      for(i in 1:length(VDJ.GEX.matrix)){
-        VDJ.GEX.matrix[[i]] <- VDJ.GEX.matrix[[i]][which(VDJ.GEX.matrix[[i]]$frequency >= c.threshold),]
+      for(i in 1:length(VDJ)){
+        VDJ[[i]] <- VDJ[[i]][which(VDJ[[i]]$frequency >= c.threshold),]
       }
 
       TRBV <- c()
@@ -314,19 +325,19 @@ if(platypus.version=="v3"){
       TRBJ <- c()
       TRAJ <- c()
 
-      for (i in 1:length(VDJ.GEX.matrix)){
+      for (i in 1:length(VDJ)){
 
-        VDJ.GEX.matrix[[i]]$alpha_beta_Vgene <- paste(VDJ.GEX.matrix[[i]]$LC_vgene, VDJ.GEX.matrix[[i]]$HC_vgene, sep = "_")
-        VDJ.GEX.matrix[[i]]$alpha_beta_Jgene <- paste(VDJ.GEX.matrix[[i]]$LC_jgene, VDJ.GEX.matrix[[i]]$HC_jgene, sep = "_")
+        VDJ[[i]]$alpha_beta_Vgene <- paste(VDJ[[i]]$LC_vgene, VDJ[[i]]$HC_vgene, sep = "_")
+        VDJ[[i]]$alpha_beta_Jgene <- paste(VDJ[[i]]$LC_jgene, VDJ[[i]]$HC_jgene, sep = "_")
 
         #get all V and J genes across all samples
-        c <- unique(VDJ.GEX.matrix[[i]]$HC_vgene)
+        c <- unique(VDJ[[i]]$HC_vgene)
         TRBV <- append(TRBV,c)
-        d <- unique(VDJ.GEX.matrix[[i]]$LC_vgene)
+        d <- unique(VDJ[[i]]$LC_vgene)
         TRAV <- append(TRAV,d)
-        e <- unique(VDJ.GEX.matrix[[i]]$HC_jgene)
+        e <- unique(VDJ[[i]]$HC_jgene)
         TRBJ<- append(TRBJ,e)
-        f <- unique(VDJ.GEX.matrix[[i]]$LC_jgene)
+        f <- unique(VDJ[[i]]$LC_jgene)
         TRAJ <- append(TRAJ,f)
       }
       #make two branches for matrix alpha vs beta genes
@@ -350,7 +361,7 @@ if(platypus.version=="v3"){
       dummy_Jgene_df <- list()
 
 
-      for (k in 1:length(VDJ.GEX.matrix)){
+      for (k in 1:length(VDJ)){
         #Create a matrix with rows being heavy chain and columns being light chain v genes
         Vgene_usage_matrix[[k]] <- matrix(nrow = length(unique(TRA)), ncol = length(unique(TRB)))
 
@@ -359,27 +370,27 @@ if(platypus.version=="v3"){
         colnames(Vgene_usage_matrix[[k]]) <- unique(TRB)
       }
 
-      for (k in 1:length(VDJ.GEX.matrix)){
+      for (k in 1:length(VDJ)){
 
 
 
         #create dummy df which will contain the counts for each combination
 
         if(cell.level == F){
-          dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ.GEX.matrix[[k]]$alpha_beta_Vgene))
+          dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ[[k]]$alpha_beta_Vgene))
           colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
-          dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ.GEX.matrix[[k]]$alpha_beta_Jgene))
+          dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ[[k]]$alpha_beta_Jgene))
           colnames(dummy_Jgene_df[[k]]) <- c("gene", "count")
         }else{
-          dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ.GEX.matrix[[k]]$alpha_beta_Vgene))
+          dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ[[k]]$alpha_beta_Vgene))
           colnames(dummy_Vgene_df[[k]]) <- c("gene", "clonotype_counts")
           for(i in 1:nrow(dummy_Vgene_df[[k]])){
-            dummy_Vgene_df[[k]]$count[i] <- sum(VDJ.GEX.matrix[[k]][which(VDJ.GEX.matrix[[k]]$alpha_beta_Vgene==dummy_Vgene_df[[k]]$gene[i]),"frequency"])
+            dummy_Vgene_df[[k]]$count[i] <- sum(VDJ[[k]][which(VDJ[[k]]$alpha_beta_Vgene==dummy_Vgene_df[[k]]$gene[i]),"frequency"])
           }
-          dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ.GEX.matrix[[k]]$alpha_beta_Jgene))
+          dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ[[k]]$alpha_beta_Jgene))
           colnames(dummy_Jgene_df[[k]]) <- c("gene", "clonotype_counts")
           for(i in 1:nrow(dummy_Jgene_df[[k]])){
-            dummy_Jgene_df[[k]]$count[i] <- sum(VDJ.GEX.matrix[[k]][which(VDJ.GEX.matrix[[k]]$alpha_beta_Jgene==dummy_Jgene_df[[k]]$gene[i]),"frequency"])
+            dummy_Jgene_df[[k]]$count[i] <- sum(VDJ[[k]][which(VDJ[[k]]$alpha_beta_Jgene==dummy_Jgene_df[[k]]$gene[i]),"frequency"])
           }
         }
 
@@ -419,12 +430,8 @@ if(platypus.version=="v3"){
         nm = unique(unlist(dimnames(Vgene_usage_matrix[[i]])))
         group = structure(stringr::str_sub(nm, 1,4), names = nm)
 
-
-
-
         #set levels for grouping.
         #Differentiate whether B or T cells are analyzed
-
 
         #Differentiate whether "None" has to be included as its own group for unpaired clonotypes.
         if(B.or.Tcells == "T"){
@@ -480,7 +487,6 @@ if(platypus.version=="v3"){
 }else{
   print("Please specify platypus platypus.version as either v2 or v3.")
   }
-
   return(plots)
 }
 

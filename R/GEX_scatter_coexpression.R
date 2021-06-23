@@ -1,5 +1,5 @@
 #' Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
-#' @param GEX.matrix GEX seurat object generated with VDJ_GEX_matrix
+#' @param GEX GEX seurat object generated with VDJ_GEX_matrix
 #' @param gene.1 Character. Name of a gene in rownames(VDJ.matrix)
 #' @param gene.2 Character. Name of a gene in rownames(VDJ.matrix)
 #' @param color.theme Character. A color to use for the composite plot
@@ -7,14 +7,14 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'
 #'gene1 <- "BCL6"
 #'gene2 <- "CD40"
-#'ggsave(filename = paste0("Coex_", gene1,"_", gene2,"_scat.png"), plot = GEX_scatter_coexpression(VDJ_comb[[2]], gene1,gene2), dpi = 300, width = 12, height = 12)
-#'
+#'ggsave(filename = paste0("Coex_", gene1,"_", gene2,"_scat.png"),
+#'plot = GEX_scatter_coexpression(VDJ_comb[[2]], gene1,gene2),
+#'dpi = 300, width = 12, height = 12)
 #'}
 
-GEX_scatter_coexpression <- function(GEX.matrix,
+GEX_scatter_coexpression <- function(GEX,
                                      gene.1,
                                      gene.2,
                                      color.theme){
@@ -23,7 +23,7 @@ require(gridExtra)
 if(missing(color.theme)) color.theme <- "darkorchid4"
 
 #get data
-for_dot <- SeuratObject::FetchData(GEX.matrix, vars = c(gene.1,gene.2))
+for_dot <- SeuratObject::FetchData(GEX, vars = c(gene.1,gene.2))
 
 
 min_x <- round(range(for_dot[,1])[1] - 0.15,1)

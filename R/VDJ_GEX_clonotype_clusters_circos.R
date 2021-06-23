@@ -1,18 +1,24 @@
 #'Makes a Circos plot from the VDJ_GEX_integrate output. Connects the clonotypes with the corresponding clusters.
-#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ_GEX_matrix() output has to be supplied.
+#' @param VDJ The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied.
 #' @param topX Plots only the top X most expanded clonotypes. By default all clonotypes are shown.
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param axis Character. Defaults to "max". Passed to VDJ_circos
 #' @param n_cluster Integer. No default.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
-#' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
+#' @param platypus.version Which platypus.version of platypus is being used. Default = "v2".
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
-#'  plots <- VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
+#'  VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
 #'}
 
-VDJ_clonotype_clusters_circos <- function(VDJ.GEX.matrix, topX, label.threshold, axis, c.count, n_cluster, platypus.version){
+VDJ_clonotype_clusters_circos <- function(VDJ,
+                                          topX,
+                                          label.threshold,
+                                          axis,
+                                          c.count,
+                                          n_cluster,
+                                          platypus.version){
   if(missing(topX)){topX <- "all"}
   if(missing(n_cluster)){print("Please specify cluster number n_cluster")}
   if(missing(label.threshold)){label.threshold <- 1}
@@ -20,9 +26,13 @@ VDJ_clonotype_clusters_circos <- function(VDJ.GEX.matrix, topX, label.threshold,
   if(missing(c.count)){c.count <-T}
   if(missing(platypus.version)){platypus.version <- "v2"}
 
+  #naming compatibility
+  VDJ.GEX.matrix <- list()
+  VDJ.GEX.matrix[[1]] <- VDJ
+  VDJ <- NULL
 
   if(platypus.version == "v3"){
-      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
+      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. VDJ output of VDJ_GEX_matrix() required as input (VDJ_GEX_matrix.output[[1]]).")
       adj.matrix <- list()
       clonotypes <- c()
 
@@ -31,8 +41,8 @@ VDJ_clonotype_clusters_circos <- function(VDJ.GEX.matrix, topX, label.threshold,
 
       #split VDJ.GEX.matrix into samples
       VDJ.GEX_list <- list()
-      for (i in 1:length(table(VDJ.GEX.matrix[[1]]$sample_id))){
-        VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id==paste0("s",i)),]
+      for (i in 1:length(unique(VDJ.GEX.matrix[[1]]$sample_id))){
+        VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id==unique(VDJ.GEX.matrix[[1]]$sample_id)[i]),]
       }
 
       # MAKE Clonotype df
@@ -93,7 +103,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ.GEX.matrix, topX, label.threshold,
       for (i in 1:length(VDJ.GEX_list)){
         print(i)
         print(length(VDJ.GEX_list))
-        print(adj.matrix[[i]])
+        #print(adj.matrix[[i]])
         nm = unique(unlist(dimnames(adj.matrix[[i]])))
         group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
         group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))
@@ -146,7 +156,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ.GEX.matrix, topX, label.threshold,
     for (i in 1:length(VDJ.GEX.matrix)){
       print(i)
       print(length(VDJ.GEX.matrix))
-      print(adj.matrix[[i]])
+      #print(adj.matrix[[i]])
       nm = unique(unlist(dimnames(adj.matrix[[i]])))
       group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
       group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))

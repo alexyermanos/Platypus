@@ -1,4 +1,4 @@
-#' Visualize selected clonotypes on the tSNE or UMAP projection.
+#' !Only for platypus version v2. For platypus v3 refer to: VDJ_GEX_overlay_clones() Visualize selected clonotypes on the tSNE or UMAP projection.
 #' @param GEX.list list of Seurat objects, output of the automate_GEX function.
 #' @param VDJ.GEX.integrate.list Output of the VDJ_GEX_integrate function.
 #' @param highlight.type (Optional) either "None" if representation highlighted by cluster, "clonotype" if want to highlight most expanded clonotypes, or "sample" if several samples are within the same Seurat object. Default is None.

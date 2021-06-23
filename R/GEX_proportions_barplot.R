@@ -1,22 +1,26 @@
 #' Plots proportions of a group of cells within a secondary group of cells. E.g. The proportions of samples in seurat clusters, or the proportions of samples in defined cell subtypes
-#' @param GEX.matrix GEX seurat object generated with VDJ_GEX_matrix
-#' @param source.group Character. A column name of the GEX.matrix@meta.data with the group of which proportions should be plotted
-#' @param target.group Character. A column name of the GEX.matrix@meta.data with the group to calculate proportions within. If unsure, see examples for clarification
+#' @param GEX GEX Seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output[[2]])
+#' @param source.group Character. A column name of the GEX@meta.data with the group of which proportions should be plotted
+#' @param target.group Character. A column name of the GEX@meta.data with the group to calculate proportions within. If unsure, see examples for clarification
 #' @param stacked.plot Boolean. Defaults to FALSE. Whether to return a stacked barplot, with the y axis representing the \% of cells of the target group. If set to FALSE a normal barplot (position = "dodge") will be returned with the y axis representing the \% of cells of the source group
 #' @param platypus.version Set automatically. Function is compatible with both V2 and V3 GEX objects.
 #' @return Returns a ggplot barplot.
 #' @export
 #' @examples
 #' \dontrun{
+#' To return a normal barplot which shows the % of cells of
+#' each sample contained in each cluster
+#'GEX_proportions_barplot(GEX = VDJ_comb[[2]], source.group = "sample_id"
+#', target.group = "seurat_clusters",stacked.plot = F)
 #'
-#' To return a normal barplot which shows the % of cells of each sample contained in each cluster
-#'GEX_proportions_barplot(GEX.matrix = VDJ_comb[[2]], source.group = "sample_id", target.group = "seurat_clusters",stacked.plot = F)
-#'
-#' To return a stacked barplot which shows the % of cells of each cluster attributed to each sample
-#'GEX_proportions_barplot(GEX.matrix = VDJ_comb[[2]], source.group = "sample_id", target.group = "seurat_clusters",stacked.plot = T)
+#' To return a stacked barplot which shows the % of cells of each
+#' cluster attributed to each sample
+#'GEX_proportions_barplot(GEX = VDJ_GEX_matrix.output[[2]],
+#' source.group = "sample_id", target.group = "seurat_clusters"
+#' ,stacked.plot = T)
 #'}
 
-GEX_proportions_barplot <- function(GEX.matrix,
+GEX_proportions_barplot <- function(GEX,
                                     source.group,
                                     target.group,
                                     stacked.plot,
@@ -30,8 +34,8 @@ GEX_proportions_barplot <- function(GEX.matrix,
   if(missing(target.group)) target.group <- "seurat_clusters"
   if(missing(stacked.plot)) stacked.plot <- F
 
-  unique_samples <- unique(GEX.matrix@meta.data[,source.group])
-  unique_clusters <- unique(GEX.matrix@meta.data[,target.group])
+  unique_samples <- unique(GEX@meta.data[,source.group])
+  unique_clusters <- unique(GEX@meta.data[,target.group])
 
   cells_per_cluster_per_sample <- list()
   for(i in 1:length(unique_samples)){
@@ -39,9 +43,9 @@ GEX_proportions_barplot <- function(GEX.matrix,
     for(j in 1:length(unique_clusters)){
 
       if(stacked.plot == F){ #if normal barplot: get % of source group
-        cells_per_cluster_per_sample[[i]][[j]] <- length(which(GEX.matrix@meta.data[,source.group]==unique_samples[i] & GEX.matrix@meta.data[,target.group]==unique_clusters[j]))/length(which(GEX.matrix@meta.data[,source.group]==unique_samples[i])) * 100
+        cells_per_cluster_per_sample[[i]][[j]] <- length(which(GEX@meta.data[,source.group]==unique_samples[i] & GEX@meta.data[,target.group]==unique_clusters[j]))/length(which(GEX@meta.data[,source.group]==unique_samples[i])) * 100
       } else { #if stacked barplot: get % of target group
-        cells_per_cluster_per_sample[[i]][[j]] <- length(which(GEX.matrix@meta.data[,source.group]==unique_samples[i] & GEX.matrix@meta.data[,target.group]==unique_clusters[j]))/length(which(GEX.matrix@meta.data[,target.group]==unique_clusters[j])) * 100
+        cells_per_cluster_per_sample[[i]][[j]] <- length(which(GEX@meta.data[,source.group]==unique_samples[i] & GEX@meta.data[,target.group]==unique_clusters[j]))/length(which(GEX@meta.data[,target.group]==unique_clusters[j])) * 100
       }
     }
   }
@@ -54,19 +58,19 @@ GEX_proportions_barplot <- function(GEX.matrix,
   melting$target.group <- as.character(unique_clusters[melting$L2])
   colnames(melting) <- c("value", "L2", "Sample", "source", "target")
 
-  if("factor" %in% class(GEX.matrix@meta.data[,source.group])){
+  if("factor" %in% class(GEX@meta.data[,source.group])){
     print("Ordering based on existing source group factor levels")
-  melting$source <- ordered(as.factor(melting$source), levels = levels(GEX.matrix@meta.data[,source.group]))
+  melting$source <- ordered(as.factor(melting$source), levels = levels(GEX@meta.data[,source.group]))
   print( melting$source)} else {
 
     print("Reordering source group, as original column did not contain factor levels")
-    melting$source <- ordered(as.factor(melting$source), levels = unique(GEX.matrix@meta.data[,source.group]))
+    melting$source <- ordered(as.factor(melting$source), levels = unique(GEX@meta.data[,source.group]))
   }
-  if("factor" %in% class(GEX.matrix@meta.data[,target.group])){
+  if("factor" %in% class(GEX@meta.data[,target.group])){
     print("Ordering based on existing target group factor levels")
-  melting$target <- ordered(as.factor(melting$target), levels = levels(GEX.matrix@meta.data[,target.group]))} else {
+  melting$target <- ordered(as.factor(melting$target), levels = levels(GEX@meta.data[,target.group]))} else {
     print("Reordering target group, as original column did not contain factor levels")
-    melting$target <- ordered(as.factor(melting$target), levels = unique(GEX.matrix@meta.data[,target.group]))}
+    melting$target <- ordered(as.factor(melting$target), levels = unique(GEX@meta.data[,target.group]))}
 
   if(stacked.plot == F){
     print("Returning standard barplot with y axis = % of cells of source group")

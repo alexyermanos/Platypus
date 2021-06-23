@@ -19,10 +19,17 @@
 #' @examples
 #' \dontrun{
 #' #using the findmarkers.output
-#' GEX_volcano_1 <- GEX_volcano(findmarkers.output = FindMarkers.Output, condition.1 = "cluster1", condition.2 = "cluster2", maximum.overlaps = 20)
-#' GEX_volcano_2 <- GEX_volcano(findmarkers.output = FindMarkers.Output, condition.1 = "cluster1", condition.2 = "cluster2", n.label.up = 50, n.label.down = 20)
+#' GEX_volcano(findmarkers.output = FindMarkers.Output
+#' , condition.1 = "cluster1", condition.2 = "cluster2"
+#' , maximum.overlaps = 20)
+#'
+#' GEX_volcano(findmarkers.output = FindMarkers.Output
+#' , condition.1 = "cluster1", condition.2 = "cluster2"
+#' , n.label.up = 50, n.label.down = 20)
+#'
 #' #using the GEX_cluster_genes output
-#' GEX_volcano_3 <- GEX_volcano(findmarkers.output = GEX_cluster_genes.Output, cluster.genes.output =T)
+#' GEX_volcano(findmarkers.output = GEX_cluster_genes.Output
+#' , cluster.genes.output =T)
 #'}
 GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, condition.2, explicit.title, RP.MT.filter, color.p.threshold, color.log.threshold, label.p.threshold, label.logfc.threshold, n.label.up, n.label.down, by.logFC ,maximum.overlaps ,plot.adj.pvalue) {
   require(ggrepel)

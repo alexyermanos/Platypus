@@ -15,14 +15,26 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' test <- GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
-#' test2 <- GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP", go.plots = T)
+#'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
+#'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T
+#', species= "Mm", ontology = "BP", go.plots = T)
+#'
 #' Can install the needed database with
-#' if (!requireNamespace("BiocManager", quietly = TRUE))
-#'install.packages("BiocManager")
-#'BiocManager::install("org.Mm.eg.db")
+#'#if (!requireNamespace("BiocManager", quietly = TRUE))
+#'#install.packages("BiocManager")
+#'#BiocManager::install("org.Mm.eg.db")
 #'}
-GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  up.or.down , MT.Rb.filter, kegg, go.plots, top.N.go.terms.plots, kegg.plots, top.N.kegg.terms.plots){
+GEX_GOterm <- function(GEX.cluster.genes.output,
+                       topNgenes,
+                       ontology,
+                       species,
+                       up.or.down,
+                       MT.Rb.filter,
+                       kegg,
+                       go.plots,
+                       top.N.go.terms.plots,
+                       kegg.plots,
+                       top.N.kegg.terms.plots){
 
   org.Mm.eg.db <- NULL
   p_val_adj <- NULL
@@ -191,11 +203,8 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
         grDevices::dev.off()
 
       }
-
-
       list[[3]] <- g1
       list[[4]] <- g2
-
     }
 
   if (kegg.plots==T&kegg==T){
@@ -240,17 +249,13 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
       grDevices::pdf(paste(plot_title,"_2.pdf",sep=""))
       print(g4[[i]])
       grDevices::dev.off()
-
     }
-
-
     list[[3]] <- g1
     list[[4]] <- g2
     list[[5]] <- g3
     list[[6]] <- g4
   }
   return(list)
-
 }
 
 

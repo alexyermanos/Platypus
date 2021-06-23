@@ -1,21 +1,22 @@
 #' Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
-#' @param GEX.matrix GEX seurat object generated with VDJ_GEX_matrix
-#' @param genes Character vector. At least 2 genes present in rownames(GEX.matrix). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.
+#' @param GEX GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output[[2]])
+#' @param genes Character vector. At least 2 genes present in rownames(GEX). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.
 #' @param subsample.n Interger. Number of cells to subsample. If set to 100, 100 cells will be randomly sampled for the calculation
 #' @param plot.dotmap Boolean. Whether to return a plot
 #' @return Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T
 #' @export
 #' @examples
 #' \dontrun{
-#'
 #' To return a dataframe with coefficients
-#'coef_out <- GEX_coexpression_coefficient(GEX.matrix = VDJ_comb[[2]], genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = F)
+#' GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
+#', genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = F)
 #'
 #'To return a dotplot detailing coexpression and overall expression
-#'plot_out <- GEX_coexpression_coefficient(GEX.matrix = VDJ_comb[[2]], genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = T)
+#' GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
+#', genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = T)
 #'}
 
-GEX_coexpression_coefficient <- function(GEX.matrix,
+GEX_coexpression_coefficient <- function(GEX,
                                          genes,
                                          subsample.n,
                                          plot.dotmap){
@@ -40,10 +41,10 @@ GEX_coexpression_coefficient <- function(GEX.matrix,
   if(missing(subsample.n)) subsample.n <- "none"
 
   if(genes[1] != "all" & length(genes > 1)){
-    cmat <- SeuratObject::FetchData(GEX.matrix, vars = genes, slot = "counts")
+    cmat <- SeuratObject::FetchData(GEX, vars = genes, slot = "counts")
   } else {
     #get all counts
-    cmat <- GEX.matrix@assays$RNA@counts
+    cmat <- GEX@assays$RNA@counts
   }
 
   if(subsample.n[1] != "none"){

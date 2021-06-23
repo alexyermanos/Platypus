@@ -1,28 +1,31 @@
-#' Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurances.
-#' @param VDJ.matrix For platypus.version = "v2" the output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell. For platypus.version = "v3" the VDJ dataframe output of the VDJ_GEX_matrix function (usually VDJ.GEX.matri.output[[1]])
+#' Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.
+#' @param VDJ For platypus.version = "v2" the output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell. For platypus.version = "v3" the VDJ dataframe output of the VDJ_GEX_matrix function (VDJ.GEX.matri.output[[1]])
 #' @param operating.system Can be either "Windows", "Darwin" (for MAC) or "Linux". If left empty this is detected automatically
 #' @param mixcr.directory The directory containing an executable version of MiXCR. FOR WINDOWS USERS THIS IS SET TO THE CURRENT WORKING DIRECTORY (please paste the content of the MIXCR folder after unzipping into your working directory. Make sure, that mixcr.jar is not within any subfolders.)
 #' @param species Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR. Defaults to "hsa"
-#' @param simplify Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ.matrix If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns
-#' @return For platypus.version = "v3" returns input VDJ.matrix dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.
+#' @param simplify Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns
+#' @return For platypus.version = "v3" returns input VDJ dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.
 #' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format
 #' @seealso VDJ_extract_sequences
 #' @export
 #' @examples
 #' \dontrun{
 #' For platypus version 2
-#'VDJ_call_MIXCR(VDJ.matrix = VDJ.per.clone.output, mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
+#'VDJ_call_MIXCR(VDJ = VDJ.per.clone.output,
+#'mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
 #'
 #'For platypus version 3 on a Windows system
-#'VDJ_call_MIXCR(VDJ.matrix = VDJ.GEX.matrix.output[[1]], mixcr.directory = "WILL BE SET TO CURRENT WORKING DIRECTORY",species = "mmu", platypus.version = "v3", simplify = T)
+#'VDJ_call_MIXCR(VDJ = VDJ_GEX_matrix.output[[1]],
+#'mixcr.directory = "WILL BE SET TO CURRENT WORKING DIRECTORY",
+#'species = "mmu", platypus.version = "v3", simplify = T)
 #'}
 
-VDJ_call_MIXCR <- function(VDJ.matrix,
-                               operating.system,
-                               mixcr.directory,
-                               species,
-                               simplify,
-                               platypus.version){
+VDJ_call_MIXCR <- function(VDJ,
+                           operating.system,
+                           mixcr.directory,
+                           species,
+                           simplify,
+                           platypus.version){
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
 
@@ -44,13 +47,11 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
     }
 
     switch(platypus.version,
-           v3 = {if(class(VDJ.matrix) != "data.frame"){stop("When selecting platypus.version = 'v3', please input the VDJ matrix of the output of the VDJ_GEX_matrix function (usually VDJ.GEX.matrix.output[[1]]")}},
-           v2 = {if(class(VDJ.matrix) != "list"){stop("When selecting platypus.version = 'v2', please input the list output of VDJ.per.clone")}},
+           v3 = {if(class(VDJ) != "data.frame"){stop("When selecting platypus.version = 'v3', please input the VDJ matrix of the output of the VDJ_GEX_matrix function (usually VDJ.GEX.matrix.output[[1]]")}},
+           v2 = {if(class(VDJ) != "list"){stop("When selecting platypus.version = 'v2', please input the list output of VDJ.per.clone")}},
            {print("Please input either 'v2' or 'v3' as platypus.version")})
 
-
     #Everything set up, now going through all four possibilities
-
     if(platypus.version == "v3" & operating.system == "Windows"){
 
     print("!Reminder For runtime stability a MIXCR executable has to be located in current working directory")
@@ -65,13 +66,13 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
     system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
 
 
-    VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
+    VDJ <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
 
   ### need to also read in the fastas
-    temp.seq.hc_unlist <- unlist(VDJ.matrix$VDJ_sequence_nt_raw)
-    temp.seq.lc_unlist <- unlist(VDJ.matrix$VJ_sequence_nt_raw)
-    temp.name.hc_unlist <- unlist(VDJ.matrix$barcode)
-    temp.name.lc_unlist <- unlist(VDJ.matrix$barcode)
+    temp.seq.hc_unlist <- unlist(VDJ$VDJ_sequence_nt_raw)
+    temp.seq.lc_unlist <- unlist(VDJ$VJ_sequence_nt_raw)
+    temp.name.hc_unlist <- unlist(VDJ$barcode)
+    temp.name.lc_unlist <- unlist(VDJ$barcode)
 
     seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
 
@@ -100,7 +101,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
     system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
 
 
-    ## now need to fill VDJ.matrix
+    ## now need to fill VDJ
 
     if(simplify == F){
       to_merge_hc <- temp.mixcr.hc
@@ -139,22 +140,22 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
 
     }
 
-    ncol_raw <- ncol(VDJ.matrix)
-    VDJ.matrix <- merge(VDJ.matrix, to_merge_hc, by = "barcode", all.x = T)
-    VDJ.matrix <- merge(VDJ.matrix, to_merge_lc, by = "barcode", all.x = T)
+    ncol_raw <- ncol(VDJ)
+    VDJ <- merge(VDJ, to_merge_hc, by = "barcode", all.x = T)
+    VDJ <- merge(VDJ, to_merge_lc, by = "barcode", all.x = T)
 
     #cleanup
-    for(i in (ncol_raw+1):ncol(VDJ.matrix)){
-      if(names(VDJ.matrix)[i] %in% c("VDJ_SHM", "VJ_SHM")){
+    for(i in (ncol_raw+1):ncol(VDJ)){
+      if(names(VDJ)[i] %in% c("VDJ_SHM", "VJ_SHM")){
         #leave these numeric columns as they are
       } else {
-        #replace NA from merging with empty strings similarly to other parts of the VDJ.matrix
-        VDJ.matrix[is.na(VDJ.matrix[,i]),i] <- ""
+        #replace NA from merging with empty strings similarly to other parts of the VDJ
+        VDJ[is.na(VDJ[,i]),i] <- ""
       }
     }
 
     print("Done")
-    return(VDJ.matrix)
+    return(VDJ)
 
     } else if (platypus.version == "v2" & operating.system == "Windows") {
 
@@ -334,13 +335,13 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
 
       if(missing(mixcr.directory)) print("No mixcr directory supplied. Assuming working directory holds mixcr executable")
 
-      VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
+      VDJ <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
 
       ### need to also read in the fastas
-      temp.seq.hc_unlist <- unlist(VDJ.matrix$VDJ_sequence_nt_raw)
-      temp.seq.lc_unlist <- unlist(VDJ.matrix$VJ_sequence_nt_raw)
-      temp.name.hc_unlist <- unlist(VDJ.matrix$barcode)
-      temp.name.lc_unlist <- unlist(VDJ.matrix$barcode)
+      temp.seq.hc_unlist <- unlist(VDJ$VDJ_sequence_nt_raw)
+      temp.seq.lc_unlist <- unlist(VDJ$VJ_sequence_nt_raw)
+      temp.name.hc_unlist <- unlist(VDJ$barcode)
+      temp.name.lc_unlist <- unlist(VDJ$barcode)
 
       seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
       system(paste(mixcr.directory," align -OsaveOriginalReads=true -s ", species," temphc.fasta tempmixcrhc.out.vdjca",sep=""))
@@ -358,7 +359,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
       system("rm tempmixcrhc.out.txt")
       system("rm tempmixcrlc.out.txt")
 
-      ## now need to fill VDJ.matrix
+      ## now need to fill VDJ
 
       if(simplify == F){
         to_merge_hc <- temp.mixcr.hc
@@ -397,22 +398,22 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
 
       }
 
-      ncol_raw <- ncol(VDJ.matrix)
-      VDJ.matrix <- merge(VDJ.matrix, to_merge_hc, by = "barcode", all.x = T)
-      VDJ.matrix <- merge(VDJ.matrix, to_merge_lc, by = "barcode", all.x = T)
+      ncol_raw <- ncol(VDJ)
+      VDJ <- merge(VDJ, to_merge_hc, by = "barcode", all.x = T)
+      VDJ <- merge(VDJ, to_merge_lc, by = "barcode", all.x = T)
 
       #cleanup
-      for(i in (ncol_raw+1):ncol(VDJ.matrix)){
-        if(names(VDJ.matrix)[i] %in% c("VDJ_SHM", "VJ_SHM")){
+      for(i in (ncol_raw+1):ncol(VDJ)){
+        if(names(VDJ)[i] %in% c("VDJ_SHM", "VJ_SHM")){
           #leave these numeric columns as they are
         } else {
-          #replace NA from merging with empty strings similarly to other parts of the VDJ.matrix
-          VDJ.matrix[is.na(VDJ.matrix[,i]),i] <- ""
+          #replace NA from merging with empty strings similarly to other parts of the VDJ
+          VDJ[is.na(VDJ[,i]),i] <- ""
         }
       }
 
       print("Done")
-      return(VDJ.matrix)
+      return(VDJ)
 
     } else if (platypus.version == "v2" & operating.system %in% c("Darwin", "Linux")) {
 
@@ -564,8 +565,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
         }
       }
       return(VDJ.per.clone)
-
     }
-
 }
+
 

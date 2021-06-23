@@ -1,5 +1,5 @@
 #' Extracts the differentially expressed genes between two groups of cells. These groups are defined as cells having either of two entries (group1, group2) in the grouping.column of the input Seurat object metadata This function uses the FindMarkers function from the Seurat package.
-#' @param GEX Output Seurat object from automate_GEX or VDJ_GEX_matrix_function function that contained at least two distinct biological groups.
+#' @param GEX Output Seurat object from automate_GEX or VDJ_GEX_matrix_function (VDJ_GEX_matrix.output[[2]]) function that contained at least two distinct biological groups.
 #' @param FindMarkers.out OPTIONAL: the output of the FindMarkers function. This skips the DEG calculation step and outputs desired plots. All plotting parameters function as normal. Grouping parameters and min.pct are ignored.
 #' @param grouping.column Character. A column name of GEX@meta.data. In this column, group1 and group2 should be found. Defaults to "sample_id". Could also be set to "seurat_clusters" to generate DEGs between cells of 2 chosen clusters.
 #' @param group1 either character or integer specifying the first group of cells that should be compared. (e.g. "s1" if sample_id is used as grouping.column)
@@ -18,25 +18,28 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' Basic run between two samples
+#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
+#' group1 = "s1",group2 = "s2", platypus.version = "v3")
 #'
-#' #Basic run between two samples
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", platypus.version = "v3")
-#'
-#' #Getting DEGs between two seurat clusters
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
-#'
-#' #Getting DEGs between two custom groups, possibly cellypes
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "Column with cell type information",group1 = "T memory cells",group2 = "T effector cells")
+#' Getting DEGs between two seurat clusters
+#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
+#' grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
 #'
 #' Plotting a heatmap by foldchange of sample markers
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap", up.genes = 10, down.genes = 10m, logFC = TRUE)
+#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+#' ,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
+#' , up.genes = 10, down.genes = 10m, logFC = TRUE)
 #'
-#' #plotting volcano by p value of sample markers. Label additional genes of interest
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
+#' Plotting volcano by p value of sample markers. Label additional genes of interest
+#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
+#' ,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
+#' , label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
 #'
-#' #Generate a heatmap from an already existing FindMarkers output
-#' check_de_genes <- GEX_DEgenes(GEX= vgm[[2]], FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap", up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
-#'
+#' Generate a heatmap from an already existing FindMarkers output
+#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+#' , FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
+#' , up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 #'}
 GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,min.pct, filter, return.plot, logFC, up.genes, down.genes, base, label.n.top.genes, genes.to.label, platypus.version){
 
@@ -77,14 +80,10 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
 
   cluster_markers <- Seurat::FindMarkers(GEX, min.pct = min.pct, ident.1 = as.character(group1), ident.2 = as.character(group2), base=base)
 
-
   } else if (class(FindMarkers.out) == "data.frame"){
-
     cluster_markers <- FindMarkers.out
-
     group1 <- "1"
     group2 <- "2"
-
   }
 
   colnames(cluster_markers)[2] <- "avg_logFC"
@@ -130,12 +129,8 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
       }
     }
 
-
     plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
-
   }
   if (return.plot=="none") plot.out <- NULL
-
   return(list(cluster_markers, plot.out))
 }
-

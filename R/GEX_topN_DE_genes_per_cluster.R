@@ -8,7 +8,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' topN_cluster_defining_genes <- GEX_topDE_genes_per_cluster(GEX_cluster_genes.output=list_of_genes_per_cluster, n.genes=20, by_FC=FALSE, filter=c("MT-", "RPS", "RPL"))
+#' GEX_topDE_genes_per_cluster(GEX_cluster_genes.output=list_of_genes_per_cluster
+#' , n.genes=20, by_FC=FALSE, filter=c("MT-", "RPS", "RPL"))
 #'}
 GEX_topN_DE_genes_per_cluster <- function(GEX_cluster_genes.output, n.genes, by_FC, filter){
 

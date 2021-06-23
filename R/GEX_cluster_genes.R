@@ -1,5 +1,5 @@
 #' Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX or VDJ_GEX_matrix
-#' @param GEX Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 
+#' @param GEX Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 (usually VDJ_GEX_matrix.output[[2]])
 #' @param min.pct The minimum percentage of cells expressing a gene in either of the two groups to be compared. Default is 0.25
 #' @param filter Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.
 #' @param base The base with respect to which logarithms are computed. Default: 2
@@ -9,19 +9,23 @@
 #' @examples
 #' \dontrun{
 #' #Platypus version v2
-#' genes_per_cluster <- GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
-#' 
+#' GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25
+#' , filter = c("MT-", "RPL", "RPS"))
+#'
 #' #Platypus version v3
-#' genes_per_cluster <- GEX_cluster_genes(GEX = VDJ.GEX.matrix.output[[2]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
+#' GEX_cluster_genes(GEX = VDJ.GEX.matrix.output[[2]], min.pct = .25
+#' , filter = c("MT-", "RPL", "RPS"))
 #'}
-GEX_cluster_genes <- function(GEX, 
-                              min.pct, 
-                              filter, 
-                              base, 
+GEX_cluster_genes <- function(GEX,
+                              min.pct,
+                              filter,
+                              base,
                               platypus.version){
+
   platypus.version <- "does not matter"
   automate_GEX.output <- GEX
-  
+  GEX <- NULL
+
   require(stringr)
   if(missing(min.pct)) min.pct <- 0.25
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}

@@ -8,7 +8,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' example.vdj.analyze <- VDJ_analyze(VDJ.out.directory = "~/path/to/cellranger/vdj/outs/", filter.1HC.1LC = T)
+#' example.vdj.analyze <- VDJ_analyze(
+#' VDJ.out.directory = "~/path/to/cellranger/vdj/outs/", filter.1HC.1LC = T)
 #' }
 #'
 VDJ_analyze <- function(VDJ.out.directory,

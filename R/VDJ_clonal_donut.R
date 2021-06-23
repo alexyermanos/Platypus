@@ -1,7 +1,7 @@
 #' Generate circular plots of clonal expansion per repertoire directly from the VDJ matrix of the VDJ_GEX_matrix function
-#' @param VDJ.matrix VDJ dataframe generated using the VDJ_GEX_matrix function. Plots will be made by sample and using the clonal frequencies in the clonotype_frequency column
-#' @param counts.to.use How to count clonotypes and cells. If set to "10x" the function uses the clonotype_frequency column derived directly from the cellranger output to calculate expansion. If set to "VGM" the function will base its counts on the number of rows per clonotype in the VDJ.matrix. These two counts may diverge, if cells are filtered out due to overlapping barcodes or if a different clonotyping strategy was applied. Defaults to "VGM"
-#' @param label.size Size of text labels. All parameters below are purely for graphical purposes and optional. If necessary changes should be made in small (0.1) increments. I highly suggest to optimize these ONLY once a format for saving the plot is set.
+#' @param VDJ VDJ dataframe generated using the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]). Plots will be made by sample and using the clonal frequencies specified by counts.to.use
+#' @param counts.to.use How to count clonotypes and cells. If set to "10x" the function uses the clonotype_frequency column derived directly from the cellranger output to calculate expansion. If set to "VGM" the function will base its counts on the number of rows per clonotype in the VDJ. These two counts may diverge, if cells are filtered out due to overlapping barcodes or if a different clonotyping strategy was applied. Defaults to "VGM"
+#' @param label.size Size of text labels. All parameters below are purely for graphical purposes and optional. If necessary changes should be made in small (0.1) increments. ! It is recommended to optimize these ONLY once a format for saving the plot is set.
 #' @param not.expanded.label.vjust Numeric. Regulates the vertical position of the label for non expanded cells
 #' @param not.expanded.label.hjust Numeric. Regulates the horizontal position of the label for non expanded cells
 #' @param total.label.vjust Numeric. Regulates the vertical position of the center label
@@ -13,11 +13,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'
-#' VDJ_clonal_donut(VDJ.matrix = VDJ.matrix.output[[1]])
-#'
+#' VDJ_clonal_donut(VDJ = VDJ_GEX_matrix.output[[1]])
 #'}
-VDJ_clonal_donut <- function(VDJ.matrix,
+VDJ_clonal_donut <- function(VDJ,
                              counts.to.use,
                              label.size,
                              not.expanded.label.vjust,
@@ -44,13 +42,13 @@ if(missing(non.expanded.color)) non.expanded.color <- "black"
 
 platypus.version = "v3"
 
-VDJ.matrix <- subset(VDJ.matrix, clonotype_id_10x != "") #Filter possible cells with no clonotype. This can cause issues later
+VDJ <- subset(VDJ, clonotype_id_10x != "") #Filter possible cells with no clonotype. This can cause issues later
 
 if(counts.to.use == "VGM"){
 
   print("Using counts of entries in the VDJ GEX matrix")
 
-clonotypes <- VDJ.matrix %>% dplyr::group_by(sample_id, clonotype_id_10x) %>%  dplyr::summarise(clonotype_frequency = dplyr::n())
+clonotypes <- VDJ %>% dplyr::group_by(sample_id, clonotype_id_10x) %>%  dplyr::summarise(clonotype_frequency = dplyr::n())
 clonotypes$expanded <- F
 clonotypes$expanded[clonotypes$clonotype_frequency > 1] <- T
 
@@ -58,7 +56,7 @@ clonotypes$expanded[clonotypes$clonotype_frequency > 1] <- T
 
   print("Using counts provided by 10X in the clonotype_frequency column")
 
-clonotypes <- VDJ.matrix %>% dplyr::group_by(sample_id, clonotype_id_10x) %>% dplyr::summarise(clonotype_frequency = as.numeric(clonotype_frequency[1]))
+clonotypes <- VDJ %>% dplyr::group_by(sample_id, clonotype_id_10x) %>% dplyr::summarise(clonotype_frequency = as.numeric(clonotype_frequency[1]))
 clonotypes$expanded <- F
 clonotypes$expanded[clonotypes$clonotype_frequency > 1] <- T
 
@@ -107,5 +105,3 @@ for(i in 1:length(unique(clonotypes$sample_id))){
 }
 return(plot.list)
 }
-
-

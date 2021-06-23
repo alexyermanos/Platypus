@@ -1,8 +1,8 @@
-#' Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1HC and 1LC
+#' Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain
 #' @param directory list containing paths to the "filtered_contig_annotations.csv" files from cell ranger.
 #' @param sample.names vector specifying sample names.
 #' @return data frame with column names that match the VDJ_GEX_matrix output. Can be appended to the VDJ_GEX_matrix output
-#' #' @export
+#' @export
 #' @examples
 #' \dontrun{
 #' directory.list <- list()
@@ -11,7 +11,8 @@
 #' filtered_contig_vgm <- VDJ_contigs_to_vgm(directory = directory.list, sample.names = c(s3,s4))
 #' }
 
-VDJ_contigs_to_vgm <- function(directory, sample.names){
+VDJ_contigs_to_vgm <- function(directory,
+                               sample.names){
   require(stringr)
   all_formatted_df <- list()
   for (k in 1:length(directory)) {
