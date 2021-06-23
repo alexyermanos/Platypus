@@ -29,6 +29,7 @@ Imports:
     SeuratObject, 
     circlize,  
     tibble,
+Suggests:
     vegan,
     stringdist,
     ape,
