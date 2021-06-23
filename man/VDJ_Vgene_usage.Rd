@@ -4,12 +4,10 @@
 \alias{VDJ_Vgene_usage}
 \title{Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix}
 \usage{
-VDJ_Vgene_usage(VDJ.clonotype.output, VDJ.matrix, platypus.version)
+VDJ_Vgene_usage(VDJ, platypus.version)
 }
 \arguments{
-\item{VDJ.clonotype.output}{Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. IF platypus.version == "v2"}
-
-\item{VDJ.matrix}{Output VDJ dataframe from VDJ_GEX_matrix IF platypus.version == "v3"}
+\item{VDJ}{For platypus.version = "v2" output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus.version = "v3" output VDJ dataframe from VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
 
 \item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
 }

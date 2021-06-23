@@ -3,10 +3,10 @@
 \name{GEX_phenotype_per_clone}
 \alias{GEX_phenotype_per_clone}
 \title{Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
-! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX.matrix by default.}
+! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.}
 \usage{
 GEX_phenotype_per_clone(
-  GEX.matrix,
+  GEX,
   clonotype.ids,
   global.clonotypes,
   GEX.group.by,
@@ -15,13 +15,13 @@ GEX_phenotype_per_clone(
 )
 }
 \arguments{
-\item{GEX.matrix}{For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function. For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.}
+\item{GEX}{For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.}
 
 \item{clonotype.ids}{For platypus.version == "v2" Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, these repertoires should be found in the automate_GEX library.}
 
 \item{global.clonotypes}{Boolean. Defaults to FALSE. Set to True if clonotyping has been done across samples}
 
-\item{GEX.group.by}{For platypus.version == "v3". Character. Column name of the GEX.matrix@meta.data to group barplot by. Defaults to seurat_clusters}
+\item{GEX.group.by}{For platypus.version == "v3". Character. Column name of the GEX@meta.data to group barplot by. Defaults to seurat_clusters}
 
 \item{GEX.clonotypes}{For platypus.version == "v3". Numeric vector with ids of clonotypes to plot e.g. c(1,2,3,4). Can also be set to "topclones"}
 
@@ -32,11 +32,12 @@ Returns a stacked barplot that visualizes the seurat cluster membership for diff
 }
 \description{
 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
-! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX.matrix by default.
+! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.
 }
 \examples{
 \dontrun{
-GEX_phenotype_per_clone_plot <- GEX_phenotype_per_clone(seurat.object = automate.gex.output[[1]], clonotype.ids= c(1,2,3,4,5))
+GEX_phenotype_per_clone(seurat.object = automate.gex.output[[1]]
+, clonotype.ids= c(1,2,3,4,5))
 }
 
 }

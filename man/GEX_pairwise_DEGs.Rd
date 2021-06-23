@@ -5,7 +5,7 @@
 \title{Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3}
 \usage{
 GEX_pairwise_DEGs(
-  GEX.matrix,
+  GEX,
   group.by,
   min.pct,
   RP.MT.filter,
@@ -15,9 +15,9 @@ GEX_pairwise_DEGs(
 )
 }
 \arguments{
-\item{GEX.matrix}{Output Seurat object of the VDJ_GEX_matrix function}
+\item{GEX}{Output Seurat object of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]])}
 
-\item{group.by}{Character. Defaults to "seurat_clusters" Column name of GEX.matrix@meta.data to use for pairwise comparisons. More than 20 groups are discuraged.}
+\item{group.by}{Character. Defaults to "seurat_clusters" Column name of GEX@meta.data to use for pairwise comparisons. More than 20 groups are discuraged.}
 
 \item{min.pct}{Numeric. Defaults to 0.25 passed to Seurat::FindMarkers}
 
@@ -27,7 +27,7 @@ GEX_pairwise_DEGs(
 
 \item{genes.to.label}{Character vector. Defaults to "none". Vector of gene names to plot indipendently of their p value. Can be used in combination with label.n.genes.}
 
-\item{save.plot}{Boolean. Defaults to True. Whether to save plots as .png}
+\item{save.plot}{Boolean. Defaults to True. Whether to save plots as appropriately named .png files}
 }
 \value{
 A nested list with out[[i]][[1]] being plots and out[[i]][[2]] being DEG dataframes.
@@ -37,6 +37,8 @@ Produces and saves a list of volcano plots with each showing differentially expr
 }
 \examples{
 \dontrun{
-GEX_pairwise_DEGs <- function(GEX.matrix = VDJ.GEX.matrix.output[[2]],group.by = "seurat_clusters",min.pct = 0.25,RP.MT.filter = T,label.n.top.genes = 50,genes.to.label = c("DIABLO","ELMO1"),save.plot = T)
+GEX_pairwise_DEGs <- function(GEX = VDJ_GEX_matrix.output[[2]],group.by = "seurat_clusters"
+,min.pct = 0.25,RP.MT.filter = T,label.n.top.genes = 50,genes.to.label = c("DIABLO","ELMO1")
+,save.plot = F)
 }
 }

@@ -5,7 +5,7 @@
 \title{Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.}
 \usage{
 VDJ_VJ_usage_circos(
-  VDJ.GEX.matrix,
+  VDJ,
   A.or.B,
   label.threshold,
   cell.level,
@@ -17,7 +17,7 @@ VDJ_VJ_usage_circos(
 )
 }
 \arguments{
-\item{VDJ.GEX.matrix}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.}
+\item{VDJ}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied.}
 
 \item{A.or.B}{Determines whether to plot the V J gene pairing of the alpha or beta chain. "A", "B" or "both" as possible inputs. Default: "both".}
 
@@ -31,9 +31,9 @@ VDJ_VJ_usage_circos(
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 
-\item{platypus.version}{Which platypus.version of platypus is being used. Default = v2.}
+\item{platypus.version}{Which platypus.version of platypus is being used. Default = v2. Set to v3 if VDJ_GEX_matrix.output[[1]] is used}
 
-\item{filter1H1L}{Whether to filter the input VDJ.matrix in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
+\item{filter1H1L}{Whether to filter the input VDJ in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
@@ -43,6 +43,7 @@ Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the co
 }
 \examples{
 \dontrun{
- plots <- VJ_alpha_beta_Vgene_circos(VDJ.GEX.matrix)
+ plots <- VJ_alpha_beta_Vgene_circos(VDJ_GEX_matrix.output[[1]]
+ ,platypus.version = "v3")
 }
 }

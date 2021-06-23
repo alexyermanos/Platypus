@@ -5,7 +5,7 @@
 \title{Returns statistics and plots to examine diversity of any sequence or metadata item within clones on a by sample level or global level}
 \usage{
 VDJ_variants_per_clone(
-  VDJ.matrix,
+  VDJ,
   variants.of,
   clonotypes.col,
   stringDist.method,
@@ -14,15 +14,15 @@ VDJ_variants_per_clone(
 )
 }
 \arguments{
-\item{VDJ.matrix}{VDJ dataframe generated using the VDJ_GEX_matrix. VDJ.matrix supplemented with with MIXCR information is also valid}
+\item{VDJ}{VDJ output of the VDJ_GEX_matrix (VDJ_GEX_matrix.output[[1]]). VDJ matrix supplemented with with MIXCR information is also valid}
 
-\item{variants.of}{Character vector. Defaults to c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"). Column name(s) of VDJ.matrix to examine variants of. If more than one name is given, these columns will be pasted together. The default will therefore return statistics on the number of variants of VDJ and VJ cdr3s in every clone}
+\item{variants.of}{Character vector. Defaults to c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"). Column name(s) of VDJ to examine variants of. If more than one name is given, these columns will be pasted together. The default will therefore return statistics on the number of variants of VDJ and VJ cdr3s in every clone}
 
-\item{clonotypes.col}{Column name of the VDJ.matrix column containing clonotype information. Defaults to "clonotype_id_10x". This is useful if alternative clonotyping strategies have been used and are stored in other columns}
+\item{clonotypes.col}{Column name of the VDJ column containing clonotype information. Defaults to "clonotype_id_10x". This is useful if alternative clonotyping strategies have been used and are stored in other columns}
 
 \item{stringDist.method}{Character. Passed to Biostrings::strinDist. Method to calculate distance between variants of a clone. Defaults to "levenshtein". Other options are "hamming", "quality". If "hamming" variants of a clone will be shortened from the end to the shortest variant to make all input sequences the same length.}
 
-\item{split.by}{Character. Defaults to "sample_id". Column name of VDJ.matrix to split the analysis by. This is necessary, if clonotyping was done on a per sample level (e.g. "clonotype1" in sample 1 is not the same sequence as "clonotype1" in sample 2). If clonotyping was done across samples and no splitting is necessary input "none"}
+\item{split.by}{Character. Defaults to "sample_id". Column name of VDJ to split the analysis by. This is necessary, if clonotyping was done on a per sample level (e.g. "clonotype1" in sample 1 is not the same sequence as "clonotype1" in sample 2). If clonotyping was done across samples and no splitting is necessary input "none"}
 
 \item{platypus.version}{Character. Only "v3" available.}
 }
@@ -34,8 +34,9 @@ Returns statistics and plots to examine diversity of any sequence or metadata it
 }
 \examples{
 \dontrun{
-
-variants_per_clone <- VDJ_variants_per_clone(VDJ.matrix = VDJ_comb[[1]],variants.of = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"),stringDist.method = "levenshtein", split.by = "sample_id")
+variants_per_clone <- VDJ_variants_per_clone(VDJ = VDJ_GEX_matrix.output[[1]]
+,variants.of = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"),
+stringDist.method = "levenshtein", split.by = "sample_id")
 take a sneakpeak
 for(i in 1:length(variants_per_clone)){print(variants_per_clone[[i]][1:10,])}
 }

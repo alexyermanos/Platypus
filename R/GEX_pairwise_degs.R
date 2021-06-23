@@ -39,7 +39,7 @@ GEX_pairwise_DEGs <- function(GEX,
   if(!group.by %in% names(GEX@meta.data)){stop("Please enter valid metadata column name")}
 
   to_group <- unique(as.character(GEX@meta.data[,group.by]))
-  SeuratObjects::Idents(GEX) <- as.character(GEX@meta.data[,group.by])
+  SeuratObject::Idents(GEX) <- as.character(GEX@meta.data[,group.by])
 
   if(length(to_group) == 1){stop("Grouping column has to contain at least two unique entries")}
 

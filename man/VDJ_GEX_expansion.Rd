@@ -28,6 +28,8 @@ Integrates VDJ and gene expression libraries by providing cluster membership seq
 }
 \examples{
 \dontrun{
-vdj.gex.expansion <- VDJ_GEX_expansion(GEX.list=GEX.list.output[[1]],VDJ.GEX.integrate.list=vdj.gex.integrate.output,highlight.isotype = "None",highlight.number=1:20)
+vdj.gex.expansion <- VDJ_GEX_expansion(GEX.list=GEX.list.output[[1]]
+,VDJ.GEX.integrate.list=vdj.gex.integrate.output
+,highlight.isotype = "None",highlight.number=1:20)
 }
 }

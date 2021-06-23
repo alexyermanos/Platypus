@@ -5,7 +5,7 @@
 \title{Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.}
 \usage{
 VDJ_Vgene_usage_stacked_barplot(
-  VDJ.matrix,
+  VDJ,
   HC.gene.number,
   Fraction.HC,
   LC.Vgene,
@@ -15,7 +15,7 @@ VDJ_Vgene_usage_stacked_barplot(
 )
 }
 \arguments{
-\item{VDJ.matrix}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])}
+\item{VDJ}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])}
 
 \item{HC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.}
 
@@ -37,6 +37,9 @@ Produces a stacked barplot with the fraction of the most frequently used IgH and
 }
 \examples{
 \dontrun{
-example.vdj.vgene_usage <- VDJ_Vgene_usage_barplot_stacked(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T,HC.gene.number = 15, Fraction.HC = 1)
+Platypus v2
+example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
+clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T
+,HC.gene.number = 15, Fraction.HC = 1)
 }
 }

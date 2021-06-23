@@ -9,7 +9,12 @@
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
-#'  VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
+#' Platypus version 2
+#' VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
+#'
+#' Platypus version 3
+#' VDJ_clonotype_clusters_circos(VDJ_GEX_matrix.output[[1]], topX=100, label.threshold=5
+#' , platypus.version = "v3")
 #'}
 
 VDJ_clonotype_clusters_circos <- function(VDJ,

@@ -1,11 +1,11 @@
-#' Plots a logoplot of the CDR3 aminoacid region
+#' Plots a logoplot of the CDR3 aminoacid region ! For platypus v3 and more flexibility use VDJ_logoplot_vector
 #' @param VDJ.object Output of the VDJ_analyze function
 #' @param length_cdr3 Integer indicating the length of the CDR3 regions that are selected to be plotted.
 #' @return Returns the logo plot.
 #' @export
 #' @examples
 #' \dontrun{
-#' GEX_fraction_cells_per_cluster(automate_GEX.output, per_sample))
+#' VDJ_logoplot <- function(VDJ.object = VDJ_analyze.out,length_cdr3 = 10)
 #' }
 VDJ_logoplot <- function(VDJ.object,
                          length_cdr3) {

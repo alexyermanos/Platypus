@@ -5,7 +5,7 @@
 \title{Highlights the cells belonging to any number of top clonotypes or of specifically selected clonotypes from one or more samples or groups in a GEX dimensional reduction.}
 \usage{
 VDJ_GEX_overlay_clones(
-  GEX.output,
+  GEX,
   reduction,
   n.clones,
   clones.to.plot,
@@ -19,13 +19,13 @@ VDJ_GEX_overlay_clones(
 )
 }
 \arguments{
-\item{GEX.output}{A single seurat object from VDJ_GEX_matrix, which also includes VDJ information in the metadata (set integrate.VDJ.to.GEX to TRUE in the VDJ_GEX_matrix function) In most cases this will be VDJ_GEX_matrix.output[[2]]}
+\item{GEX}{A single seurat object from VDJ_GEX_matrix, which also includes VDJ information in the metadata (set integrate.VDJ.to.GEX to TRUE in the VDJ_GEX_matrix function) (VDJ_GEX_matrix.output[[2]])}
 
 \item{reduction}{Character. Defaults to "umap". Name of the reduction to overlay clones on. Can be "pca", "umap", "tsne"}
 
 \item{n.clones}{Integer. Defaults to 5. To PLOT TOP N CLONES. Number of Top clones to plot. If either by.sample or by.group is TRUE, n.clones clones from each sample or group will be overlayed}
 
-\item{clones.to.plot}{Character. Alternative to n.clones. TO PLOT SPECIFIC CLONES. Must reference a column in the GEX.output@meta.data filled with TRUE and FALSE. Entries with TRUE label are plotted. Such a column may be generated using GEX.output@metadata$clones_to_plot_column <- GEX.output@metadata$Some_cell_identifier == "Interesting"}
+\item{clones.to.plot}{Character. Alternative to n.clones. TO PLOT SPECIFIC CLONES. Must reference a column in the GEX@meta.data filled with TRUE and FALSE. Entries with TRUE label are plotted. Such a column may be generated using GEX@metadata$clones_to_plot_column <- GEX@metadata$Some_cell_identifier == "Interesting"}
 
 \item{by.sample}{Boolean. Defaults to FALSE. Whether to overlay clones by sample. If set to TRUE this will generate a facet_wrap plot with as many facets as samples.}
 
@@ -35,39 +35,50 @@ VDJ_GEX_overlay_clones(
 
 \item{pt.size}{Numeric. Defaults to 1. Size of points in DimPlot. Passed to Seurat::DimPlot}
 
-\item{clone.colors}{Character vector. Defaults to rainbow(n.clones). Colors to use for individual clones. One can provide either a vector of length n.clones or a of length Nr. of samples/groups * n.clones. In case that a vector of length n.clones is provided and by.group or by.sample is TRUE, colors are repeated for each sample/group}
+\item{clone.colors}{Character vector. Defaults to rainbow(n.clones). Colors to use for individual clones. One can provide either a vector of length n.clones or a of length Nr. of samples/groups \* n.clones. In case that a vector of length n.clones is provided and by.group or by.sample is TRUE, colors are repeated for each sample/group}
 
 \item{split.plot.and.legend}{Boolean. Defaults to FALSE. Whether to return the plot and the legend separately as a list. This can be useful if legends get large and distort the actual plots. The packages gridExtra and cowplot are required for this. If set to TRUE a list is returned where out[[1]] is the plot which can be printed just by executing out[[1]]; out[[2]] is the legend, which can be printed either using plot(out[[2]]) or grid.arrange(out[[2]])}
 
 \item{platypus.version}{Character. At the moment this function runs only on the output of the VDJ_GEX_matrix function meaning that it is exclusively part of Platypus "v3". With further updates the functionality will be extended.}
 }
 \value{
-A ggplot object or a list of a ggplot and a gtable legend (if split.plot.and.legend == TRUE). Theme, colors etc. may be changed directly by adding new elements to this output (e.g. out + theme_minimal())
+A ggplot object or a list of a ggplot and a gtable legend (if split.plot.and.legend \=\= TRUE). Theme, colors etc. may be changed directly by adding new elements to this output (e.g. out \+ theme_minimal())
 }
 \description{
 Highlights the cells belonging to any number of top clonotypes or of specifically selected clonotypes from one or more samples or groups in a GEX dimensional reduction.
 }
 \examples{
 \dontrun{
-#To return a single plot with top clones across samples
-overlay_clones_plot <- VDJ_GEX_overlay_top_clones(GEX.output = VDJ_GEX_matrix_output[[2]], reduction = "tsne", n.clones = 5, by.sample = F, by.group = F, pt.size = 1,split.plot.and.legend = F)
+To return a single plot with top clones across samples
+overlay_clones_plot <- VDJ_GEX_overlay_clones(
+GEX = VDJ_GEX_matrix_output[[2]], reduction = "tsne"
+,n.clones = 5, by.sample = F
+,by.other.group = "none", pt.size = 1,split.plot.and.legend = F)
 
-#To return a facet plot with top clones for each sample
-overlay_clones_plot <- VDJ_GEX_overlay_top_clones(GEX.output = VDJ_GEX_matrix_output[[2]], reduction = "tsne", n.clones = 5, by.sample = T, by.group = F, pt.size = 1,ncol.facet = 2, split.plot.and.legend = F)
+To return a facet plot with top clones for each sample
+overlay_clones_plot <- VDJ_GEX_overlay_clones(
+GEX = VDJ_GEX_matrix_output[[2]], reduction = "tsne"
+,n.clones = 5, by.sample = T, by.other.group = "none"
+,pt.size = 1,ncol.facet = 2, split.plot.and.legend = F)
 
-#To return a facet plot and the legend separately with top clones for each sample where
-overlay_clones_plot <- VDJ_GEX_overlay_top_clones(GEX.output = VDJ_GEX_matrix_output[[2]], reduction = "tsne", n.clones = 5, by.sample = T, by.group = F, pt.size = 1,ncol.facet = 2, split.plot.and.legend = T)
+To return a facet plot and the legend separately with top clones for each group
+overlay_clones_plot <- VDJ_GEX_overlay_clones(
+GEX = VDJ_GEX_matrix_output[[2]], reduction = "tsne"
+,n.clones = 5, by.sample = T, by.other.group = "group_id", pt.size = 1
+,ncol.facet = 2, split.plot.and.legend = T)
 
-#To print both:
-overlay_clones_plot[[1]]
-grid.arrange(overlay_clones_plot[[2]])
-#To save, ggsave() is applicable to both
+To print both:
+overlay_clones_plot[[1]] #Plot
+gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend
+To save, ggsave() is applicable to both
 
-#To return a single plot with selected clones
-#add a clonotype_to_plot column
-GEX.output@meta.data$clonotype_to_plot <- GEX.output$VJ_vgene == "TRAV5-1" #plot all clones with a particular V gene
-plot_out <- VDJ_GEX_overlay_top_clones(GEX.output = GEX.output, reduction = "umap", clones.to.plot = "clonotype_to_plot", by.sample = F, by.group = F, split.plot.and.legend = F, pt.size = 1.5)
+To return a single plot with selected clones
+add a clonotype_to_plot column
+GEX@meta.data$clonotype_to_plot <- GEX$VJ_vgene == "TRAV5-1"
+Column with TRUE for all clones with a particular V gene
+overlay_clones_plot <- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"
+, clones.to.plot = "clonotype_to_plot", by.sample = T, by.other.group = "none"
+, split.plot.and.legend = F, pt.size = 1.5)
 
 }
-
 }

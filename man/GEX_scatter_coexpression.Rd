@@ -4,10 +4,10 @@
 \alias{GEX_scatter_coexpression}
 \title{Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.}
 \usage{
-GEX_scatter_coexpression(GEX.matrix, gene.1, gene.2, color.theme)
+GEX_scatter_coexpression(GEX, gene.1, gene.2, color.theme)
 }
 \arguments{
-\item{GEX.matrix}{GEX seurat object generated with VDJ_GEX_matrix}
+\item{GEX}{GEX seurat object generated with VDJ_GEX_matrix}
 
 \item{gene.1}{Character. Name of a gene in rownames(VDJ.matrix)}
 
@@ -23,10 +23,10 @@ Clonal frequency plot displaying clonal expansion for either T and B cells with 
 }
 \examples{
 \dontrun{
-
 gene1 <- "BCL6"
 gene2 <- "CD40"
-ggsave(filename = paste0("Coex_", gene1,"_", gene2,"_scat.png"), plot = GEX_scatter_coexpression(VDJ_comb[[2]], gene1,gene2), dpi = 300, width = 12, height = 12)
-
+ggsave(filename = paste0("Coex_", gene1,"_", gene2,"_scat.png"),
+plot = GEX_scatter_coexpression(VDJ_comb[[2]], gene1,gene2),
+dpi = 300, width = 12, height = 12)
 }
 }

@@ -23,7 +23,8 @@ Integrates VDJ and gene expression libraries by providing cluster membership seq
 }
 \examples{
 \dontrun{
-testing_integrate <- VDJ_GEX_integrate(GEX.object = automate.gex.output[[1]], clonotype.list =  VDJ.analyze.output,VDJ.per.clone = VDJ.per.clone.output,clonotype.level = TRUE)
+testing_integrate <- VDJ_GEX_integrate(GEX.object = automate.gex.output[[1]]
+,clonotype.list =  VDJ.analyze.output
+,VDJ.per.clone = VDJ.per.clone.output,clonotype.level = TRUE)
 }
-
 }

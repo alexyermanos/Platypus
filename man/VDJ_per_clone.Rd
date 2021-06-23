@@ -40,6 +40,7 @@ Analyzes and processes the repertoire sequencing data from cellranger vdj. This 
 }
 \examples{
 \dontrun{
-check_VDJ_per_clone <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze, VDJ.out.directory = "path/to/cellranger/outs/")
+check_VDJ_per_clone <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze
+,VDJ.out.directory = "path/to/cellranger/outs/")
 }
 }

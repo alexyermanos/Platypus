@@ -40,15 +40,17 @@ Conducts a Gene Set Enrichment Analysis (GSEA) on a set of genes submitted in a 
 }
 \examples{
 \dontrun{
-df <- GEX_cluster_genes(gex_combined[[1]])
-output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = "./c5.go.bp.v7.2.symbols.gmt")
-cowplot::plot_grid(plotlist=output[[2]], ncol=2)
+gex_gsea <- GEX_GSEA(GEX.cluster.genes.output = df[[1]], MT.Rb.filter = T
+, path_to_pathways = "./c5.go.bp.v7.2.symbols.gmt")
+cowplot::plot_grid(plotlist=gex_gsea[[2]], ncol=2)
 View(gex_gsea[[1]])
 
 #Directly downloading gene set collection from MSigDB to perform gsea
-output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = c("Mus musculus", "C7"))
+gex_gsea <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+, path_to_pathways = c("Mus musculus", "C7"))
 
 #Using your own gene list to perform gsea
-output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, my_own_geneset = my_geneset)
+gex_gsea <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]]
+, MT.Rb.filter = T, my_own_geneset = my_geneset)
 }
 }

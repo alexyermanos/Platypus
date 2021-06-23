@@ -23,7 +23,7 @@ Integrates VDJ and gene expression libraries by providing cluster membership seq
 }
 \examples{
 \dontrun{
-GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]], clonotype.ids= c(1,2,3,4,5))
+GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]]
+, clonotype.ids= c(1,2,3,4,5))
 }
-
 }

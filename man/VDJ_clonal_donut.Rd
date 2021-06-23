@@ -5,7 +5,7 @@
 \title{Generate circular plots of clonal expansion per repertoire directly from the VDJ matrix of the VDJ_GEX_matrix function}
 \usage{
 VDJ_clonal_donut(
-  VDJ.matrix,
+  VDJ,
   counts.to.use,
   label.size,
   not.expanded.label.vjust,
@@ -18,11 +18,11 @@ VDJ_clonal_donut(
 )
 }
 \arguments{
-\item{VDJ.matrix}{VDJ dataframe generated using the VDJ_GEX_matrix function. Plots will be made by sample and using the clonal frequencies in the clonotype_frequency column}
+\item{VDJ}{VDJ dataframe generated using the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]). Plots will be made by sample and using the clonal frequencies specified by counts.to.use}
 
-\item{counts.to.use}{How to count clonotypes and cells. If set to "10x" the function uses the clonotype_frequency column derived directly from the cellranger output to calculate expansion. If set to "VGM" the function will base its counts on the number of rows per clonotype in the VDJ.matrix. These two counts may diverge, if cells are filtered out due to overlapping barcodes or if a different clonotyping strategy was applied. Defaults to "VGM"}
+\item{counts.to.use}{How to count clonotypes and cells. If set to "10x" the function uses the clonotype_frequency column derived directly from the cellranger output to calculate expansion. If set to "VGM" the function will base its counts on the number of rows per clonotype in the VDJ. These two counts may diverge, if cells are filtered out due to overlapping barcodes or if a different clonotyping strategy was applied. Defaults to "VGM"}
 
-\item{label.size}{Size of text labels. All parameters below are purely for graphical purposes and optional. If necessary changes should be made in small (0.1) increments. I highly suggest to optimize these ONLY once a format for saving the plot is set.}
+\item{label.size}{Size of text labels. All parameters below are purely for graphical purposes and optional. If necessary changes should be made in small (0.1) increments. ! It is recommended to optimize these ONLY once a format for saving the plot is set.}
 
 \item{not.expanded.label.vjust}{Numeric. Regulates the vertical position of the label for non expanded cells}
 
@@ -46,8 +46,6 @@ Generate circular plots of clonal expansion per repertoire directly from the VDJ
 }
 \examples{
 \dontrun{
-
-VDJ_clonal_donut(VDJ.matrix = VDJ.matrix.output[[1]])
-
+VDJ_clonal_donut(VDJ = VDJ_GEX_matrix.output[[1]])
 }
 }

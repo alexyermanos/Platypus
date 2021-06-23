@@ -5,7 +5,7 @@
 \title{Yields overlap heatmap and datatable of features or combined features for different samples or groups}
 \usage{
 VDJ_overlap_heatmap(
-  VDJ.matrix.output,
+  VDJ,
   feature.columns,
   grouping.column,
   pvalues.label.size,
@@ -15,7 +15,7 @@ VDJ_overlap_heatmap(
 )
 }
 \arguments{
-\item{VDJ.matrix.output}{VDJ matrix from the VDJ_GEX_matrix function}
+\item{VDJ}{VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
 
 \item{feature.columns}{A character array of column names of which the overlap should be displayed. The content of these columns is pasted together (separated by "/"). E.g. if the overlap in cells germline gene usage is desired, the input could be c("VDJ_jgene","VDJ_dgene","VDJ_vgene"). These columns would be pasted and compared across the grouping variable.}
 
@@ -38,6 +38,8 @@ Yields overlap heatmap and datatable of features or combined features for differ
 \examples{
 \dontrun{
 #To test the overlap of barcodes between multiple samples
-barcode_overlap <- VDJ_overlap_heatmap(VDJ.matrix = VDJ_GEX_matrix_output[[1]], feature.columns = c("orig_barcode") ,grouping.column = "repertoire", axis.label.size = 15)
+barcode_overlap <- VDJ_overlap_heatmap(VDJ = VDJ_comb[[1]]
+,feature.columns = c("barcode"),
+grouping.column = "sample_id", axis.label.size = 15)
 }
 }

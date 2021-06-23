@@ -15,7 +15,7 @@ GEX_cluster_genes_heatmap(
 )
 }
 \arguments{
-\item{GEX}{Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3}
+\item{GEX}{Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 (usually VDJ_GEX_matrix.output[[2]])}
 
 \item{GEX_cluster_genes.output}{The output from the GEX_cluster_genes function - this should be a list with each list element corresponding to the genes, p values, logFC, pct expression for the genes deferentially regulated for each cluster.}
 
@@ -37,6 +37,14 @@ Produces a heatmap displaying the expression of the top genes that define each c
 }
 \examples{
 \dontrun{
-cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX=automate_GEX_output[[i]],GEX_cluster_genes.output=GEX_cluster_genes_output,n.genes.per.cluster=5,metric="p.value",max.cell=5)
+For Platypus version 2
+cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = automate_GEX_output[[i]]
+,GEX_cluster_genes.output=GEX_cluster_genes_output
+,n.genes.per.cluster=5,metric="p.value",max.cell=5)
+
+For Platypus version 3
+cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = VDJ_GEX_matrix.output[[2]]
+,GEX_cluster_genes.output=GEX_cluster_genes_output
+,n.genes.per.cluster=5,metric="p.value",max.cell=5)
 }
 }

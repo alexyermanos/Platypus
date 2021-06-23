@@ -143,7 +143,7 @@ VDJ_diversity <- function(VDJ,
   }
   }
 
-  out_df <- data.frame("index" = title_out,"groups" = group.names, "metric" = out, colors = rainbow(length(group.names)))
+  out_df <- data.frame("index" = title_out,"groups" = group.names, "metric" = out, colors = grDevices::rainbow(length(group.names)))
 
   #plot
   plot_out <- ggplot2::ggplot(out_df, ggplot2::aes(x = groups, y = metric, fill = colors)) + ggplot2::geom_bar(show.legend = F, stat = "identity") + ggplot2::labs(title = title_out, x = "", y = title_out) + ggplot2::theme(panel.background = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank(), legend.position = "none") + ggplot2::scale_y_continuous(expand = c(0,0))

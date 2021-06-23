@@ -20,7 +20,6 @@ VDJ_GEX_expansion <- function(GEX.list,
   value <- NULL
   L1 <- NULL
 
-
   require(stringr)
   require(scales)
   if(missing(GEX.list)) stop("No provided list of Seurat objects. Please provide the output of the automate_GEX function.")

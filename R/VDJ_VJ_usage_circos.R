@@ -1,21 +1,30 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
-#' @param VDJ.GEX.matrix The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.
+#' @param VDJ The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, the VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied.
 #' @param A.or.B Determines whether to plot the V J gene pairing of the alpha or beta chain. "A", "B" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
 #' @param c.threshold Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
-#' @param platypus.version Which platypus.version of platypus is being used. Default = v2.
-#' @param filter1H1L Whether to filter the input VDJ.matrix in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
+#' @param platypus.version Which platypus.version of platypus is being used. Default = v2. Set to v3 if VDJ_GEX_matrix.output[[1]] is used
+#' @param filter1H1L Whether to filter the input VDJ in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
-#'  plots <- VJ_alpha_beta_Vgene_circos(VDJ.GEX.matrix)
+#'  plots <- VJ_alpha_beta_Vgene_circos(VDJ_GEX_matrix.output[[1]]
+#'  ,platypus.version = "v3")
 #'}
 #' @export
 
-VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.level, c.threshold, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L){
+VDJ_VJ_usage_circos <- function(VDJ,
+                                A.or.B,
+                                label.threshold,
+                                cell.level,
+                                c.threshold,
+                                clonotype.per.gene.threshold,
+                                c.count,
+                                platypus.version,
+                                filter1H1L){
   require(reshape2)
   require(ggplot2)
   require(stringr)
@@ -28,18 +37,15 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
   if(missing(platypus.version)){platypus.version <- "v2"}
   if(missing(filter1H1L)){filter1H1L <- T}
 
+  #naming compatibility
+  VDJ.GEX.matrix <- list()
+  VDJ.GEX.matrix[[1]] <- VDJ
+  VDJ <- NULL
+
   # If new version with VDJ_GEX_matric output should be used
   if(platypus.version=="v3"){
-      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus 3.0.0 is being used. The output VDJ dataframe of the VDJ_GEX_matrix required as input.")
+      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus 3.0.0 is being used. The output VDJ dataframe of the VDJ_GEX_matrix function (VDJ_GEX_matrix[[1]]) required as input.")
       clonotype <- "clonotype_id_10x"
-
-      if(class(VDJ.GEX.matrix) == "list"){
-        stop("Please input the VDJ matrix from the VGM output (usually VDJ_GEX_matrix.output[[1]])")
-      }
-      #swapping to a list to not change the whole function
-      bk <- VDJ.GEX.matrix
-      VDJ.GEX.matrix <- list()
-      VDJ.GEX.matrix[[1]] <- bk
 
       #filter for 1H1L
       if(filter1H1L==T){

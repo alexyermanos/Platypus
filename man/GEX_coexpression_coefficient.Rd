@@ -4,12 +4,12 @@
 \alias{GEX_coexpression_coefficient}
 \title{Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.}
 \usage{
-GEX_coexpression_coefficient(GEX.matrix, genes, subsample.n, plot.dotmap)
+GEX_coexpression_coefficient(GEX, genes, subsample.n, plot.dotmap)
 }
 \arguments{
-\item{GEX.matrix}{GEX seurat object generated with VDJ_GEX_matrix}
+\item{GEX}{GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output[[2]])}
 
-\item{genes}{Character vector. At least 2 genes present in rownames(GEX.matrix). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.}
+\item{genes}{Character vector. At least 2 genes present in rownames(GEX). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.}
 
 \item{subsample.n}{Interger. Number of cells to subsample. If set to 100, 100 cells will be randomly sampled for the calculation}
 
@@ -23,11 +23,12 @@ Clonal frequency plot displaying clonal expansion for either T and B cells with 
 }
 \examples{
 \dontrun{
-
 To return a dataframe with coefficients
-coef_out <- GEX_coexpression_coefficient(GEX.matrix = VDJ_comb[[2]], genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = F)
+GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
+, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = F)
 
 To return a dotplot detailing coexpression and overall expression
-plot_out <- GEX_coexpression_coefficient(GEX.matrix = VDJ_comb[[2]], genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = T)
+GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
+, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = T)
 }
 }

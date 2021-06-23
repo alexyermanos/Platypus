@@ -5,7 +5,7 @@
 \title{Creates a similarity network where clones with similar CDR3s are connected.}
 \usage{
 VDJ_network(
-  VDJ.matrix,
+  VDJ,
   distance.cutoff,
   per.sample,
   platypus.version,
@@ -14,7 +14,7 @@ VDJ_network(
 )
 }
 \arguments{
-\item{VDJ.matrix}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])}
+\item{VDJ}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (VDJ.GEX.matrix.output[[1]])}
 
 \item{distance.cutoff}{The threshold Levenshtein distance for which two nodes will be connected on the similarity network.}
 
@@ -34,6 +34,10 @@ Creates a similarity network where clones with similar CDR3s are connected.
 }
 \examples{
 \dontrun{
-VDJ_network(my_VDJ_analyze_final_check[1:1],per.sample = T,distance.cutoff = 2)
+Platypus v2
+VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = T,distance.cutoff = 2)
+
+Platypus v3
+VDJ_network(VDJ = VDJ.GEX.matrix.output[[1]],per.sample = T,distance.cutoff = 2)
 }
 }

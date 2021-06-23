@@ -6,9 +6,14 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' checking_vdj_reclono <- VDJ_reclonotype_list_arrange(VDJ_clonotype.output = repertoire_reclonotype, VDJ_analyze.output = repertoire_list,Platypus_list.object = repertoire_vdj_per_clone)
+#' checking_vdj_reclono <- VDJ_reclonotype_list_arrange(
+#' VDJ_clonotype.output = repertoire_reclonotype
+#' ,VDJ_analyze.output = repertoire_list
+#' ,Platypus_list.object = repertoire_vdj_per_clone)
 #'}
-VDJ_reclonotype_list_arrange <- function(VDJ_clonotype.output, VDJ_analyze.output, Platypus_list.object){
+VDJ_reclonotype_list_arrange <- function(VDJ_clonotype.output,
+                                         VDJ_analyze.output,
+                                         Platypus_list.object){
   require(stringr)
   output_list <- list()
   for(i in 1:length(VDJ_clonotype.output)){

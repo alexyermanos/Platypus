@@ -7,7 +7,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'call_MIXCR(VDJ.per.clone = VDJ.per.clone.output,mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
+#'call_MIXCR(VDJ.per.clone = VDJ.per.clone.output
+#',mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
 #'}
 call_MIXCR <- function(VDJ.per.clone,mixcr.directory,species){
   require(stringr)

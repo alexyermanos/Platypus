@@ -7,7 +7,7 @@
 GEX_cluster_genes(GEX, min.pct, filter, base, platypus.version)
 }
 \arguments{
-\item{GEX}{Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3}
+\item{GEX}{Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 (usually VDJ_GEX_matrix.output[[2]])}
 
 \item{min.pct}{The minimum percentage of cells expressing a gene in either of the two groups to be compared. Default is 0.25}
 
@@ -26,9 +26,11 @@ Extracts the differentially expressed genes between two samples. This function u
 \examples{
 \dontrun{
 #Platypus version v2
-genes_per_cluster <- GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
+GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25
+, filter = c("MT-", "RPL", "RPS"))
 
 #Platypus version v3
-genes_per_cluster <- GEX_cluster_genes(GEX = VDJ.GEX.matrix.output[[2]], min.pct = .25, filter = c("MT-", "RPL", "RPS"))
+GEX_cluster_genes(GEX = VDJ.GEX.matrix.output[[2]], min.pct = .25
+, filter = c("MT-", "RPL", "RPS"))
 }
 }

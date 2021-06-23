@@ -1,5 +1,5 @@
 #' Creates a similarity network where clones with similar CDR3s are connected.
-#' @param VDJ.matrix Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])
+#' @param VDJ Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (VDJ.GEX.matrix.output[[1]])
 #' @param distance.cutoff The threshold Levenshtein distance for which two nodes will be connected on the similarity network.
 #' @param per.sample logical value indicating if a single networks should be produced for each mouse.
 #' @param hcdr3.only logical value indicating if the network is based on heavy chain cdr3s (hcdr3.only = T) or pasted heavy and light chain cdr3s (hcdr3.only = F), works for platypus.version 3 only
@@ -9,9 +9,18 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' VDJ_network(my_VDJ_analyze_final_check[1:1],per.sample = T,distance.cutoff = 2)
+#' Platypus v2
+#' VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = T,distance.cutoff = 2)
+#'
+#' Platypus v3
+#' VDJ_network(VDJ = VDJ.GEX.matrix.output[[1]],per.sample = T,distance.cutoff = 2)
 #'}
-VDJ_network <- function(VDJ.matrix,distance.cutoff,per.sample,platypus.version, known.binders, hcdr3.only){
+VDJ_network <- function(VDJ,
+                        distance.cutoff,
+                        per.sample,
+                        platypus.version,
+                        known.binders,
+                        hcdr3.only){
 
   connected <- NULL
   Nr_of_VDJ_chains <- NULL
@@ -23,6 +32,11 @@ VDJ_network <- function(VDJ.matrix,distance.cutoff,per.sample,platypus.version, 
   if(missing(distance.cutoff)) distance.cutoff <- 3
   if(missing(known.binders)) known.binders <- F
   if(missing(hcdr3.only)) hcdr3.only <- F
+
+  #Naming compatibility
+  VDJ.matrix <- VDJ
+  VDJ <- NULL
+
   #START V2
   if(platypus.version == "v2"){
 

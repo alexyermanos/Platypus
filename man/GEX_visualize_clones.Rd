@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_visualize_clones.R
 \name{GEX_visualize_clones}
 \alias{GEX_visualize_clones}
-\title{Visualize selected clonotypes on the tSNE or UMAP projection.}
+\title{!Only for platypus version v2. For platypus v3 refer to: VDJ_GEX_overlay_clones() Visualize selected clonotypes on the tSNE or UMAP projection.}
 \usage{
 GEX_visualize_clones(
   GEX.list,
@@ -27,7 +27,7 @@ GEX_visualize_clones(
 concatenated ggplot2 plot with selected clonotypes highlighted (if None, the coloring is according to the clustering).
 }
 \description{
-Visualize selected clonotypes on the tSNE or UMAP projection.
+!Only for platypus version v2. For platypus v3 refer to: VDJ_GEX_overlay_clones() Visualize selected clonotypes on the tSNE or UMAP projection.
 }
 \examples{
 \dontrun{

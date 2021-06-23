@@ -1,5 +1,5 @@
 #' Yields overlap heatmap and datatable of features or combined features for different samples or groups
-#' @param VDJ.matrix.output VDJ matrix from the VDJ_GEX_matrix function
+#' @param VDJ VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
 #' @param feature.columns A character array of column names of which the overlap should be displayed. The content of these columns is pasted together (separated by "/"). E.g. if the overlap in cells germline gene usage is desired, the input could be c("VDJ_jgene","VDJ_dgene","VDJ_vgene"). These columns would be pasted and compared across the grouping variable.
 #' @param grouping.column A column which acts as a grouping variable. If repertoires are to be compared use the sample_id column.
 #' @param pvalues.label.size Numeric. Defaults to 4. Is passed on to ggplot theme
@@ -11,10 +11,12 @@
 #' @examples
 #' \dontrun{
 #' #To test the overlap of barcodes between multiple samples
-#' barcode_overlap <- VDJ_overlap_heatmap(VDJ.matrix = VDJ_GEX_matrix_output[[1]], feature.columns = c("orig_barcode") ,grouping.column = "repertoire", axis.label.size = 15)
+#' barcode_overlap <- VDJ_overlap_heatmap(VDJ = VDJ_comb[[1]]
+#' ,feature.columns = c("barcode"),
+#' grouping.column = "sample_id", axis.label.size = 15)
 #' }
 
-VDJ_overlap_heatmap <- function(VDJ.matrix.output,
+VDJ_overlap_heatmap <- function(VDJ,
                                 feature.columns,
                                 grouping.column,
                                 pvalues.label.size,
@@ -34,18 +36,18 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
 
   #remove any rows that do not contain an entry for a given feature
   to_remove <- c()
-  for(n in 1:nrow(VDJ.matrix.output)){
-    if("" %in% VDJ.matrix.output[n,c(feature.columns)]){
+  for(n in 1:nrow(VDJ)){
+    if("" %in% VDJ[n,c(feature.columns)]){
       to_remove <- c(to_remove, n)}
   }
   if(length(to_remove) > 0){
-  VDJ.matrix.output <- VDJ.matrix.output[-to_remove,]
+  VDJ <- VDJ[-to_remove,]
   }
-  grouping <- data.frame("group" = VDJ.matrix.output[, grouping.column])
+  grouping <- data.frame("group" = VDJ[, grouping.column])
   if(length(feature.columns) > 1){
-    grouping$pasted <- do.call(paste, c(VDJ.matrix.output[,c(feature.columns)], sep="/"))
+    grouping$pasted <- do.call(paste, c(VDJ[,c(feature.columns)], sep="/"))
   } else {
-    grouping$pasted <- VDJ.matrix.output[, c(feature.columns)]
+    grouping$pasted <- VDJ[, c(feature.columns)]
   }
 
   sample.names <- unique(grouping[,1])
@@ -86,7 +88,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
 
   #now add a third dataframe with frequencies and barcodes of the overlapping elements
   if(add.barcode.table == T){
-    if(!"barcode" %in% names(VDJ.matrix.output)) stop("'barcode' column must be present in input dataframe to add barcode table")
+    if(!"barcode" %in% names(VDJ)) stop("'barcode' column must be present in input dataframe to add barcode table")
 
     ov_all <- do.call("c", ov_temp_list)
     if(length(ov_all) > 1){
@@ -106,7 +108,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
       names(ov_df)[c(ncol(ov_df)-1,ncol(ov_df))] <- c(paste0("Freq in ", sample.names[i]),paste0("Barcodes ", sample.names[i]))
     }
 
-    lookup <- cbind(grouping, VDJ.matrix.output[,"barcode"])
+    lookup <- cbind(grouping, VDJ[,"barcode"])
     names(lookup)[3] <- "barcode"
 
     sample_count <- 1
@@ -137,6 +139,4 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   print(plot_out)
   return(list(plot_out,combs,ov_df))
 }
-
-
 

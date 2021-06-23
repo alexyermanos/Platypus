@@ -36,9 +36,11 @@ Plots for SHM based on MIXCR output generated using the VDJ_call_MIXCR function 
 \dontrun{
 
 Standard plots
-SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output, group.by = "sample_id", quantile.label = 0.9)
+SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output
+, group.by = "sample_id", quantile.label = 0.9)
 
 Group by transcriptional cluster and label only top 1\\%
-SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output, group.by = "seurat_clusters", quantile.label = 0.99)
+SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output
+, group.by = "seurat_clusters", quantile.label = 0.99)
 }
 }

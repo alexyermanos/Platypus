@@ -62,9 +62,16 @@ Plots a volcano plot from the output of the FindMarkers function from the Seurat
 \examples{
 \dontrun{
 #using the findmarkers.output
-GEX_volcano_1 <- GEX_volcano(findmarkers.output = FindMarkers.Output, condition.1 = "cluster1", condition.2 = "cluster2", maximum.overlaps = 20)
-GEX_volcano_2 <- GEX_volcano(findmarkers.output = FindMarkers.Output, condition.1 = "cluster1", condition.2 = "cluster2", n.label.up = 50, n.label.down = 20)
+GEX_volcano(findmarkers.output = FindMarkers.Output
+, condition.1 = "cluster1", condition.2 = "cluster2"
+, maximum.overlaps = 20)
+
+GEX_volcano(findmarkers.output = FindMarkers.Output
+, condition.1 = "cluster1", condition.2 = "cluster2"
+, n.label.up = 50, n.label.down = 20)
+
 #using the GEX_cluster_genes output
-GEX_volcano_3 <- GEX_volcano(findmarkers.output = GEX_cluster_genes.Output, cluster.genes.output =T)
+GEX_volcano(findmarkers.output = GEX_cluster_genes.Output
+, cluster.genes.output =T)
 }
 }

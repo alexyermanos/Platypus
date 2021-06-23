@@ -1,5 +1,5 @@
 #' Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.
-#' @param VDJ.matrix Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])
+#' @param VDJ Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])
 #' @param HC.gene.number Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.
 #' @param Fraction.HC Numeric value indicating the minimum fraction of clones expressing a particular HC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.
 #' @param LC.Vgene Logical indicating whether to make a barplot of the LC V gene distribution. Default is set to FALSE.
@@ -10,10 +10,19 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' example.vdj.vgene_usage <- VDJ_Vgene_usage_barplot_stacked(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T,HC.gene.number = 15, Fraction.HC = 1)
+#' Platypus v2
+#' example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
+#' clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T
+#' ,HC.gene.number = 15, Fraction.HC = 1)
 #'}
 
-VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction.HC, LC.Vgene, LC.gene.number, Fraction.LC, platypus.version){
+VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
+                                            HC.gene.number,
+                                            Fraction.HC,
+                                            LC.Vgene,
+                                            LC.gene.number,
+                                            Fraction.LC,
+                                            platypus.version){
 
   Vgene <- NULL
   Percentage <- NULL
@@ -29,6 +38,10 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
   if (missing(LC.Vgene)) LC.Vgene <- FALSE
   if (missing(Fraction.LC)) Fraction.LC <- 0
   if (missing(LC.gene.number)) LC.gene.number <- 10
+
+  #naming compatibility
+  VDJ.matrix <- VDJ
+  VDJ <- NULL
 
   Vgene_usage_plot <- list()
   HC_Vgene_usage <- list()
@@ -352,3 +365,4 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
 
   }
 }
+

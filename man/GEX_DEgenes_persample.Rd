@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_DEgenes_persample.R
 \name{GEX_DEgenes_persample}
 \alias{GEX_DEgenes_persample}
-\title{Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.}
+\title{!Only for Platypus version v2. For more flexibility and platypus v3 please refer to GEX_Degenes. Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.}
 \usage{
 GEX_DEgenes_persample(
   automate.GEX,
@@ -45,10 +45,11 @@ GEX_DEgenes_persample(
 Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
 }
 \description{
-Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.
+!Only for Platypus version v2. For more flexibility and platypus v3 please refer to GEX_Degenes. Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.
 }
 \examples{
 \dontrun{
-check_de_genes2 <- GEX_DEgenes_persample(automate.GEX=automate.GEX.output[[i]],min.pct = .25,sample1 = "2",sample2 = "3")
+GEX_DEgenes_persample(automate.GEX=automate.GEX.output[[i]]
+,min.pct = .25,sample1 = "1",sample2 = "2")
 }
 }

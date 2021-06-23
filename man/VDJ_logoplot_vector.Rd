@@ -21,6 +21,8 @@ Plots a logoplot of the CDR3 aminoacid region
 }
 \examples{
 \dontrun{
-GEX_fraction_cells_per_cluster(automate_GEX.output, per_sample))
+VDJ_logoplot_vector <- function(
+cdr3.vector = VDJ_GEX_matrix.output[[1]]$VDJ_cdr3s_aa
+,length_cdr3 = "auto",seq_type == "aa")
 }
 }

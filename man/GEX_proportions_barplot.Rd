@@ -5,7 +5,7 @@
 \title{Plots proportions of a group of cells within a secondary group of cells. E.g. The proportions of samples in seurat clusters, or the proportions of samples in defined cell subtypes}
 \usage{
 GEX_proportions_barplot(
-  GEX.matrix,
+  GEX,
   source.group,
   target.group,
   stacked.plot,
@@ -13,11 +13,11 @@ GEX_proportions_barplot(
 )
 }
 \arguments{
-\item{GEX.matrix}{GEX seurat object generated with VDJ_GEX_matrix}
+\item{GEX}{GEX Seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output[[2]])}
 
-\item{source.group}{Character. A column name of the GEX.matrix@meta.data with the group of which proportions should be plotted}
+\item{source.group}{Character. A column name of the GEX@meta.data with the group of which proportions should be plotted}
 
-\item{target.group}{Character. A column name of the GEX.matrix@meta.data with the group to calculate proportions within. If unsure, see examples for clarification}
+\item{target.group}{Character. A column name of the GEX@meta.data with the group to calculate proportions within. If unsure, see examples for clarification}
 
 \item{stacked.plot}{Boolean. Defaults to FALSE. Whether to return a stacked barplot, with the y axis representing the \% of cells of the target group. If set to FALSE a normal barplot (position = "dodge") will be returned with the y axis representing the \% of cells of the source group}
 
@@ -31,11 +31,15 @@ Plots proportions of a group of cells within a secondary group of cells. E.g. Th
 }
 \examples{
 \dontrun{
+To return a normal barplot which shows the \% of cells of
+each sample contained in each cluster
+GEX_proportions_barplot(GEX = VDJ_comb[[2]], source.group = "sample_id"
+, target.group = "seurat_clusters",stacked.plot = F)
 
-To return a normal barplot which shows the \% of cells of each sample contained in each cluster
-GEX_proportions_barplot(GEX.matrix = VDJ_comb[[2]], source.group = "sample_id", target.group = "seurat_clusters",stacked.plot = F)
-
-To return a stacked barplot which shows the \% of cells of each cluster attributed to each sample
-GEX_proportions_barplot(GEX.matrix = VDJ_comb[[2]], source.group = "sample_id", target.group = "seurat_clusters",stacked.plot = T)
+To return a stacked barplot which shows the \% of cells of each
+cluster attributed to each sample
+GEX_proportions_barplot(GEX = VDJ_GEX_matrix.output[[2]],
+source.group = "sample_id", target.group = "seurat_clusters"
+,stacked.plot = T)
 }
 }

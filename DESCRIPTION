@@ -9,10 +9,12 @@ Depends:
     R(>= 3.1.0),
     rmarkdown,
     ggplot2,
-    Seurat,
+    Seurat
+Imports:
     reshape2,
     knitr,
     seqinr,
+    plyr,
     dplyr,
     jsonlite,
     msa,
@@ -21,7 +23,27 @@ Depends:
     do,
     useful,
     tidyverse,
-    tidyr
+    tidyr,
+    BiocGenerics, 
+    IRanges, 
+    SeuratObject, 
+    ape,
+    circlize, 
+    phytools, 
+    tibble
+Suggests:
+    vegan,
+    stringdist,
+    msigdbr,
+    limma,
+    harmony,
+    ggseqlogo,
+    fgsea,
+    cowplot,
+    doParallel,
+    ggrepel,
+    gridExtra,
+    igraph
 Description: Allows the analysis of single cell immune repertoire data. 
 License: GPL-2
 Encoding: UTF-8

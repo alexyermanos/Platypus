@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_contigs_to_vgm.R
 \name{VDJ_contigs_to_vgm}
 \alias{VDJ_contigs_to_vgm}
-\title{Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1HC and 1LC}
+\title{Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain}
 \usage{
 VDJ_contigs_to_vgm(directory, sample.names)
 }
@@ -13,10 +13,9 @@ VDJ_contigs_to_vgm(directory, sample.names)
 }
 \value{
 data frame with column names that match the VDJ_GEX_matrix output. Can be appended to the VDJ_GEX_matrix output
-#' @export
 }
 \description{
-Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1HC and 1LC
+Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain
 }
 \examples{
 \dontrun{

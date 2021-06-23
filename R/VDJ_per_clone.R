@@ -12,7 +12,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' check_VDJ_per_clone <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze, VDJ.out.directory = "path/to/cellranger/outs/")
+#' check_VDJ_per_clone <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze
+#' ,VDJ.out.directory = "path/to/cellranger/outs/")
 #' }
 VDJ_per_clone <- function(clonotype.list,
                                VDJ.out.directory,

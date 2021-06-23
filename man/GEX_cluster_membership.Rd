@@ -4,10 +4,10 @@
 \alias{GEX_cluster_membership}
 \title{Plots the cluster membership for each of the distinct samples in the Seurat object from the automate_GEX function. The distinct samples are determined by "sample_id" field in the Seurat object.}
 \usage{
-GEX_cluster_membership(GEX.output, by.group, platypus.version)
+GEX_cluster_membership(GEX, by.group, platypus.version)
 }
 \arguments{
-\item{GEX.output}{Output Seurat object containing gene expression data from automate_GEX (platypus.version = "v2") or VDJ_GEX_matrix (platypus.version = "v3")function that contained at least two distinct biological samples. The different biological samples correspond to integer values (v2) or factor values (v3) in the order of the working directories initially supplied to the automate_GEX function.}
+\item{GEX}{Output Seurat object containing gene expression data from automate_GEX (platypus.version = "v2") or VDJ_GEX_matrix (platypus.version = "v3", usually VDJ_GEX_matrix.output[[2]])function that contained at least two distinct biological samples. The different biological samples correspond to integer values (v2) or factor values (v3) in the order of the working directories initially supplied to the automate_GEX function.}
 
 \item{by.group}{Logical indicating whether to look at the cluster distribution per group (using the group_id column). Default is set to FALSE.}
 
@@ -21,6 +21,9 @@ Plots the cluster membership for each of the distinct samples in the Seurat obje
 }
 \examples{
 \dontrun{
-cluster.distribution.per.sample <- GEX_cluster_membership(GEX.output=automate_GEX_out[[i]])
+Platypus v2
+GEX_cluster_membership(GEX=automate_GEX_out[[i]])
+Platypus v3
+GEX_cluster_membership(GEX=VDJ_GEX_matrix.output[[2]])
 }
 }

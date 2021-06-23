@@ -115,7 +115,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   }else{
 
     GEX.cluster.genes.output <- data.frame(symbol=GEX.cluster.genes.output, dummy=NA) #add dummy, otherwise filter does not recognize df
-    rownames(GEX.cluster.genes.output) <- stingr::str_to_upper((GEX.cluster.genes.output$symbol))
+    rownames(GEX.cluster.genes.output) <- stringr::str_to_upper((GEX.cluster.genes.output$symbol))
 
     if(MT.Rb.filter==T){
         #Filter Genes

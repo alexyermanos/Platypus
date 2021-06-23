@@ -23,7 +23,7 @@ GEX_DEgenes(
 )
 }
 \arguments{
-\item{GEX}{Output Seurat object from automate_GEX or VDJ_GEX_matrix_function function that contained at least two distinct biological groups.}
+\item{GEX}{Output Seurat object from automate_GEX or VDJ_GEX_matrix_function (VDJ_GEX_matrix.output[[2]]) function that contained at least two distinct biological groups.}
 
 \item{FindMarkers.out}{OPTIONAL: the output of the FindMarkers function. This skips the DEG calculation step and outputs desired plots. All plotting parameters function as normal. Grouping parameters and min.pct are ignored.}
 
@@ -61,24 +61,27 @@ Extracts the differentially expressed genes between two groups of cells. These g
 }
 \examples{
 \dontrun{
+Basic run between two samples
+GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
+group1 = "s1",group2 = "s2", platypus.version = "v3")
 
-#Basic run between two samples
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", platypus.version = "v3")
-
-#Getting DEGs between two seurat clusters
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
-
-#Getting DEGs between two custom groups, possibly cellypes
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "Column with cell type information",group1 = "T memory cells",group2 = "T effector cells")
+Getting DEGs between two seurat clusters
+GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
+grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
 
 Plotting a heatmap by foldchange of sample markers
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap", up.genes = 10, down.genes = 10m, logFC = TRUE)
+GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
+, up.genes = 10, down.genes = 10m, logFC = TRUE)
 
-#plotting volcano by p value of sample markers. Label additional genes of interest
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
+Plotting volcano by p value of sample markers. Label additional genes of interest
+GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
+,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
+, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
 
-#Generate a heatmap from an already existing FindMarkers output
-check_de_genes <- GEX_DEgenes(GEX= vgm[[2]], FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap", up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
-
+Generate a heatmap from an already existing FindMarkers output
+GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
+, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 }
 }

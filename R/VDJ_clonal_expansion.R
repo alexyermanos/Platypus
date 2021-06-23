@@ -370,7 +370,7 @@ VDJ_clonal_expansion <- function(VDJ,
         clones_per_isotype_all[[i]] <- do.call("rbind",clones_per_isotype)
 
         if(treat.incomplete.cells == "exclude"){
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]

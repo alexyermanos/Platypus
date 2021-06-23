@@ -21,7 +21,8 @@ Extracts information on the VDJRegion level using MiXCR. This function assumes t
 }
 \examples{
 \dontrun{
-call_MIXCR(VDJ.per.clone = VDJ.per.clone.output,mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
+call_MIXCR(VDJ.per.clone = VDJ.per.clone.output
+,mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
 }
 }
 \seealso{

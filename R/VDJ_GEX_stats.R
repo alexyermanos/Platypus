@@ -9,7 +9,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4),metrics10x = T,save.csv = T ,filename = "stats.csv")
+#' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list
+#' ,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4)
+#' ,metrics10x = T,save.csv = T ,filename = "stats.csv")
 #' }
 
 VDJ_GEX_stats <- function(VDJ.out.directory,

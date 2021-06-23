@@ -25,6 +25,9 @@ Organizes the top N genes that define each Seurat cluster and converts them into
 }
 \examples{
 \dontrun{
-checking_vdj_reclono <- VDJ_reclonotype_list_arrange(VDJ_clonotype.output = repertoire_reclonotype, VDJ_analyze.output = repertoire_list,Platypus_list.object = repertoire_vdj_per_clone)
+checking_vdj_reclono <- VDJ_reclonotype_list_arrange(
+VDJ_clonotype.output = repertoire_reclonotype
+,VDJ_analyze.output = repertoire_list
+,Platypus_list.object = repertoire_vdj_per_clone)
 }
 }

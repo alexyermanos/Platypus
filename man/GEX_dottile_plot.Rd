@@ -4,20 +4,14 @@
 \alias{GEX_dottile_plot}
 \title{Outputs a dotplot for gene expression, where the color of each dot is scaled by the gene expression level and the size is scaled by the \% of cells positive for the gene}
 \usage{
-GEX_dottile_plot(
-  GEX.matrix,
-  genes,
-  group.by,
-  threshold.to.plot,
-  platypus.version
-)
+GEX_dottile_plot(GEX, genes, group.by, threshold.to.plot, platypus.version)
 }
 \arguments{
-\item{GEX.matrix}{GEX seurat object generated with VDJ_GEX_matrix}
+\item{GEX}{GEX seurat object generated with VDJ_GEX_matrix}
 
-\item{genes}{Character vector. Genes of those in rownames(GEX.matrix) to plot. Can be any number, but more then 30 is discuraged because of cluttering}
+\item{genes}{Character vector. Genes of those in rownames(GEX) to plot. Can be any number, but more then 30 is discuraged because of cluttering}
 
-\item{group.by}{Character. Name of a column in GEX.matrix@meta.data to split the plot by. If set to \"none\", a plot with a single column will be produced.}
+\item{group.by}{Character. Name of a column in GEX@meta.data to split the plot by. If set to \"none\", a plot with a single column will be produced.}
 
 \item{threshold.to.plot}{Integer 1-100. \% of cells which must be expressing the feature to plot a point. If below, the field will be left empty}
 
@@ -32,6 +26,7 @@ Outputs a dotplot for gene expression, where the color of each dot is scaled by 
 \examples{
 \dontrun{
 To return a plot detailing the expression of common genes by seurat cluster
-GEX_dottile_plot(GEX.matrix = VDJ.GEX.matrix.output[[2]], genes = c("CD19", "EBF1","CD3E","CD8A","MKI67"), group.by = "seurat_clusters", threshold.to.plot = 5)
+GEX_dottile_plot(GEX = VDJ.GEX.output[[2]], genes = c("CD19","CD3E"),
+group.by = "seurat_clusters", threshold.to.plot = 5)
 }
 }

@@ -7,7 +7,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]], clonotype.ids= c(1,2,3,4,5))
+#' GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]]
+#' , clonotype.ids= c(1,2,3,4,5))
 #'}
 
 GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, default){
