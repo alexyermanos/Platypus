@@ -25,9 +25,7 @@ VDJ_VJ_usage_circos <- function(VDJ,
                                 c.count,
                                 platypus.version,
                                 filter1H1L){
-  require(reshape2)
-  require(ggplot2)
-  require(stringr)
+
   if(missing(label.threshold)){label.threshold <- 1}
   if(missing(A.or.B)){A.or.B <- "both"}
   if(missing(cell.level)){cell.level <- F}

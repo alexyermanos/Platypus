@@ -23,7 +23,7 @@ VDJ_clonotype <- function(VDJ,
                           output.format,
                           global.clonotype,
                           VDJ.VJ.1chain){
-  require(stringdist)
+
   if(missing(platypus.version)) platypus.version <- "v2"
   if(missing(output.format)) output.format <- "vgm"
   if(missing(global.clonotype)) global.clonotype <- F
@@ -166,7 +166,6 @@ VDJ_clonotype <- function(VDJ,
     VDJ.GEX.matrix[[1]] <- VDJ
     VDJ <- NULL
 
-    require(parallel)
     if(global.clonotype==F){ # loop through each repertoire individualually
       repertoire.number <- unique(VDJ.GEX.matrix[[1]]$sample_id)
       sample_dfs <- list()

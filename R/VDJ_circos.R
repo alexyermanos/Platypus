@@ -16,7 +16,6 @@ VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.cou
 
   CELL_META <- NULL
 
-  require(circlize)
   circlize::circos.clear()
   circlize::circos.par(points.overflow.warning=FALSE)
   if(missing(axis)){axis <- "max"}

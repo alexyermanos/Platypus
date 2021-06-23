@@ -29,8 +29,6 @@ VDJ_call_MIXCR <- function(VDJ,
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
 
-  require(stringr)
-
     if(missing(simplify)) simplify <- T
     if(missing(species)) species <- "hsa"
     if(missing(platypus.version)) platypus.version <- "v2"

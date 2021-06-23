@@ -43,14 +43,6 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
   if (missing(my_own_geneset)) {my_own_geneset <- F}
   if (missing(gmt.download)) {path_to_pathways <- c("Mus musculus", "C7")}
 
-  require(dplyr)
-  require(fgsea)
-  require(tibble)
-  require(stringr)
-  require(stats)
-  require(ggplot2)
-  require(msigdbr)
-
   # change metric colname to 'stats' for further downstream analysis
   # print(head(GEX.cluster.genes.output))
   colnames <- names(GEX.cluster.genes.output)[names(GEX.cluster.genes.output) == metric_colname] <- 'stats'

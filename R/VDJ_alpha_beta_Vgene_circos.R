@@ -165,7 +165,7 @@ if(platypus.version=="v3"){
 
       dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_beta_Vgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
-      dummy$clonotype <- stringr::tr_split_fixed(dummy$pasted, "/and/", 2)
+      dummy$clonotype <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)
       dummy$gene <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)[,2]
 
       dummy_Vgene_df[[k]] <- as.data.frame(table(dummy$gene))

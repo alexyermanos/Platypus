@@ -26,7 +26,6 @@ GEX_dottile_plot <- function(GEX,
 
   platypus.version <- "v3"
 
-  require(tidyr)
   if(missing(GEX)) stop("Please provide a seurat object as input to GEX")
   if(missing(threshold.to.plot)) threshold.to.plot <- 5
 

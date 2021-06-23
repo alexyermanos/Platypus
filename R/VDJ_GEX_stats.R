@@ -21,13 +21,6 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
                           save.csv,
                           filename){
 
-  require(seqinr)
-  require(jsonlite)
-  require(tidyverse)
-  require(msa)
-  require(stringr)
-  require(Biostrings)
-  require(stringr)
 
   if(missing(save.csv)) save.csv <- T
   if(missing(filename)) filename <- "VDJ_stats.csv"

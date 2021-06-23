@@ -32,7 +32,6 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
   Sample <- NULL
   Frequency <- NULL
 
-  require(ggplot2)
   if (missing(Fraction.HC)) Fraction.HC <- 0
   if (missing(HC.gene.number)) HC.gene.number <- 10
   if (missing(LC.Vgene)) LC.Vgene <- FALSE

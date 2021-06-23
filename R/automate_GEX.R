@@ -15,6 +15,7 @@
 #' @param mds.dim Numeric vector specifying which dimensions should be supplied into dimensional reduction techniques in Seurat and Harmony. Default input is '1:10'.
 #' @param groups Integer specifying the groups of the different samples. This is needed if there are multiple biological replicates for a given condition sequenced and aligned through cellranger separately.
 #' @return Returns a processed Seurat object containing transcriptional information from all samples which can be supplied to the VDJ_GEX_integrate function.
+#' @import harmony
 #' @export
 #' @examples
 #' \dontrun{
@@ -40,7 +41,6 @@ automate_GEX <- function(GEX.outs.directory.list,
                          groups){
   print("This may take longer than other repertoire associated functions. Please see Seurat vignettes for further information")
   if(missing(integration.method)) integration.method <- "scale.data"
-  if(integration.method=="harmony") require(harmony)
   if(missing(GEX.outs.directory.list)) print("Missing output directory of cellranger count. Assuming a list of 10x gene expression libraries is supplied as input.")
   if(missing(mito.filter)) mito.filter <- 5
   if(missing(integration.method)) integration.method <- "scale.data"

@@ -13,9 +13,6 @@
 
 GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, default){
 
-  require(do)
-  require(Seurat)
-  require(useful)
   if(missing(default)) default<- TRUE
   Cap<-function(x){
     temp<-c()

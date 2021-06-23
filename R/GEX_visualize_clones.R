@@ -16,10 +16,6 @@
 #' }
 GEX_visualize_clones <- function(GEX.list, VDJ.GEX.integrate.list, highlight.type, highlight.number, reduction){
 
-  require(ggplot2)
-  require(stringr)
-  require(scales)
-
   # initialize plot list
   pl_list <- list()
 

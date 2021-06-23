@@ -74,10 +74,6 @@ VDJ_GEX_overlay_clones <- function(GEX,
   if(missing(reduction)) reduction <- "umap"
   if(missing(ncol.facet)) ncol.facet <- 2
   if(missing(split.plot.and.legend)) split.plot.and.legend <- F
-  if(split.plot.and.legend){
-    require(gridExtra)
-    require(cowplot)
-  }
   if(missing(pt.size)) pt.size <- 1
 
   if(by.other.group %in% names(GEX@meta.data)){

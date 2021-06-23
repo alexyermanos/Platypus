@@ -18,7 +18,6 @@ GEX_scatter_coexpression <- function(GEX,
                                      gene.1,
                                      gene.2,
                                      color.theme){
-require(gridExtra)
 
 if(missing(color.theme)) color.theme <- "darkorchid4"
 

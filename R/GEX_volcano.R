@@ -31,8 +31,21 @@
 #' GEX_volcano(findmarkers.output = GEX_cluster_genes.Output
 #' , cluster.genes.output =T)
 #'}
-GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, condition.2, explicit.title, RP.MT.filter, color.p.threshold, color.log.threshold, label.p.threshold, label.logfc.threshold, n.label.up, n.label.down, by.logFC ,maximum.overlaps ,plot.adj.pvalue) {
-  require(ggrepel)
+GEX_volcano <- function(findmarkers.output,
+                        cluster.genes.output,
+                        condition.1,
+                        condition.2,
+                        explicit.title,
+                        RP.MT.filter,
+                        color.p.threshold,
+                        color.log.threshold,
+                        label.p.threshold,
+                        label.logfc.threshold,
+                        n.label.up,
+                        n.label.down,
+                        by.logFC,
+                        maximum.overlaps,
+                        plot.adj.pvalue) {
 
   avg_log2FC <- NULL
   minus.log10p <- NULL

@@ -29,6 +29,9 @@
 #'@param group.id vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.
 #'@param subsample.barcodes For development purposes only. If set to TRUE the function will run on 100 cells only to increase speeds of debugging
 #' @return Single cell matrix including VDJ and GEX info
+#' @import Seurat
+#' @import ggplot2
+#' @import rmarkdown
 #' @export
 #' @examples
 #' \dontrun{
@@ -95,17 +98,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   VDJ_GEX_stats <- NULL
   do <- NULL
 
-  require(seqinr)
-  require(jsonlite)
-  require(tidyverse)
-  require(msa)
-  require(stringr)
-  require(Biostrings)
-  require(do)
-  require(Seurat)
-  require(useful)
-
-
   if(missing(subsample.barcodes)) subsample.barcodes = F
   if(missing(group.id)){
     if(missing(GEX.out.directory.list)) group.id <- 1:length(VDJ.out.directory.list)
@@ -134,8 +126,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(exclude.on.cell.state.markers)) exclude.on.cell.state.markers <- "none"
 
   if(parallel.processing == "parlapply" | parallel.processing == "mclapply"){
-    require(parallel)
-    require(doParallel)
     if(missing(numcores)) numcores <- parallel::detectCores()
     if(numcores > parallel::detectCores()){numCores <- parallel::detectCores()}
   }
@@ -148,7 +138,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(n.count.rna.max)) n.count.rna.max <- Inf
   if(missing(n.feature.rna)) n.feature.rna <- 0
   if(missing(integration.method)) integration.method <- "scale.data"
-  if(integration.method=="harmony") require(harmony)
   if(missing(GEX.integrate)) GEX.integrate <- T
   if(missing(n.variable.features)) n.variable.features <- 2000
   if(missing(cluster.resolution)) cluster.resolution <- .5
@@ -231,14 +220,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                             save.csv,
                             filename){####START VDJ_GEX_stats
 
-    require(seqinr)
-    require(jsonlite)
-    require(tidyverse)
-    require(msa)
-    require(stringr)
-    require(Biostrings)
-    require(stringr)
-    require(utils)
 
     if(missing(save.csv)) save.csv <- T
     if(missing(filename)) filename <- "VDJ_stats.csv"
@@ -543,7 +524,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(missing(n.count.rna.max)) n.count.rna.max <- Inf
     if(missing(n.feature.rna)) n.feature.rna <- 0
     if(missing(integration.method)) integration.method <- "scale.data"
-    if(integration.method=="harmony") require(harmony)
     if(missing(GEX.integrate)) GEX.integrate <- T
     if(missing(n.variable.features)) n.variable.features <- 2000
     if(missing(cluster.resolution)) cluster.resolution <- .5
@@ -667,8 +647,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #Function called to assembly VDJ matrix
   barcode_VDJ_iteration <- function(barcodes, contigs, references, annotations, gap.opening.cost, gap.extension.cost,trim.and.align){
 
-    require(stringr)
-    require(Biostrings)
 
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.

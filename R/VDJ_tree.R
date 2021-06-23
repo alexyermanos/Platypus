@@ -20,9 +20,6 @@ VDJ_tree <- function(clonal.lineages,
                      normalize.germline.length,
                      unique.sequences){
 
-  require(ape)
-  require(phytools)
-  require(stringdist)
   if(missing(max.sequences)) max.sequences <- 500
   if(missing(min.sequences)) min.sequences <- 3
   if(missing(unique.sequences)) unique.sequences <- T

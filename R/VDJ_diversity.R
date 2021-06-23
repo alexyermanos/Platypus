@@ -41,8 +41,6 @@ VDJ_diversity <- function(VDJ,
   groups <- NULL
   colors <- NULL
 
-  #start with vegan package
-  require(vegan)
 
   if(missing(grouping.column)) grouping.column <- "none"
   if(missing(platypus.version)) platypus.version <- "v2"

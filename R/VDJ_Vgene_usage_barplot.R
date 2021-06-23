@@ -22,8 +22,6 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
   sample_id <- NULL
-
-  require(ggplot2)
   HC_Vgene_usage <- list()
   HC_Vgene_usage_plot <- list()
   LC_Vgene_usage <- list()

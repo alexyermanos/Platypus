@@ -13,7 +13,7 @@
 
 VDJ_contigs_to_vgm <- function(directory,
                                sample.names){
-  require(stringr)
+
   all_formatted_df <- list()
   for (k in 1:length(directory)) {
     filtered_contig_annotations <- utils::read.csv(file = directory[[k]]) #read in csv

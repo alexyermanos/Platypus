@@ -40,9 +40,6 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
   if(missing(point.size)) point.size <- 2
   if(missing(mean.line.color)) mean.line.color <- "black"
 
-  require(tidyr)
-  require(ggrepel)
-
   VDJ.matrix <- VDJ.mixcr.matrix
 
   #get data

@@ -27,8 +27,6 @@ GEX_pairwise_DEGs <- function(GEX,
   p_val_adj <- NULL
   perc_expressing_cells <- NULL
 
-  require(ggrepel)
-
   if(missing(label.n.top.genes)) label.n.top.genes <- 50
   if(missing(genes.to.label)) genes.to.label <- "none"
   if(missing(group.by)) group.by <- "sample_id"

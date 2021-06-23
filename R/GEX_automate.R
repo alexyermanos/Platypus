@@ -42,7 +42,6 @@ GEX_automate <- function(GEX.outs.directory.list,
 
   print("This may take longer than other repertoire associated functions. Please see Seurat vingenettes for further information")
   if(missing(integration.method)) integration.method <- "scale.data"
-  if(integration.method=="harmony") require(harmony)
   if(missing(GEX.outs.directory.list)) print("Missing output directory of cellranger count. Assuming a list of 10x gene expression libraries is supplied as input.")
   if(missing(mito.filter)) mito.filter <- 5
   if(missing(integration.method)) integration.method <- "scale.data"

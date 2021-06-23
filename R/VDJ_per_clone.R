@@ -23,10 +23,7 @@ VDJ_per_clone <- function(clonotype.list,
                                filtered.contigs,
                                annotations.json,
                                JSON) {
-  require(seqinr)
-  require(jsonlite)
-  require(dplyr)
-  require(msa)
+
   if(missing(VDJ.out.directory)) print("No output directory supplied. Assuming clonotype and contig are provided as list objects")
   if(missing(contig.list)) print("No contig.list supplied. Assuming contigs should be extracted from working directory")
   if(missing(filtered.contigs)) filtered.contigs <- TRUE

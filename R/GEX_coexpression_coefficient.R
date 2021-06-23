@@ -25,7 +25,6 @@ GEX_coexpression_coefficient <- function(GEX,
   coex.coef <- NULL
   perc.single.positive <- NULL
 
-
   if(missing(plot.dotmap)) plot.dotmap <- T
 
   coex_coef <- function(combs,cmat){

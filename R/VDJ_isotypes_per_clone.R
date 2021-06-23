@@ -34,8 +34,6 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
   Isotype <- NULL
   ClonalRank <- NULL
 
-  require(stringr)
-  require(ggplot2)
 
   if(missing(clones)) print("Number of clones to be displayed has not been supplied. 50 clones will be displayed by default")
   if(missing(clones)) clones <- 50

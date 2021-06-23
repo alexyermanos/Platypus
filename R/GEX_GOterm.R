@@ -44,11 +44,6 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   DE_genes <- NULL
   KEGG_term <- NULL
 
-  require(dplyr)
-  require(org.Mm.eg.db)
-  require(edgeR)
-  require(stringr)
-
   if (missing(GEX.cluster.genes.output)) {print("Please submit either GEX_cluster_genes output or list of gene Symbols")}
   if (missing(topNgenes)) {}
   if (missing(ontology)) {ontology <- "BP"}

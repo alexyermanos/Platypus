@@ -30,7 +30,6 @@ VDJ_analyze <- function(VDJ.out.directory,
     clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
     contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
   }
-  require(stringr)
   for(i in 1:length(clonotype.list)){
 
     clonotype.list[[i]]$HC_count <- stringr::str_count(pattern = "IGH:",string = clonotype.list[[i]]$cdr3s_aa)

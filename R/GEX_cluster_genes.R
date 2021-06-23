@@ -25,8 +25,6 @@ GEX_cluster_genes <- function(GEX,
   platypus.version <- "does not matter"
   automate_GEX.output <- GEX
   GEX <- NULL
-
-  require(stringr)
   if(missing(min.pct)) min.pct <- 0.25
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
   if(missing(base)){base <- 2}

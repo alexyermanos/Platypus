@@ -20,8 +20,6 @@ VDJ_GEX_expansion <- function(GEX.list,
   value <- NULL
   L1 <- NULL
 
-  require(stringr)
-  require(scales)
   if(missing(GEX.list)) stop("No provided list of Seurat objects. Please provide the output of the automate_GEX function.")
   if(missing(VDJ.GEX.integrate.list)) stop("No provided per clone VDJ breakdown. Please provide the output of the VDJ_per_clone function.")
   if(missing(highlight.isotype)) highlight.isotype <- "None"

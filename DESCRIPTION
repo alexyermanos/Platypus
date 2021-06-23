@@ -27,13 +27,12 @@ Imports:
     BiocGenerics, 
     IRanges, 
     SeuratObject, 
-    ape,
-    circlize, 
-    phytools, 
-    tibble
-Suggests:
+    circlize,  
+    tibble,
     vegan,
     stringdist,
+    ape,
+    phytools,
     msigdbr,
     limma,
     harmony,
@@ -43,7 +42,8 @@ Suggests:
     doParallel,
     ggrepel,
     gridExtra,
-    igraph
+    igraph,
+    scales
 Description: Allows the analysis of single cell immune repertoire data. 
 License: GPL-2
 Encoding: UTF-8

@@ -30,7 +30,6 @@ VDJ_clonal_donut <- function(VDJ,
   sample_id <- NULL
   clonotype_frequency <- NULL
 
-
 if(missing(counts.to.use)) counts.to.use <- "VGM"
 if(missing(label.size)) label.size <- 5
 if(missing(not.expanded.label.vjust)) not.expanded.label.vjust <- -0.2

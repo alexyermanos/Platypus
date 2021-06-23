@@ -26,8 +26,6 @@ VDJ_network <- function(VDJ,
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
 
-  require(stringdist)
-
   if(missing(platypus.version)) platypus.version <- "v3" ##START V2
   if(missing(distance.cutoff)) distance.cutoff <- 3
   if(missing(known.binders)) known.binders <- F

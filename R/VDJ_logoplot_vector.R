@@ -14,7 +14,6 @@
 VDJ_logoplot_vector <- function(cdr3.vector,
                                 length_cdr3,
                                 seq_type) {
-  require(ggseqlogo)
   if(missing(length_cdr3)) length_cdr3 <- "auto"
   if(missing(seq_type)) seq_type <- "auto"
 

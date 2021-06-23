@@ -9,7 +9,6 @@
 #' }
 VDJ_logoplot <- function(VDJ.object,
                          length_cdr3) {
-  require(ggseqlogo)
   if (missing(length_cdr3) | length_cdr3 < min(stringr::str_length(VDJ.object[[1]]$CDR3_aa_pasted))) {
     length_cdr3 <- min(stringr::str_length(VDJ.object[[1]]$CDR3_aa_pasted))
   }

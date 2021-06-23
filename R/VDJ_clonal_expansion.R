@@ -72,9 +72,6 @@ VDJ_clonal_expansion <- function(VDJ,
   Isotype <- NULL
   Color <- NULL
 
-  require(stringr)
-  require(ggplot2)
-
   if(missing(clones)) print("Number of clones to be displayed has not been supplied. 50 clones will be displayed by default")
   if(missing(clones)) clones <- 50
 

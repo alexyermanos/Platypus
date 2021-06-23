@@ -14,7 +14,6 @@
 VDJ_reclonotype_list_arrange <- function(VDJ_clonotype.output,
                                          VDJ_analyze.output,
                                          Platypus_list.object){
-  require(stringr)
   output_list <- list()
   for(i in 1:length(VDJ_clonotype.output)){
     output_list[[i]] <- list()

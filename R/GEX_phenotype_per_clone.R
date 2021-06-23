@@ -26,10 +26,6 @@ GEX_phenotype_per_clone <- function(GEX,
   clonotype_id_10x <- NULL
   clonotype_id <- NULL
 
-  require(ggplot2)
-  require(reshape2)
-  require(Seurat)
-
   if(!missing(clonotype.ids)) platypus.version <- "v2"
 
   if(!missing(GEX.clonotypes)) platypus.version <- "v3"
