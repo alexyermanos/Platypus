@@ -11,6 +11,9 @@
 VDJ_Vgene_usage <- function(VDJ.clonotype.output,
                             VDJ.matrix,
                             platypus.version){
+    Nr_of_VDJ_chains <- NULL
+    Nr_of_VJ_chains <- NULL
+    sample_id <- NULL
 
     if(missing(platypus.version)) platypus.version <- "v2"
 

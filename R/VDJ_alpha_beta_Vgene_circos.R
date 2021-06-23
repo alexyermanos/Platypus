@@ -29,9 +29,6 @@ if(missing(filter1H1L)){filter1H1L <- T}
 
 if(platypus.version=="v3"){
 
-
-
-
   #########################################################################
   print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
   clonotype <- "clonotype_id_10x"
@@ -157,8 +154,8 @@ if(platypus.version=="v3"){
 
       dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_beta_Vgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
-      dummy$clonotype <- str_split_fixed(dummy$pasted, "/and/", 2)
-      dummy$gene <- str_split_fixed(dummy$pasted, "/and/", 2)[,2]
+      dummy$clonotype <- stringr::tr_split_fixed(dummy$pasted, "/and/", 2)
+      dummy$gene <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)[,2]
 
       dummy_Vgene_df[[k]] <- as.data.frame(table(dummy$gene))
       colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
@@ -166,8 +163,8 @@ if(platypus.version=="v3"){
 
       dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_beta_Jgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
-      dummy$clonotype <- str_split_fixed(dummy$pasted, "/and/", 2)[,1]
-      dummy$gene <- str_split_fixed(dummy$pasted, "/and/", 2)[,2]
+      dummy$clonotype <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)[,1]
+      dummy$gene <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)[,2]
 
       dummy_Jgene_df[[k]] <- as.data.frame(table(dummy$gene))
       colnames(dummy_Jgene_df[[k]]) <- c("gene", "count")
@@ -210,7 +207,7 @@ if(platypus.version=="v3"){
   }
 
   #set colors: same color across all samples
-  grid.col <- setNames(rainbow(length(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]])))),sample(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]]))))
+  grid.col <- stats::setNames(grDevices::rainbow(length(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]])))),sample(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]]))))
 
   for (i in 1:length(Vgene_usage_matrix)){
     # filter out genes which have fewer clonotypes then clonotype.per.gene.threshold
@@ -218,7 +215,7 @@ if(platypus.version=="v3"){
     Vgene_usage_matrix[[i]] <- Vgene_usage_matrix[[i]][,which(colSums(Vgene_usage_matrix[[i]])>=clonotype.per.gene.threshold)]
 
     nm = unique(unlist(dimnames(Vgene_usage_matrix[[i]])))
-    group = structure(str_sub(nm, 1,4), names = nm)
+    group = structure(stringr::str_sub(nm, 1,4), names = nm)
 
 
 
@@ -412,7 +409,7 @@ if(platypus.version=="v3"){
       }
 
       #set colors: same color across all samples
-      grid.col <- setNames(rainbow(length(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]])))),sample(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]]))))
+      grid.col <- stats::setNames(grDevices::rainbow(length(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]])))),sample(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]]))))
 
       for (i in 1:length(Vgene_usage_matrix)){
         # filter out genes which have fewer clonotypes then clonotype.per.gene.threshold
@@ -420,7 +417,7 @@ if(platypus.version=="v3"){
         Vgene_usage_matrix[[i]] <- Vgene_usage_matrix[[i]][,which(colSums(Vgene_usage_matrix[[i]])>=clonotype.per.gene.threshold)]
 
         nm = unique(unlist(dimnames(Vgene_usage_matrix[[i]])))
-        group = structure(str_sub(nm, 1,4), names = nm)
+        group = structure(stringr::str_sub(nm, 1,4), names = nm)
 
 
 

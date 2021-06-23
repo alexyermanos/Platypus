@@ -17,9 +17,11 @@ GEX_dottile_plot(
 
 \item{genes}{Character vector. Genes of those in rownames(GEX.matrix) to plot. Can be any number, but more then 30 is discuraged because of cluttering}
 
-\item{group.by}{Character. Name of a column in GEX.matrix@meta.data to split the plot by. If set to "none", a plot with a single column will be produced.}
+\item{group.by}{Character. Name of a column in GEX.matrix@meta.data to split the plot by. If set to \"none\", a plot with a single column will be produced.}
 
-\item{platypus.version}{This is coded for "v3" only, but in practice any Seurat Object can be fed in}
+\item{threshold.to.plot}{Integer 1-100. \% of cells which must be expressing the feature to plot a point. If below, the field will be left empty}
+
+\item{platypus.version}{This is coded for \"v3\" only, but in practice any Seurat Object can be fed in}
 }
 \value{
 Returns a ggplot object

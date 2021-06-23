@@ -27,6 +27,12 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
                                    treat.incomplete.cells,
                                    platypus.version,
                                    VDJ.matrix){
+
+  Counts <- NULL
+  sum_counts <- NULL
+  Isotype <- NULL
+
+
   require(stringr)
   require(ggplot2)
 
@@ -120,7 +126,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
         clones_per_isotype_all[[i]] <- do.call("rbind", clones_per_isotype)
 
         if(treat.incomplete.cells == "exclude"){
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
@@ -148,7 +154,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
         #get essential info from VDJ_GEX_matrix
         curr_rep_iso <- VDJ.GEX.matrix.out[[i]][,c("barcode","clonotype_id_10x", "VDJ_cgene", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
         #no substring here, just splitting on a ; to exclude multiple isotypes of one clone
-        curr_rep_iso$isotype <- str_split(curr_rep_iso$VDJ_cgene, ";", simplify = T)[,1]
+        curr_rep_iso$isotype <- stringr::str_split(curr_rep_iso$VDJ_cgene, ";", simplify = T)[,1]
 
 
 
@@ -218,7 +224,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
         clones_per_isotype_all[[i]] <- do.call("rbind",clones_per_isotype)
 
         if(treat.incomplete.cells == "exclude"){
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% summarise(sum_counts = sum(Counts)) %>% arrange(desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]

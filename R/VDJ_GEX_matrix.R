@@ -79,6 +79,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   barcode_VDJ_iteration <- NULL
   GEX_automate_single <- NULL
   VDJ_GEX_stats <- NULL
+  do <- NULL
 
   require(seqinr)
   require(jsonlite)
@@ -314,8 +315,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         productive <- append(productive, min(contig.list[[k]]$productive[which(contig.list[[k]]$barcode == j)]))
         full_length <- append(full_length, min(contig.list[[k]]$full_length[which(contig.list[[k]]$barcode == j)]))
 
-        nr_HC <- append(nr_HC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
-        nr_LC <- append(nr_LC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
+        nr_HC <- append(nr_HC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
+        nr_LC <- append(nr_LC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
       }
       lookup_stats <- data.frame(barcodes,nr_HC,nr_LC,is_cell,high_confidence,productive,full_length)
       names(lookup_stats) <- c("barcodes","nr_HC","nr_LC","is_cell","high_confidence","productive","full_length")
@@ -328,8 +329,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
         clonotype_ids <- append(clonotype_ids, clonotype.list[[k]]$clonotype_id[l])
 
-        nr_HC <- append(nr_HC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
-        nr_LC <- append(nr_LC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
+        nr_HC <- append(nr_HC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
+        nr_LC <- append(nr_LC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
       }
       lookup_stats_clono <- data.frame(clonotype_ids,nr_HC,nr_LC)
       names(lookup_stats_clono) <- c("clonotype_ids","nr_HC","nr_LC")
@@ -440,7 +441,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         ncols <- do.call("c", lapply(VDJ.metrics.list, function(x) ncol(x)))
         #check if length if identical
         if(length(unique(ncols)) == 1){
-          VDJ.metrics.all <- bind_rows(VDJ.metrics.list)
+          VDJ.metrics.all <- dplyr::bind_rows(VDJ.metrics.list)
           #if not merge dataframes sequentially to ensure that all information is maintained
         } else {
           for(m in 1:length(VDJ.metrics.list)){
@@ -472,7 +473,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           ncols <- do.call("c", lapply(GEX.metrics.list, function(x) ncol(x)))
           #check if length if identical
           if(length(unique(ncols)) == 1){
-            GEX.metrics.all <- bind_rows(GEX.metrics.list)
+            GEX.metrics.all <- dplyr::bind_rows(GEX.metrics.list)
             #if not merge dataframes sequentially to ensure that all information is maintained
           } else {
             for(m in 1:length(GEX.metrics.list)){
@@ -496,7 +497,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       VDJ.stats.all <- cbind(VDJ.stats.all, VDJ.metrics.all)
     } else {}
-    if(save.csv){write.csv(VDJ.stats.all, file = filename)}
+    if(save.csv){utils::write.csv(VDJ.stats.all, file = filename)}
 
     return(VDJ.stats.all)
   }
@@ -618,8 +619,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         GEX.list[[i]] <- Seurat::FindVariableFeatures(GEX.list[[i]], selection.method = "vst", nfeatures = n.variable.features)
 
         all.genes <- rownames(GEX.list[[i]])
-        GEX.list[[i]] <- Seurat::ScaleData(GEX.list[[i]], features = VariableFeatures(object = GEX.list[[i]]))
-        GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature=VariableFeatures(object = GEX.list[[i]]))
+        GEX.list[[i]] <- Seurat::ScaleData(GEX.list[[i]], features = Seurat::VariableFeatures(object = GEX.list[[i]]))
+        GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature= Seurat::VariableFeatures(object = GEX.list[[i]]))
         GEX.list[[i]] <- harmony::RunHarmony(GEX.list[[i]], "sample_id")
         GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]],dims=neighbor.dim,verbose = T,reduction = "harmony")
         GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]],resolution = cluster.resolution,reduction = "harmony")
@@ -659,10 +660,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
     curr.contigs <- contigs[which(contigs$barcode == barcodes & tolower(contigs$is_cell) == "true" & tolower(contigs$high_confidence) == "true" & tolower(contigs$productive) == "true" & tolower(contigs$full_length) == "true"),]
     if(curr.contigs$raw_clonotype_id[1] != ''){
-      curr.references <- references[which(str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]} else {curr.references <- ""}
+      curr.references <- references[which(stringr::str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]} else {curr.references <- ""}
 
     #getting the relevant annotations
-    curr.annotations <- annotations[str_detect(annotations$contig_id, barcodes),]
+    curr.annotations <- annotations[stringr::str_detect(annotations$contig_id, barcodes),]
 
     #set up data structure
     cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
@@ -674,13 +675,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #If more than two contigs of one chain (e.g. 2 TRB) are present, the elements will be pasted separated by a ";" into the relevant fields (in the case of TRB, into the Hb columns)
 
     #Get number of chains
-    HC_count <- sum(str_count(curr.contigs$chain, pattern = "(TRB|IGH)"))
-    LC_count <- sum(str_count(curr.contigs$chain, pattern = "(TRA|IG(K|L))"))
+    HC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRB|IGH)"))
+    LC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRA|IG(K|L))"))
 
     #In this case we need to make much less effort with pasting together, so we can save time
     if(HC_count == 1 & LC_count == 1){
 
-      if(which(str_detect(curr.contigs$chain, "(TRA|IG(K|L))")) == 1){ #make row 1 the heavy chain in case it is not already
+      if(which(stringr::str_detect(curr.contigs$chain, "(TRA|IG(K|L))")) == 1){ #make row 1 the heavy chain in case it is not already
         curr.contigs <- curr.contigs[c(2,1),]}
 
       #fill in the pasted info to curr.barcode directly
@@ -715,11 +716,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     } else { # this for cells with abberrant chain numbers
 
-      contigs_pasted <- setNames(data.frame(matrix(ncol = ncol(curr.contigs), nrow = length(unique(curr.contigs$chain)))), names(curr.contigs)) #the dataframe may be one or two rows too long, this will not matter / ROW 1 = Heavy chain information / ROW 2 = Light chain information. This order is maintained even if one of the two chains is not present!
+      contigs_pasted <- stats::setNames(data.frame(matrix(ncol = ncol(curr.contigs), nrow = length(unique(curr.contigs$chain)))), names(curr.contigs)) #the dataframe may be one or two rows too long, this will not matter / ROW 1 = Heavy chain information / ROW 2 = Light chain information. This order is maintained even if one of the two chains is not present!
 
       #Heavy/b chain count
       if(HC_count == 1){
-        contigs_pasted[1,] <- curr.contigs[str_detect(curr.contigs$chain, pattern = "(TRB|IGH)"),]
+        contigs_pasted[1,] <- curr.contigs[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)"),]
       } else if(HC_count == 0){
         contigs_pasted[1,] <- ""
       } else if(HC_count > 1){
@@ -790,13 +791,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         curr.barcode$VDJ_sequence_nt_trimmed <- substr(curr.annotations$sequence[HC_contig], as.numeric(curr.annotations$temp_start[HC_contig])+1, as.numeric(curr.annotations$temp_end[HC_contig])-1)
         #translate trimmed sequence
         if(nchar(curr.barcode$VDJ_sequence_nt_trimmed) > 1){
-          curr.barcode$VDJ_sequence_aa <- as.character(Biostrings::translate(DNAStringSet(curr.barcode$VDJ_sequence_nt_trimmed)))
+          curr.barcode$VDJ_sequence_aa <- as.character(Biostrings::translate(Biostrings::DNAStringSet(curr.barcode$VDJ_sequence_nt_trimmed)))
         } else {to_paste_aa <- ""}
         #align to reference and trim reference
         tryCatch({
           if(nchar(curr.barcode$VDJ_sequence_nt_trimmed) > 1){
             alignments <- Biostrings::pairwiseAlignment(curr.barcode$VDJ_sequence_nt_trimmed, as.character(reference_HC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-            curr.barcode$VDJ_trimmed_ref <- as.character(subject(alignments[which.max(score(alignments))]))
+            curr.barcode$VDJ_trimmed_ref <- as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))]))
           } else {to_paste_ref_trimmed <-  ""}
 
         }, error=function(e){
@@ -835,13 +836,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
               to_paste_trimmed <- append(to_paste_trimmed, substr(curr.annotations$sequence[l], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
               #translate trimmed sequence
               if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
-                to_paste_aa <- append(to_paste_aa, as.character(Biostrings::translate(DNAStringSet(to_paste_trimmed[length(to_paste_trimmed)]))))
+                to_paste_aa <- append(to_paste_aa, as.character(Biostrings::translate(Biostrings::DNAStringSet(to_paste_trimmed[length(to_paste_trimmed)]))))
               } else {to_paste_aa <- ""}
               #align to reference and trim reference
               tryCatch({
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
                   alignments <- Biostrings::pairwiseAlignment(to_paste_trimmed[length(to_paste_trimmed)], as.character(reference_HC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(subject(alignments[which.max(score(alignments))])))
+                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))])))
                 } else {
                   to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
                 }
@@ -873,13 +874,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         curr.barcode$VJ_sequence_nt_trimmed <- substr(curr.annotations$sequence[LC_contig], as.numeric(curr.annotations$temp_start[LC_contig])+1, as.numeric(curr.annotations$temp_end[LC_contig])-1)
         #translate trimmed sequence
         if(nchar(curr.barcode$VJ_sequence_nt_trimmed) > 1){
-          curr.barcode$VJ_sequence_aa <- as.character(Biostrings::translate(DNAStringSet(curr.barcode$VJ_sequence_nt_trimmed)))
+          curr.barcode$VJ_sequence_aa <- as.character(Biostrings::translate(Biostrings::DNAStringSet(curr.barcode$VJ_sequence_nt_trimmed)))
         } else {to_paste_aa <- ""}
         #align to reference and trim reference
         tryCatch({
           if(nchar(curr.barcode$VJ_sequence_nt_trimmed) > 1){
             alignments <- Biostrings::pairwiseAlignment(curr.barcode$VJ_sequence_nt_trimmed, as.character(reference_LC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-            curr.barcode$VJ_trimmed_ref <- as.character(subject(alignments[which.max(score(alignments))]))
+            curr.barcode$VJ_trimmed_ref <- as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))]))
           } else {to_paste_ref_trimmed <-  ""}
 
         }, error=function(e){
@@ -917,13 +918,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
               to_paste_trimmed <- append(to_paste_trimmed, substr(curr.annotations$sequence[l], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
               #translate trimmed sequence
               if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
-                to_paste_aa <- append(to_paste_aa, as.character(Biostrings::translate(DNAStringSet(to_paste_trimmed[length(to_paste_trimmed)]))))
+                to_paste_aa <- append(to_paste_aa, as.character(Biostrings::translate(Biostrings::DNAStringSet(to_paste_trimmed[length(to_paste_trimmed)]))))
               } else {to_paste_aa <- ""}
               #align to reference and trim reference
               tryCatch({
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
                   alignments <- Biostrings::pairwiseAlignment(to_paste_trimmed[length(to_paste_trimmed)], as.character(reference_LC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(subject(alignments[which.max(score(alignments))])))
+                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))])))
                 } else {
                   to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
                 }
@@ -1160,9 +1161,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         cell.state.markers <- toupper(cell.state.markers)
       }
 
-      cell.state.markers<-do:Replace(cell.state.markers,from=";", to="&")
-      cell.state.markers<-do:Replace(cell.state.markers,from="\\+", to=">0")
-      cell.state.markers<-do:Replace(cell.state.markers,from="-", to="==0")
+      #Replaced with gsub due to package compatibility
+      #cell.state.markers<-do:Replace(cell.state.markers,from=";", to="&")
+      #cell.state.markers<-do:Replace(cell.state.markers,from="\\+", to=">0")
+      #cell.state.markers<-do:Replace(cell.state.markers,from="-", to="==0")
+
+      cell.state.markers<-gsub(pattern =";", replacement ="&",cell.state.markers)
+      cell.state.markers<-gsub(pattern ="\\+", replacement =">0",cell.state.markers)
+      cell.state.markers<-gsub(pattern ="-", replacement ="==0",cell.state.markers)
 
       #iterate over seurat objects
       for(j in 1:length(gex.list)){

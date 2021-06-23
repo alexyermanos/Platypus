@@ -77,10 +77,10 @@ GEX_pairwise_DEGs <- function(GEX.matrix,
         }
       }
 
-    plot.out <- ggplot::ggplot(degs, aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + ggplot::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot::theme(legend.position = "none",panel.background = ggplot::element_blank(),axis.text = ggplot::element_text(size = 30), axis.line = ggplot::element_line(size = 2), axis.ticks = ggplot::element_line(size = 2), axis.ticks.length = ggplot::unit(0.3, "cm"), text = ggplot::element_text(size=30)) + ggplot::labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)")+ ggrepel::geom_text_repel(data = degs_rel, ggplot::aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot::scale_colour_viridis_c(option = "B")
+    plot.out <- ggplot2::ggplot(degs, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot2::theme(legend.position = "none",panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)")+ ggrepel::geom_text_repel(data = degs_rel, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
 
     if(save.plot == T){
-      ggplot::ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 400, width = 10, height = 10)
+      ggplot2::ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 400, width = 10, height = 10)
     }
 
     degs.list[[i]] <- degs

@@ -21,6 +21,9 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
                                 axis.label.size,
                                 add.barcode.table,
                                 platypus.version){
+  group <- NULL
+  overlap <- NULL
+  overlap_lab <- NULL
 
   #VERSION is set for now:
   platypus.version <- "v3"
@@ -53,7 +56,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   names(df.list) <- sample.names
 
   if(length(sample.names) > 2){
-  combs <- as.data.frame(t(combn(as.character(sample.names), m = 2,simplify = TRUE)))#get combinations to test
+  combs <- as.data.frame(t(utils::combn(as.character(sample.names), m = 2,simplify = TRUE)))#get combinations to test
 
   combs[,1] <- ordered(as.factor(combs[,1]), levels = (sample.names))
   combs[,2] <- ordered(as.factor(combs[,2]), levels = (sample.names))
@@ -90,7 +93,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
     ov_df <- data.frame("overlapping_items" = ov_all)
     if(length(feature.columns) > 1){
       for(i in 1:length(feature.columns)){
-        ov_df[,ncol(ov_df) + 1] <- str_split(ov_all, "/", simplify = T)[,i]
+        ov_df[,ncol(ov_df) + 1] <- stringr::str_split(ov_all, "/", simplify = T)[,i]
       }
       names(ov_df)[2:ncol(ov_df)] <- feature.columns
     }
@@ -129,7 +132,7 @@ VDJ_overlap_heatmap <- function(VDJ.matrix.output,
   combs$overlap_lab <- as.character(combs$overlap)
   combs$overlap_lab[is.na(combs$overlap)] <- "NA"
 
-  plot_out <- ggplot(combs, aes(x = combs[,1], y = combs[,2],fill=overlap)) + geom_tile() +geom_text(aes(label=overlap_lab), size = pvalues.label.size)+ scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$overlap)) + theme(panel.background = element_blank(),axis.text = element_text(size = 30), axis.line.x = element_blank(),axis.line.y = element_blank(), axis.ticks = element_blank(), text = element_text(size=30), legend.key = element_rect(colour = "white"), legend.position = "none", plot.title = element_text(hjust = 0.5, size = 25), plot.subtitle = element_text(size = 15),axis.text.x = element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = element_text(size = axis.label.size)) + labs(title = "", x = "", y = "", subtitle = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), fill = "") + scale_y_discrete(limits=rev)
+  plot_out <- ggplot2::ggplot(combs, ggplot2::aes(x = combs[,1], y = combs[,2],fill=overlap)) + ggplot2::geom_tile() + ggplot2::geom_text(ggplot2::aes(label=overlap_lab), size = pvalues.label.size)+ ggplot2::scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$overlap)) + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line.x = ggplot2::element_blank(),axis.line.y = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank(), text = ggplot2::element_text(size=30), legend.key = ggplot2::element_rect(colour = "white"), legend.position = "none", plot.title = ggplot2::element_text(hjust = 0.5, size = 25), plot.subtitle = ggplot2::element_text(size = 15),axis.text.x = ggplot2::element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = ggplot2::element_text(size = axis.label.size)) + ggplot2::labs(title = "", x = "", y = "", subtitle = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), fill = "") + ggplot2::scale_y_discrete(limits=rev)
 
   print(plot_out)
   return(list(plot_out,combs,ov_df))

@@ -42,7 +42,7 @@ VDJ_per_clone <- function(clonotype.list,
     fasta.list <- lapply(VDJ.out.directory_fasta, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
     VDJ.out.directory_reference <- paste(VDJ.out.directory,"/concat_ref.fasta",sep="")
     reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-    if (JSON==TRUE) annotations.json <- read_json(paste0(VDJ.out.directory, "/all_contig_annotations.json"), simplifyVector = T)
+    if (JSON==TRUE) annotations.json <- jsonlite::read_json(paste0(VDJ.out.directory, "/all_contig_annotations.json"), simplifyVector = T)
   }
 
   VDJ.per.cell <- list()
@@ -63,8 +63,8 @@ VDJ_per_clone <- function(clonotype.list,
 
         temp.cell.number <- clonotype.list[[i]]$frequency[j]
 
-        temp_concat_ref_HC <- gsub(pattern = "_consensus_",replacement = "_concat_ref_",x = contig.list[[i]]$raw_consensus_id[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")][1])
-        temp_concat_ref_LC <- gsub(pattern = "_consensus_",replacement = "_concat_ref_",x = contig.list[[i]]$raw_consensus_id[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGK")][1])
+        temp_concat_ref_HC <- gsub(pattern = "_consensus_",replacement = "_concat_ref_",x = contig.list[[i]]$raw_consensus_id[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")][1])
+        temp_concat_ref_LC <- gsub(pattern = "_consensus_",replacement = "_concat_ref_",x = contig.list[[i]]$raw_consensus_id[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGK")][1])
         temp_concat_ref_HC_seq <- as.character(reference.list[[i]][which(names(reference.list[[i]])==temp_concat_ref_HC)])
         temp_concat_ref_LC_seq <- as.character(reference.list[[i]][which(names(reference.list[[i]])==temp_concat_ref_LC)])
 
@@ -76,23 +76,23 @@ VDJ_per_clone <- function(clonotype.list,
         temp_str_split <- stringr::str_split(string = clonotype.list[[i]]$nt_clone_ids[j],pattern = ";")[[1]]
         temp_barcode_list <- list()
         for(k in 1:length(temp_str_split)){
-          temp_barcode_list[[k]] <- as.character(unique(contig.list[[i]]$barcode[which(contig.list[[i]]$raw_clonotype_id==temp_str_split[k] & str_detect(contig.list[[i]]$productive, "(?i)true"))]))
+          temp_barcode_list[[k]] <- as.character(unique(contig.list[[i]]$barcode[which(contig.list[[i]]$raw_clonotype_id==temp_str_split[k] & stringr::str_detect(contig.list[[i]]$productive, "(?i)true"))]))
         }
         VDJ.per.cell[[i]][[j]]$barcode <- unlist(temp_barcode_list)
 
         #### now need to be flexible with the barcodes
         for(k in 1:length(VDJ.per.cell[[i]][[j]]$barcode)){
 
-          VDJ.per.cell[[i]][[j]]$isotype_hc[k] <- names(which.max(table(contig.list[[i]]$c_gene[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$isotype_lc[k] <- names(which.max(table(contig.list[[i]]$c_gene[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$umi_count[k] <- names(which.max(table(contig.list[[i]]$umis[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$contig_id_lc[k] <- names(which.max(table(contig.list[[i]]$contig_id[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$contig_id_hc[k] <- names(which.max(table(contig.list[[i]]$contig_id[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$isotype_hc[k] <- names(which.max(table(contig.list[[i]]$c_gene[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$isotype_lc[k] <- names(which.max(table(contig.list[[i]]$c_gene[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$umi_count[k] <- names(which.max(table(contig.list[[i]]$umis[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$contig_id_lc[k] <- names(which.max(table(contig.list[[i]]$contig_id[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$contig_id_hc[k] <- names(which.max(table(contig.list[[i]]$contig_id[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
 
-          VDJ.per.cell[[i]][[j]]$HC_vgene[k] <- names(which.max(table(contig.list[[i]]$v_gene[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$HC_jgene[k] <- names(which.max(table(contig.list[[i]]$j_gene[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$LC_vgene[k] <- names(which.max(table(contig.list[[i]]$v_gene[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
-          VDJ.per.cell[[i]][[j]]$LC_jgene[k] <- names(which.max(table(contig.list[[i]]$j_gene[which(str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$HC_vgene[k] <- names(which.max(table(contig.list[[i]]$v_gene[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$HC_jgene[k] <- names(which.max(table(contig.list[[i]]$j_gene[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$LC_vgene[k] <- names(which.max(table(contig.list[[i]]$v_gene[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
+          VDJ.per.cell[[i]][[j]]$LC_jgene[k] <- names(which.max(table(contig.list[[i]]$j_gene[which(stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH" & contig.list[[i]]$productive=="True" & contig.list[[i]]$barcode==VDJ.per.cell[[i]][[j]]$barcode[k])])))
 
           VDJ.per.cell[[i]][[j]]$full_HC_sequence[k] <- as.character(fasta.list[[i]][which(names(fasta.list[[i]])==VDJ.per.cell[[i]][[j]]$contig_id_hc[k])])
           VDJ.per.cell[[i]][[j]]$full_LC_sequence[k] <- as.character(fasta.list[[i]][which(names(fasta.list[[i]])==VDJ.per.cell[[i]][[j]]$contig_id_lc[k])])
@@ -105,7 +105,7 @@ VDJ_per_clone <- function(clonotype.list,
             vdj_seq_start <- info$contig_match_start[info$feature$region_type == "L-REGION+V-REGION"]
             vdj_seq_end <- info$contig_match_end[info$feature$region_type == "J-REGION"]
             seq_trimmed <- substr(selected_contig$sequence, vdj_seq_start, vdj_seq_end)
-            ref_trimmed <- as.character(pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_HC_sequence[1], type = "local")@subject)
+            ref_trimmed <- as.character(Biostrings::pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_HC_sequence[1], type = "local")@subject)
             VDJ.per.cell[[i]][[j]]$trimmed_HC_sequence[k] <- seq_trimmed
             VDJ.per.cell[[i]][[j]]$trimmed_HC_germline[k] <- ref_trimmed
 
@@ -115,7 +115,7 @@ VDJ_per_clone <- function(clonotype.list,
             vdj_seq_start <- info$contig_match_start[info$feature$region_type == "L-REGION+V-REGION"]
             vdj_seq_end <- info$contig_match_end[info$feature$region_type == "J-REGION"]
             seq_trimmed <- substr(selected_contig$sequence, vdj_seq_start, vdj_seq_end)
-            ref_trimmmed <- as.character(pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_LC_sequence[1], type = "local")@subject)
+            ref_trimmmed <- as.character(Biostrings::pairwiseAlignment(seq_trimmed, VDJ.per.cell[[i]][[j]]$full_LC_sequence[1], type = "local")@subject)
             VDJ.per.cell[[i]][[j]]$trimmed_LC_sequence[k] <- seq_trimmed
             VDJ.per.cell[[i]][[j]]$trimmed_LC_germline[k] <- ref_trimmmed
           }

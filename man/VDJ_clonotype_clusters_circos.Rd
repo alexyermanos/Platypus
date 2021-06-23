@@ -25,9 +25,9 @@ VDJ_clonotype_clusters_circos(
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 
-\item{platypus.version}{Which platypus.version of platypus is beeing used. Default = v2.}
+\item{n_cluster}{Integer. No default.}
 
-\item{n.cluster}{Integer. No default.}
+\item{platypus.version}{Which platypus.version of platypus is beeing used. Default = v2.}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.

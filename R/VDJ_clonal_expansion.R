@@ -43,6 +43,13 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
                                    group.by,
                                    color.by,
                                    platypus.version){
+
+  ClonalRank <- NULL
+  Counts <- NULL
+  sum_counts <- NULL
+  Isotype <- NULL
+  Color <- NULL
+
   require(stringr)
   require(ggplot2)
 
@@ -59,8 +66,8 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
   platypus.version <- "v3"
 
   if(missing(celltype)){
-    if(str_detect(VDJ.matrix$celltype[1], "B")){celltype = "Bcells"
-    } else if(str_detect(VDJ.matrix$celltype[1], "T")){celltype = "Tcells"
+    if(stringr::str_detect(VDJ.matrix$celltype[1], "B")){celltype = "Bcells"
+    } else if(stringr::str_detect(VDJ.matrix$celltype[1], "T")){celltype = "Tcells"
     } else {stop("No celltype found in celltype column. celltype column must contain either 'B cells' or 'T cells'")}
     print(paste0("Selected ",  celltype))}
 
@@ -79,7 +86,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
   if(!color.by %in% names(VDJ.matrix) & color.by != "isotype"){
     stop("Please provide a valid column name of the VDJ.matrix in color.by, or set to 'isotype' for default (also for Tcells)")
   } else if(color.by %in% names(VDJ.matrix) & color.by != "isotype"){
-    unique_colors <- rainbow(length(unique(VDJ.matrix[,color.by])))
+    unique_colors <- grDevices::rainbow(length(unique(VDJ.matrix[,color.by])))
     names(unique_colors) <- unique(VDJ.matrix[,color.by])
   }
 
@@ -197,7 +204,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
 
             for(k in 1:nrow(clones_per_isotype[[j]])){
 
-              clones_per_isotype[[j]]$Counts[k] <- str_count(paste0("/",paste0(curr_clone$colors,collapse = "/ /"),"/"), pattern = paste0("/", as.character(clones_per_isotype[[j]]$Color[k]),"/"))
+              clones_per_isotype[[j]]$Counts[k] <- stringr::str_count(paste0("/",paste0(curr_clone$colors,collapse = "/ /"),"/"), pattern = paste0("/", as.character(clones_per_isotype[[j]]$Color[k]),"/"))
 
             }
 
@@ -210,7 +217,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
         clones_per_isotype_all[[i]] <- do.call("rbind", clones_per_isotype)
 
         if(treat.incomplete.cells == "exclude" & color.by == "isotype"){
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
@@ -235,7 +242,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
           clones_per_isotype_all[[i]] <- subset(clones_per_isotype_all[[i]], !ClonalRank %in% to_del)
           #redistribute clonal ranks
 
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
@@ -256,7 +263,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
         if(color.by == "isotype"){
         output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual(values = c("IGHG" = "green4", "IGHM" = "black", "IGHA" = "red3", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells")
         } else {
-          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Color, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells", fill = color.by) + scale_fill_manual(values = rainbow(n = length(unique(clones_per_isotype_all[[i]]$Color))))
+          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Color, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells", fill = color.by) + ggplot2::scale_fill_manual(values = grDevices::rainbow(n = length(unique(clones_per_isotype_all[[i]]$Color))))
 
         }
 
@@ -278,7 +285,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
         curr_rep_iso$VDJ_cgene[is.null(curr_rep_iso$VDJ_cgene)] <- "none"
 
         #no substring here, just splitting on a ; to exclude multiple isotypes of one clone
-        curr_rep_iso$isotype <- str_split(curr_rep_iso$VDJ_cgene, ";", simplify = T)[,1]
+        curr_rep_iso$isotype <- stringr::str_split(curr_rep_iso$VDJ_cgene, ";", simplify = T)[,1]
 
         if(treat.incomplete.clones == "exclude"){
           clones_to_del <-c()
@@ -359,7 +366,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
         clones_per_isotype_all[[i]] <- do.call("rbind",clones_per_isotype)
 
         if(treat.incomplete.cells == "exclude"){
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% summarise(sum_counts = sum(Counts)) %>% arrange(desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% summarise(sum_counts = sum(Counts)) %>% dplyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
@@ -385,7 +392,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
           clones_per_isotype_all[[i]] <- subset(clones_per_isotype_all[[i]], !ClonalRank %in% to_del)
           #redistribute clonal ranks
 
-          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% mutate(rank = 1:length(unique(ClonalRank))))
+          rank_raw <- as.data.frame(clones_per_isotype_all[[i]] %>% dplyr::group_by(ClonalRank) %>% dplyr::summarise(sum_counts = sum(Counts)) %>% plyr::arrange(dplyr::desc(sum_counts)) %>% dplyr::mutate(rank = 1:length(unique(ClonalRank))))
           clones_per_isotype_all[[i]]$ClonalRank_2 <- 0
           for(l in 1:nrow(rank_raw)){
             clones_per_isotype_all[[i]]$ClonalRank_2[which(clones_per_isotype_all[[i]]$ClonalRank == rank_raw$ClonalRank[l])] <- rank_raw$rank[l]
@@ -483,7 +490,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
             } else {
 
               for(k in 1:nrow(clones_per_isotype[[j]])){
-                clones_per_isotype[[j]]$Counts[k] <- str_count(paste0("/",paste0(curr_clone$colors,collapse = "/ /"),"/"), pattern = paste0("/",as.character(clones_per_isotype[[j]]$Color[k]), "/"))
+                clones_per_isotype[[j]]$Counts[k] <- stringr::str_count(paste0("/",paste0(curr_clone$colors,collapse = "/ /"),"/"), pattern = paste0("/",as.character(clones_per_isotype[[j]]$Color[k]), "/"))
               }
             }
 
@@ -495,7 +502,7 @@ VDJ_clonal_expansion <- function(VDJ.matrix,
         if(color.by[1] == "isotype"){
           output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Color, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual(values = c("gray80")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells")
         } else {
-          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Color, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells", fill = color.by)+ scale_fill_manual(values = rainbow(n = length(unique(clones_per_isotype_all[[i]]$Color))))
+          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Color, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells", fill = color.by)+ ggplot2::scale_fill_manual(values = grDevices::rainbow(n = length(unique(clones_per_isotype_all[[i]]$Color))))
 
         }
       }

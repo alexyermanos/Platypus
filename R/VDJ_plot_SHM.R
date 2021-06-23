@@ -23,6 +23,13 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
                      point.size,
                      mean.line.color,
                      platypus.version){
+  name <- NULL
+  group <- NULL
+  value <- NULL
+  m <- NULL
+  VDJ_SHM <- NULL
+  VJ_SHM <- NULL
+  barcode <- NULL
 
 
   platypus.version <- "v3"
@@ -51,52 +58,52 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
   to_plot$VDJ_SHM[is.na(to_plot$VDJ_SHM)] <- 0
   to_plot$VJ_SHM[is.na(to_plot$VJ_SHM)] <- 0
 
-  to_plot_long <- pivot_longer(to_plot, cols = c(3:4))
+  to_plot_long <- tidyr::pivot_longer(to_plot, cols = c(3:4))
 
   #BOXPLOT COMPARING SHM PER GROUP
 
-  means <- to_plot_long %>% group_by(name, group) %>% summarise(m= mean(value))
+  means <- to_plot_long %>% dplyr::group_by(name, group) %>% dplyr::summarise(m= mean(value))
 
-  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + geom_jitter(alpha = 0.4, width = 0.35, size = point.size) + ggplot2::geom_errorbar(inherit.aes = F, data = means, aes(ymax = m, ymin = m, x = group), color = mean.line.color, size = 1.6, width = 0.85) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name)
+  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_jitter(alpha = 0.4, width = 0.35, size = point.size) + ggplot2::geom_errorbar(inherit.aes = F, data = means, ggplot2::aes(ymax = m, ymin = m, x = group), color = mean.line.color, size = 1.6, width = 0.85) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = ggplot2::element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name)
 
   #SIGNIFICANCE TESTING
 
   SHM_iso_VDJ <- subset(box_plot$data, name == "VDJ_SHM")
   SHM_iso_VJ <- subset(box_plot$data, name == "VJ_SHM")
 
-  vdjmean <- SHM_iso_VDJ %>% group_by(group) %>% summarize(m = mean(value))
-  vjmean <- SHM_iso_VJ %>% group_by(group) %>% summarize(m = mean(value))
+  vdjmean <- SHM_iso_VDJ %>% dplyr::group_by(group) %>% dplyr::summarize(m = mean(value))
+  vjmean <- SHM_iso_VJ %>% dplyr::group_by(group) %>% dplyr::summarize(m = mean(value))
 
   #VDJ
   print("VDJ chain SHM data summary")
-  print(as.data.frame(group_by(SHM_iso_VDJ, group) %>%
-    summarise(
-      count = n(),
+  print(as.data.frame(dplyr::group_by(SHM_iso_VDJ, group) %>%
+  dplyr::summarise(
+      count = dplyr::n(),
       mean = mean(value, na.rm = TRUE),
-      sd = sd(value, na.rm = TRUE),
-      median = median(value, na.rm = TRUE),
-      IQR = IQR(value, na.rm = TRUE)
+      sd = stats::sd(value, na.rm = TRUE),
+      median = stats::median(value, na.rm = TRUE),
+      IQR = stats::IQR(value, na.rm = TRUE)
     )))
   cat("\n kruskal.test()")
-  print(kruskal.test(value ~ group, data = SHM_iso_VDJ))
+  print(stats::kruskal.test(value ~ group, data = SHM_iso_VDJ))
   cat("\n pairwise.wilcox.test(p.adjust.method = 'BH')")
-  suppressWarnings(print(pairwise.wilcox.test(SHM_iso_VDJ$value, SHM_iso_VDJ$group,p.adjust.method = "BH")))
+  suppressWarnings(print(stats::pairwise.wilcox.test(SHM_iso_VDJ$value, SHM_iso_VDJ$group,p.adjust.method = "BH")))
 
   #VJ
   print("------------")
   print("VJ chain SHM data summary")
-  print(as.data.frame(group_by(SHM_iso_VJ, group) %>%
-          summarise(
-            count = n(),
+  print(as.data.frame(dplyr::group_by(SHM_iso_VJ, group) %>%
+          dplyr::summarise(
+            count = dplyr::n(),
             mean = mean(value, na.rm = TRUE),
-            sd = sd(value, na.rm = TRUE),
-            median = median(value, na.rm = TRUE),
-            IQR = IQR(value, na.rm = TRUE)
+            sd = stats::sd(value, na.rm = TRUE),
+            median = stats::median(value, na.rm = TRUE),
+            IQR = stats::IQR(value, na.rm = TRUE)
           )))
   cat("\n kruskal.test()")
-  print(kruskal.test(value ~ group, data = SHM_iso_VJ))
+  print(stats::kruskal.test(value ~ group, data = SHM_iso_VJ))
   cat("\n pairwise.wilcox.test(p.adjust.method = 'BH')")
-  suppressWarnings(print(pairwise.wilcox.test(SHM_iso_VJ$value, SHM_iso_VJ$group,p.adjust.method = "BH")))
+  suppressWarnings(print(stats::pairwise.wilcox.test(SHM_iso_VJ$value, SHM_iso_VJ$group,p.adjust.method = "BH")))
 
   cat("\n Please refer to output[[1]] to view boxplot showing group comparions tested here")
 
@@ -109,12 +116,12 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
 
     curr_to_plot <- subset(to_plot, group == unique(to_plot$group)[j])
 
-    qx_HC <- quantile(curr_to_plot$VDJ_SHM, probs = quantile.label)
-    qx_LC <- quantile(curr_to_plot$VJ_SHM, probs = quantile.label)
+    qx_HC <- stats::quantile(curr_to_plot$VDJ_SHM, probs = quantile.label)
+    qx_LC <- stats::quantile(curr_to_plot$VJ_SHM, probs = quantile.label)
 
-    pos <- position_jitter(width = 0.3, seed = 2)
+    pos <- ggplot2::position_jitter(width = 0.3, seed = 2)
 
-    out.list[[j+1]] <- ggplot(curr_to_plot, aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + geom_jitter(show.legend = T, size = 3, alpha = 0.8, position = pos) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ geom_text_repel(inherit.aes = F, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black", position = pos) + scale_color_viridis_c(option = "B", end = 0.9)
+    out.list[[j+1]] <- ggplot2::ggplot(curr_to_plot, ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + ggplot2::geom_jitter(show.legend = T, size = 3, alpha = 0.8, position = pos) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ ggrepel::geom_text_repel(inherit.aes = F, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black", position = pos) + ggplot2::scale_color_viridis_c(option = "B", end = 0.9)
 
   }
   cat("\n Done")

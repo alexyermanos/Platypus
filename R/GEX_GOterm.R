@@ -30,6 +30,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output, topNgenes, ontology, species,  
   GO_term <- NULL
   p_adj <- NULL
   DE_genes <- NULL
+  KEGG_term <- NULL
 
   require(dplyr)
   require(org.Mm.eg.db)

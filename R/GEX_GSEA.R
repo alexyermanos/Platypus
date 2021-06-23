@@ -80,7 +80,7 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     #   DT::datatable()-> data.table
 
     # create ranked list
-    df %>% dplyr::filter( p_val_adj<pval_adj_cutoff)%>% dplyr::select("symbol","stats")%>% na.omit()%>%dplyr::arrange(-stats)%>% distinct(symbol, .keep_all = TRUE)-> df_ranked
+    df %>% dplyr::filter( p_val_adj<pval_adj_cutoff)%>% dplyr::select("symbol","stats")%>% stats::na.omit()%>%dplyr::arrange(-stats)%>% dplyr::distinct(symbol, .keep_all = TRUE)-> df_ranked
     df_ranked <- tibble::deframe(df_ranked)
 
     if (class(my_own_geneset) == "logical"){
@@ -104,8 +104,8 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
       tidyr::as_tibble() %>%
       dplyr::arrange(IRanges::desc(NES))
     print(fgsea_res_Tidy)
-    topPathwaysUp <- fgsea_res[ES > 0][head(order(pval), n=10), pathway]
-    topPathwaysDown <- fgsea_res[ES < 0][head(order(pval), n=10), pathway]
+    topPathwaysUp <- fgsea_res[ES > 0][utils::head(order(pval), n=10), pathway]
+    topPathwaysDown <- fgsea_res[ES < 0][utils::head(order(pval), n=10), pathway]
     topPathways<- c(topPathwaysUp, rev(topPathwaysDown))
 
     plotsUp <- list()

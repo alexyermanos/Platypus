@@ -35,3 +35,8 @@ Returns a list of ggplot objects which show the stacked distribution of IgH and 
 \description{
 Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.
 }
+\examples{
+\dontrun{
+example.vdj.vgene_usage <- VDJ_Vgene_usage_barplot_stacked(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T,HC.gene.number = 15, Fraction.HC = 1)
+}
+}

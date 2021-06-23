@@ -130,8 +130,8 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
 
           dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_VJ_gene, sep="/and/")))
           colnames(dummy) <- c("pasted")
-          dummy$clonotype <- str_split_fixed(dummy$pasted, "/and/", 2)
-          dummy$gene <- str_split_fixed(dummy$pasted, "/and/", 2)[,2]
+          dummy$clonotype <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)
+          dummy$gene <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)[,2]
 
           dummy_alpha_df[[k]] <- as.data.frame(table(dummy$gene))
           colnames(dummy_alpha_df[[k]]) <- c("vjgene", "count")
@@ -139,8 +139,8 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
 
           dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$beta_VJ_gene, sep="/and/")))
           colnames(dummy) <- c("pasted")
-          dummy$clonotype <- str_split_fixed(dummy$pasted, "/and/", 2)
-          dummy$gene <- str_split_fixed(dummy$pasted, "/and/", 2)[,2]
+          dummy$clonotype <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)
+          dummy$gene <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)[,2]
 
           dummy_beta_df[[k]] <- as.data.frame(table(dummy$gene))
           colnames(dummy_beta_df[[k]]) <- c("vjgene", "count")
@@ -174,10 +174,10 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
 
       # group by TRAV;TRBV; TRAJ and TRBJ
       nm = unique(unlist(dimnames(Vgene_usage_matrix[[1]])))
-      group = structure(str_sub(nm, 1,4), names = nm)
+      group = structure(stringr::str_sub(nm, 1,4), names = nm)
       group = factor(group)
       #set colors: same color across all samples
-      grid.col <- setNames(rainbow(length(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]])))),sample(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]]))))
+      grid.col <- stats::setNames(grDevices::rainbow(length(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]])))),sample(union(rownames(Vgene_usage_matrix[[1]]), colnames(Vgene_usage_matrix[[1]]))))
 
       # filter out genes which have fewer clonotypes then clonotype.per.gene.threshold
       for (k in 1:length(Vgene_usage_matrix)){
@@ -292,8 +292,8 @@ VDJ_VJ_usage_circos <- function(VDJ.GEX.matrix, A.or.B, label.threshold, cell.le
       }
     }
     nm = unique(unlist(dimnames(Vgene_usage_matrix[[1]])))
-    group = structure(str_sub(nm, 1, 4), names = nm)
-    grid.col <- setNames(rainbow(length(union(rownames(Vgene_usage_matrix[[1]]),
+    group = structure(stringr::str_sub(nm, 1, 4), names = nm)
+    grid.col <- stats::setNames(grDevices::rainbow(length(union(rownames(Vgene_usage_matrix[[1]]),
                                               colnames(Vgene_usage_matrix[[1]])))), sample(union(rownames(Vgene_usage_matrix[[1]]),
                                                                                                  colnames(Vgene_usage_matrix[[1]]))))
     for (k in 1:length(Vgene_usage_matrix)) {

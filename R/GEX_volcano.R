@@ -107,7 +107,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
       findmarkers.output$minus.log10p_adj[which(findmarkers.output$minus.log10p_adj == Inf)] <- findmarkers.output$minus.log10p_adj[which(sort(findmarkers.output$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
       if(n.label.up == F & n.label.down == F) {
-        output.plot <- ggplot2::ggplot(findmarkers.output, aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
           ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_log2FC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
@@ -127,7 +127,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         }
         label.genes <- c(posFC_genes,negFC_genes)
 
-        output.plot <- ggplot2::ggplot(findmarkers.output, aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
           ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, genes%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
@@ -161,7 +161,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         findmarkers.output[[i]]$minus.log10p[which(findmarkers.output[[i]]$minus.log10p == Inf)] <- findmarkers.output[[i]]$minus.log10p[which(sort(findmarkers.output[[i]]$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
         if(n.label.up == F & n.label.down == F) {
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
             ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
@@ -182,7 +182,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
           label.genes <- c(posFC_genes,negFC_genes)
 
 
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
             ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], SYMBOL%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
@@ -194,7 +194,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
         findmarkers.output[[i]]$minus.log10p_adj[which(findmarkers.output[[i]]$minus.log10p_adj == Inf)] <- findmarkers.output[[i]]$minus.log10p_adj[which(sort(findmarkers.output[[i]]$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
         if(n.label.up == F & n.label.down == F) {
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
             ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
@@ -214,7 +214,7 @@ GEX_volcano <- function(findmarkers.output, cluster.genes.output, condition.1, c
           }
           label.genes <- c(posFC_genes,negFC_genes)
 
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
             ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], SYMBOL%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")

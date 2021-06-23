@@ -23,6 +23,7 @@ GEX_phenotype_per_clone <- function(GEX.matrix,
   value <- NULL
   variable <- NULL
   clonotype_id_10x <- NULL
+  clonotype_id <- NULL
 
   require(ggplot2)
   require(reshape2)
@@ -125,7 +126,7 @@ print(class(temp.matrix))
       ggplot2::ylab("Cell Counts")+
       ggplot2::xlab("Clonotypes")+
       ggplot2::labs(fill = "Cell State")
-    stacked.ggplot <- stacked.ggplot + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::theme_classic() +ggplot2::scale_fill_manual(values = rainbow(length(unique(temp.melt$variable)))) + ggplot2::ggtitle(label = paste0(unique(GEX.matrix@meta.data$sample_id)[k]))
+    stacked.ggplot <- stacked.ggplot + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::theme_classic() +ggplot2::scale_fill_manual(values = grDevices::rainbow(length(unique(temp.melt$variable)))) + ggplot2::ggtitle(label = paste0(unique(GEX.matrix@meta.data$sample_id)[k]))
     plot.out.list[[k]] <- stacked.ggplot
     } #end loop over sample_ids
     return(plot.out.list)

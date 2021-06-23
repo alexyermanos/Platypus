@@ -5,7 +5,7 @@
 #' @param species Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR. Defaults to "hsa"
 #' @param simplify Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ.matrix If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns
 #' @return For platypus.version = "v3" returns input VDJ.matrix dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.
-#' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format 
+#' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format
 #' @seealso VDJ_extract_sequences
 #' @export
 #' @examples
@@ -20,15 +20,18 @@
 VDJ_call_MIXCR <- function(VDJ.matrix,
                                operating.system,
                                mixcr.directory,
-                               species, 
+                               species,
                                simplify,
                                platypus.version){
+  Nr_of_VDJ_chains <- NULL
+  Nr_of_VJ_chains <- NULL
+
   require(stringr)
 
     if(missing(simplify)) simplify <- T
     if(missing(species)) species <- "hsa"
     if(missing(platypus.version)) platypus.version <- "v2"
-  
+
     if(missing(operating.system)){
       switch(Sys.info()[['sysname']],
              Windows= {print("Windows system detected")
@@ -37,22 +40,22 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
                       operating.system <- "Linux"},
              Darwin = {print("MAC system detected")
                       operating.system <- "Darwin"})
-      
+
     }
-    
+
     switch(platypus.version,
            v3 = {if(class(VDJ.matrix) != "data.frame"){stop("When selecting platypus.version = 'v3', please input the VDJ matrix of the output of the VDJ_GEX_matrix function (usually VDJ.GEX.matrix.output[[1]]")}},
            v2 = {if(class(VDJ.matrix) != "list"){stop("When selecting platypus.version = 'v2', please input the list output of VDJ.per.clone")}},
            {print("Please input either 'v2' or 'v3' as platypus.version")})
-    
-    
+
+
     #Everything set up, now going through all four possibilities
-    
+
     if(platypus.version == "v3" & operating.system == "Windows"){
-    
+
     print("!Reminder For runtime stability a MIXCR executable has to be located in current working directory")
     mixcr.directory <- getwd()
-    
+
     system("cmd.exe", input = paste("cd ", getwd(),sep=""))
     system("cmd.exe", input = paste("del temphc.fasta"))
     system("cmd.exe", input = paste("del templc.fasta"))
@@ -61,7 +64,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
     system("cmd.exe", input = paste("del tempmixcrhc.out.txt"))
     system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
 
-    
+
     VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
 
   ### need to also read in the fastas
@@ -71,56 +74,56 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
     temp.name.lc_unlist <- unlist(VDJ.matrix$barcode)
 
     seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
-    
+
     system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
 
-  
+
     system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
 
-    
+
     system("cmd.exe",input =  paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"'),sep=""))
-    
+
     seqinr::write.fasta(sequences = as.list(temp.seq.lc_unlist),names = temp.name.lc_unlist,file.out = "templc.fasta")
-    
+
     system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.vdjca",'"'),sep=""))
-    
+
     system("cmd.exe", input = paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.txt",'"'),sep=""))
-    
+
     temp.mixcr.hc <- utils::read.table(file ="tempmixcrhc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
     temp.mixcr.lc <- utils::read.table(file ="tempmixcrlc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
-    
+
     system("cmd.exe", input = paste("del temphc.fasta"))
     system("cmd.exe", input = paste("del templc.fasta"))
     system("cmd.exe", input = paste("del tempmixcrhc.out.vdjca"))
     system("cmd.exe", input = paste("del tempmixcrlc.out.vdjca"))
     system("cmd.exe", input = paste("del tempmixcrhc.out.txt"))
     system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
-    
+
 
     ## now need to fill VDJ.matrix
-    
+
     if(simplify == F){
       to_merge_hc <- temp.mixcr.hc
       #add SHM measures
-      to_merge_hc$SHM <- str_count(temp.mixcr.hc$bestVAlignment,"S") + str_count(temp.mixcr.hc$bestJAlignment,"S") + str_count(temp.mixcr.hc$bestDAlignment,"S")
+      to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
       #append prefix to names
       names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
       #add barcode for merge
       to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
-      
+
       to_merge_lc <- temp.mixcr.lc
       #add SHM measures
-      to_merge_lc$SHM <- str_count(temp.mixcr.lc$bestVAlignment,"S") + str_count(temp.mixcr.lc$bestJAlignment,"S") 
+      to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
       #append prefix to names
       names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
       #add barcode for merge
       to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
-  
+
     } else {
-      #add selected columns 
+      #add selected columns
       to_merge_hc <- temp.mixcr.hc[,c("nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
       #add SHM measures
-      to_merge_hc$SHM <- str_count(temp.mixcr.hc$bestVAlignment,"S") + str_count(temp.mixcr.hc$bestJAlignment,"S") + str_count(temp.mixcr.hc$bestDAlignment,"S")
+      to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
       #append prefix to names
       names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
       #add barcode for merge
@@ -128,12 +131,12 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
 
       to_merge_lc <- temp.mixcr.lc[,c("nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
       #add SHM measures
-      to_merge_lc$SHM <- str_count(temp.mixcr.lc$bestVAlignment,"S") + str_count(temp.mixcr.lc$bestJAlignment,"S")
+      to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
       #append prefix to names
       names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
       #add barcode for merge
       to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
-      
+
     }
 
     ncol_raw <- ncol(VDJ.matrix)
@@ -149,15 +152,15 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
         VDJ.matrix[is.na(VDJ.matrix[,i]),i] <- ""
       }
     }
-    
+
     print("Done")
     return(VDJ.matrix)
-    
+
     } else if (platypus.version == "v2" & operating.system == "Windows") {
-      
+
       print("!Reminder For runtime stability a MIXCR executable has to be located in current working directory")
       mixcr.directory <- getwd()
-      
+
       system("cmd.exe", input = paste("cd ", getwd(),sep=""))
       system("cmd.exe", input = paste("del temphc.fasta"))
       system("cmd.exe", input = paste("del templc.fasta"))
@@ -165,8 +168,8 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
       system("cmd.exe", input = paste("del tempmixcrlc.out.vdjca"))
       system("cmd.exe", input = paste("del tempmixcrhc.out.txt"))
       system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
-      
-      
+
+
       ### need to also read in the fastas
       for(i in 1:length(VDJ.per.clone)){
         temp.seq.hc <- list()
@@ -174,7 +177,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
         temp.name.hc <- list()
         temp.name.lc <- list()
         for(j in 1:length(VDJ.per.clone[[i]])){
-          temp.seq.hc[[j]] <- VDJ.per.clone[[i]][[j]]$full_HC_sequence 
+          temp.seq.hc[[j]] <- VDJ.per.clone[[i]][[j]]$full_HC_sequence
           temp.seq.lc[[j]] <- VDJ.per.clone[[i]][[j]]$full_LC_sequence
           temp.name.hc[[j]] <- VDJ.per.clone[[i]][[j]]$contig_id_hc
           temp.name.lc[[j]] <- VDJ.per.clone[[i]][[j]]$contig_id_lc
@@ -183,36 +186,36 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
         temp.seq.lc_unlist <- unlist(temp.seq.lc)
         temp.name.hc_unlist <- unlist(temp.name.hc)
         temp.name.lc_unlist <- unlist(temp.name.lc)
-        
+
         seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
-        
+
         system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
-        
-        
+
+
         system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
-        
-        
+
+
         system("cmd.exe",input =  paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"'),sep=""))
-        
+
         seqinr::write.fasta(sequences = as.list(temp.seq.lc_unlist),names = temp.name.lc_unlist,file.out = "templc.fasta")
-        
+
         system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.vdjca",'"'),sep=""))
-        
+
         system("cmd.exe", input = paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.txt",'"'),sep=""))
-        
+
         temp.mixcr.hc <- utils::read.table(file ="tempmixcrhc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
         temp.mixcr.lc <- utils::read.table(file ="tempmixcrlc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
-        
+
         system("cmd.exe", input = paste("del temphc.fasta"))
         system("cmd.exe", input = paste("del templc.fasta"))
         system("cmd.exe", input = paste("del tempmixcrhc.out.vdjca"))
         system("cmd.exe", input = paste("del tempmixcrlc.out.vdjca"))
         system("cmd.exe", input = paste("del tempmixcrhc.out.txt"))
         system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
-        
-        
+
+
         ## now need to fill VDJ_per_clone
-        
+
         for(j in 1:length(VDJ.per.clone[[i]])){
           VDJ.per.clone[[i]][[j]]$FRH1.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$FRH2.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
@@ -228,7 +231,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.per.clone[[i]][[j]]$CDRL1.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL2.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL3.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$FRH1.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$FRH2.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$FRH3.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
@@ -243,24 +246,24 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.per.clone[[i]][[j]]$CDRL1.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL2.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL3.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$bestVHlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$bestVLAlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$bestJHAlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$bestJLAlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$isotype <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$AA.Jmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$AA.Jmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Jmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Jmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$AA.Vmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$AA.Vmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Vmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Vmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
-          
+
+
           for(k in 1:nrow(VDJ.per.clone[[i]][[j]])){
             tryCatch({
               index.hc <- which(temp.mixcr.hc$descrsR1==VDJ.per.clone[[i]][[j]]$contig_id_hc[k])
@@ -279,7 +282,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
               VDJ.per.clone[[i]][[j]]$CDRL1.NT[k] <- temp.mixcr.lc$nSeqCDR1[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL2.NT[k] <- temp.mixcr.lc$nSeqCDR2[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL3.NT[k] <- temp.mixcr.lc$nSeqCDR3[index.lc]
-              
+
               VDJ.per.clone[[i]][[j]]$FRH1.AA[k] <- temp.mixcr.hc$aaSeqFR1[index.hc]
               VDJ.per.clone[[i]][[j]]$FRH2.AA[k] <- temp.mixcr.hc$aaSeqFR2[index.hc]
               VDJ.per.clone[[i]][[j]]$FRH3.AA[k] <- temp.mixcr.hc$aaSeqFR3[index.hc]
@@ -294,24 +297,24 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
               VDJ.per.clone[[i]][[j]]$CDRL1.AA[k] <- temp.mixcr.lc$aaSeqCDR1[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL2.AA[k] <- temp.mixcr.lc$aaSeqCDR2[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL3.AA[k] <- temp.mixcr.lc$aaSeqCDR3[index.lc]
-              
+
               VDJ.per.clone[[i]][[j]]$bestVHAlignment[k] <- temp.mixcr.hc$bestVAlignment[index.hc]
               VDJ.per.clone[[i]][[j]]$bestVLAlignment[k] <- temp.mixcr.lc$bestVAlignment[index.lc]
               VDJ.per.clone[[i]][[j]]$bestJHAlignment[k] <- temp.mixcr.hc$bestJAlignment[index.hc]
               VDJ.per.clone[[i]][[j]]$bestJLAlignment[k] <- temp.mixcr.lc$bestJAlignment[index.lc]
               VDJ.per.clone[[i]][[j]]$isotype[k] <- temp.mixcr.hc$bestCAlignment[index.hc]
-              
+
               VDJ.per.clone[[i]][[j]]$AA.Vmutations.hc[k] <- temp.mixcr.hc$aaMutationsVRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$AA.Vmutations.lc[k] <- temp.mixcr.lc$aaMutationsVRegion[index.lc]
               VDJ.per.clone[[i]][[j]]$NT.Vmutations.hc[k] <- temp.mixcr.hc$nMutationsVRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$NT.Vmutations.lc[k] <- temp.mixcr.lc$nMutationsVRegion[index.lc]
-              
+
               VDJ.per.clone[[i]][[j]]$AA.Jmutations.hc[k] <- temp.mixcr.hc$aaMutationsJRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$AA.Jmutations.lc[k] <- temp.mixcr.lc$aaMutationsJRegion[index.lc]
               VDJ.per.clone[[i]][[j]]$NT.Jmutations.hc[k] <- temp.mixcr.hc$nMutationsJRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$NT.Jmutations.lc[k] <- temp.mixcr.lc$nMutationsJRegion[index.lc]
-              
-              
+
+
             }, error=function(e){})
           }#k loop
           VDJ.per.clone[[i]][[j]]$VDJ.AA.HC <- paste(VDJ.per.clone[[i]][[j]]$FRH1.AA,VDJ.per.clone[[i]][[j]]$CDRH1.AA,VDJ.per.clone[[i]][[j]]$FRH2.AA,VDJ.per.clone[[i]][[j]]$CDRH2.AA,VDJ.per.clone[[i]][[j]]$FRH3.AA,VDJ.per.clone[[i]][[j]]$CDRH3.AA,VDJ.per.clone[[i]][[j]]$FRH4.AA,sep="")
@@ -320,25 +323,25 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.per.clone[[i]][[j]]$VDJ.NT.LC <- paste(VDJ.per.clone[[i]][[j]]$FRL1.NT,VDJ.per.clone[[i]][[j]]$CDRL1.NT,VDJ.per.clone[[i]][[j]]$FRL2.NT,VDJ.per.clone[[i]][[j]]$CDRL2.NT,VDJ.per.clone[[i]][[j]]$FRL3.NT,VDJ.per.clone[[i]][[j]]$CDRL3.NT,VDJ.per.clone[[i]][[j]]$FRL4.NT,sep="")
           VDJ.per.clone[[i]][[j]]$VDJ.NT.HC.LC <- paste(VDJ.per.clone[[i]][[j]]$VDJ.NT.HC,VDJ.per.clone[[i]][[j]]$VDJ.NT.LC,sep="_")
           VDJ.per.clone[[i]][[j]]$VDJ.AA.HC.LC <- paste(VDJ.per.clone[[i]][[j]]$VDJ.AA.HC,VDJ.per.clone[[i]][[j]]$VDJ.AA.LC,sep="_")
-          
+
         }
       }
       return(VDJ.per.clone)
-      
-      
-      
+
+
+
     } else if (platypus.version == "v3" & operating.system %in% c("Darwin", "Linux")) {
-      
+
       if(missing(mixcr.directory)) print("No mixcr directory supplied. Assuming working directory holds mixcr executable")
-      
+
       VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
-      
+
       ### need to also read in the fastas
       temp.seq.hc_unlist <- unlist(VDJ.matrix$VDJ_sequence_nt_raw)
       temp.seq.lc_unlist <- unlist(VDJ.matrix$VJ_sequence_nt_raw)
       temp.name.hc_unlist <- unlist(VDJ.matrix$barcode)
       temp.name.lc_unlist <- unlist(VDJ.matrix$barcode)
-      
+
       seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
       system(paste(mixcr.directory," align -OsaveOriginalReads=true -s ", species," temphc.fasta tempmixcrhc.out.vdjca",sep=""))
       system(paste(mixcr.directory," exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca tempmixcrhc.out.txt",sep=""))
@@ -347,57 +350,57 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
       system(paste(mixcr.directory," exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca tempmixcrlc.out.txt",sep=""))
       temp.mixcr.hc <- utils::read.table(file ="tempmixcrhc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
       temp.mixcr.lc <- utils::read.table(file ="tempmixcrlc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
-      
+
       system("rm temphc.fasta")
       system("rm templc.fasta")
       system("rm tempmixcrhc.out.vdjca")
       system("rm tempmixcrlc.out.vdjca")
       system("rm tempmixcrhc.out.txt")
       system("rm tempmixcrlc.out.txt")
-      
+
       ## now need to fill VDJ.matrix
-      
+
       if(simplify == F){
         to_merge_hc <- temp.mixcr.hc
         #add SHM measures
-        to_merge_hc$SHM <- str_count(temp.mixcr.hc$bestVAlignment,"S") + str_count(temp.mixcr.hc$bestJAlignment,"S") + str_count(temp.mixcr.hc$bestDAlignment,"S")
+        to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
         #append prefix to names
         names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
         #add barcode for merge
         to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
-        
+
         to_merge_lc <- temp.mixcr.lc
         #add SHM measures
-        to_merge_lc$SHM <- str_count(temp.mixcr.lc$bestVAlignment,"S") + str_count(temp.mixcr.lc$bestJAlignment,"S") 
+        to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
         #append prefix to names
         names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
         #add barcode for merge
         to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
-        
+
       } else {
-        #add selected columns 
+        #add selected columns
         to_merge_hc <- temp.mixcr.hc[,c("nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
         #add SHM measures
-        to_merge_hc$SHM <- str_count(temp.mixcr.hc$bestVAlignment,"S") + str_count(temp.mixcr.hc$bestJAlignment,"S") + str_count(temp.mixcr.hc$bestDAlignment,"S")
+        to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
         #append prefix to names
         names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
         #add barcode for merge
         to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
-        
+
         to_merge_lc <- temp.mixcr.lc[,c("nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
         #add SHM measures
-        to_merge_lc$SHM <- str_count(temp.mixcr.lc$bestVAlignment,"S") + str_count(temp.mixcr.lc$bestJAlignment,"S")
+        to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
         #append prefix to names
         names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
         #add barcode for merge
         to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
-        
+
       }
-      
+
       ncol_raw <- ncol(VDJ.matrix)
       VDJ.matrix <- merge(VDJ.matrix, to_merge_hc, by = "barcode", all.x = T)
       VDJ.matrix <- merge(VDJ.matrix, to_merge_lc, by = "barcode", all.x = T)
-      
+
       #cleanup
       for(i in (ncol_raw+1):ncol(VDJ.matrix)){
         if(names(VDJ.matrix)[i] %in% c("VDJ_SHM", "VJ_SHM")){
@@ -407,13 +410,13 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.matrix[is.na(VDJ.matrix[,i]),i] <- ""
         }
       }
-      
+
       print("Done")
       return(VDJ.matrix)
 
     } else if (platypus.version == "v2" & operating.system %in% c("Darwin", "Linux")) {
-      
-      
+
+
       if(missing(mixcr.directory)) print("No mixcr directory supplied. Assuming working directory holds mixcr executable")
       ### need to also read in the fastas
       for(i in 1:length(VDJ.per.clone)){
@@ -431,7 +434,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
         temp.seq.lc_unlist <- unlist(temp.seq.lc)
         temp.name.hc_unlist <- unlist(temp.name.hc)
         temp.name.lc_unlist <- unlist(temp.name.lc)
-        
+
         seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
         system(paste(mixcr.directory," align -OsaveOriginalReads=true -s ", species," temphc.fasta tempmixcrhc.out.vdjca",sep=""))
         system(paste(mixcr.directory," exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca tempmixcrhc.out.txt",sep=""))
@@ -440,16 +443,16 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
         system(paste(mixcr.directory," exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca tempmixcrlc.out.txt",sep=""))
         temp.mixcr.hc <- utils::read.table(file ="tempmixcrhc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
         temp.mixcr.lc <- utils::read.table(file ="tempmixcrlc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
-        
+
         system("rm temphc.fasta")
         system("rm templc.fasta")
         system("rm tempmixcrhc.out.vdjca")
         system("rm tempmixcrlc.out.vdjca")
         system("rm tempmixcrhc.out.txt")
         system("rm tempmixcrlc.out.txt")
-        
+
         ## now need to fill VDJ_per_clone
-        
+
         for(j in 1:length(VDJ.per.clone[[i]])){
           VDJ.per.clone[[i]][[j]]$FRH1.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$FRH2.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
@@ -465,7 +468,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.per.clone[[i]][[j]]$CDRL1.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL2.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL3.NT <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$FRH1.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$FRH2.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$FRH3.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
@@ -480,24 +483,24 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.per.clone[[i]][[j]]$CDRL1.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL2.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$CDRL3.AA <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$bestVHlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$bestVLAlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$bestJHAlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$bestJLAlignment <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$isotype <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$AA.Jmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$AA.Jmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Jmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Jmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
+
           VDJ.per.clone[[i]][[j]]$AA.Vmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$AA.Vmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Vmutations.hc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
           VDJ.per.clone[[i]][[j]]$NT.Vmutations.lc <- rep("",nrow(VDJ.per.clone[[i]][[j]]))
-          
-          
+
+
           for(k in 1:nrow(VDJ.per.clone[[i]][[j]])){
             tryCatch({
               index.hc <- which(temp.mixcr.hc$descrsR1==VDJ.per.clone[[i]][[j]]$contig_id_hc[k])
@@ -516,7 +519,7 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
               VDJ.per.clone[[i]][[j]]$CDRL1.NT[k] <- temp.mixcr.lc$nSeqCDR1[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL2.NT[k] <- temp.mixcr.lc$nSeqCDR2[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL3.NT[k] <- temp.mixcr.lc$nSeqCDR3[index.lc]
-              
+
               VDJ.per.clone[[i]][[j]]$FRH1.AA[k] <- temp.mixcr.hc$aaSeqFR1[index.hc]
               VDJ.per.clone[[i]][[j]]$FRH2.AA[k] <- temp.mixcr.hc$aaSeqFR2[index.hc]
               VDJ.per.clone[[i]][[j]]$FRH3.AA[k] <- temp.mixcr.hc$aaSeqFR3[index.hc]
@@ -531,24 +534,24 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
               VDJ.per.clone[[i]][[j]]$CDRL1.AA[k] <- temp.mixcr.lc$aaSeqCDR1[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL2.AA[k] <- temp.mixcr.lc$aaSeqCDR2[index.lc]
               VDJ.per.clone[[i]][[j]]$CDRL3.AA[k] <- temp.mixcr.lc$aaSeqCDR3[index.lc]
-              
+
               VDJ.per.clone[[i]][[j]]$bestVHAlignment[k] <- temp.mixcr.hc$bestVAlignment[index.hc]
               VDJ.per.clone[[i]][[j]]$bestVLAlignment[k] <- temp.mixcr.lc$bestVAlignment[index.lc]
               VDJ.per.clone[[i]][[j]]$bestJHAlignment[k] <- temp.mixcr.hc$bestJAlignment[index.hc]
               VDJ.per.clone[[i]][[j]]$bestJLAlignment[k] <- temp.mixcr.lc$bestJAlignment[index.lc]
               VDJ.per.clone[[i]][[j]]$isotype[k] <- temp.mixcr.hc$bestCAlignment[index.hc]
-              
+
               VDJ.per.clone[[i]][[j]]$AA.Vmutations.hc[k] <- temp.mixcr.hc$aaMutationsVRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$AA.Vmutations.lc[k] <- temp.mixcr.lc$aaMutationsVRegion[index.lc]
               VDJ.per.clone[[i]][[j]]$NT.Vmutations.hc[k] <- temp.mixcr.hc$nMutationsVRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$NT.Vmutations.lc[k] <- temp.mixcr.lc$nMutationsVRegion[index.lc]
-              
+
               VDJ.per.clone[[i]][[j]]$AA.Jmutations.hc[k] <- temp.mixcr.hc$aaMutationsJRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$AA.Jmutations.lc[k] <- temp.mixcr.lc$aaMutationsJRegion[index.lc]
               VDJ.per.clone[[i]][[j]]$NT.Jmutations.hc[k] <- temp.mixcr.hc$nMutationsJRegion[index.hc]
               VDJ.per.clone[[i]][[j]]$NT.Jmutations.lc[k] <- temp.mixcr.lc$nMutationsJRegion[index.lc]
-              
-              
+
+
             }, error=function(e){})
           }#k loop
           VDJ.per.clone[[i]][[j]]$VDJ.AA.HC <- paste(VDJ.per.clone[[i]][[j]]$FRH1.AA,VDJ.per.clone[[i]][[j]]$CDRH1.AA,VDJ.per.clone[[i]][[j]]$FRH2.AA,VDJ.per.clone[[i]][[j]]$CDRH2.AA,VDJ.per.clone[[i]][[j]]$FRH3.AA,VDJ.per.clone[[i]][[j]]$CDRH3.AA,VDJ.per.clone[[i]][[j]]$FRH4.AA,sep="")
@@ -557,12 +560,12 @@ VDJ_call_MIXCR <- function(VDJ.matrix,
           VDJ.per.clone[[i]][[j]]$VDJ.NT.LC <- paste(VDJ.per.clone[[i]][[j]]$FRL1.NT,VDJ.per.clone[[i]][[j]]$CDRL1.NT,VDJ.per.clone[[i]][[j]]$FRL2.NT,VDJ.per.clone[[i]][[j]]$CDRL2.NT,VDJ.per.clone[[i]][[j]]$FRL3.NT,VDJ.per.clone[[i]][[j]]$CDRL3.NT,VDJ.per.clone[[i]][[j]]$FRL4.NT,sep="")
           VDJ.per.clone[[i]][[j]]$VDJ.NT.HC.LC <- paste(VDJ.per.clone[[i]][[j]]$VDJ.NT.HC,VDJ.per.clone[[i]][[j]]$VDJ.NT.LC,sep="_")
           VDJ.per.clone[[i]][[j]]$VDJ.AA.HC.LC <- paste(VDJ.per.clone[[i]][[j]]$VDJ.AA.HC,VDJ.per.clone[[i]][[j]]$VDJ.AA.LC,sep="_")
-          
+
         }
       }
       return(VDJ.per.clone)
-      
+
     }
-    
+
 }
 

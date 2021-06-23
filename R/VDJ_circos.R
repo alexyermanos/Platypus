@@ -13,74 +13,77 @@
 #'}
 
 VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.count){
+
+  CELL_META <- NULL
+
   require(circlize)
-  circos.clear()
-  circos.par(points.overflow.warning=FALSE)
+  circlize::circos.clear()
+  circlize::circos.par(points.overflow.warning=FALSE)
   if(missing(axis)){axis <- "max"}
   if(missing(label.threshold)){label.threshold <- 0}
-  if(missing(grid.col)){grid.col <- setNames(rainbow(length(union(rownames(Adj_matrix), colnames(Adj_matrix)))),sample(union(rownames(Adj_matrix), colnames(Adj_matrix))))}
+  if(missing(grid.col)){grid.col <- stats::setNames(grDevices::rainbow(length(union(rownames(Adj_matrix), colnames(Adj_matrix)))),sample(union(rownames(Adj_matrix), colnames(Adj_matrix))))}
   if(missing(c.count)){c.count <- T}
-  
-  df <- melt(Adj_matrix)
+
+  df <- reshape2::melt(Adj_matrix)
 
   df1 <- data.frame(Var = c(rownames(Adj_matrix), colnames(Adj_matrix)), value= c(rowSums(Adj_matrix), colSums(Adj_matrix)))
   df1 <- df1[order(df1$value),] #does not really work if group argument is used at the same time...
 
-  chordDiagram(df,
+  circlize::chordDiagram(df,
                link.sort = T,
                link.decreasing = T,
                order = df1$Var,
                group = group,
                annotationTrack = c("grid"),
-               preAllocateTracks = list(track.height = mm_h(5), track.margin = c(mm_h(5), 0)),
+               preAllocateTracks = list(track.height = circlize::mm_h(5), track.margin = c(circlize::mm_h(5), 0)),
                grid.col = grid.col)
   #circos.info()
 
   #Add labels to circos plot(
-  circos.track(track.index = 1, panel.fun = function(x, y) {
-    if(get.cell.meta.data("xrange")>label.threshold){
-    circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
+  circlize::circos.track(track.index = 1, panel.fun = function(x, y) {
+    if(circlize::get.cell.meta.data("xrange")>label.threshold){
+      circlize::circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
                 facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5)
     }else{
-    circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
+      circlize::circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
                   facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col = "white")
     }
   }, bg.border = NA) # here set bg.border to NA is important
 
   #Add axis
   if(axis=="default"){
-    for(si in get.all.sector.index()) {
-      circos.axis(h = "top", labels.cex = 0.3, sector.index = si, track.index = 2)
+    for(si in circlize::get.all.sector.index()) {
+      circlize::circos.axis(h = "top", labels.cex = 0.3, sector.index = si, track.index = 2)
     }
   }
   if(axis=="percent"){
-    circos.track(track.index = 1, panel.fun = function(x, y) {
-      xlim = get.cell.meta.data("xlim")
-      ylim = get.cell.meta.data("ylim")
-      sector.name = get.cell.meta.data("sector.index")
-      xplot = get.cell.meta.data("xplot")
+    circlize::circos.track(track.index = 1, panel.fun = function(x, y) {
+      xlim = circlize::get.cell.meta.data("xlim")
+      ylim = circlize::get.cell.meta.data("ylim")
+      sector.name = circlize::get.cell.meta.data("sector.index")
+      xplot = circlize::get.cell.meta.data("xplot")
 
-      circos.lines(xlim, c(min(ylim), min(ylim)), lty = 3) # dotted line
+      circlize::circos.lines(xlim, c(min(ylim), min(ylim)), lty = 3) # dotted line
       by = ifelse(abs(xplot[2] - xplot[1]) > 30, 0.2, 0.5)
       for(p in seq(by, 1, by = by)) {
-        circos.text(p*(xlim[2] - xlim[1]) + xlim[1], min(ylim) + 0.1,
+        circlize::circos.text(p*(xlim[2] - xlim[1]) + xlim[1], min(ylim) + 0.1,
                     paste0(p*100, "%"), cex = 0.3, adj = c(0.5, 0), niceFacing = TRUE)
       }
     }, bg.border = NA)
   }
   if(axis=="max"){
-    for(si in get.all.sector.index()) {
-      circos.axis(h = "top", labels =  FALSE, sector.index = si, track.index = 2)
+    for(si in circlize::get.all.sector.index()) {
+      circlize::circos.axis(h = "top", labels =  FALSE, sector.index = si, track.index = 2)
     }
-    circos.track(track.index = 2, panel.fun = function(x, y) {
-      xlim = get.cell.meta.data("xlim")
-      ylim = get.cell.meta.data("ylim")
-      sector.name = get.cell.meta.data("sector.index")
-      xrange = get.cell.meta.data("xrange")
+    circlize::circos.track(track.index = 2, panel.fun = function(x, y) {
+      xlim = circlize::get.cell.meta.data("xlim")
+      ylim = circlize::get.cell.meta.data("ylim")
+      sector.name = circlize::get.cell.meta.data("sector.index")
+      xrange = circlize::get.cell.meta.data("xrange")
 
       #circos.lines(xlim, c(min(ylim), min(ylim)), lty = 1)
       if(c.count){
-      circos.text(mean(xlim), max(ylim) + 0.5,
+        circlize::circos.text(mean(xlim), max(ylim) + 0.5,
                     round(xrange,0), cex = 0.5, adj = c(0.5, 0), niceFacing = TRUE)
       }
     }, bg.border = NA)

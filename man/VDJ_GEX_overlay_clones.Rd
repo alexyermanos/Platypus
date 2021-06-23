@@ -55,7 +55,7 @@ overlay_clones_plot <- VDJ_GEX_overlay_top_clones(GEX.output = VDJ_GEX_matrix_ou
 #To return a facet plot with top clones for each sample
 overlay_clones_plot <- VDJ_GEX_overlay_top_clones(GEX.output = VDJ_GEX_matrix_output[[2]], reduction = "tsne", n.clones = 5, by.sample = T, by.group = F, pt.size = 1,ncol.facet = 2, split.plot.and.legend = F)
 
-#To return a facet plot and the legend separately with top clones for each sample where 
+#To return a facet plot and the legend separately with top clones for each sample where
 overlay_clones_plot <- VDJ_GEX_overlay_top_clones(GEX.output = VDJ_GEX_matrix_output[[2]], reduction = "tsne", n.clones = 5, by.sample = T, by.group = F, pt.size = 1,ncol.facet = 2, split.plot.and.legend = T)
 
 #To print both:

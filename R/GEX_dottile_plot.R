@@ -1,9 +1,9 @@
 #' Outputs a dotplot for gene expression, where the color of each dot is scaled by the gene expression level and the size is scaled by the \% of cells positive for the gene
 #' @param GEX.matrix GEX seurat object generated with VDJ_GEX_matrix
 #' @param genes Character vector. Genes of those in rownames(GEX.matrix) to plot. Can be any number, but more then 30 is discuraged because of cluttering
-#' @param group.by Character. Name of a column in GEX.matrix@meta.data to split the plot by. If set to "none", a plot with a single column will be produced.
-#' @param threshold.to.plot Integer 1-100. % of cells which must be expressing the feature to plot a point. If below, the field will be left empty
-#' @param platypus.version This is coded for "v3" only, but in practice any Seurat Object can be fed in
+#' @param group.by Character. Name of a column in GEX.matrix@meta.data to split the plot by. If set to \"none\", a plot with a single column will be produced.
+#' @param threshold.to.plot Integer 1-100. \% of cells which must be expressing the feature to plot a point. If below, the field will be left empty
+#' @param platypus.version This is coded for \"v3\" only, but in practice any Seurat Object can be fed in
 #' @return Returns a ggplot object
 #' @export
 #' @examples
@@ -21,6 +21,8 @@ GEX_dottile_plot <- function(GEX.matrix,
   name <- NULL
   value <- NULL
   mean_scaled_expression <- NULL
+  perc_expressing_cells <- NULL
+
 
   platypus.version <- "v3"
 
@@ -63,7 +65,7 @@ GEX_dottile_plot <- function(GEX.matrix,
   names(to_plot_f)[1] <- "group"
   #summarize and group
   #for now by cluster
-  to_plot_sum_f <- to_plot_f %>% dplyr::group_by(group,name) %>% dplyr::summarise(mean_scaled_expression = mean(value[value > 0]), perc_expressing_cells = (length(value[value > 0])/n()*100))
+  to_plot_sum_f <- to_plot_f %>% dplyr::group_by(group,name) %>% dplyr::summarise(mean_scaled_expression = mean(value[value > 0]), perc_expressing_cells = (length(value[value > 0])/dplyr::n()*100))
 
   to_plot_sum_f$name <- ordered(as.factor(to_plot_sum_f$name), levels = rev(genes))
 
