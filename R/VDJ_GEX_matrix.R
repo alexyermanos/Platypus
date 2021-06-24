@@ -1523,8 +1523,17 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
   }
 
+  specificity <- NULL
+  affinity <- NULL
   #Add further columns to fill in in future updates
-
+  if(class(out.list[[1]]) == "data.frame"){ #check that vdj has been completed
+    out.list[[1]]$batches <- NA
+    out.list[[1]]$batches <- NA
+  }
+  if(class(out.list[[2]]) != "character"){ #check that gex has been completed
+    out.list[[2]]$batches <- NA
+    out.list[[2]]$batches <- NA
+  }
 
   #adding VDJ stats
   print("Adding VDJ stats")
