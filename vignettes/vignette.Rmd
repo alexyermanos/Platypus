@@ -97,12 +97,11 @@ vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
                                integrate.GEX.to.VDJ = T,
                                integrate.VDJ.to.GEX = T, #This will adjunct the VDJ information as metadata to the GEX object
                                exclude.GEX.not.in.VDJ = F,
-                               filter.overlapping.barcodes.GEX = F,
-                               filter.overlapping.barcodes.VDJ = F,
-                               exclude.on.cell.state.markers = c("This is not a gene"),
+                               filter.overlapping.barcodes.GEX = T,
+                               filter.overlapping.barcodes.VDJ = T,
+                               exclude.on.cell.state.markers = c("CD3E"),
                                get.VDJ.stats = T,
                                parallel.processing = "none",
-                               subsample.barcodes = F,
                                trim.and.align = F,
                                group.id = c(1,2))
 
