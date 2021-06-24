@@ -6,45 +6,45 @@ Date: 2021-04-19
 Author: Alexander Yermanos
 Maintainer: Alexander Yermanos <ayermano@ethz.ch>
 Depends:
-    R(>= 3.1.0),
-    rmarkdown,
-    ggplot2,
-    Seurat
+    R(>= 3.1.0)
 Imports:
-    reshape2,
-    knitr,
-    seqinr,
-    plyr,
-    dplyr,
-    jsonlite,
-    msa,
+    BiocGenerics,
     Biostrings,
-    stringr,
-    do,
-    useful,
-    tidyverse,
-    tidyr,
-    BiocGenerics, 
-    IRanges, 
+    do,    
+    dplyr, 
+    ggplot2,
+    jsonlite,
+    knitr,
+    msa,
+    plyr,
+    reshape2,
+    rmarkdown,
+    seqinr,
+    Seurat,
     SeuratObject, 
-    circlize,  
+    stringr,
     tibble,
+    tidyr,
+    tidyverse,
+    useful
 Suggests:
-    vegan,
-    stringdist,
     ape,
-    phytools,
-    msigdbr,
-    limma,
-    harmony,
-    ggseqlogo,
-    fgsea,
+    circlize,
     cowplot,
     doParallel,
+    fgsea,
     ggrepel,
+    ggseqlogo,
     gridExtra,
+    harmony,
     igraph,
-    scales
+    IRanges, 
+    limma,
+    msigdbr,
+    phytools,
+    scales,
+    stringdist,
+    vegan
 Description: Allows the analysis of single cell immune repertoire data. 
 License: GPL-2
 Encoding: UTF-8
