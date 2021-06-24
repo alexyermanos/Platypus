@@ -28,6 +28,7 @@
 #' @param mds.dim Numeric vector specifying which dimensions should be supplied into dimensional reduction techniques in Seurat and Harmony. Default input is '1:10'.
 #'@param group.id vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.
 #'@param subsample.barcodes For development purposes only. If set to TRUE the function will run on 100 cells only to increase speeds of debugging
+#'@param Data.in Alternative data input for development purposes only
 #' @return Single cell matrix including VDJ and GEX info
 #' @import Seurat
 #' @import ggplot2
@@ -86,7 +87,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            neighbor.dim,
                            mds.dim,
                            subsample.barcodes,
-                           group.id){ #LAST ONE only for development to reduce runtime on test runs. Will be removed once the function is stable
+                           group.id,.
+                           Data.in){ #LAST ONE only for development to reduce runtime on test runs. Will be removed once the function is stable
 
   #garbage collector to clear some ram
   gc()
@@ -97,6 +99,74 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   GEX_automate_single <- NULL
   VDJ_GEX_stats <- NULL
   do <- NULL
+
+  #Sort out the input situation
+  if(missing(Data.in)){ #primary
+    Data.in <- "none"
+  }
+
+  if(class(Data.in) == "character"){samples.in <- "none"}#samples in for later
+  if(class(Data.in) == "character"){ #if Data.in was provided, this would be false as Data.in would be of class list
+    #Worst case: no input was provided at all
+    if(missing(VDJ.out.directory.list) & missing(GEX.out.directory.list)){ stop("Please provide data input either as a as a list of local paths to VDJ.out.directory.list and/or GEX.out.directory.list or as list of R objects to Data.in (development only)")
+
+      batches <- "none" #for later to know whether batch numbers should be added as a column. Only if Data.in provided
+      #VDJ but not GEX local paths provided
+    } else if(missing(VDJ.out.directory.list) == F & missing(GEX.out.directory.list)){
+      GEX.out.directory.list <- "none"
+      samples.paths.VDJ <- paste0(do.call("c",as.list(VDJ.out.directory.list)), collapse = " ; ")
+      if(missing(group.id)) group.id <- 1:length(VDJ.out.directory.list)
+      #GEX but not VDJ local paths provided
+    } else if(missing(VDJ.out.directory.list) & missing(GEX.out.directory.list) == F){
+      VDJ.out.directory.list <- "none"
+      samples.paths.GEX <- paste0(do.call("c",as.list(GEX.out.directory.list)), collapse = " ; ")
+      if(missing(group.id)) group.id <- 1:length(GEX.out.directory.list)
+      #Both local paths provided
+    } else if(missing(VDJ.out.directory.list) == F & missing(GEX.out.directory.list) == F)
+      if(length(VDJ.out.directory.list) != length(GEX.out.directory.list)){stop("Different number of input paths provided for GEX and VDJ. Please revise input")}
+    samples.paths.VDJ <- paste0(do.call("c",as.list(VDJ.out.directory.list)), collapse = " ; ")
+    samples.paths.GEX <- paste0(do.call("c",as.list(GEX.out.directory.list)), collapse = " ; ")
+    if(missing(group.id)) group.id <- 1:length(GEX.out.directory.list)
+
+  } else if(class(Data.in) == "list"){ #This input is prioritized over local paths input
+    GEX.out.directory.list <- "none"
+    VDJ.out.directory.list <- "none"
+
+    #figure out the input structure and reorder into a list were elements 1-n are all files for each sample
+    samples.in <- list()
+    samples.paths.VDJ <- c()
+    samples.paths.GEX <- c()
+    batches <- c()
+    for(i in 1:length(Data.in)){ #First level
+      #print(paste0("i",i))
+      if(names(Data.in[[i]])[1] == "VDJ"){ #check if we are already on a sample level
+        samples.in[[length(samples.in)+1]] <- Data.in[[i]]
+        samples.paths.VDJ <- c(samples.paths.VDJ, Data.in[[i]][[3]])
+        samples.paths.GEX <- c(samples.paths.GEX, Data.in[[i]][[4]])
+        batches <- c(batches, Data.in[[i]][[5]])
+        Data.in[[i]] <- "None" #to limit ram usage
+      } else {
+        for(j in 1:length(Data.in[[i]])){ #Second level
+          #print(paste0("j",j))
+          if(names(Data.in[[i]][[j]])[1] == "VDJ"){ #check if we are a sample level
+            samples.in[[length(samples.in)+1]] <- Data.in[[i]][[j]]
+            samples.paths.VDJ <- c(samples.paths.VDJ, Data.in[[i]][[j]][[3]])
+            samples.paths.GEX <- c(samples.paths.GEX, Data.in[[i]][[j]][[4]])
+            batches <- c(batches, Data.in[[i]][[j]][[5]])
+            Data.in[[i]][[j]] <- "None" #to limit ram usage
+          } else { #Data structure does not match expectations
+            stop("Provided datastructure does not match necessary input format")
+          }
+        }
+      }
+    }
+    samples.paths.GEX <- paste0(samples.paths.GEX, collapse = " ; ")
+    samples.paths.VDJ <- paste0(samples.paths.VDJ, collapse = " ; ")
+
+    if(missing(group.id)) group.id <- 1:length(samples.in)
+    data.in <- NULL #to save some RAM
+  }
+
 
   if(missing(subsample.barcodes)) subsample.barcodes = F
   if(missing(group.id)){
@@ -128,6 +198,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(parallel.processing == "parlapply" | parallel.processing == "mclapply"){
     if(missing(numcores)) numcores <- parallel::detectCores()
     if(numcores > parallel::detectCores()){numCores <- parallel::detectCores()}
+  } else{
+    numcores <- 1
   }
 
   #FOR GEX_automate_single
@@ -148,8 +220,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #save runtime parameters for later
   #params <- do.call("rbind", as.list(environment()))
-  params <- c(paste0(do.call("c",as.list(VDJ.out.directory.list)), collapse = " / "),
-              paste0(do.call("c",as.list(GEX.out.directory.list)), collapse = " / "),
+  params <- c(paste0(do.call("c",as.list(samples.paths.VDJ)), collapse = " / "),
+              paste0(do.call("c",as.list(samples.paths.GEX)), collapse = " / "),
               VDJ.combine,
               GEX.integrate,
               integrate.GEX.to.VDJ,
@@ -210,58 +282,19 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   out.list <- list() #open list containing matrices
 
 
-  ###########################################################################################DEF OF FUNCTIONS
+  ########################################################################################### DEF OF FUNCTIONS
 
   #Gets statistics on VDJ and GEX
-  VDJ_GEX_stats <- function(VDJ.out.directory,
-                            GEX.out.directory,
-                            sample.names,
-                            metrics10x,
-                            save.csv,
-                            filename){####START VDJ_GEX_stats
+  VDJ_GEX_stats_int <- function(clonotype.list,
+                                reference.list,
+                                annotations.list,
+                                contig.table,
+                                vdj.metrics,
+                                gex.metrics,
+                                samples.paths.VDJ){####START VDJ_GEX_stats
 
-
-    if(missing(save.csv)) save.csv <- T
-    if(missing(filename)) filename <- "VDJ_stats.csv"
-    if(missing(metrics10x)) metrics10x <- F
-
-    vdj.loaded <- F
-    if(missing(VDJ.out.directory)==F){
-      print("Reading in input files")
-      VDJ.out.directory_clonotypes <- paste(VDJ.out.directory,"/clonotypes.csv",sep="")
-      VDJ.out.directory_reference <- paste(VDJ.out.directory,"/concat_ref.fasta",sep="")
-      VDJ.out.directory_contigs <- paste(VDJ.out.directory,"/all_contig_annotations.csv",sep="")
-      VDJ.out.directory_annotations <- paste(VDJ.out.directory,"/all_contig_annotations.json",sep="")
-      VDJ.out.directory_metrics <- paste(VDJ.out.directory,"/metrics_summary.csv",sep="")
-
-      #needed for VDJ_analyze module
-      clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-
-      #needed for VDJ_per_cell_matrix module
-      reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-      annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
-      contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-      VDJ.metrics.list <- lapply(VDJ.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-      vdj.loaded <- T
-    } else {
-      stop("No VDJ.out.directory supplied")
-    }
-
-    gex.loaded <- F
-    if(missing(GEX.out.directory) == F){
-      if(length(GEX.out.directory) == length(VDJ.out.directory)){
-        GEX.out.directory_metrics <- paste(GEX.out.directory,"/metrics_summary.csv",sep="")
-        GEX.metrics.list <- lapply(GEX.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-        gex.loaded <- T
-      }else {
-        print("Length of GEX out directory not the same as VDJ out directory. GEX will not be loaded")
-      }
-    } else {
-      print("No GEX.out.directory supplied")
-    }
-
-    if(missing(sample.names)){sample.names <- c(1:length(VDJ.out.directory))}
-
+    sample.names <- samples.paths.VDJ
+    contig.list <- contig.table
 
     ### VDJ stats - mainly info coming from the annotated contigs csv
     VDJ.stats.list <- list()
@@ -278,12 +311,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRA:", replacement = "IGL:", clonotype.list[[k]]$cdr3s_aa)
 
       #info on sample
-      VDJ.stats[length(VDJ.stats)+1] <- VDJ.out.directory[[k]]
+      VDJ.stats[length(VDJ.stats)+1] <- sample.names[[k]]
       names(VDJ.stats)[length(VDJ.stats)] <- "Repertoir path"
 
       VDJ.stats[length(VDJ.stats)+1] <- sample.names[k]
       names(VDJ.stats)[length(VDJ.stats)] <- "Sample name"
-
 
       #Get number of unique barcodes
       VDJ.stats[length(VDJ.stats)+1] <- length(unique(contig.list[[k]]$barcode))
@@ -291,8 +323,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #generate lookup table with HC and LC counts and stats per barcode
       print("Getting lookup tables")
-      holding_bar <- utils::txtProgressBar(min = 0, max = 1, initial = 0, char = "%",
-                                           width = 100, style = 3, file = "")
+      #holding_bar <- utils::txtProgressBar(min = 0, max = 1, initial = 0, char = "%",width = 100, style = 3, file = "")
       barcodes <- c()
       nr_HC <- c()
       nr_LC <- c()
@@ -303,34 +334,34 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       nr_bar <- 0
       for(j in unique(contig.list[[k]]$barcode)){
         nr_bar <- nr_bar + 1
-        utils::setTxtProgressBar(value = nr_bar/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
+        #utils::setTxtProgressBar(value = nr_bar/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
         barcodes <- append(barcodes, j)
         is_cell <- append(is_cell, min(contig.list[[k]]$is_cell[which(contig.list[[k]]$barcode == j)])) #because most barcodes have two contigs (1HC, 1LC), the min function is used. Normally both contigs have the same "quality stats". In case they do not, the min function always chooses FALSE if present.
         high_confidence <- append(high_confidence, min(contig.list[[k]]$high_confidence[which(contig.list[[k]]$barcode == j)]))
         productive <- append(productive, min(contig.list[[k]]$productive[which(contig.list[[k]]$barcode == j)]))
         full_length <- append(full_length, min(contig.list[[k]]$full_length[which(contig.list[[k]]$barcode == j)]))
 
-        nr_HC <- append(nr_HC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
-        nr_LC <- append(nr_LC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
+        nr_HC <- append(nr_HC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
+        nr_LC <- append(nr_LC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
       }
       lookup_stats <- data.frame(barcodes,nr_HC,nr_LC,is_cell,high_confidence,productive,full_length)
-      names(lookup_stats) <- c("barcodes","nr_HC","nr_LC","is_cell","high_confidence","productive","full_length")
+      names(lookup_stats) <- c("barcodes","nr_VDJ","nr_VJ","is_cell","high_confidence","productive","full_length")
 
       #generate lookup table for clonotypes
       clonotype_ids <- c()
       nr_HC <- c()
       nr_LC <- c()
       for(l in 1:nrow(clonotype.list[[k]])){
-        utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
+        #utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
         clonotype_ids <- append(clonotype_ids, clonotype.list[[k]]$clonotype_id[l])
 
-        nr_HC <- append(nr_HC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
-        nr_LC <- append(nr_LC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
+        nr_HC <- append(nr_HC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
+        nr_LC <- append(nr_LC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
       }
       lookup_stats_clono <- data.frame(clonotype_ids,nr_HC,nr_LC)
-      names(lookup_stats_clono) <- c("clonotype_ids","nr_HC","nr_LC")
+      names(lookup_stats_clono) <- c("clonotype_ids","nr_VDJ","nr_VJ")
 
-      close(holding_bar)
+      #close(holding_bar)
 
       #number of barcodes with
       #is cell == true
@@ -339,27 +370,27 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #number of is.cell with 1 HC and 1 LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 1 & lookup_stats$nr_LC == 1 & lookup_stats$is_cell == "true",])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1VDJ 1VJ"
 
       #number of cells with 1 HC and 0 LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 1 & lookup_stats$nr_LC == 0 & lookup_stats$is_cell == "true",])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1HC 0LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1VDJ 0VJ"
 
       #number of cells with 0 HC and 1 LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 0 & lookup_stats$nr_LC == 1 & lookup_stats$is_cell == "true",])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 0HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 0VDJ 1VJ"
 
       #number of cells with 2 or more HC and 1 LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC > 1 & lookup_stats$nr_LC == 1 & lookup_stats$is_cell == "true",])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more VDJ 1VJ"
 
       #number of cells with 1 HC and 2 or more LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 1 & lookup_stats$nr_LC > 1 & lookup_stats$is_cell == "true",])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1HC 2 or more LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1VDJ 2 or more VJ"
 
       #number of cells with 2 or more HC and 2 or more LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC > 1 & lookup_stats$nr_LC > 1 & lookup_stats$is_cell == "true",])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more HC 2 or more LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more VDJ 2 or more VJ"
 
       #number of cells with
       #full length == true
@@ -382,7 +413,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true"
 
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true" & lookup_stats$high_confidence == "true" & lookup_stats$productive == "true" & lookup_stats$full_length == "true" & lookup_stats$is_cell == "true" & lookup_stats$nr_HC == 1 & lookup_stats$nr_LC == 1,])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true and 1HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true and 1VDJ 1VJ"
 
       #number of clonotypes
       VDJ.stats[length(VDJ.stats)+1] <- nrow(clonotype.list[[k]])
@@ -390,15 +421,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #number of clonotypes with exactly 1HC 1LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats_clono[lookup_stats_clono$nr_HC == 1 & lookup_stats_clono$nr_LC == 1,])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes 1HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes 1VDJ 1VJ"
 
       #number of clonotypes with  < 1HC 1LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats_clono[lookup_stats_clono$nr_HC + lookup_stats_clono$nr_LC < 2,])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes < 1HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes < 1VDJ 1VJ"
 
       #number of clonotypes with  > 1HC 1LC
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats_clono[lookup_stats_clono$nr_HC + lookup_stats_clono$nr_LC > 2,])
-      names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes > 1HC 1LC"
+      names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes > 1VDJ 1VJ"
 
       #More to come
 
@@ -418,82 +449,84 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
     VDJ.stats.all <- do.call(rbind, VDJ.stats.list)
 
-    print("Compiling table")
-    if(metrics10x == T){
-      tryCatch({
-        #for VDJ
-        #check lenght
-        #add rep itentifier
-        for(ij in 1:length(VDJ.metrics.list)){
-          VDJ.metrics.list[[ij]]$rep_id <- ij
-          for(ik in 1:ncol(VDJ.metrics.list[[ij]])){
-            VDJ.metrics.list[[ij]][,ik] <- as.character(VDJ.metrics.list[[ij]][,ik])
+    print("Getting 10x stats")
+
+    VDJ.metrics.list <- vdj.metrics
+    GEX.metrics.list <- gex.metrics
+
+    tryCatch({
+      #for VDJ
+      #check lenght
+      #add rep itentifier
+      for(ij in 1:length(VDJ.metrics.list)){
+        VDJ.metrics.list[[ij]]$rep_id <- ij
+        for(ik in 1:ncol(VDJ.metrics.list[[ij]])){
+          VDJ.metrics.list[[ij]][,ik] <- as.character(VDJ.metrics.list[[ij]][,ik])
+        }
+      }
+
+      #### meant to make sure that different samples from different cellranger versions will be bound together
+      #get ncols
+      ncols <- do.call("c", lapply(VDJ.metrics.list, function(x) ncol(x)))
+      #check if length if identical
+      if(length(unique(ncols)) == 1){
+        VDJ.metrics.all <- dplyr::bind_rows(VDJ.metrics.list)
+        #if not merge dataframes sequentially to ensure that all information is maintained
+      } else {
+        for(m in 1:length(VDJ.metrics.list)){
+          if(m == 1){
+            ab_1 <- as.data.frame(t(VDJ.metrics.list[[1]]))
+            ab_1$idents <- rownames(ab_1)
+          } else{
+            cur_ab <- as.data.frame(t(VDJ.metrics.list[[m]]))
+            cur_ab$idents <- rownames(cur_ab)
+            ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T)
+          }
+        }
+        VDJ.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
+        names(VDJ.metrics.all) <- ab_1$idents
+      }
+
+      #for GEX
+      #this is a rather inefficient routine to match tables with different columns. This is necessary when outputs from different cellranger versions are combined and the summary metics table is different between samples.
+      if(class(GEX.metrics.list) == "list"){
+
+        for(ij in 1:length(GEX.metrics.list)){
+          GEX.metrics.list[[ij]]$rep_id <- ij
+          for(ik in 1:ncol(GEX.metrics.list[[ij]])){
+            GEX.metrics.list[[ij]][,ik] <- as.character(GEX.metrics.list[[ij]][,ik])
           }
         }
 
-        #### meant to make sure that different samples from different cellranger versions will be bound together
         #get ncols
-        ncols <- do.call("c", lapply(VDJ.metrics.list, function(x) ncol(x)))
+        ncols <- do.call("c", lapply(GEX.metrics.list, function(x) ncol(x)))
         #check if length if identical
         if(length(unique(ncols)) == 1){
-          VDJ.metrics.all <- dplyr::bind_rows(VDJ.metrics.list)
+          GEX.metrics.all <- dplyr::bind_rows(GEX.metrics.list)
           #if not merge dataframes sequentially to ensure that all information is maintained
         } else {
-          for(m in 1:length(VDJ.metrics.list)){
+          for(m in 1:length(GEX.metrics.list)){
             if(m == 1){
-              ab_1 <- as.data.frame(t(VDJ.metrics.list[[1]]))
+              ab_1 <- as.data.frame(t(GEX.metrics.list[[1]]))
               ab_1$idents <- rownames(ab_1)
             } else{
-              cur_ab <- as.data.frame(t(VDJ.metrics.list[[m]]))
+              cur_ab <- as.data.frame(t(GEX.metrics.list[[m]]))
               cur_ab$idents <- rownames(cur_ab)
               ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T)
             }
           }
-          VDJ.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
-          names(VDJ.metrics.all) <- ab_1$idents
+          GEX.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
+          names(GEX.metrics.all) <- ab_1$idents
         }
+        #bind the two
+        VDJ.metrics.all <- cbind(VDJ.metrics.all, GEX.metrics.all)
+      }
+    }, error = function(e){e
+      print(paste0("Adding 10x metrix failed: ", e))})
 
-        #for GEX
-        #this is a rather inefficient routine to match tables with different columns. This is necessary when outputs from different cellranger versions are combined and the summary metics table is different between samples.
-        if(gex.loaded == T){
+    VDJ.stats.all <- cbind(VDJ.stats.all, VDJ.metrics.all)
 
-          for(ij in 1:length(GEX.metrics.list)){
-            GEX.metrics.list[[ij]]$rep_id <- ij
-            for(ik in 1:ncol(GEX.metrics.list[[ij]])){
-              GEX.metrics.list[[ij]][,ik] <- as.character(GEX.metrics.list[[ij]][,ik])
-            }
-          }
-
-          #get ncols
-          ncols <- do.call("c", lapply(GEX.metrics.list, function(x) ncol(x)))
-          #check if length if identical
-          if(length(unique(ncols)) == 1){
-            GEX.metrics.all <- dplyr::bind_rows(GEX.metrics.list)
-            #if not merge dataframes sequentially to ensure that all information is maintained
-          } else {
-            for(m in 1:length(GEX.metrics.list)){
-              if(m == 1){
-                ab_1 <- as.data.frame(t(GEX.metrics.list[[1]]))
-                ab_1$idents <- rownames(ab_1)
-              } else{
-                cur_ab <- as.data.frame(t(GEX.metrics.list[[m]]))
-                cur_ab$idents <- rownames(cur_ab)
-                ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T)
-              }
-            }
-            GEX.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
-            names(GEX.metrics.all) <- ab_1$idents
-          }
-          #bind the two
-          VDJ.metrics.all <- cbind(VDJ.metrics.all, GEX.metrics.all)
-        }
-      }, error = function(e){e
-        print(paste0("Adding 10x metrix failed: ", e))})
-
-      VDJ.stats.all <- cbind(VDJ.stats.all, VDJ.metrics.all)
-    } else {}
-    if(save.csv){utils::write.csv(VDJ.stats.all, file = filename)}
-
+    print("Done with stats")
     return(VDJ.stats.all)
   }
 
@@ -559,9 +592,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
     }
 
-
     for(i in 1:length(GEX.list)){
-
 
       holding_upper_gene_names <- toupper(rownames(GEX.list[[i]]))
       if(VDJ.gene.filter==T){
@@ -644,9 +675,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   ####################################################################################### STOP automate_GEX_single
 
   #Helper function called in VDJ_GEX_matrix. Do not run as standalone!
-  #Function called to assembly VDJ matrix
+  #FUN to call in parlapply mclapply or lapply
   barcode_VDJ_iteration <- function(barcodes, contigs, references, annotations, gap.opening.cost, gap.extension.cost,trim.and.align){
 
+    require(stringr)
+    require(Biostrings)
 
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
@@ -948,17 +981,25 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #Read in raw data for both GEX and VDJ
   vdj.loaded <- F
-  if(VDJ.out.directory.list[[1]] != "none"){
+  if(class(samples.in) == "character" & VDJ.out.directory.list[[1]] != "none"){ #No Data.in => procced with loading by VDJ.out.directory.list
+
+    #Remove possible backslash at the end of the input path
+    for(k in 1:length(VDJ.out.directory.list)){
+      VDJ.out.directory.list[[k]]<-  gsub("/$", "", VDJ.out.directory.list[[k]])
+    }
+
     vdj_load_error <- tryCatch({suppressWarnings({
       VDJ.out.directory_clonotypes <- paste(VDJ.out.directory.list,"/clonotypes.csv",sep="")
       VDJ.out.directory_reference <- paste(VDJ.out.directory.list,"/concat_ref.fasta",sep="")
       VDJ.out.directory_contigs <- paste(VDJ.out.directory.list,"/filtered_contig_annotations.csv",sep="")
       VDJ.out.directory_annotations <- paste(VDJ.out.directory.list,"/all_contig_annotations.json",sep="")
+      VDJ.out.directory_metrics <- paste(VDJ.out.directory.list,"/metrics_summary.csv",sep="")
 
       clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
       reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
       annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
       contig.table <- lapply(VDJ.out.directory_contigs, function(x) utils::read.csv(x,sep=",",header=T, )) #better using the table format downstream
+      metrics.table <- lapply(VDJ.out.directory_metrics, function(x) utils::read.csv(x,sep=",",header=T, ))
 
       #change names so that the barcode function does not have to do that
       for(ijl in 1:length(contig.table)){contig.table[[ijl]]$raw_consensus_id <- gsub("_consensus_","_concat_ref_", contig.table[[ijl]]$raw_consensus_id)}
@@ -990,7 +1031,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
 
 
-      #convert everyhting to character
+      #convert everything to character
       for(ijk in 1:length(clonotype.list)){
         for(d in 1:ncol(clonotype.list[[ijk]])){
           clonotype.list[[ijk]][,d] <- as.character(clonotype.list[[ijk]][,d])
@@ -1010,20 +1051,95 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(inherits(vdj_load_error,"error")){
       print("Loading VDJ failed")}
 
-  }
+  } else if(class(samples.in) == "list"){ #GET info from samples.in
+    #get VDJs
 
+    vdj.loaded <- F
+    vdj_load_error <- tryCatch({
+
+      clonotype.list <- lapply(samples.in, function(x){return(x[[1]][[1]])})
+      reference.list <- lapply(samples.in, function(x){return(x[[1]][[2]])})
+      annotations.list <- lapply(samples.in, function(x){return(x[[1]][[3]])})
+      contig.table <- lapply(samples.in, function(x){return(x[[1]][[4]])})
+      metrics.table <- lapply(samples.in, function(x){return(x[[1]][[5]])})
+
+      #clear VDJ part in object
+      for(i in 1:length(samples.in)){
+        samples.in[[i]][[1]] <- "loaded"
+      }
+
+      #change names so that the barcode function does not have to do that
+      for(ijl in 1:length(contig.table)){contig.table[[ijl]]$raw_consensus_id <- gsub("_consensus_","_concat_ref_", contig.table[[ijl]]$raw_consensus_id)}
+
+      ## pulls out the three important features: featureRegions, and of featureRegions. Used for trimming where the V region starts and where the C region ends.
+      annotations.table <- list()
+      for(i in 1:length(annotations.list)){
+        #get annotation table to make parlapply function faster
+        annotations.table[[i]] <- do.call(BiocGenerics::rbind,lapply( #get relevant entries out
+          annotations.list[[i]]
+          , function(y){
+
+            if(length(y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="L-REGION+V-REGION")]) == 1){
+              temp_start <- y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="L-REGION+V-REGION")][[1]]$contig_match_start
+            } else {
+              temp_start <- 10000 #This is to cause substr() in trimming to return an empty string
+              #Try substr("ABCDE",100,5) to check
+            }
+            if(length(y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="J-REGION")]) == 1){
+              temp_end <- y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="J-REGION")][[1]]$contig_match_end #!
+            } else {
+              temp_end <- 0 #This is to cause substr() in trimming to return an empty string
+            }
+            data.frame("contig_id" = y$contig_name,
+                       "sequence" = y$sequence,
+                       "temp_start" = temp_start,
+                       "temp_end" = temp_end
+            )}))### returns this dataframe with these four outputs. if you dont have annotations sufficient for both, then you will just an empty character vector. For high confidence cells we have start and stop.
+      }
+
+      #convert everyhting to character
+      for(ijk in 1:length(clonotype.list)){
+        for(d in 1:ncol(clonotype.list[[ijk]])){
+          clonotype.list[[ijk]][,d] <- as.character(clonotype.list[[ijk]][,d])
+        }
+        for(d in 1:ncol(annotations.table[[ijk]])){
+          annotations.table[[ijk]][,d] <- as.character(annotations.table[[ijk]][,d])
+        }
+        for(d in 1:ncol(contig.table[[ijk]])){
+          contig.table[[ijk]][,d] <- as.character(contig.table[[ijk]][,d])
+        }
+      }
+
+      vdj.loaded <- T
+      print(paste0(Sys.time()," Loaded VDJ data from Data.in"))
+    }, error = function(e){e
+      print(e)})
+    if(inherits(vdj_load_error,"error")){
+      print("Loading VDJ from Data.in failed")}
+
+  } #end loading from Data.in
+
+  ###################################
 
   #Load in GEX
   gex.loaded <- F
-  if(GEX.out.directory.list[[1]] != "none"){
+  if(class(samples.in) == "character" & GEX.out.directory.list[[1]] != "none"){ #No Data.in => procceed with loading by GEX.out.directory.list
+
+    #Remove possible backslash at the end of the input path
+    for(k in 1:length(GEX.out.directory.list)){
+      GEX.out.directory.list[[k]]<-  gsub("/$", "", GEX.out.directory.list[[k]])
+    }
+
     gex_load_error <- tryCatch({suppressWarnings({
       #add the directory identifier
       GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/filtered_feature_bc_matrix",sep="")
+      GEX.out.directory.list.metrics <- paste(GEX.out.directory.list,"/metrics_summary.csv",sep="")
       directory_read10x <- lapply(GEX.out.directory.list.p, function(x) Seurat::Read10X(data.dir=x))
       directory_read10x <- lapply(directory_read10x, function(x){
         rownames(x) <- toupper(rownames(x))
         return(x)})
       gex.list <- lapply(directory_read10x, function(x) Seurat::CreateSeuratObject(x))
+      gex.metrics.table <- lapply(GEX.out.directory.list.metrics, function(x) utils::read.csv(x,sep=",",header=T, ))
 
       for(i in 1:length(gex.list)){
         #Adding column for original barcodes that are not changed upon integration (these are not the colnames, but a metadata column to keep track of original barcodes)
@@ -1038,18 +1154,50 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       print(e)})
     if(inherits(gex_load_error, "error")){
       print("Loading GEX failed")}
+
+  } else if(class(samples.in) == "list"){ #GET info from samples.in
+    gex_load_error <- tryCatch({
+      #add the directory identifier
+
+      gex.list <- lapply(samples.in, function(x) Seurat::CreateSeuratObject(x[[2]][[1]]))
+      gex.metrics.table <- lapply(samples.in, function(x) return(x[[2]][[2]]))
+
+      #clear GEX part in object
+      for(i in 1:length(samples.in)){
+        samples.in[[i]][[2]][[1]] <- "loaded"
+      }
+
+      for(i in 1:length(gex.list)){
+        #Adding column for original barcodes that are not changed upon integration (these are not the colnames, but a metadata column to keep track of original barcodes)
+        gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
+        gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
+      }
+
+      gex.loaded <- T
+      print(paste0(Sys.time()," Loaded GEX data from Data.in"))
+    }, error = function(e){e
+      print(e)})
+    if(inherits(gex_load_error, "error")){
+      print("Loading GEX from Data.in failed")}
   }
 
+  ###########################################
+  #Call VDJ stats
+
+  #This internal VDJ_GEX_stats function takes already processed input from its wrapper. This shortens loading time, reduces RAM usage and allowes to generate stats when data is provided via Data.in
   stats.done <- F
   if(get.VDJ.stats == T & vdj.loaded == T){
     tryCatch({
 
-      out.stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list,
-                                 GEX.out.directory = GEX.out.directory.list,
-                                 metrics10x = T,
-                                 save.csv = F,
-                                 filename = "NONE.csv")
+      out.stats <- VDJ_GEX_stats_int(clonotype.list = clonotype.list,
+                                     reference.list = reference.list,
+                                     annotations.list = annotations.list,
+                                     contig.table = contig.table,
+                                     vdj.metrics = metrics.table,
+                                     gex.metrics = gex.metrics.table,
+                                     samples.paths.VDJ = str_split(samples.paths.VDJ, " ; ", simplify = T)[1,]) #needing to split sample paths again as they will end up in separate rows in the stats dataframe
       stats.done <- T
+      print(paste0(Sys.time(), ": Got VDJ GEX stats"))
 
     }, error = function(e){e
       print(paste0("VDJ stats failed: ", e))})
@@ -1350,6 +1498,33 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
     out.list <- list("VDJ" = "none", "GEX" = GEX.proc)
   }
+
+  if(batches[[1]] != "none"){
+    if(class(out.list[[1]]) == "data.frame"){ #check that vdj has been completed
+      if(length(batches) == length(unique(out.list[[1]]$sample_id))){
+        out.list[[1]]$batch_id <- as.character(out.list[[1]]$sample_id)
+        for (i in 1:length(unique(out.list[[1]]$batch_id ))){
+          out.list[[1]]$batch_id <- gsub(unique(out.list[[1]]$sample_id)[i], batches[i], out.list[[1]]$batch_id)}
+      }
+    }
+    if(class(out.list[[2]]) != "character"){ #check that gex has been completed
+      if(length(batches) == length(unique(out.list[[2]]$sample_id))){
+        out.list[[2]]$batch_id <- as.character(out.list[[2]]$sample_id)
+        for (i in 1:length(unique(out.list[[2]]$batch_id))){
+          out.list[[2]]$batch_id <- gsub(unique(out.list[[2]]$sample_id)[i], batches[i], out.list[[2]]$batch_id)}
+      }
+    }
+  } else if(batches[[1]] == "none"){#append the column anyways to keep formatting consistent
+    if(class(out.list[[1]]) == "data.frame"){ #check that vdj has been completed
+      out.list[[1]]$batches <- "Unspecified"
+    }
+    if(class(out.list[[2]]) != "character"){ #check that gex has been completed
+      out.list[[2]]$batches <- "Unspecified"
+    }
+  }
+
+  #Add further columns to fill in in future updates
+
 
   #adding VDJ stats
   print("Adding VDJ stats")

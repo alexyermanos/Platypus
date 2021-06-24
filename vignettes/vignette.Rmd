@@ -29,7 +29,7 @@ All other functions are already or in the process of being updated. A function w
 Can stay tuned for updates https://twitter.com/AlexYermanos
 
 ```{r setup, include=FALSE}
-source_code_dir <- "C:/Users/vickr/Documents/GitHub/platypus_dev_VK" 
+source_code_dir <- "C:/Dokumente usw/Master/Reddy Lab/1_thesis/3_code/test_pack/testpack_git/Platypus/R" 
 file_path_vec <- list.files(source_code_dir, full.names = T)
 for(f_path in file_path_vec){
   source(f_path)}
@@ -70,7 +70,7 @@ knitr::opts_chunk$set(fig.width=7, fig.height=7)
 ```
 
 ## 3. Extracting and integrating repertoire data with VDJ_GEX_matrix (Platypus v3)
-```{r,eval = FALSE, fig.show='hold', message=FALSE,results = 'hide'}
+```{r, fig.show='hold', message=FALSE,results = 'hide'}
 
 ### Downloading the test data for VDJ_GEX_matrix 
 # While the Platypus manuscript uses the COVID-19 data, the vignette for Platypus v3 will use the data from B cells in the aged CNS, which can be found at the following link https://polybox.ethz.ch/index.php/s/fxQJ3NrRSwiPSSo This small dataset contains VDJ (separate libraries for B) and GEX libraries from the central nervous system of two murine samples. More information can be found https://doi.org/10.1098/rspb.2020.2793
@@ -90,12 +90,12 @@ GEX.out.directory.list[[2]] <- c("~/Downloads/Platypus_CNS_data/GEX_S2/")
 #VDJ.out.directory.list[[2]] <- c("C:/Users/YourPCName/Downloads/PlatypusTestData/Patient2_GEX")
 
 # We will call the output vgm (short for Vdj_Gex_Matrix) - this object can be supplied as input to downstream functions in v3 of the package.
-vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
                                GEX.out.directory.list = GEX.out.directory.list,
                                GEX.integrate = T,
                                VDJ.combine = T,
                                integrate.GEX.to.VDJ = T,
-                               integrate.VDJ.to.GEX = T,
+                               integrate.VDJ.to.GEX = T, #This will adjunct the VDJ information as metadata to the GEX object
                                exclude.GEX.not.in.VDJ = F,
                                filter.overlapping.barcodes.GEX = F,
                                filter.overlapping.barcodes.VDJ = F,
