@@ -33,7 +33,8 @@ VDJ_GEX_matrix(
   neighbor.dim,
   mds.dim,
   subsample.barcodes,
-  group.id
+  group.id,
+  Data.in
 )
 }
 \arguments{
@@ -94,6 +95,8 @@ VDJ_GEX_matrix(
 \item{subsample.barcodes}{For development purposes only. If set to TRUE the function will run on 100 cells only to increase speeds of debugging}
 
 \item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.}
+
+\item{Data.in}{Alternative data input for development purposes only}
 }
 \value{
 Single cell matrix including VDJ and GEX info

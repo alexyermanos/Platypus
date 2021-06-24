@@ -346,8 +346,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         productive <- append(productive, min(contig.list[[k]]$productive[which(contig.list[[k]]$barcode == j)]))
         full_length <- append(full_length, min(contig.list[[k]]$full_length[which(contig.list[[k]]$barcode == j)]))
 
-        nr_HC <- append(nr_HC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
-        nr_LC <- append(nr_LC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
+        nr_HC <- append(nr_HC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
+        nr_LC <- append(nr_LC,stringr::paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
       }
       lookup_stats <- data.frame(barcodes,nr_HC,nr_LC,is_cell,high_confidence,productive,full_length)
       names(lookup_stats) <- c("barcodes","nr_VDJ","nr_VJ","is_cell","high_confidence","productive","full_length")
@@ -360,8 +360,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
         clonotype_ids <- append(clonotype_ids, clonotype.list[[k]]$clonotype_id[l])
 
-        nr_HC <- append(nr_HC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
-        nr_LC <- append(nr_LC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
+        nr_HC <- append(nr_HC,stringr::string_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
+        nr_LC <- append(nr_LC,stringr::string_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
       }
       lookup_stats_clono <- data.frame(clonotype_ids,nr_HC,nr_LC)
       names(lookup_stats_clono) <- c("clonotype_ids","nr_VDJ","nr_VJ")
@@ -683,8 +683,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #FUN to call in parlapply mclapply or lapply
   barcode_VDJ_iteration <- function(barcodes, contigs, references, annotations, gap.opening.cost, gap.extension.cost,trim.and.align){
 
-    require(stringr)
-    require(Biostrings)
 
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
@@ -1200,7 +1198,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                      contig.table = contig.table,
                                      vdj.metrics = metrics.table,
                                      gex.metrics = gex.metrics.table,
-                                     samples.paths.VDJ = str_split(samples.paths.VDJ, " ; ", simplify = T)[1,]) #needing to split sample paths again as they will end up in separate rows in the stats dataframe
+                                     samples.paths.VDJ = stringr::str_split(samples.paths.VDJ, " ; ", simplify = T)[1,]) #needing to split sample paths again as they will end up in separate rows in the stats dataframe
       stats.done <- T
       cat("\n Got VDJ GEX stats")
 

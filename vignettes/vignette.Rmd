@@ -35,6 +35,10 @@ for(f_path in file_path_vec){
   source(f_path)}
 gc()
 
+#to avoid of the dplyr summarise warnings
+library(dplyr, warn.conflicts = FALSE)
+options(dplyr.summarise.inform = FALSE)
+
 knitr::opts_chunk$set(fig.width=7, fig.height=7) 
 ```
 
@@ -132,7 +136,7 @@ vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 ```
 
 We can briefly look at the datastructure
-```{r,eval = FALSE, fig.show='hold', message=FALSE}
+```{r,eval = TRUE, fig.show='hold', message=FALSE}
 
 head(colnames(vgm[[1]]))
 
@@ -163,14 +167,14 @@ head(vgm[[1]]$VDJ_cdr3s_aa)
 
 ```
 Importantly, the all samples are integrated in one vgm. Basic stats can be retrieved from the VDJ_GEX_stats output which was run as part of the VGM function (get_VDJ_stats = T)
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 print(vgm[[3]]) 
 
 ```
 
 Moreover, given the many parameters of the VGM function is may be useful to check back on runtime parameters. These, as well as session info are also saved in the vgm object
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 print(vgm[[4]]) #Runtime params
 print(vgm[[5]]) #session info
@@ -182,7 +186,7 @@ print(vgm[[5]]) #session info
 The vgm object now contains all information needed for both V(D)J and gene expression analysis. In the examples below we first focus on gene expression
 
 We can visualize the 2D plots for each patient individually. By default, UMAP, PCA, and TSNE reductions are included in the object. Here it is important to supply the seurat object in vgm[[2]]. For the parameter group.by we supply "sample_id" to color points by the entry in their sample id column
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 # In Platypus version 2, the output from GEX_automate was used as input to other GEX functions. These functions are still compatible with v3 if the vgm[[2]] seurat object is supplied as input.
 # For example, the following function can be used to calculate the DE genes for each cluster, as before. 
@@ -202,29 +206,29 @@ Seurat::DimPlot(vgm[[2]],reduction = "umap", split.by = "group_id")
 
 We can observe that the majority of clusters have cells from both samples, suggesting a similar distribution of transcriptional properties between the two samples. We can also plot the cluster membership for each of the distinct samples (patients) using the GEX_proportions_barplot function.
 
-```{r, fig.show='hold', eval = FALSE}
-GEX_proportions_barplot(GEX.matrix = vgm[[2]], stacked.plot = T)
+```{r, fig.show='hold', eval = TRUE}
+GEX_proportions_barplot(GEX = vgm[[2]], stacked.plot = T)
 #This function may also be used to plot proportions in other groups. For this use the source.group and target.group parameters.
 ```
 
 Finally, we can also look at the B cell markers.
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 Seurat::FeaturePlot(vgm[[2]],reduction = "umap",features = c("CD19","PTPRC", "EBF1", "H2-K1"))
 
 #To easily scout through genes in the dataset use:
-View(as.data.frame(rownames(vgm[[2]])))
+#View(as.data.frame(rownames(vgm[[2]])))
 
 ```
 
 We can see that both patients  Platypus also allows us to assign cell type/state identity to different clusters by using GEX_phenotype. This function takes the Seurat object as input and uses canonical markers to easily match the clustering to known cell types. The user also has the possibility to use a custom list of markers and their associated cell types/states.
-```{r, results='hide', eval = FALSE}
-vgm[[2]] <- Platypus::GEX_phenotype(vgm[[2]], default = T)
+```{r, results='hide', eval = TRUE}
+vgm[[2]] <- GEX_phenotype(vgm[[2]], default = T)
 
 #vgm[[2]] <- Platypus::GEX_phenotype(vgm[[2]], default = F,cell.state.markers=c("CD8A+;CCL5+;CD44+;IL7R-;CD19-","CD8A+;CCL5-;CD44+;IL7R+;CD19-"),cell.state.names=c("EffectorCD8","MemoryCD8"))
 ```
 
 The resulting Seurat object now contains a "cell.state" column which can be used for annotation in the DimPlot function of the Seurat package.
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 Seurat::DimPlot(vgm[[2]],reduction = "umap", group.by = "cell.state")
 ```
 
@@ -232,27 +236,27 @@ Seurat::DimPlot(vgm[[2]],reduction = "umap", group.by = "cell.state")
 
 After scaling, normalizing, and clustering the cells from the GEX libraries we can now investigate which genes are differentially expressed between either clusters or samples. First, we can investigate the genes that define each of the clusters by using the GEX output of the VGM function. Depending on the size of the dataset and the number of cells this function can by quite slow. The output of this function is a list in which each element contains the differentially expressed genes for a given cluster. For example, the first element of the list will correspond to a dataframe describing the genes for cluster0 that we previously observed on the UMAP. This list object will correspond to the length of the number of clusters that were previously calculated, and has the same format as the FindMarkers function from Seurat. The pct.1 will correspond to the percentage of cells expressing the gene in the cluster of interest, and the pct.2 to the percentage of cells in all other clusters. 
 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 ## Warning: running this function will take a while
-gene_expression_cluster <- Platypus::GEX_cluster_genes(vgm[[2]],min.pct = 0.25) 
+gene_expression_cluster <- GEX_cluster_genes(vgm[[2]],min.pct = 0.25) 
 
 length(gene_expression_cluster) ## length of 8, corresponding to 8 clusters
 length(unique(vgm[[2]]$seurat_clusters)) ## length of 8
 ```
 
 We can now look at some of the genes associated with cluster0 in the previously displayed umap
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 head(gene_expression_cluster[[1]])
 ```
 
 We can see that genes FCMR, H2-DMB2 and CD74 are highly expressed in this cluster. We can also quantify the total number of differentially expressed genes for all 8 clusters
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 print(sapply(gene_expression_cluster,nrow))
 ```
 It is also possible using Platypus to create a heatmap displaying the differentially expressed genes for each cluster. This can be customized to sub-sample cells in case certain clusters are too large for visualization purposes. Additionally, the user can determine the number of genes to display for each cluster based on the n.genes.per.cluster argument. The function GEX_cluster_genes_heatmap can be used to produce a ggplot object, based on the DoHeatmap from Seurat. 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
-agedCNS_heatmap_clusters <- GEX_cluster_genes_heatmap(GEX = vgm[[2]], GEX_cluster_genes.output = gene_expression_cluster,n.genes.per.cluster = 3,max.cell = 30,metric = "top_logFC", platypus.version = "v3")
+agedCNS_heatmap_clusters <- GEX_cluster_genes_heatmap(GEX = vgm[[2]], GEX_cluster_genes.output = gene_expression_cluster,n.genes.per.cluster = 3,max.cell = 30,metric = "avg_logFC", platypus.version = "v3")
 
 print(agedCNS_heatmap_clusters)
 ```
@@ -263,12 +267,12 @@ Earlier we mentioned how we can match the unbiased clustering to known cell type
 
 To return plots as PDF directly to the current working directory set go.plot = T
 ```{r,results='hide', eval = FALSE}
-ontology_agedCNS <- Platypus::GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster[1], topNgenes = 10, go.plots = T)
+ontology_agedCNS <- GEX_GOterm(GEX.cluster.genes.output = gene_expression_cluster[1], topNgenes = 10, go.plots = T)
 head(ontology_agedCNS[[1]])
 ```
 
 We can additionally extract the top N genes per cluster directly (with filtering) using the following function:
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 top_10_genes_per_cluster <- GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output = gene_expression_cluster, n.genes = 10, by_FC = T)
 head(top_10_genes_per_cluster)
 ```
@@ -281,8 +285,8 @@ We can extract and test for differentially expressed genes between the two sampl
 
 This function allows us to also create a heatmap displaying the top most up- or downregulated genes for each cluster based on log fold change (avg_logFC) or p value (adj_p_value). Additionally, the user can determine the number of up- and downreulated genes to be displayed for each sample. In this case, the output returns a list where the first element contains the dataframe with the differntial expression information and the second element contains the heatmap displaying the most up-/downregulated genes.  
 If more than two samples are to be examined please refer to GEX_pairwise_degs two chunks below
-```{r, fig.show='hold', eval = FALSE}
-DE_genes_samples <- GEX_DEgenes(GEX = vgm[[2]],min.pct = .25, grouping.column = "sample_id",group1 = "s1", group2 = "s2",return.plot = TRUE,up.genes = 10,down.genes = 10,logFC = F)
+```{r, fig.show='hold', eval = TRUE}
+DE_genes_samples <- GEX_DEgenes(GEX = vgm[[2]],min.pct = .25, grouping.column = "sample_id",group1 = "s1", group2 = "s2",return.plot = "volcano",up.genes = 10,down.genes = 10,logFC = F)
 
 head(DE_genes_samples[[1]]) 
 DE_genes_samples[[2]] 
@@ -290,8 +294,8 @@ DE_genes_samples[[2]]
 
 The same function can also return DEGs between seurat clusters or any 2 groups of cells
 Here DEGs between cluster 1 and 3 are calculated
-```{r, fig.show='hold', eval = FALSE}
-DE_genes_cl1_vs_3 <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "seurat_clusters",group1 = "1", group2 = "3",return.plot = TRUE,up.genes = 10,down.genes = 10,logFC = F)
+```{r, fig.show='hold', eval = TRUE}
+DE_genes_cl1_vs_3 <- GEX_DEgenes(GEX= vgm[[2]],min.pct = .25, grouping.column = "seurat_clusters",group1 = "1", group2 = "3",return.plot = "heatmap",up.genes = 10,down.genes = 10,logFC = F)
 
 head(DE_genes_cl1_vs_3[[1]]) 
 DE_genes_cl1_vs_3[[2]] 
@@ -301,30 +305,27 @@ To gain a complete overview of DEGs between groups or clusters the GEX_pairwise_
 ! This function calculates DEGs for every possible pairwise comparison between groups of the selected column. It is thereby recommended to use this function with a maximum number of 10 groups/clusters/samples
 This function automatically saves plots where top label.n.top.genes genes are labeled by their p value. Additionally, genes of special interest that should be labeled irregardless of their p value can be supplied to genes.to.label
 ```{r, fig.show='hold', eval = FALSE}
-#necessary for plotting
-library(ggrepel)
 
-DE_clusters_all <- GEX_pairwise_DEGs(GEX.matrix = vgm[[2]], group.by = "seurat_clusters", min.pct = 0.25, RP.MT.filter = T, label.n.top.genes = 30, genes.to.label = c("CD74", "EBF1"), save.plot = T)
+DE_clusters_all <- GEX_pairwise_DEGs(GEX = vgm[[2]], group.by = "seurat_clusters", min.pct = 0.25, RP.MT.filter = T, label.n.top.genes = 30, genes.to.label = c("CD74", "EBF1"), save.plot = F)
 
 ```
 
 Now that cluster defining genes have been examined, a helper plotting function allows to visualize selected genes. 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
-GEX_dottile_plot(GEX.matrix = vgm[[2]], genes = c("CD19", "CD74","SDC1", "EBF1","PTPRC","CD93","CD38","CD24A","CD34","CD1D1","CR2","MS4A1","CXCR5","SELL","CD40","CD83","H2-AB1","H2-EB1","CD27","POU2AF1","NT5E","FAS","PDCD1LG2","PRDM1","ITGAM","IL10","IL12A","HAVCR2"), group.by = "seurat_clusters", threshold.to.plot = 5) 
-#threshold.to.plot specifies how many % of cells have to express a gene to show a dot. 
+GEX_dottile_plot(GEX = vgm[[2]], genes = c("CD19", "CD74","SDC1", "EBF1","PTPRC","CD93","CD38","CD24A","CD34","CD1D1","CR2","MS4A1","CXCR5","SELL","CD40","CD83","H2-AB1","H2-EB1","CD27","POU2AF1","NT5E","FAS","PDCD1LG2","PRDM1","ITGAM","IL10","IL12A","HAVCR2"), group.by = "seurat_clusters", threshold.to.plot = 5) 
+#threshold.to.plot specifies how many % of cells have to express a gene to show a dot.
 
 ```
 
 To examine patterns of co-expression two functions allow to generate both overview and single-cell resolution plots.
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 #overview
-coex_plot <- GEX_coexpression_coefficient(GEX.matrix = vgm[[2]], genes = c("CD19", "CD74","SDC1", "EBF1","PTPRC","CD93","CD38","CD24A","CD34"))
-coex_plot[[1]]
+GEX_coexpression_coefficient(GEX = vgm[[2]], genes = c("CD19", "CD74","SDC1", "EBF1","PTPRC","CD93","CD38","CD24A","CD34"), plot.dotmap = T)
 
 #detail of two selected genes
-GEX_scatter_coexpression(GEX.matrix = vgm[[2]], gene.1 = "CD19", gene.2 = "EBF1", color.theme = "darkred")
+GEX_scatter_coexpression(GEX = vgm[[2]], gene.1 = "CD19", gene.2 = "EBF1", color.theme = "darkred")
 
 ```
 
@@ -335,7 +336,7 @@ GEX_scatter_coexpression(GEX.matrix = vgm[[2]], gene.1 = "CD19", gene.2 = "EBF1"
 
 Now we can analyze the VDJ repertoire data before integrating GEX libraries. This may be useful if only VDJ libraries have been sequenced without the accompanying gene expression data. We first start by examining the structure of vgm[[1]]
 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 print(colnames(vgm[[1]]))
 ```
 
@@ -345,13 +346,13 @@ The clonotype_frequency column takes input from the clonotyping output of cellra
 
 This object contains both cells with less than 2 V(D)J chains as well as with more than 2 
 To show how this is done the VDJ_cgene column is taken as an example
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 print(unique(vgm[[1]]$VDJ_cgene))
 ```
 Apart from classical isotypes, we can see an empty ("") element. This is for cells, for which only a VJ chain is available. Secondly we can see 3 examples of cells containing more than one VDJ chains. These are delimited by ";". Importantly, this format is maintained in all columns. 
 
 Both cells with less and more than 2 chains can be cumbersome for analysis. To check their quantity and exclude these, the following line can be used
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 print(table(vgm[[1]]$Nr_of_VDJ_chains)) 
 print(table(vgm[[1]]$Nr_of_VJ_chains)) 
 
@@ -393,9 +394,9 @@ To accelerate runtime, parallel computing options are available. If running a Wi
 If on a MAC or Linux machine, set parallel.processing to "mclapply"
 
 Reference sequences are optained from the cellranger output and thereby the 10x Genomics reference. Further trimming is made based on annotations by cellranger (feature$region_type). Alignment is done via Biostrings::pairwiseAlignment and the alignment with maximum score is returned. If alignments are not complete, the vgm parameters gap.opening.cost and gap.extension.cost can be modified
-```{r, fig.show='hold', message=FALSE,results = 'hide', eval = FALSE}
+```{r, fig.show='hold', message=FALSE,results = 'hide', eval = TRUE}
 
-vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+vgm <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
                                GEX.out.directory.list = GEX.out.directory.list,
                                GEX.integrate = T,
                                VDJ.combine = T,
@@ -419,7 +420,7 @@ vgm <- Platypus::VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 ```
 
 No trimmed and reference sequence columns should be filled. 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 print(vgm[[1]][1,])
 
@@ -433,7 +434,7 @@ FOR MAC/UNIX users
 
 One needs to supply the directory to the executable in the call_MIXCR function as below. Either "mmu" or "hsa" for mouse and human, respectively. Again, the format is similar to the input, in that the outer list corresponds to the individual repertoire and the inner list is a dataframe with various information, including the full-length VDJ sequences (e.g., VDJ.AA.LC and VDJ.AA.HC for the light and heavy chain amino acid sequence). One will notice that the germline sequence is still very long (e.g., in the example below the "full_HC_germline" length is over 600 nucleotides). This will be filled in using the separate function VDJ_extract_germline. 
 
-```{r, eval = FALSE, fig.show='hold',message=FALSE}
+```{r, eval = TRUE, fig.show='hold',message=FALSE}
 
 ### WARNING: You will need to download MiXCR and change the mixcr.directory to the location of MiXCR
 #vgm[[1]] <- VDJ_call_MIXCR(VDJ.matrix = vgm[[1]], mixcr.directory = "~/Downloads/mixcr.jar",species = "mmu", platypus.version = "v3", operating.system = "Darwin", simplify = T)
@@ -443,13 +444,14 @@ One needs to supply the directory to the executable in the call_MIXCR function a
 FOR Windows users
 
 The mixcr.jar executable needs to be in the current working directory! 
-```{r, eval = FALSE, fig.show='hold',message=FALSE}
+```{r, eval = TRUE, fig.show='hold',message=FALSE}
 #check working directory
 #getwd()
 
 ### WARNING: You will need to download MiXCR and change the mixcr.directory to the location of MiXCR
-vgm[[1]] <- VDJ_call_MIXCR(VDJ.matrix = vgm[[1]], mixcr.directory = "Is set automatically",species = "mmu", platypus.version = "v3", operating.system = "Windows", simplify = T)
+VDJ_mixcr_out <- VDJ_call_MIXCR(VDJ = vgm[[1]], mixcr.directory = "Is set automatically to current working directory",species = "mmu", platypus.version = "v3", operating.system = "Windows", simplify = F)
 #set simplify to T to append only a selected columns of the MIXCR output to the vgm matrix
+#set to False to save as separate object with the complete MIXCR output as in this case
 
 ```
 
@@ -457,11 +459,9 @@ vgm[[1]] <- VDJ_call_MIXCR(VDJ.matrix = vgm[[1]], mixcr.directory = "Is set auto
 ### 6.5 Plotting SHMs 
 
 Directly from the MIXCR output we can plot the frequency of somatic hypermutations.
-```{r, eval = FALSE, fig.show='hold',message=FALSE}
+```{r, eval = TRUE, fig.show='hold',message=FALSE}
 
-library(ggrepel)
-
-VDJ_plot_SHM(VDJ.matrix = vgm[[1]], group.by = "sample_id", quantile.label = 0.9)
+VDJ_plot_SHM(VDJ = VDJ_mixcr_out, group.by = "sample_id", quantile.label = 0.9)
 
 ```
 
@@ -535,9 +535,9 @@ The output of the VDJ_clonal_lineage function can be used as input to the VDJ_tr
 
 For a basic view of clonal expansion the VDJ_clonal_donut produces circular plots per sample
 Label position and size should only be adjusted after deciding on a plot export format. 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
-donuts <- VDJ_clonal_donut(VDJ.matrix = vgm[[1]], expanded.colors = c("grey50", "grey65", "grey80"), non.expanded.color = "black")
+donuts <- VDJ_clonal_donut(VDJ = vgm[[1]], expanded.colors = c("grey50", "grey65", "grey80"), non.expanded.color = "black", counts.to.use = "10x") #alternatively: counts.to.use = "vgm"
 
 donuts
 ```
@@ -548,19 +548,24 @@ The middle label shows the total number of clones (cells)
 
 This requires the Vegan package.
 We can calculate the diversity for any column(s) in the vgm. If more than one column is provided, the content will be pasted together before calculating diversity metrics
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 library(vegan)
 
 #Shannon Evenness for the VDJ chain CDR3
-diversity_plot <- VDJ_diversity(VDJ.matrix = vgm[[1]],feature.columns = c("VDJ_cdr3s_aa"),grouping.column = "sample_id",metric = c("shannonevenness"), platypus.version = "v3", subsample.to.same.n = T)
+diversity_plot <- VDJ_diversity(VDJ = vgm[[1]],feature.columns = c("VDJ_cdr3s_aa"),grouping.column = "sample_id",metric = c("shannonevenness"), platypus.version = "v3", subsample.to.same.n = T)
 diversity_plot
 
 #Gini-Simpson index for pasted VDJ and VJ chain CDR3s
-diversity_plot <- VDJ_diversity(VDJ.matrix = vgm[[1]],feature.columns = c("VDJ_cdr3s_aa", "VJ_chain"),grouping.column = "sample_id",metric = c("ginisimpson"), platypus.version = "v3", subsample.to.same.n = T)
+diversity_plot <- VDJ_diversity(VDJ = vgm[[1]],feature.columns = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"),grouping.column = "sample_id",metric = c("ginisimpson"), platypus.version = "v3", subsample.to.same.n = T)
 diversity_plot
 
 #exact values can be retrived as 
 print(head(diversity_plot$data))
+
+#Jaccard index between repertoires of the two samples
+diversity_plot <- VDJ_diversity(VDJ = vgm[[1]],feature.columns = c("VDJ_cgene"),grouping.column = "sample_id",metric = c("jaccard"), platypus.version = "v3", subsample.to.same.n = T)
+diversity_plot 
+
 ```
 
 ### 7.3 Examining isotypes
@@ -572,9 +577,9 @@ Set color.by to "isotype" to exctract and color bars by isotype. Set subtypes to
 Set color.by to any other column in vgm[[1]] to examine the distribution of other parameters (This will be used during VDJ - GEX integration)
 
 The following code extracts and plots the isotype distribution of the top 30 clones. We can see a clear IgA isotype majority of the top four clones in the first patient when using the default clonotyping strategy. We can additionally use the new clonotyping strategies to compare how changing the clonal defintion impacts the clonal expansion profiles. We simply supply the output from VDJ_clonotype  
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
-clonal_out <- VDJ_clonal_expansion(VDJ.matrix = vgm[[1]],celltype = "Bcells",clones = "30", platypus.version = "v3", group.by = "sample_id", color.by = "isotype")
+clonal_out <- VDJ_clonal_expansion(VDJ = vgm[[1]],celltype = "Bcells",clones = "30", platypus.version = "v3", group.by = "sample_id", color.by = "isotype", isotypes.to.plot = "all", treat.incomplete.clones = "exclude", treat.incomplete.cells = "proportional")
 #group by specifies how many separate plots should be generated. If vgm contains global clonotype information this can be set to "none"
 print(clonal_out[[1]])
 ```
@@ -585,14 +590,14 @@ Other functions are specifically tailored to repertoire analysis - such as VDJ_n
 ```{r, fig.show='hold', eval = FALSE}
 ## Take the output from VDJ_analyze (or subsample as in this case the top 60 clones)
 
-agedCNS_igraph <- VDJ_network(VDJ.matrix = vgm[[1]],per.sample = T,distance.cutoff = 8,connected = F, platypus.version = "v3")
+agedCNS_igraph <- VDJ_network(VDJ = vgm[[1]],per.sample = T,distance.cutoff = 8, platypus.version = "v3")
 
 for(i in 1:2){
 igraph::plot.igraph(agedCNS_igraph[[i]],vertex.label=NA,vertex.size=7)
 }
 
 #For a plot including clonotype frequencies
-agedCNS_igraph <- VDJ_network(VDJ.matrix = vgm[[1]],per.sample = F,distance.cutoff = 8,connected = F, platypus.version = "v3")
+agedCNS_igraph <- VDJ_network(VDJ = vgm[[1]],per.sample = F,distance.cutoff = 8,connected = F, platypus.version = "v3")
 
 igraph::plot.igraph(agedCNS_igraph[[4]],vertex.label=NA,vertex.size=3+(.03*as.numeric(agedCNS_igraph[[2]]$clonotype_frequency)),vertex.color= as.factor(vgm[[1]]$sample_id))
 ```
@@ -603,13 +608,13 @@ For more details see the documentation of the VDJ_network function, but essentia
 ### 7.5 Germline gene usage heatmaps 
 
 It is also possible to produce heatmaps of the germline gene usage in the context of heavy chain V gene and light chain V gene. The output of the VDJ_Vgene_usage function is a matrix for each repertoire corresponding to the order specified by VDJ_analyze. The outer list corresponds to the sample and the inner list corresponds to a matrix, where the rows correspond to the heavy chain V genes and the columns correspond to the light chains of the V genes. Therefore the output[[1]][i,j] corresponds to the number of clones using the combination of IGH-Vgene[i] and IGK/L-Vgene[j]. 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 #First calculate adjacency matrix for V gene usage
-agedCNS_Vgene_usage <- VDJ_Vgene_usage(VDJ.matrix = vgm[[1]], platypus.version = "v3")
-library(pheatmap)
+agedCNS_Vgene_usage <- VDJ_Vgene_usage(VDJ = vgm[[1]], platypus.version = "v3")
 
-pheatmap::pheatmap(agedCNS_Vgene_usage[[1]],show_rownames = F,show_colnames = F)
+#library(pheatmap)
+#pheatmap::pheatmap(agedCNS_Vgene_usage[[1]],show_rownames = F,show_colnames = F)
 
 print(class(agedCNS_Vgene_usage[[1]]))
 print(head(rownames(agedCNS_Vgene_usage[[1]])))
@@ -618,23 +623,23 @@ print(head(colnames(agedCNS_Vgene_usage[[1]])))
 This can then be easily plotted as a heatmap to observe patterns between repertoires or can be used to calculate V gene correlation using the "pheatmap" package. 
 
 Platypus also allows a separate analysis of V gene usage for HC and LC. The VDJ_Vgene_usage_barplot allows the user to plot most frequently used IgH or IgK/L V genes. By default, this function only provides visualizations for the HC V genes, but can also provide for the LC if LC. Vgene is set to TRUE. The User can also select the number of most used genes to be depicted.
-```{r, fig.show='hold', eval = FALSE}
-agedCNS_Vgene_usage_barplot <- VDJ_Vgene_usage_barplot(VDJ.matrix = vgm[[1]], HC.gene.number = 10, LC.Vgene = T, LC.gene.number = 10, platypus.version = "v3")
+```{r, fig.show='hold', eval = TRUE}
+agedCNS_Vgene_usage_barplot <- VDJ_Vgene_usage_barplot(VDJ = vgm[[1]], HC.gene.number = 10, LC.Vgene = T, LC.gene.number = 10, platypus.version = "v3")
 agedCNS_Vgene_usage_barplot[[1]]
 
 #VDJ chains
-agedCNS_Vgene_usage_stackedbarplot <- VDJ_Vgene_usage_stacked_barplot(VDJ.matrix = vgm[[1]], LC.Vgene = F,HC.gene.number = 10, Fraction.HC = 1, platypus.version = "v3")
+agedCNS_Vgene_usage_stackedbarplot <- VDJ_Vgene_usage_stacked_barplot(VDJ = vgm[[1]], LC.Vgene = F,HC.gene.number = 10, Fraction.HC = 1, platypus.version = "v3")
 agedCNS_Vgene_usage_stackedbarplot
 
 ```
 
 Furthermore, we can also produce a circular visualization of how V and J genes are combined throughout the repertoire. In the example that follows we use VDJ_VJ_usage_circos to look at the V gene with the corresponding J gene for each expanded clonotype. 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 #VDJ and VJ V and J gene pairing
-vj_circos_bcells <- VDJ_VJ_usage_circos(VDJ.GEX.matrix = vgm[[1]], c.threshold = 1,label.threshold=2,cell.level = T, A.or.B = "both", platypus.version = "v3")
+vj_circos_bcells <- VDJ_VJ_usage_circos(VDJ = vgm[[1]], c.threshold = 1,label.threshold=2,cell.level = T, A.or.B = "both", platypus.version = "v3")
 
 #VDJ and VJ pairing 
-HL_circos_bcells <- VDJ_alpha_beta_Vgene_circos(VDJ.GEX.matrix = vgm[[1]], c.threshold = 1,label.threshold=2,cell.level = T, V.or.J= "both", platypus.version = "v3")
+HL_circos_bcells <- VDJ_alpha_beta_Vgene_circos(VDJ = vgm[[1]], c.threshold = 1,label.threshold=2,cell.level = T, V.or.J= "both", platypus.version = "v3")
 
 ```
 
@@ -642,7 +647,7 @@ HL_circos_bcells <- VDJ_alpha_beta_Vgene_circos(VDJ.GEX.matrix = vgm[[1]], c.thr
 
 Finally, one can also look at any specific HC and LC CDR3 amino acid patterns arising across the different clones. Using the VDJ_logoplot_vector function the user can plot a logoplot of the CDR3 region od a certain length, specyfied by the length_cdr3 argument. For instance, the logoplot below corresponds to all those CDR3 aminoacid sequences of length 25
 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 pasted_CDR3s <- paste0(vgm[[1]]$VDJ_cdr3s_aa, vgm[[1]]$VJ_cdr3s_aa)
 
 agedCNS_CDR3_logoplot <- VDJ_logoplot_vector(cdr3.vector = pasted_CDR3s, seq_type = "aa", length_cdr3 = "auto")
@@ -655,8 +660,8 @@ print(agedCNS_CDR3_logoplot)
 Depending on the clonotype strategy, within a clone several different variants of CDR3s or full length sequences may be contained. To count variants, the function VDJ_variants_per_clone is used. 
 It returns a table per sample_id with stats about variants
 
-```{r, eval = FALSE}
-variants_agedCNS <- VDJ_variants_per_clone(VDJ.matrix = vgm[[1]], variants.of = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"), clonotypes.col = "clonotype_id_10x", split.by = "sample_id", stringDist.method = "levenshtein")
+```{r, eval = TRUE}
+variants_agedCNS <- VDJ_variants_per_clone(VDJ = vgm[[1]], variants.of = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"), clonotypes.col = "clonotype_id_10x", split.by = "sample_id", stringDist.method = "levenshtein")
 
 head(variants_agedCNS[[1]])
 
@@ -667,16 +672,16 @@ head(variants_agedCNS[[1]])
 
 Public clones or sequences are sequences that are shared between individuals. 
 The VDJ_overlap_heatmap function can quantify this overlap and return a list of overlapping items 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 #overlap of VDJ V genes
-VDJv_overlap <- VDJ_overlap_heatmap(vgm[[1]],feature.columns = c("VDJ_vgene") ,grouping.column = "sample_id", axis.label.size = 20, pvalues.label.size = 12, platypus.version = "v3", add.barcode.table = T) 
+VDJv_overlap <- VDJ_overlap_heatmap(VDJ = vgm[[1]],feature.columns = c("VDJ_vgene") ,grouping.column = "sample_id", axis.label.size = 20, pvalues.label.size = 12, platypus.version = "v3", add.barcode.table = T) 
 
 VDJv_overlap[[2]] #summary of overlap
 VDJv_overlap[[2]] #Table of overlapping items
 
 #overlap of clones
-VDJv_overlap <- VDJ_overlap_heatmap(vgm[[1]],feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa") ,grouping.column = "sample_id", axis.label.size = 20, pvalues.label.size = 12, platypus.version = "v3", add.barcode.table = T) 
+VDJv_overlap <- VDJ_overlap_heatmap(VDJ = vgm[[1]],feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa") ,grouping.column = "sample_id", axis.label.size = 20, pvalues.label.size = 12, platypus.version = "v3", add.barcode.table = T) 
 
 ```
 Given the small size of the two repertoires, it is unsurprising that no clones are shared
@@ -691,7 +696,7 @@ The strength of the current 5' sequencing protocols are that the gene expression
 One thing we may ask is how similar the B or T cells in a given clonal family are on the transcriptional level. The basic work of matching barcodes from V(D)J sequencing to those from GEX sequencing was already done in the VGM function. This part is therefore dedicated to functions that help explore and exploite this data
 
 First we get basic stats on the overlap between GEX and VDJ
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 #Nr of cells for which VDJ info is available
 nrow(vgm[[1]])
@@ -710,17 +715,17 @@ Seurat::DimPlot(vgm[[2]],reduction = "umap", group.by = "VDJ_available", shuffle
 ### 8.2. Relating clonal expansion to transcriptional cluster membership
 
 The VDJ_clonal_expansion function has been used above to plot isotype information. Here its exdented functionality is used to color clones by their transcriptional cluster 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
-clonal_out <- VDJ_clonal_expansion(VDJ.matrix = vgm[[1]],celltype = "Bcells",clones = "30", platypus.version = "v3", group.by = "sample_id", color.by = "seurat_clusters")
+clonal_out <- VDJ_clonal_expansion(VDJ = vgm[[1]],celltype = "Bcells",clones = "30", platypus.version = "v3", group.by = "sample_id", color.by = "seurat_clusters")
 #group by specifies how many separate plots should be generated. If vgm contains global clonotype information this can be set to "none"
-print(clonal_out[[1]][[1]])
+print(clonal_out[[1]][[2]])
 ```
 
 Similar plots can be generated using the GEX_phenotype_per_clone function
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
-clonal_out <- GEX_phenotype_per_clone(GEX.matrix = vgm[[2]], GEX.clonotypes = "topclones", GEX.group.by = "seurat_clusters", platypus.version = "v3")
+clonal_out <- GEX_phenotype_per_clone(GEX = vgm[[2]], GEX.clonotypes = "topclones", GEX.group.by = "seurat_clusters", platypus.version = "v3")
 #If vgm contains global clonotype information this can be set global.clonotypes to TRUE
 clonal_out[[1]]
 ```
@@ -730,26 +735,22 @@ clonal_out[[1]]
 To better visualize this, the cells of any clone can also be highlighted on a dimensional reduction
 
 Because the legend of these plots can get quite large, we can split the plot and the legend and draw them separately. For this the gridExtra and cowplot package is required
-```{r, fig.show='hold', eval = FALSE}
-
-library(cowplot)
-library(gridExtra)
+```{r, fig.show='hold', eval = TRUE}
 
 #here we overlay the top 5 clones
-plot_out <- VDJ_GEX_overlay_clones(GEX.output = vgm[[2]], reduction = "umap", n.clones = 5, by.sample = F, ncol.facet = 1, split.plot.and.legend = T, pt.size = 0.5)
+plot_out <- VDJ_GEX_overlay_clones(GEX = vgm[[2]], reduction = "umap", n.clones = 5, by.sample = F, ncol.facet = 1, split.plot.and.legend = F, pt.size = 0.5)
 
 plot_out[[1]] # the plot
-grid.arrange(plot_out[[2]]) # the legend
 
 #We can also plot any clone of interest by adding a column were TRUE values select which clones are to be plotted
 interesting_clones <- c("clonotype7", "clonotype42")
 vgm[[2]]@meta.data$clones_to_plot <- FALSE
 vgm[[2]]@meta.data$clones_to_plot[which(vgm[[2]]$clonotype_id_10x %in% interesting_clones)] <- TRUE
 
-plot_out <- VDJ_GEX_overlay_clones(GEX.output = vgm[[2]], reduction = "umap", clones.to.plot = "clones_to_plot", by.sample = F, ncol.facet = 1, split.plot.and.legend = T, pt.size = 0.5)
+plot_out <- VDJ_GEX_overlay_clones(GEX = vgm[[2]], reduction = "umap", clones.to.plot = "clones_to_plot", by.sample = F, ncol.facet = 1, split.plot.and.legend = T, pt.size = 0.5)
 
 plot_out[[1]] # the plot
-grid.arrange(plot_out[[2]]) # the legend
+plot(plot_out[[2]]) # the legend. Alternatively use gridExtra::grid.arrange(plot_out[[2]])
 
 ```
 
@@ -757,7 +758,7 @@ grid.arrange(plot_out[[2]]) # the legend
 
 We previously integrated the GEX information into the format of the VDJ output. However, we may want to ask how the gene expression looks for certain clonotypes (e.g., how many of the cells in the top clone are expressing markers of activated B cells). This is done by adding an extra column to the expanded clones and examining transcritional differences to cells of non expanded clones
 
-```{r, fig.show='hold', eval = FALSE}
+```{r, fig.show='hold', eval = TRUE}
 
 vgm[[2]]$Expanded <- FALSE
 vgm[[2]]$Expanded[which(vgm[[2]]$clonotype_frequency > 1)] <- TRUE
@@ -765,13 +766,13 @@ vgm[[2]]$Expanded[which(vgm[[2]]$clonotype_frequency > 1)] <- TRUE
 table(vgm[[2]]$Expanded)
 
 #We can use the dottile function to look at selected genes
-GEX_dottile_plot(GEX.matrix = vgm[[2]], genes = c("CD19", "CD74","IL2RA", "CD27","CD80"), group.by = "Expanded", threshold.to.plot = 1)
+GEX_dottile_plot(GEX = vgm[[2]], genes = c("CD19", "CD74","IL2RA", "CD27","CD80"), group.by = "Expanded", threshold.to.plot = 1)
 ```
 
 For a more unbiased view, DEGs can be calculated between expanded and non-expanded clones
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 
-DE_byexpansion <- GEX_DEgenes(GEX = vgm[[2]], min.pct = 0.25, group1 = "TRUE", group2 = "FALSE", grouping.column = "Expanded", return.plot = T, platypus.version = "v3")
+DE_byexpansion <- GEX_DEgenes(GEX = vgm[[2]], min.pct = 0.25, group1 = "TRUE", group2 = "FALSE", grouping.column = "Expanded", return.plot = "volcano", platypus.version = "v3")
 
 head(DE_byexpansion[[1]])
 DE_byexpansion[[2]]
