@@ -305,7 +305,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     VDJ.stats.list <- list()
     for(k in 1:length(clonotype.list)){
 
-      cat(paste0("\n Starting with ", k, " of ", length(clonotype.list), "..."))
+      cat(paste0("\n Starting with ", k, " of ", length(clonotype.list), "...     "))
       VDJ.stats <- c()
 
       #gsub to be able to process TCRs as well
@@ -327,7 +327,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr unique barcodes"
 
       #generate lookup table with HC and LC counts and stats per barcode
-      cat("\n Getting lookup tables...")
+      cat("\n Getting lookup tables...    ")
       #holding_bar <- utils::txtProgressBar(min = 0, max = 1, initial = 0, char = "%",width = 100, style = 3, file = "")
       barcodes <- c()
       nr_HC <- c()
@@ -347,7 +347,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         full_length <- append(full_length, min(contig.list[[k]]$full_length[which(contig.list[[k]]$barcode == j)]))
 
         nr_HC <- append(nr_HC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
-        nr_LC <- append(nr_LC,stringr::paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
+        nr_LC <- append(nr_LC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
       }
       lookup_stats <- data.frame(barcodes,nr_HC,nr_LC,is_cell,high_confidence,productive,full_length)
       names(lookup_stats) <- c("barcodes","nr_VDJ","nr_VJ","is_cell","high_confidence","productive","full_length")
@@ -454,7 +454,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
     VDJ.stats.all <- do.call(rbind, VDJ.stats.list)
 
-    cat("\n Getting 10x stats")
+    cat("\n Getting 10x stats    ")
 
     VDJ.metrics.list <- vdj.metrics
     GEX.metrics.list <- gex.metrics
@@ -527,11 +527,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         VDJ.metrics.all <- cbind(VDJ.metrics.all, GEX.metrics.all)
       }
     }, error = function(e){e
-      cat(paste0("\n Adding 10x metrix failed: ", e))})
+      cat(paste0("\n Adding 10x metrix failed: ", e, "      "))})
 
     VDJ.stats.all <- cbind(VDJ.stats.all, VDJ.metrics.all)
 
-    cat("\n Done with stats")
+    cat("\n Done with stats    ")
     return(VDJ.stats.all)
   }
 
@@ -980,8 +980,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   ##### Start of function
   cat("\n Loaded functions")
-  cat("\n Loading in data")
-
+  cat("\n Loading in data    ")
+  print(Sys.time())
   #Read in raw data for both GEX and VDJ
   vdj.loaded <- F
   if(class(samples.in) == "character" & VDJ.out.directory.list[[1]] != "none"){ #No Data.in => procced with loading by VDJ.out.directory.list
@@ -1000,9 +1000,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
       reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-      annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
+
       contig.table <- lapply(VDJ.out.directory_contigs, function(x) utils::read.csv(x,sep=",",header=T, )) #better using the table format downstream
       metrics.table <- lapply(VDJ.out.directory_metrics, function(x) utils::read.csv(x,sep=",",header=T, ))
+
+      annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
+
 
       #change names so that the barcode function does not have to do that
       for(ijl in 1:length(contig.table)){contig.table[[ijl]]$raw_consensus_id <- gsub("_consensus_","_concat_ref_", contig.table[[ijl]]$raw_consensus_id)}
@@ -1048,7 +1051,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
 
       vdj.loaded <- T
-      cat("\n Loaded VDJ data")
+      cat("\n Loaded VDJ data    ")
+      print(Sys.time())
     })}, error = function(e){e
       print(e)})
     if(inherits(vdj_load_error,"error")){
@@ -1114,7 +1118,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
 
       vdj.loaded <- T
-      cat(paste0(Sys.time()," Loaded VDJ data from Data.in"))
+      cat(paste0(" Loaded VDJ data from Data.in    "))
     }, error = function(e){e
       print(e)})
     if(inherits(vdj_load_error,"error")){
@@ -1152,7 +1156,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
 
       gex.loaded <- T
-      cat("\n Loaded GEX data")
+      cat("\n Loaded GEX data    ")
+      print(Sys.time())
     })}, error = function(e){e
       print(e)})
     if(inherits(gex_load_error, "error")){
@@ -1200,7 +1205,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                      gex.metrics = gex.metrics.table,
                                      samples.paths.VDJ = stringr::str_split(samples.paths.VDJ, " ; ", simplify = T)[1,]) #needing to split sample paths again as they will end up in separate rows in the stats dataframe
       stats.done <- T
-      cat("\n Got VDJ GEX stats")
+      cat("\n Got VDJ GEX stats    ")
+      print(Sys.time())
 
     }, error = function(e){e
       cat("\n VDJ stats failed: ")
@@ -1358,7 +1364,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     VDJ.proc.list <- list()
     for(i in 1:length(contig.table)){
 
-      cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(contig.table), "..."))
+      cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(contig.table), "...     "))
+      print(Sys.time())
       if(parallel.processing == "parlapply" | parallel.processing == "parLapply"){
         #close any open clusters
         doParallel::stopImplicitCluster()
@@ -1403,8 +1410,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       VDJ.proc.list[[i]]$specifity <- NA
       VDJ.proc.list[[i]]$affinity <- NA
 
-      cat(paste0("\n \t Done with ", i , " of ", length(contig.table)))
+      cat(paste0("\n \t Done with ", i , " of ", length(contig.table), "     "))
+      print(Sys.time())
     }
+
 
     VDJ.proc <- VDJ.proc.list
     if (VDJ.combine == T){ #processing all VDJ files together
@@ -1414,7 +1423,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #GEX Processing following the SEURAT pipeline
   if(gex.loaded == T){
-    cat("\n Starting GEX pipeline \n")
+    cat("\n Starting GEX pipeline     ")
+    print(Sys.time())
     GEX.proc <- GEX_automate_single(GEX.list = gex.list,
                                     GEX.integrate = GEX.integrate,
                                     integration.method = integration.method,
@@ -1433,8 +1443,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     for(i in 1:length(GEX.proc)){
       #remove possible extra underscores before barcode
       GEX.proc[[i]] <- SeuratObject::RenameCells(GEX.proc[[i]], new.names = gsub("^_+","",colnames(GEX.proc[[i]])))
-    }
 
+    }
+  cat("\n Done with GEX pipeline     ")
+  print(Sys.time())
   }
 
   if(vdj.loaded == T & gex.loaded == T){
@@ -1637,7 +1649,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #rename for clarity
   names(out.list) <- c("VDJ", "GEX", "VDJ.GEX.stats", "Running params", "sessionInfo")
 
-  cat("\n Done!")
+  cat("\n Done!   ")
+  print(Sys.time())
   # if(class(out.list[[2]])=="Seurat"){
   #   out.list[[2]]$sample_id <- as.integer(gsub(pattern = "s",replacement = "",sub("_.*", "", names(out.list[[2]]$orig_barcode))))
   #   out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))

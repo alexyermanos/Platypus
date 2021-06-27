@@ -13,13 +13,13 @@
 
 VDJ_contigs_to_vgm <- function(directory,
                                sample.names){
-
+  print(Sys.time())
   all_formatted_df <- list()
   for (k in 1:length(directory)) {
     filtered_contig_annotations <- utils::read.csv(file = directory[[k]]) #read in csv
 
     #filter data
-    filtered_contig_annotations <- subset(filtered_contig_annotations, filtered_contig_annotations$full_length == "True" & filtered_contig_annotations$productive == "True")
+    filtered_contig_annotations <- subset(filtered_contig_annotations, filtered_contig_annotations$full_length == "true" & filtered_contig_annotations$productive == "true")
     filtered_contig_annotations <- subset(filtered_contig_annotations, !filtered_contig_annotations$barcode%in%filtered_contig_annotations$barcode[filtered_contig_annotations$chain == "Multi"])
     unique_barcodes <- unique(filtered_contig_annotations$barcode)
 
@@ -79,6 +79,8 @@ VDJ_contigs_to_vgm <- function(directory,
     all_formatted_df[[k]] <- formatted_df #save
   }
   output_df <- do.call("rbind", all_formatted_df) #combine all data frames
+  print("Done")
+  print(Sys.time())
   return(output_df)
 }
 
