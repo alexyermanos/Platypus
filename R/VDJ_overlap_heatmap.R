@@ -48,6 +48,10 @@ VDJ_overlap_heatmap <- function(VDJ,
   }
   grouping <- data.frame("group" = VDJ[, grouping.column])
   if(NA %in% grouping$group) stop("NA values in grouping columns. Please choose another column or replace NA values")
+  if(length(unique(grouping)) < 3 & plot.type == "pheatmap"){
+    cat("\n Pheatmap plot not possible with less than 3 groups. Returning ggplot")
+    plot.type <- "ggplot"
+  }
 
   if(length(feature.columns) > 1){
     grouping$pasted <- do.call(paste, c(VDJ[,c(feature.columns)], sep="/"))
