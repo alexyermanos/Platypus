@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^/vignettes/mixcr.jar
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
