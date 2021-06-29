@@ -9,14 +9,25 @@
 #' \dontrun{
 #' 
 #' To return a plot detailing the expression of common genes by seurat cluster
-#'coef_out <- GEX_dottile_plot(GEX.matrix = VDJ.GEX.matrix.output[[2]], genes = c("CD19", "EBF1","CD3E","CD8A","MKI67"), group.by = "seurat_clusters")
+#'GEX_dottile_plot(GEX.matrix = VDJ.GEX.matrix.output[[2]], genes = c("CD19", "EBF1","CD3E","CD8A","MKI67"), group.by = "seurat_clusters", threshold.to.plot = 5)
 #'}
 
 GEX_dottile_plot <- function(GEX.matrix, 
                              genes, 
                              group.by,
+                             threshold.to.plot,
                              platypus.version){
   platypus.version <- "v3"
+  
+  if(missing(threshold.to.plot)) threshold.to.plot <- 5
+  
+  if(missing(genes)){
+    if(GEX.matrix$celltype[1] == "T cell"){
+      genes <- c("CD4","CD8A","CD28","ICOS","CD40LG","PDCD1","LAG3","S1PR1","PTPRC","SELL","TBX21","GATA3","SPI1","IRF4","BCL6","STAT4","STAT6","FOXP3", "MKI67","TCF7","KLRG1","TOX", "GZMB","IFNG","TGFB1","IL10","IL17A","CSF2","IL2RA","IL4RA","IL12RB1","CXCR3","CXCR5","CCR5","CCR8","SELL","ITGA4","ITGB2")
+    } else {
+      genes <- c("CD19", "CD74","SDC1", "EBF1","PTPRC","CD93","CD38","CD24A","CD34","CD1D1","CR2","MS4A1","CXCR5","SELL","CD40","CD83","H2-AB1","H2-EB1","CD27","POU2AF1","NT5E","FAS","PDCD1LG2","PRDM1","ITGAM","IL10","IL12A","HAVCR2")
+    }
+  }
   
   require(tidyr)
   if(missing(GEX.matrix)) stop("Please provide a seurat object as input to GEX.matrix")
@@ -51,7 +62,7 @@ GEX_dottile_plot <- function(GEX.matrix,
   
   to_plot_sum_f$name <- ordered(as.factor(to_plot_sum_f$name), levels = rev(genes))
   
-  to_plot_sum_f$perc_expressing_cells[to_plot_sum_f$perc_expressing_cells == 0] <- NA
+  to_plot_sum_f$perc_expressing_cells[to_plot_sum_f$perc_expressing_cells < threshold.to.plot] <- NA
   
   plot_out <- ggplot(to_plot_sum_f, aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + geom_point(show.legend = T)  + theme(panel.background = element_blank(),panel.border = element_rect(colour = "black", fill=NA, size=3),axis.text = element_text(size = 30), axis.text.x = element_text(angle = 60, vjust = 0.95, hjust=1), axis.line = element_blank(), axis.ticks = element_line(size = 2), axis.ticks.length = unit(0.3, "cm"), text = element_text(size=30), legend.key = element_rect(fill = "white", color = "white"), legend.position = "right") + labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + scale_color_viridis_c(option = "B", end = 0.9) +scale_size_binned(range = c(1,9.5)) 
   

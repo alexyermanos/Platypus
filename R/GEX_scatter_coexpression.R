@@ -37,7 +37,7 @@ hist_y <- ggplot(data = for_dot,aes(y = for_dot[,2])) +geom_density(adjust = 0.4
 
 empty <- ggplot() +geom_point(aes(1,1), colour="white")+ theme(axis.ticks=element_blank(), panel.background=element_rect(fill = "transparent"),axis.text.x=element_blank(), axis.text.y=element_blank(),axis.title.x=element_blank(), axis.title.y=element_blank())
 
-scatter <- ggplot(for_dot, aes(x = for_dot[,1], y = for_dot[,2], color = (for_dot[,1] + for_dot[,2]))) + geom_point(size = 3) + theme(plot.margin = unit(c(3,-5.5,4,3), "mm"),panel.background = element_blank(),text = element_text(size = 30), legend.position = "none", axis.line = element_line(size = 1.2)) + xlim(c(min_x, max_x)) + ylim(c(min_y, max_y))+ labs(x = gene.1, y = gene.2) + scale_colour_gradient2(low = "grey40", mid = "grey70", high = color.theme, oob = squish_infinite)
+scatter <- ggplot(for_dot, aes(x = for_dot[,1], y = for_dot[,2], color = (for_dot[,1] + for_dot[,2]))) + geom_point(size = 3) + theme(plot.margin = unit(c(3,-5.5,4,3), "mm"),panel.background = element_blank(),text = element_text(size = 30), legend.position = "none", axis.line = element_line(size = 1.2)) + xlim(c(min_x, max_x)) + ylim(c(min_y, max_y))+ labs(x = gene.1, y = gene.2) + scale_colour_gradient2(low = "grey40", mid = "grey70", high = color.theme)
 
 
 return(grid.arrange(hist_x, empty , scatter, hist_y, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4)))

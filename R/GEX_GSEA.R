@@ -2,10 +2,11 @@
 #' @param GEX.cluster.genes.output Data frame containing the list of gene symbols and a metric. Function works directly with GEX_cluster_genes output.
 #' @param MT.Rb.filter Logical, should Mitotic and Ribosomal genes be filtered out of the geneset. True by default.
 #' @param filter Character vector containing the identifying symbol sequence for the genes which should be filtered out, if MT.Rb.filter == T. By default set to c("MT-", "RPL", "RPS").
-#' @param path_to_pathways Path to gmt file containing the gene sets. Can be downloaded from MSigDB.
+#' @param path_to_pathways Either a path to gmt file containing the gene sets (can be downloaded from MSigDB) or vector where first element specifies species and second element specifies the MSigDB collection abbreviation. E.g.: c("Homo sapiens", "H"). If left empty mouse C7 (immunologic signature) gene set will be used.
 #' @param metric_colname Name of column which contains the metric used for the ranking of the submitted genelist. "avg_logFC" is used by default.
 #' @param pval_adj_cutoff Only genes with a more significant adjusted pvalue are considered. Default: 0.001
 #' @param Enrichment.Plots List of Gene-set names which should be plotted as Enrichment plots in addition to the top 10 Up and Downregulated Genesets.
+#' @param my_own_geneset A list, where each element contains a gene list and is named with the corresponding pathway name. Default is set to FALSE, so that gene sets from MSigDB are used. Should not contain ".gmt" in name.
 #' @return Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.
 #' @export
 #' @examples
@@ -14,12 +15,20 @@
 #' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = "./c5.go.bp.v7.2.symbols.gmt")
 #' cowplot::plot_grid(plotlist=output[[2]], ncol=2)
 #' View(gex_gsea[[1]])
+#' 
+#' #Directly downloading gene set collection from MSigDB to perform gsea
+#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path_to_pathways = c("Mus musculus", "C7"))
+#' 
+#' #Using your own gene list to perform gsea
+#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, my_own_geneset = my_geneset)
 #'}
 
-GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pathways, metric_colname, pval_adj_cutoff, Enrichment.Plots){
+GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pathways, metric_colname, pval_adj_cutoff, Enrichment.Plots, my_own_geneset){
   if (missing(filter)) {filter <- c("MT-", "RPL", "RPS")}
   if (missing(metric_colname)) {metric_colname <- "avg_logFC"}
   if (missing(pval_adj_cutoff)) {pval_adj_cutoff <- 0.001}
+  if (missing(my_own_geneset)) {my_own_geneset <- F}
+  if (missing(gmt.download)) {path_to_pathways <- c("Mus musculus", "C7")}
   
   require(dplyr)
   require(fgsea)
@@ -27,6 +36,7 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
   require(stringr)
   require(stats)
   require(ggplot2)
+  require(msigdbr)
 
   # change metric colname to 'stats' for further downstream analysis
   # print(head(GEX.cluster.genes.output))
@@ -60,7 +70,18 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path_to_pat
     # create ranked list
     df %>% dplyr::filter(., p_val_adj<pval_adj_cutoff)%>% dplyr::select("symbol","stats")%>% na.omit()%>%dplyr::arrange(-stats)%>% distinct(symbol, .keep_all = TRUE)-> df_ranked
     df_ranked <- deframe(df_ranked)
-    pathway_MSig <- gmtPathways(path_to_pathways)
+    
+    if (class(my_own_geneset) == "logical"){
+      if(grepl(".gmt$", path_to_pathways) == TRUE){
+        pathway_MSig <- gmtPathways(path_to_pathways)
+      } else{
+        pathway_MSig <- msigdbr(species = path_to_pathways[[1]], category=path_to_pathways[[2]])
+        pathway_MSig <-  split(x = toupper(pathway_MSig$gene_symbol), f = pathway_MSig$gs_name)
+      }
+    } else{
+      pathway_MSig <- my_own_geneset
+    }
+    
     #Run GSEA %>% safe as df
     print("pre-gsea")
     fgsea_res <- fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)

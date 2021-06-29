@@ -164,7 +164,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
     plotting_df <- do.call("rbind",LC_Vgene_usage_top)
     plotting_df <- plotting_df[!is.na(plotting_df$Vgene), ]
 
-    Vgene_usage_plot[[2]] <-ggplot(plotting_df, aes(fill = Vgene, y=Frequency, x=Sample)) +
+    Vgene_usage_plot[[1]] <-ggplot(plotting_df, aes(fill = Vgene, y=Frequency, x=Sample)) +
       geom_bar(position="fill", stat="identity", color="black", width = 0.7) +
       theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       ylab("% of unique clones") + scale_y_continuous(expand = c(0,0))
@@ -182,6 +182,8 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
     clonotype.list <- list()
     for(i in 1:length(unique(VDJ.matrix$sample_id))){
       clonotype.list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
+      #get unique clones
+      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == F,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
     print(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
@@ -329,15 +331,12 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ.matrix, HC.gene.number, Fraction
       plotting_df <- do.call("rbind",LC_Vgene_usage_top)
       plotting_df <- plotting_df[!is.na(plotting_df$Vgene), ]
       
-      Vgene_usage_plot[[2]] <-ggplot(plotting_df, aes(fill = Vgene, y=Frequency, x=Sample)) +
+      Vgene_usage_plot[[1]] <-ggplot(plotting_df, aes(fill = Vgene, y=Frequency, x=Sample)) +
         geom_bar(position="fill", stat="identity", color="black", width = 0.7) +
         theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
         ylab("% of unique clones") + scale_y_continuous(expand = c(0,0)) + ggtitle(paste0("IgK/L V gene stacked"))
       
     }  
-    
-    
-    
     
   }
 }
