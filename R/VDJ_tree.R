@@ -9,12 +9,17 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' vdj.tree <- VDJ_tree(clonal.lineages = VDJ.clonal.lineage.output,with.germline=T,min.sequences = 5,max.sequences = 30,unique.sequences = T)
+#' vdj.tree <- VDJ_tree(clonal.lineages = VDJ.clonal.lineage.output
+#' ,with.germline=T,min.sequences = 5
+#' ,max.sequences = 30,unique.sequences = T)
 #'}
-VDJ_tree <- function(clonal.lineages,with.germline,min.sequences,max.sequences,normalize.germline.length,unique.sequences){
-  require(ape)
-  require(phytools)
-  require(stringdist)
+VDJ_tree <- function(clonal.lineages,
+                     with.germline,
+                     min.sequences,
+                     max.sequences,
+                     normalize.germline.length,
+                     unique.sequences){
+
   if(missing(max.sequences)) max.sequences <- 500
   if(missing(min.sequences)) min.sequences <- 3
   if(missing(unique.sequences)) unique.sequences <- T

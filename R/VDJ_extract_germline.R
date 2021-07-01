@@ -7,10 +7,14 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' extract.germline <- VDJ_extract_germline(VDJ.per.clone=VDJ.per.clone.output,mixcr.directory="~/Downloads/mixcr-3.0.12/mixcr",extract.VDJRegion=T,species = "mmu")
+#' VDJ_extract_germline(VDJ.per.clone=VDJ.per.clone.output
+#' ,mixcr.directory="~/Downloads/mixcr-3.0.12/mixcr"
+#' ,extract.VDJRegion=T,species = "mmu")
 #'}
 #'
-VDJ_extract_germline <- function(VDJ.per.clone,mixcr.directory,extract.VDJRegion,species){
+VDJ_extract_germline <- function(VDJ.per.clone,
+                                 mixcr.directory,
+                                 extract.VDJRegion,species){
   output.list <- list()
   sequence_output_list <- list()
   if(missing(extract.VDJRegion)) extract.VDJRegion <- T

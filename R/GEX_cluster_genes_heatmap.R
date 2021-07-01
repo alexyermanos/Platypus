@@ -1,5 +1,5 @@
 #' Produces a heatmap displaying the expression of the top genes that define each cluster in the Seurat object. The output heatmap is derived from DoHeatmap from Seurat and thereby can be edited using typical ggplot interactions. The number of genes per cluster and the nunber of cells to display can be specified by the user. Either the log fold change or the p value can be used to select the top n genes.
-#' @param GEX Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 
+#' @param GEX Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 (usually VDJ_GEX_matrix.output[[2]])
 #' @param GEX_cluster_genes.output The output from the GEX_cluster_genes function - this should be a list with each list element corresponding to the genes, p values, logFC, pct expression for the genes deferentially regulated for each cluster.
 #' @param n.genes.per.cluster An integer value determining how many genes per cluster to display in the output heatmap. This number should be adjusted based on the number of clusters. Too many genes per cluster and clusters may cause a problem with the heatmap function in Seurat.
 #' @param metric The metric that dictates which are the top n genes returned. Possible options are "p.value" (default), "avg_logFC", "top_logFC", "bottom_logFC". "top_logFC" returns the top expressed genes for each cluster, whereas "bottom_logFC" returns the least expressed genes per cluster-both by log fold change.
@@ -10,7 +10,15 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX=automate_GEX_output[[i]],GEX_cluster_genes.output=GEX_cluster_genes_output,n.genes.per.cluster=5,metric="p.value",max.cell=5)
+#' For Platypus version 2
+#' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = automate_GEX_output[[i]]
+#' ,GEX_cluster_genes.output=GEX_cluster_genes_output
+#' ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
+#'
+#' For Platypus version 3
+#' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = VDJ_GEX_matrix.output[[2]]
+#' ,GEX_cluster_genes.output=GEX_cluster_genes_output
+#' ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
 #'}
 GEX_cluster_genes_heatmap <- function(GEX,
                                       GEX_cluster_genes.output,
@@ -19,12 +27,12 @@ GEX_cluster_genes_heatmap <- function(GEX,
                                       max.cell,
                                       group.colors,
                                       platypus.version){
-  
+
   platypus.version <- "does not matter"
   if(missing(max.cell)) max.cell <- 100
   if(missing(n.genes.per.cluster)) n.genes.per.cluster <- 5
   if(missing(metric)) metric <- "p.value"
-  if(missing(group.colors)) group.colors <- rainbow(length(GEX_cluster_genes.output))
+  if(missing(group.colors)) group.colors <- grDevices::rainbow(length(GEX_cluster_genes.output))
 
   #rename in case of naming change
   if(any("avg_log2FC" %in% names(GEX_cluster_genes.output[[1]]))){
@@ -33,8 +41,7 @@ GEX_cluster_genes_heatmap <- function(GEX,
       names(GEX_cluster_genes.output[[i]])[fc_col] <- "avg_logFC"
     }
   }
-  
-  
+
   holding_genes <- list()
   for(i in 1:length(GEX_cluster_genes.output)){
     if(metric=="p.value") holding_genes[[i]] <- rownames(GEX_cluster_genes.output[[i]][order(GEX_cluster_genes.output[[i]]$p_val_adj, decreasing = FALSE),])[1:n.genes.per.cluster]

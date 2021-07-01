@@ -5,16 +5,17 @@
 \title{Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.}
 \usage{
 VDJ_Vgene_usage_stacked_barplot(
-  clonotype.list,
+  VDJ,
   HC.gene.number,
   Fraction.HC,
   LC.Vgene,
   LC.gene.number,
-  Fraction.LC
+  Fraction.LC,
+  platypus.version
 )
 }
 \arguments{
-\item{clonotype.list}{Output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire.}
+\item{VDJ}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])}
 
 \item{HC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.}
 
@@ -25,13 +26,20 @@ VDJ_Vgene_usage_stacked_barplot(
 \item{LC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.}
 
 \item{Fraction.LC}{Numeric value indicating the minimum fraction of clones expressing a particular LC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.}
+
+\item{platypus.version}{Set according to input format to either "v2" or "v3". Defaults to "v2"}
 }
 \value{
 Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.
-\dontrun{
-example.vdj.vgene_usage <- VDJ_Vgene_usage_barplot_stacked(clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T,HC.gene.number = 15, Fraction.HC = 1)
-}
 }
 \description{
 Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.
+}
+\examples{
+\dontrun{
+Platypus v2
+example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
+clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T
+,HC.gene.number = 15, Fraction.HC = 1)
+}
 }

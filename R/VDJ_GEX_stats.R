@@ -9,7 +9,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4),metrics10x = T,save.csv = T ,filename = "stats.csv")
+#' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list
+#' ,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4)
+#' ,metrics10x = T,save.csv = T ,filename = "stats.csv")
 #' }
 
 VDJ_GEX_stats <- function(VDJ.out.directory,
@@ -18,19 +20,12 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
                           metrics10x,
                           save.csv,
                           filename){
-  
-  require(seqinr)
-  require(jsonlite)
-  require(tidyverse)
-  require(msa)
-  require(stringr)
-  require(Biostrings)
-  require(stringr)
-  
+
+
   if(missing(save.csv)) save.csv <- T
   if(missing(filename)) filename <- "VDJ_stats.csv"
   if(missing(metrics10x)) metrics10x <- F
-  
+
   vdj.loaded <- F
   if(missing(VDJ.out.directory)==F){
     print("Reading in input files")
@@ -39,20 +34,20 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     VDJ.out.directory_contigs <- paste(VDJ.out.directory,"/all_contig_annotations.csv",sep="")
     VDJ.out.directory_annotations <- paste(VDJ.out.directory,"/all_contig_annotations.json",sep="")
     VDJ.out.directory_metrics <- paste(VDJ.out.directory,"/metrics_summary.csv",sep="")
-    
+
     #needed for VDJ_analyze module
     clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-    
+
     #needed for VDJ_per_cell_matrix module
-    reference.list <- lapply(VDJ.out.directory_reference, function(x) read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
-    annotations.list <- lapply(VDJ.out.directory_annotations, function(x) read_json(x))
+    reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
+    annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
     contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
     VDJ.metrics.list <- lapply(VDJ.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
     vdj.loaded <- T
   } else {
     stop("No VDJ.out.directory supplied")
   }
-  
+
   gex.loaded <- F
   if(missing(GEX.out.directory) == F){
     if(length(GEX.out.directory) == length(VDJ.out.directory)){
@@ -65,34 +60,34 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
   } else {
     print("No GEX.out.directory supplied")
   }
-  
+
   if(missing(sample.names)){sample.names <- c(1:length(VDJ.out.directory))}
-  
+
   VDJ.stats.list <- list()
   for(k in 1:length(clonotype.list)){
-    
+
     print(paste0("Starting with ", k, " of ", length(clonotype.list)))
     VDJ.stats <- c()
-    
+
     #gsub to be able to process TCRs as well
     contig.list[[k]]$chain <- gsub(pattern = "TRB", replacement = "IGH", contig.list[[k]]$chain)
     contig.list[[k]]$chain <- gsub(pattern = "TRA", replacement = "IGL", contig.list[[k]]$chain)
-    
+
     clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRB:", replacement = "IGH:", clonotype.list[[k]]$cdr3s_aa)
     clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRA:", replacement = "IGL:", clonotype.list[[k]]$cdr3s_aa)
-    
+
     #info on sample
     VDJ.stats[length(VDJ.stats)+1] <- VDJ.out.directory[[k]]
     names(VDJ.stats)[length(VDJ.stats)] <- "Repertoir path"
-    
+
     VDJ.stats[length(VDJ.stats)+1] <- sample.names[k]
     names(VDJ.stats)[length(VDJ.stats)] <- "Sample name"
-    
-    
+
+
     #Get number of unique barcodes
     VDJ.stats[length(VDJ.stats)+1] <- length(unique(contig.list[[k]]$barcode))
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr unique barcodes"
-    
+
     #generate lookup table with HC and LC counts and stats per barcode
     print("Getting lookup tables")
     holding_bar <- utils::txtProgressBar(min = 0, max = 1, initial = 0, char = "%",
@@ -113,13 +108,13 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
       high_confidence <- append(high_confidence, min(contig.list[[k]]$high_confidence[which(contig.list[[k]]$barcode == j)]))
       productive <- append(productive, min(contig.list[[k]]$productive[which(contig.list[[k]]$barcode == j)]))
       full_length <- append(full_length, min(contig.list[[k]]$full_length[which(contig.list[[k]]$barcode == j)]))
-      
-      nr_HC <- append(nr_HC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
-      nr_LC <- append(nr_LC,str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
+
+      nr_HC <- append(nr_HC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IGH"))
+      nr_LC <- append(nr_LC,stringr::str_count(paste0(contig.list[[k]]$chain[which(contig.list[[k]]$barcode == j)],collapse = ""), "IG(K|L)"))
     }
     lookup_stats <- data.frame(barcodes,nr_HC,nr_LC,is_cell,high_confidence,productive,full_length)
     names(lookup_stats) <- c("barcodes","nr_HC","nr_LC","is_cell","high_confidence","productive","full_length")
-    
+
     #generate lookup table for clonotypes
     clonotype_ids <- c()
     nr_HC <- c()
@@ -127,101 +122,101 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     for(l in 1:nrow(clonotype.list[[k]])){
       utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
       clonotype_ids <- append(clonotype_ids, clonotype.list[[k]]$clonotype_id[l])
-      
-      nr_HC <- append(nr_HC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
-      nr_LC <- append(nr_LC,str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
+
+      nr_HC <- append(nr_HC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
+      nr_LC <- append(nr_LC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
     }
     lookup_stats_clono <- data.frame(clonotype_ids,nr_HC,nr_LC)
     names(lookup_stats_clono) <- c("clonotype_ids","nr_HC","nr_LC")
-    
+
     close(holding_bar)
-    
+
     #number of barcodes with
     #is cell == true
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr barcodes is_cell"
-    
+
     #number of is.cell with 1 HC and 1 LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 1 & lookup_stats$nr_LC == 1 & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1HC 1LC"
-    
+
     #number of cells with 1 HC and 0 LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 1 & lookup_stats$nr_LC == 0 & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1HC 0LC"
-    
+
     #number of cells with 0 HC and 1 LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 0 & lookup_stats$nr_LC == 1 & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 0HC 1LC"
-    
+
     #number of cells with 2 or more HC and 1 LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC > 1 & lookup_stats$nr_LC == 1 & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more HC 1LC"
-    
+
     #number of cells with 1 HC and 2 or more LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC == 1 & lookup_stats$nr_LC > 1 & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 1HC 2 or more LC"
-    
+
     #number of cells with 2 or more HC and 2 or more LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$nr_HC > 1 & lookup_stats$nr_LC > 1 & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more HC 2 or more LC"
-    
+
     #number of cells with
     #full length == true
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$full_length == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells full_length"
-    
+
     #number of barcodes with
     #productive == true
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$productive == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells productive"
-    
+
     #number of barcodes with
     #high_confidence == true
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$high_confidence == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells high_confidence"
-    
+
     #number of cells with
     #all three == true
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true" & lookup_stats$high_confidence == "true" & lookup_stats$productive == "true" & lookup_stats$full_length == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true"
-    
+
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true" & lookup_stats$high_confidence == "true" & lookup_stats$productive == "true" & lookup_stats$full_length == "true" & lookup_stats$is_cell == "true" & lookup_stats$nr_HC == 1 & lookup_stats$nr_LC == 1,])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true and 1HC 1LC"
-    
+
     #number of clonotypes
     VDJ.stats[length(VDJ.stats)+1] <- nrow(clonotype.list[[k]])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes"
-    
+
     #number of clonotypes with exactly 1HC 1LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats_clono[lookup_stats_clono$nr_HC == 1 & lookup_stats_clono$nr_LC == 1,])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes 1HC 1LC"
-    
+
     #number of clonotypes with  < 1HC 1LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats_clono[lookup_stats_clono$nr_HC + lookup_stats_clono$nr_LC < 2,])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes < 1HC 1LC"
-    
+
     #number of clonotypes with  > 1HC 1LC
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats_clono[lookup_stats_clono$nr_HC + lookup_stats_clono$nr_LC > 2,])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr clonotypes > 1HC 1LC"
-    
+
     #More to come
-    
+
     #percentages
     VDJ.stats.perc <- rep(NA, length(VDJ.stats)-2)
     VDJ.stats.perc[1] <- round(as.numeric(VDJ.stats[3]) / as.numeric(VDJ.stats[3]) *100, digits = 1) #for barcode items
     VDJ.stats.perc[c(2:13)] <- round(as.numeric(VDJ.stats[c(4:15)]) / as.numeric(VDJ.stats[4]) *100, digits = 1) #for barcode and is_cell items
     VDJ.stats.perc[c(14:length(VDJ.stats.perc))] <- round(as.numeric(VDJ.stats[c(16:length(VDJ.stats))]) / as.numeric(VDJ.stats[16])*100,digits = 1)  #for clonotype items
-    
+
     names(VDJ.stats.perc) <- paste0("% ", names(VDJ.stats[3:length(VDJ.stats)])) #set names to VDJ.stats.perc
     VDJ.stats <- c(VDJ.stats, VDJ.stats.perc) #combine vectors
-    
+
     VDJ.stats.df <- as.data.frame(t(data.frame(VDJ.stats)))
     names(VDJ.stats.df) <- names(VDJ.stats)
     VDJ.stats.list[[k]] <- VDJ.stats.df
-    
+
   }
   VDJ.stats.all <- do.call(rbind, VDJ.stats.list)
-  
+
   print("Compiling table")
   if(metrics10x == T){
     tryCatch({
@@ -234,12 +229,12 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
           VDJ.metrics.list[[ij]][,ik] <- as.character(VDJ.metrics.list[[ij]][,ik])
         }
       }
-      
+
       #get ncols
       ncols <- do.call("c", lapply(VDJ.metrics.list, function(x) ncol(x)))
       #check if length if identical
       if(length(unique(ncols)) == 1){
-        VDJ.metrics.all <- bind_rows(VDJ.metrics.list)
+        VDJ.metrics.all <- dplyr::bind_rows(VDJ.metrics.list)
         #if not merge dataframes sequentially to ensure that all information is maintained
       } else {
         for(m in 1:length(VDJ.metrics.list)){
@@ -255,23 +250,23 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
         VDJ.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
         names(VDJ.metrics.all) <- ab_1$idents
       }
-      
+
       #for GEX
       #this is a rather inefficient routine to match tables with different columns. This is necessary when outputs from different cellranger versions are combined and the summary metics table is different between samples.
       if(gex.loaded == T){
-        
+
         for(ij in 1:length(GEX.metrics.list)){
           GEX.metrics.list[[ij]]$rep_id <- ij
           for(ik in 1:ncol(GEX.metrics.list[[ij]])){
             GEX.metrics.list[[ij]][,ik] <- as.character(GEX.metrics.list[[ij]][,ik])
           }
         }
-        
+
         #get ncols
         ncols <- do.call("c", lapply(GEX.metrics.list, function(x) ncol(x)))
         #check if length if identical
         if(length(unique(ncols)) == 1){
-          GEX.metrics.all <- bind_rows(GEX.metrics.list)
+          GEX.metrics.all <- dplyr::bind_rows(GEX.metrics.list)
           #if not merge dataframes sequentially to ensure that all information is maintained
         } else {
           for(m in 1:length(GEX.metrics.list)){
@@ -292,10 +287,10 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
       }
     }, error = function(e){e
       print(paste0("Adding 10x metrix failed: ", e))})
-    
+
     VDJ.stats.all <- cbind(VDJ.stats.all, VDJ.metrics.all)
   } else {}
-  if(save.csv){write.csv(VDJ.stats.all, file = filename)}
-  
+  if(save.csv){utils::write.csv(VDJ.stats.all, file = filename)}
+
   return(VDJ.stats.all)
 }

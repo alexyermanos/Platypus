@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_logoplot.R
 \name{VDJ_logoplot}
 \alias{VDJ_logoplot}
-\title{Plots a logoplot of the CDR3 aminoacid region}
+\title{Plots a logoplot of the CDR3 aminoacid region ! For platypus v3 and more flexibility use VDJ_logoplot_vector}
 \usage{
 VDJ_logoplot(VDJ.object, length_cdr3)
 }
@@ -15,10 +15,10 @@ VDJ_logoplot(VDJ.object, length_cdr3)
 Returns the logo plot.
 }
 \description{
-Plots a logoplot of the CDR3 aminoacid region
+Plots a logoplot of the CDR3 aminoacid region ! For platypus v3 and more flexibility use VDJ_logoplot_vector
 }
 \examples{
 \dontrun{
-GEX_fraction_cells_per_cluster(automate_GEX.output, per_sample))
+VDJ_logoplot <- function(VDJ.object = VDJ_analyze.out,length_cdr3 = 10)
 }
 }

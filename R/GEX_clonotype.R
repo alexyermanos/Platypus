@@ -9,7 +9,7 @@
 #'}
 #'
 GEX_clonotype <- function(GEX.object,VDJ.per.clone){
-  require(Seurat)
+
   GEX.object$clonotype_id <- rep(NA,length(colnames(GEX.object)))
   GEX.object$expanded <- rep(NA,length(colnames(GEX.object)))
   GEX.object$clone_rank <- rep(NA,length(colnames(GEX.object)))

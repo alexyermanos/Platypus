@@ -34,6 +34,8 @@ Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_linea
 }
 \examples{
 \dontrun{
-vdj.tree <- VDJ_tree(clonal.lineages = VDJ.clonal.lineage.output,with.germline=T,min.sequences = 5,max.sequences = 30,unique.sequences = T)
+vdj.tree <- VDJ_tree(clonal.lineages = VDJ.clonal.lineage.output
+,with.germline=T,min.sequences = 5
+,max.sequences = 30,unique.sequences = T)
 }
 }

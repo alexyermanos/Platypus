@@ -8,7 +8,8 @@
 #' example.vdj.analyze <- VDJ_dublets(clonotype.list = "VDJ.analyze.output", clone.level=T)
 #'}
 #'
-VDJ_dublets <- function(clonotype.list,clone.level){
+VDJ_dublets <- function(clonotype.list,
+                        clone.level){
   if(missing(clone.level)) clone.level <- F
   output.matrices <- list()
   for(i in 1:length(clonotype.list)){

@@ -49,11 +49,13 @@ Runs a GO term analysis on a submitted list of genes. Works with the output of G
 }
 \examples{
 \dontrun{
-test <- GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
-test2 <- GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP", go.plots = T)
+GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
+GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T
+, species= "Mm", ontology = "BP", go.plots = T)
+
 Can install the needed database with
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
-BiocManager::install("org.Mm.eg.db")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#install.packages("BiocManager")
+#BiocManager::install("org.Mm.eg.db")
 }
 }

@@ -8,7 +8,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' example.vdj.analyze <- VDJ_analyze(VDJ.out.directory = "~/path/to/cellranger/vdj/outs/", filter.1HC.1LC = T)
+#' example.vdj.analyze <- VDJ_analyze(
+#' VDJ.out.directory = "~/path/to/cellranger/vdj/outs/", filter.1HC.1LC = T)
 #' }
 #'
 VDJ_analyze <- function(VDJ.out.directory,
@@ -29,7 +30,6 @@ VDJ_analyze <- function(VDJ.out.directory,
     clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
     contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
   }
-  require(stringr)
   for(i in 1:length(clonotype.list)){
 
     clonotype.list[[i]]$HC_count <- stringr::str_count(pattern = "IGH:",string = clonotype.list[[i]]$cdr3s_aa)
@@ -77,14 +77,14 @@ VDJ_analyze <- function(VDJ.out.directory,
   for(j in 1:nrow(clonotype.list[[i]])){
     utils::setTxtProgressBar(value = j/nrow(clonotype.list[[i]]),pb = holding_bar)
     tryCatch({
-      clonotype.list[[i]]$HC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
-      clonotype.list[[i]]$HC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$v_gene!="None")])))
-      clonotype.list[[i]]$HC_dgene[j] <- names(which.max(table(contig.list[[i]]$d_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
-      clonotype.list[[i]]$HC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
-      clonotype.list[[i]]$LC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
-      clonotype.list[[i]]$LC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
-      clonotype.list[[i]]$LC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
-      clonotype.list[[i]]$barcodes[j] <- gsub(toString(unique(contig.list[[i]]$barcode[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & str_detect(contig.list[[i]]$is_cell, "(?i)true"))])),pattern = ", ",replacement = ";")
+      clonotype.list[[i]]$HC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
+      clonotype.list[[i]]$HC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH" & contig.list[[i]]$v_gene!="None")])))
+      clonotype.list[[i]]$HC_dgene[j] <- names(which.max(table(contig.list[[i]]$d_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
+      clonotype.list[[i]]$HC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain=="IGH")])))
+      clonotype.list[[i]]$LC_cgene[j] <- names(which.max(table(contig.list[[i]]$c_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
+      clonotype.list[[i]]$LC_vgene[j] <- names(which.max(table(contig.list[[i]]$v_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
+      clonotype.list[[i]]$LC_jgene[j] <- names(which.max(table(contig.list[[i]]$j_gene[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true") & contig.list[[i]]$chain!="IGH")])))
+      clonotype.list[[i]]$barcodes[j] <- gsub(toString(unique(contig.list[[i]]$barcode[which(contig.list[[i]]$raw_clonotype_id==clonotype.list[[i]]$clonotype_id[j] & stringr::str_detect(contig.list[[i]]$is_cell, "(?i)true"))])),pattern = ", ",replacement = ";")
     }, error=function(e){})
 
     }

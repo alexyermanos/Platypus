@@ -22,7 +22,9 @@ Integrates the transcriptional cluster information into the clonal lineages. Thi
 }
 \examples{
 \dontrun{
-clonal_lineages <- VDJ_clonal_lineages(call_MIXCR.output=call_MIXCR_output, VDJ_extract_germline.output=VDJ_extract_germline_output,as.nucleotide=F,with.germline=T)
+clonal_lineages <- VDJ_clonal_lineages(call_MIXCR.output=call_MIXCR_output
+, VDJ_extract_germline.output=VDJ_extract_germline_output
+,as.nucleotide=F,with.germline=T)
 }
 
 }

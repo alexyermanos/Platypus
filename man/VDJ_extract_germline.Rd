@@ -28,7 +28,9 @@ Extracts the full-length germline sequence as determined by cellranger. This fun
 }
 \examples{
 \dontrun{
-extract.germline <- VDJ_extract_germline(VDJ.per.clone=VDJ.per.clone.output,mixcr.directory="~/Downloads/mixcr-3.0.12/mixcr",extract.VDJRegion=T,species = "mmu")
+VDJ_extract_germline(VDJ.per.clone=VDJ.per.clone.output
+,mixcr.directory="~/Downloads/mixcr-3.0.12/mixcr"
+,extract.VDJRegion=T,species = "mmu")
 }
 
 }

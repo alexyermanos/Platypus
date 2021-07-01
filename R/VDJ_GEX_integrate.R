@@ -7,9 +7,11 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' testing_integrate <- VDJ_GEX_integrate(GEX.object = automate.gex.output[[1]], clonotype.list =  VDJ.analyze.output,VDJ.per.clone = VDJ.per.clone.output,clonotype.level = TRUE)
+#' testing_integrate <- VDJ_GEX_integrate(GEX.object = automate.gex.output[[1]]
+#' ,clonotype.list =  VDJ.analyze.output
+#' ,VDJ.per.clone = VDJ.per.clone.output,clonotype.level = TRUE)
 #'}
-#'
+
 VDJ_GEX_integrate <- function(GEX.object, clonotype.list,VDJ.per.clone,clonotype.level){
   if(clonotype.level==TRUE){
     if(!missing(VDJ.per.clone)) VDJ.per.clone <- NULL

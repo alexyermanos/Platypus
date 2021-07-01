@@ -31,7 +31,8 @@ Processes and organizes the repertoire sequening data from cellranger vdj and re
 }
 \examples{
 \dontrun{
-example.vdj.analyze <- VDJ_analyze(VDJ.out.directory = "~/path/to/cellranger/vdj/outs/", filter.1HC.1LC = T)
+example.vdj.analyze <- VDJ_analyze(
+VDJ.out.directory = "~/path/to/cellranger/vdj/outs/", filter.1HC.1LC = T)
 }
 
 }
