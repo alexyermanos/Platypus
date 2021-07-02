@@ -4,7 +4,7 @@
 #' @param condition.1 either character or integer specifying ident.1 that was used in the FindMarkers function from the Seurat package. Will be used for Plot title. Should be left empty when using the GEX_cluster_genes output.
 #' @param condition.2 either character or integer specifying ident.2 that was used in the FindMarkers function from the Seurat package. Will be used for Plot title. Should be left empty when using the GEX_cluster_genes output.
 #' @param explicit.title logical specifying whether the title should include logFC information for each condition.
-#' @param MT.Rb.filter Logical, should Mitotic and Ribosomal genes be filtered out of the geneset. True by default.
+#' @param MT.Rb.filter Logical,specifying if mitochondrial and ribosomal genes should be filtered out. genes be filtered out of the geneset. True by default.
 #' @param color.p.threshold numeric specifying the adjusted p-value threshold for geom_points to be colored. Default is set to 0.01.
 #' @param color.log.threshold numeric specifying the absolute logFC threshold for geom_points to be colored. Default is set to 0.25.
 #' @param label.p.threshold numeric specifying the adjusted p-value threshold for genes to be labeled via geom_text_repel. Default is set to 0.001.
