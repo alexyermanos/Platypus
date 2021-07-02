@@ -14,7 +14,7 @@
 #' @param by.logFC logical. If set to TRUE n.label.up and n.label.down will label genes ordered by logFC instead of adjusted p-value. 
 #' @param maximum.overlaps integer specifying removal of labels with too many overlaps. Default is set to Inf.
 #' @param plot.adj.pvalue logical specifying whether adjusted p-value should by plotted on the y-axis. 
-#' @param platypus.version Function works with V2 and V3, no need to set this parameter
+#' @param platypus.version Function works with V2 and V3, no need to set this parameter.
 #' @return Returns a volcano plot from the output of the FindMarkers function from the Seurat package, or from the GEX_cluster_genes Platypus function alternatively. 
 #' Output is a ggplot object that can be modified or plotted. Infinite p-values are set defined value of the highest -log(p) + 100.
 #' @export
@@ -52,7 +52,8 @@ GEX_volcano <- function(findmarkers.output,
       print("Using GEX_cluster_genes as input")}
   if(missing(condition.1)){condition.1 <- ""}
   if(missing(condition.2)){condition.2 <- ""}
-  if(condition.1 =="" &  condition.2 == "" & cluster.genes.output == F){print("Conditions not provided and will not be displayed in plot title")}
+  if(condition.1 =="" &  condition.2 == "" & cluster.genes.output == F){
+    print("Conditions not provided and will not be displayed in plot title")}
   if(missing(explicit.title)){
     explicit.title <- T
     print("explicit.title parameter set to T")}
