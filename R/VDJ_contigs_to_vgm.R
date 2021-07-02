@@ -1,21 +1,30 @@
 #' Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1HC and 1LC
 #' @param directory list containing paths to the "filtered_contig_annotations.csv" files from cell ranger.
-#' @param sample.names vector specifying sample names. 
-#' @return data frame with column names that match the VDJ_GEX_matrix output. Can be appended to the VDJ_GEX_matrix output
-#' #' @export
+#' @param sample.names vector specifying sample names.
+#' @param platypus.version Function based on VGM object from V3, no need to set this parameter. 
+#' @return data frame with column names that match the VDJ_GEX_matrix output. Can be appended to the VDJ_GEX_matrix output.
+#' @export
 #' @examples
 #' \dontrun{
 #' directory.list <- list()
 #' directory.list[[1]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
-#' directory.list[[2]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
+#' directory.list[[2]] <- c("~/Dataset_2/filtered_contig_annotations.csv")
 #' filtered_contig_vgm <- VDJ_contigs_to_vgm(directory = directory.list, sample.names = c(s3,s4))
 #' }
 
 VDJ_contigs_to_vgm <- function(directory, sample.names){
-  require(stringr)
+  if(missing(directory)){
+    stop("Please provide list of local paths to 'filtered_contig_annotations.csv' files")
+  }
+  if(missing(sample.names)){
+    stop("Please provide sample names")
+  }
+  platypus.version <- "v3"
+  
+  
   all_formatted_df <- list()
   for (k in 1:length(directory)) {
-    filtered_contig_annotations <- read.csv(file = directory[[k]]) #read in csv
+    filtered_contig_annotations <- utils::read.csv(file = directory[[k]]) #read in csv
     
     #filter data
     filtered_contig_annotations <- subset(filtered_contig_annotations, filtered_contig_annotations$full_length == "True" & filtered_contig_annotations$productive == "True") 
@@ -67,13 +76,13 @@ VDJ_contigs_to_vgm <- function(directory, sample.names){
       formatted_df$VJ_cdr3s_nt[i] <- paired_df$cdr3_nt[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")]
       formatted_df$VDJ_chain_contig[i] <- paired_df$contig_id[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")]
       formatted_df$VJ_chain_contig[i] <- paired_df$contig_id[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")]
-      formatted_df$VDJ_vgene[i] <- gsub("\\*.*", "", str_replace(paired_df$v_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
-      formatted_df$VJ_vgene[i] <- gsub("\\*.*","",str_replace(paired_df$v_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")],"/", "\\-"))
-      formatted_df$VDJ_dgene[i] <- gsub("\\*.*","",str_replace(paired_df$d_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
-      formatted_df$VDJ_jgene[i] <- gsub("\\*.*","", str_replace(paired_df$j_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
-      formatted_df$VJ_jgene[i] <- gsub("\\*.*", "", str_replace(paired_df$j_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")], "/", "\\-"))
-      formatted_df$VDJ_cgene[i] <- gsub("\\*.*", "", str_replace(paired_df$c_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
-      formatted_df$VJ_cgene[i] <- gsub("\\*.*","", str_replace(paired_df$c_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")], "/", "\\-"))
+      formatted_df$VDJ_vgene[i] <- gsub("\\*.*", "", stringr::str_replace(paired_df$v_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
+      formatted_df$VJ_vgene[i] <- gsub("\\*.*","", stringr::str_replace(paired_df$v_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")],"/", "\\-"))
+      formatted_df$VDJ_dgene[i] <- gsub("\\*.*","", stringr::str_replace(paired_df$d_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
+      formatted_df$VDJ_jgene[i] <- gsub("\\*.*","", stringr::str_replace(paired_df$j_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
+      formatted_df$VJ_jgene[i] <- gsub("\\*.*", "", stringr::str_replace(paired_df$j_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")], "/", "\\-"))
+      formatted_df$VDJ_cgene[i] <- gsub("\\*.*", "", stringr::str_replace(paired_df$c_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRB")], "/", "\\-"))
+      formatted_df$VJ_cgene[i] <- gsub("\\*.*","", stringr::str_replace(paired_df$c_gene[which(paired_df$barcode == unique_barcodes[i] & paired_df$chain == "TRA")], "/", "\\-"))
     }
     all_formatted_df[[k]] <- formatted_df #save
   }
