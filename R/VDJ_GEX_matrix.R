@@ -1,6 +1,7 @@
 #' Processes both raw VDJ and GEX Cellranger output to compile a single cell level table containing all available information for each cell.
 #' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
 #'@param GEX.out.directory.list Same as VDJ.out.directory, but for GEX. Order of list items must be the same as for VDJ.
+#'@param Seurat.in Alternative to GEX.out.directory.list. List of processed (!) seurat objects. Length of the list can either be 1 if VDJ.integrate = TRUE or equal to the length of VDJ.out.directory.list if VDJ.integrate = FALSE. In metadata the column sample_id and group_id must be present. sample_id must contain ids in the format "s1", "s2" ... "sn" and must be matching the order of VDJ.out.directory.list. No processing (i.e. data normalisation and integration) will be done on these objects.They will be returned as part of the VGM and with additioal VDJ data if integrate.VDJ.to.GEX = T. Filtering parameters such as overlapping barcodes, exclude.GEX.not.in.VDJ and exclude.on.cell.state.markers will be applied to the Seurat.in GEX object(s).
 #'@param VDJ.combine Boolean. Defaults to TRUE. Whether to integrate repertoires. A sample identifier will be appended to each barcode both in GEX as well as in VDJ. Recommended for all later functions
 #'@param GEX.integrate Boolean. Defaults to TRUE. Whether to integrate GEX data. Default settings use the seurat scale.data option to integrate datasets. Sample identifiers will be appended to each barcode both in GEX and VDJ This is helpful when analysing different samples from the same organ or tissue, while it may be problematic when analysing different tissues.
 #'@param integrate.GEX.to.VDJ Boolean. defaults to TRUE. Whether to integrate GEX metadata (not raw counts) into the VDJ output dataframe ! Only possible, if GEX.integrate and VDJ.combine are either both FALSE or both TRUE
@@ -61,6 +62,7 @@
 #' }
 VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            GEX.out.directory.list,
+                           Seurat.in
                            VDJ.combine,
                            GEX.integrate,
                            integrate.GEX.to.VDJ,
@@ -106,6 +108,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #Sort out the input situation
   if(missing(Data.in)){ #primary
     Data.in <- "none"
+  }
+
+  if(missing(Seurat.in)) Seurat.in <- "none"
+  if(class(Seurat.in) == "list"){ #alternative processed seurat input
+    for(i in 1:length(Seurat.in)){
+      if(!"sample_id" %in% names(Seurat.in[[i]]@meta.data) | !"group_id" %in% names(Seurat.in[[i]]@meta.data)) stop("Seurat.in objects need to contain sample_id and group_id columns")
+      if(stringr::str_detect(Seurat.in[[i]]@meta.data$sample_id, "s\\d") == F) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
+    }
+    GEX.out.directory.list <- "none"
   }
 
   if(class(Data.in) == "character"){samples.in <- "none"}#samples in for later
@@ -360,8 +371,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
         clonotype_ids <- append(clonotype_ids, clonotype.list[[k]]$clonotype_id[l])
 
-        nr_HC <- append(nr_HC,stringr::string_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
-        nr_LC <- append(nr_LC,stringr::string_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
+        nr_HC <- append(nr_HC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
+        nr_LC <- append(nr_LC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IG(K|L):"))
       }
       lookup_stats_clono <- data.frame(clonotype_ids,nr_HC,nr_LC)
       names(lookup_stats_clono) <- c("clonotype_ids","nr_VDJ","nr_VJ")
@@ -1130,7 +1141,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #Load in GEX
   gex.loaded <- F
-  if(class(samples.in) == "character" & GEX.out.directory.list[[1]] != "none"){ #No Data.in => procceed with loading by GEX.out.directory.list
+  if(class(samples.in) == "character" & GEX.out.directory.list[[1]] != "none"){ #No Data.in or input = Seurat.in => procceed with loading by GEX.out.directory.list
 
     #Remove possible backslash at the end of the input path
     for(k in 1:length(GEX.out.directory.list)){
@@ -1218,6 +1229,17 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #because the filtered GEX is loaded, all barcodes from the GEX will be included in any case.
   #If a barcode is present in GEX but is not a cell in VDJ, it will not be passed through VDJ, to save computational time / This could become a feature to toggle in the future?
   #If a barcode is a cell in VDJ but is not present in the filtered GEX, it will be analyzed for VDJ and GEX rows will be left blank.
+
+  if(class(Seurat.in) == "list"){
+    gex.list <- Seurat.in
+    Seurat.in <- "loaded"
+    vdj.loaded == T
+    for(i in 1:length(gex.list)){
+    gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
+    gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
+    }
+  }
+
 
   if(gex.loaded == T & vdj.loaded == T){ #If both VDJ and GEX are available
     barcodes_GEX <- list()
@@ -1422,7 +1444,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   #GEX Processing following the SEURAT pipeline
-  if(gex.loaded == T){
+  if(gex.loaded == T & Seurat.in != "loaded"){ #make sure that Seurat.in is not an input list!
     cat("\n Starting GEX pipeline     ")
     print(Sys.time())
     GEX.proc <- GEX_automate_single(GEX.list = gex.list,
