@@ -31,6 +31,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
   if(missing(c.count)){c.count <-T}
   if(missing(platypus.version)){platypus.version <- "v2"}
 
+
   #naming compatibility
   VDJ.GEX.matrix <- list()
   VDJ.GEX.matrix[[1]] <- VDJ
@@ -112,7 +113,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
         nm = unique(unlist(dimnames(adj.matrix[[i]])))
         group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
         group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))
-        plot[[i]] <- VDJ_circos(adj.matrix[[i]], group = group, grid.col = grid.col, label.threshold = label.threshold, axis = axis, c.count=c.count)
+        plot[[i]] <- Platypus::VDJ_circos(adj.matrix[[i]], group = group, grid.col = grid.col, label.threshold = label.threshold, axis = axis, c.count=c.count)
       }
 
       plot[[i+1]] <- adj.matrix
@@ -165,7 +166,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
       nm = unique(unlist(dimnames(adj.matrix[[i]])))
       group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
       group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))
-      plot[[i]] <- VDJ_circos(adj.matrix[[i]], group = group, grid.col = grid.col, label.threshold = label.threshold, axis = axis, c.count=c.count)
+      plot[[i]] <- Platypus::VDJ_circos(adj.matrix[[i]], group = group, grid.col = grid.col, label.threshold = label.threshold, axis = axis, c.count=c.count)
     }
     plot[[i+1]] <- adj.matrix
   }else{

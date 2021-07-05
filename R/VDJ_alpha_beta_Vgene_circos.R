@@ -13,7 +13,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'  plots <- VDJ_alpha_beta_Vgene_circos(VDJ_GEX_matrix.output[[1]])
+#'  plots <- VDJ_alpha_beta_Vgene_circos(VDJ_GEX_matrix.output[[1]], platypus.version="v3")
 #'}
 
 VDJ_alpha_beta_Vgene_circos <- function(VDJ,
@@ -26,6 +26,7 @@ VDJ_alpha_beta_Vgene_circos <- function(VDJ,
                                         c.count,
                                         platypus.version,
                                         filter1H1L){
+
 if(missing(V.or.J)){V.or.J <- "both"}
 if(missing(label.threshold)){label.threshold <- 0}
 if(missing(c.threshold)){c.threshold <- 0}
@@ -35,6 +36,33 @@ if(missing(c.count)){c.count <- T}
 if(missing(platypus.version)){platypus.version ="v2"}
 if(missing(filter1H1L)){filter1H1L <- T}
 
+#define Variables
+  
+  clonotype <- NULL
+  bk <- NULL
+  VDJ.GEX.matrix <- NULL
+  TRAV <- NULL
+  TRBV <- NULL
+  TRAJ <- NULL
+  TRBJ <- NULL
+  plots <- NULL
+  alpha_beta_Vgene <- NULL
+  alpha_beta_Jgene <- NULL
+  TRA <- NULL
+  TRB <- NULL
+  Vgene_usage_matrix <- NULL
+  dummy_Vgene_df <- NULL
+  dummy_Jgene_df <- NULL
+  count <- NULL
+  gene <- NULL
+  grid.col <- NULL
+  nm <- NULL
+  group <- NULL
+  level <- NULL
+  
+  
+  
+  
 
 if(platypus.version=="v3"){
 
@@ -67,7 +95,7 @@ if(platypus.version=="v3"){
       }
     }
   }
-
+  
   plots <- list()
 
   #filter for 1H1L
@@ -489,5 +517,3 @@ if(platypus.version=="v3"){
   }
   return(plots)
 }
-
-

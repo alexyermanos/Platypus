@@ -9,12 +9,15 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' plot <- VDJ_circos(Vgene_usage_matrix[[1]], group = group)
+#' 
 #'}
 
 VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.count){
 
   CELL_META <- NULL
+  df <- NULL
+  df1 <- NULL
+  
 
   circlize::circos.clear()
   circlize::circos.par(points.overflow.warning=FALSE)

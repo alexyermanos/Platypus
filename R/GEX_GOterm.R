@@ -15,15 +15,16 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' 
 #'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
-#'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T
-#', species= "Mm", ontology = "BP", go.plots = T)
+#'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP", go.plots = T)
 #'
 #' Can install the needed database with
 #'#if (!requireNamespace("BiocManager", quietly = TRUE))
 #'#install.packages("BiocManager")
 #'#BiocManager::install("org.Mm.eg.db")
 #'}
+
 GEX_GOterm <- function(GEX.cluster.genes.output,
                        topNgenes,
                        ontology,
