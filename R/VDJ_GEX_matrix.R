@@ -1689,5 +1689,3 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(class(out.list[[1]])=="data.frame"){ out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x}
   return(out.list)
 }
-
-

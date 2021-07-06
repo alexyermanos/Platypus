@@ -1,6 +1,6 @@
 #' Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
 #' @param VDJ For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
-#' @param clone.strategy String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.CDR3length.CDR3homology', 'Hvj.Lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
+#' @param clone.strategy (Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','Hvj.Lvj.cdr3length.cdr3homology', 'Hvj.Lvj.cdr3length.VDJcdr3homology', 'cdr3.homology',or 'VDJcdr3.homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 #' All homology calculations are performed on the amino acid level.
 #' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
 #' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
@@ -31,6 +31,15 @@ VDJ_clonotype <- function(VDJ,
   if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
   if(missing(VDJ)) stop("Please provide input data as VDJ")
 
+  #Making cloning stategy fitting with VDJ / VJ naming scheme
+  #This way the old keyworks will still work and this update should not break any old code
+  switch(clone.strategy,
+         Hvj.Lvj.cdr3length.cdr3homology = {clone.strategy <- 'Hvj.Lvj.CDR3length.CDR3homology'},
+         Hvj.Lvj.cdr3length.VDJcdr3homology  = {clone.strategy <- 'Hvj.Lvj.CDR3length.CDRH3homology'},
+         cdr3.homology = {clone.strategy <- 'CDR3.homology'},
+         VDJcdr3.homology = {clone.strategy <- 'CDRH3.homology'})
+
+  print(clone.strategy)
   if(platypus.version=="v2"){####START v2
 
     #compatibility with input naming scheme
@@ -166,7 +175,7 @@ VDJ_clonotype <- function(VDJ,
     VDJ.GEX.matrix[[1]] <- VDJ
     VDJ <- NULL
 
-    if(global.clonotype==F){ # loop through each repertoire individualually
+    if(global.clonotype==F){ # loop through each repertoire individually
       repertoire.number <- unique(VDJ.GEX.matrix[[1]]$sample_id)
       sample_dfs <- list()
       for(i in 1:length(repertoire.number)){ ####START sample loop
@@ -212,13 +221,57 @@ VDJ_clonotype <- function(VDJ,
                                                       nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
                                                       nchar(sample_dfs[[i]]$VJ_cdr3s_aa),sep="_")
 
-        } ####STOP hvj.lvj.cdr3lengths
-
-        ####START homology based clonotyping - to add still for v3
-        ####STOP homology based clonotyping - to add still for v3
+        } ####STOP hvj.lvj.cdr3lengths   / START Homology based clonotyping
+        else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+        clones_temp <- (paste(sample_dfs[[i]]$VDJ_vgene,
+                              sample_dfs[[i]]$VDJ_jgene,
+                              sample_dfs[[i]]$VJ_vgene,
+                              sample_dfs[[i]]$VJ_jgene,
+                              nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
+                              nchar(sample_dfs[[i]]$VJ_cdr3s_aa),sep="_"))
+        sample_dfs[[i]]$new_clonal_feature <- clones_temp
+        unique_clones <- unique(clones_temp)
+        for(j in 1:length(unique_clones)){
+          original_clone_indices <- which(clones_temp==unique_clones[j])
+          ### calculate distance for all within each
+          if(length(original_clone_indices) >= 2){
+            #different vl_distance depending on the strategy
+            vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices])
+            if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
+              vl_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices],method = "lv")/nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices])
+            }else{
+              vl_distance <- 0
+            }
+            combined_distance <- vh_distance + vl_distance
+            diag(combined_distance) <- NA
+            hclust_combined <- stats::hclust(stats::as.dist(combined_distance)) #convert combined_distance to a distance object
+            hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+            # paste j and cluster
+            sample_dfs[[i]]$new_clonal_feature[original_clone_indices] <- paste(sample_dfs[[i]]$new_clonal_feature[original_clone_indices],j,hclust_combined_cut)
+            # need to account for the fact that hclust will not work if we have only 1 object to cluster. So assign value manually to the groups with one object.
+          }else{
+            sample_dfs[[i]]$new_clonal_feature[original_clone_indices] <- paste(sample_dfs[[i]]$new_clonal_feature[original_clone_indices],j,"1")
+          }
+        }
+        unique_clones <- unique(sample_dfs[[i]]$new_clonal_feature)
+      }
+      else if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
+        vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VDJ_cdr3s_aa, method = "lv")/nchar(sample_dfs[[i]]$VDJ_cdr3s_aa)
+        if(clone.strategy=="CDR3.homology"){
+          vl_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa, method = "lv")/nchar(sample_dfs[[i]]$VJ_cdr3s_aa)
+        }else{
+          vl_distance <- 0
+        }
+        combined_distance <- vh_distance + vl_distance
+        diag(combined_distance) <- NA
+        hclust_combined <- stats::hclust(stats::as.dist(combined_distance))
+        hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+        # paste j and cluster
+        sample_dfs[[i]]$new_clonal_feature <- paste(hclust_combined_cut)
+        unique_clones <- unique(sample_dfs[[i]]$new_clonal_feature)
+      }
 
         ####START recalculating clonotype_id and clonal_frequency
-
         #place holders
         sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
