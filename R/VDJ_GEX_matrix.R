@@ -989,6 +989,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   ##################################################################################### STOP barcode_VDJ_iteration
 
+
   ##### Start of function
   cat("\n Loaded functions")
   cat("\n Loading in data    ")
@@ -1200,6 +1201,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       cat("\n Loading GEX from Data.in failed")}
   }
 
+
+
+
   ###########################################
   #Call VDJ stats
 
@@ -1235,8 +1239,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     Seurat.in <- "loaded"
     vdj.loaded == T
     for(i in 1:length(gex.list)){
-    gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
-    gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
+      gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
+      gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
     }
   }
 
@@ -1381,6 +1385,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
   }
 
+
+
   #VDJ Processing per cell
   if(vdj.loaded == T){
     VDJ.proc.list <- list()
@@ -1467,9 +1473,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       GEX.proc[[i]] <- SeuratObject::RenameCells(GEX.proc[[i]], new.names = gsub("^_+","",colnames(GEX.proc[[i]])))
 
     }
-  cat("\n Done with GEX pipeline     ")
-  print(Sys.time())
+    cat("\n Done with GEX pipeline     ")
+    print(Sys.time())
   }
+
+
 
   if(vdj.loaded == T & gex.loaded == T){
     cat("\n Integrating VDJ and GEX...")
@@ -1492,7 +1500,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         seur_meta$barcode <- rownames(seur_meta)
         #merge to VDJ.proc => into each VDJ we add the relevant info
         for(l in 1:length(VDJ.proc)){
-        VDJ.proc[[l]] <- merge(VDJ.proc[[l]], seur_meta, by = "barcode", all.x = T, all.y = F)
+          VDJ.proc[[l]] <- merge(VDJ.proc[[l]], seur_meta, by = "barcode", all.x = T, all.y = F)
         }
       }
 
@@ -1528,12 +1536,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #Reduce GEX.proc to a seurat object
       GEX.proc <- GEX.proc[[1]]
 
-     ########################add some GEX columns to VDJ table
+      ########################add some GEX columns to VDJ table
       if(integrate.GEX.to.VDJ == T){
 
         #get data from Seurat object to add to VDJ. In the future this could become an extra parameter
         seur_meta <- SeuratObject::FetchData(GEX.proc,
-                               vars = c("orig.ident","orig_barcode","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))
+                                             vars = c("orig.ident","orig_barcode","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))
         names(seur_meta)[2] <- "orig_barcode_GEX"
         seur_meta$barcode <- rownames(seur_meta)
         #merge to VDJ.proc
@@ -1567,7 +1575,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         cat("\n Adding data from multiple GEX objects to one VDJ object")
         #grab metadata from all seurat objects
         seur_meta <- lapply(GEX.proc, function(x){SeuratObject::FetchData(x,
-         vars = c("orig.ident","orig_barcode","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))})
+                                                                          vars = c("orig.ident","orig_barcode","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))})
         seur_meta <- dplyr::bind_rows(seur_meta)
         names(seur_meta)[2] <- "orig_barcode_GEX"
         seur_meta$barcode <- rownames(seur_meta)
@@ -1577,7 +1585,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       ##############add VDJ info to GEX as metadata columns
       if(integrate.VDJ.to.GEX == T){
-      cat("\n Integrating VDJ from a single object to multiple GEX objects is not supported")
+        cat("\n Integrating VDJ from a single object to multiple GEX objects is not supported")
       }
       #########################
 
@@ -1598,6 +1606,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           #merge to VDJ.proc
           VDJ.proc[[i]] <- merge(VDJ.proc[[i]], seur_meta, by = "barcode", all.x = T, all.y = F)
         }
+
 
         ##############add VDJ info to GEX as metadata columns
         if(integrate.VDJ.to.GEX == T){
@@ -1678,7 +1687,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #   out.list[[2]]$group_id <- rep(group.id,table(out.list[[2]]$sample_id))
   # }
 
-  if(class(out.list[[1]])=="data.frame") out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x
+  if(class(out.list[[1]])=="data.frame"){ out.list[[1]]$clonotype_id <- out.list[[1]]$clonotype_id_10x}
   return(out.list)
 }
 
