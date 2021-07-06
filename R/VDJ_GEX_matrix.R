@@ -62,7 +62,7 @@
 #' }
 VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            GEX.out.directory.list,
-                           Seurat.in
+                           Seurat.in,
                            VDJ.combine,
                            GEX.integrate,
                            integrate.GEX.to.VDJ,
