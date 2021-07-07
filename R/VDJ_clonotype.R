@@ -236,9 +236,32 @@ VDJ_clonotype <- function(VDJ,
           ### calculate distance for all within each
           if(length(original_clone_indices) >= 2){
             #different vl_distance depending on the strategy
-            vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices])
+
+            #Deal with the possibility of a missing chain and verify that a nchar length is present
+            if(any(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices]) == 0)){
+              #get nchar of heavy chains and surrogate missing once with the mean of existing ones
+              nchars_vh <- nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices])
+              nchars_vh[which(nchars_vh == 0)] <- mean(nchars_vh[nchars_vh > 0])
+            } else if(all(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices]) == 0)){
+              nchars_vh <- rep(1,length(original_clone_indices))
+            } else {
+              nchars_vh <- nchar(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices])
+            }
+
+            vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vh
             if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
-              vl_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices],method = "lv")/nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices])
+
+              if(any(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0)){
+                #get nchar of heavy chains and surrogate missing once with the mean of existing ones
+                nchars_vl <- nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices])
+                nchars_vl[which(nchars_vl == 0)] <- mean(nchars_vl[nchars_vl > 0])
+              } else if(all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0)){
+                nchars_vl <- rep(1,length(original_clone_indices))
+              } else {
+                nchars_vl <- nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices])
+              }
+
+              vl_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vl
             }else{
               vl_distance <- 0
             }
@@ -256,9 +279,33 @@ VDJ_clonotype <- function(VDJ,
         unique_clones <- unique(sample_dfs[[i]]$new_clonal_feature)
       }
       else if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
-        vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VDJ_cdr3s_aa, method = "lv")/nchar(sample_dfs[[i]]$VDJ_cdr3s_aa)
+
+        #Deal with the possibility of a missing chain and verify that a nchar length is present
+        if(any(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa) == 0) & !all(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa) == 0)){
+          #get nchar number of heavy chains and surrogate missing once with the mean of existing ones
+          nchars_vh <- nchar(sample_dfs[[i]]$VDJ_cdr3s_aa)
+          nchars_vh[which(nchars_vh == 0)] <- mean(nchars_vh[nchars_vh > 0])
+        } else if(all(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa) == 0)){
+          nchars_vh <- rep(1,length(sample_dfs[[i]]$VDJ_cdr3s_aa))
+        } else {
+          nchars_vh <- nchar(sample_dfs[[i]]$VDJ_cdr3s_aa)
+        }
+
+        vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VDJ_cdr3s_aa, method = "lv")/nchars_vh
         if(clone.strategy=="CDR3.homology"){
-          vl_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa, method = "lv")/nchar(sample_dfs[[i]]$VJ_cdr3s_aa)
+
+        #Deal with the possibility of a missing chain and verify that a nchar length is present
+        if(any(nchar(sample_dfs[[i]]$VJ_cdr3s_aa) == 0) & !all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa) == 0)){
+          #get nchar number of heavy chains and surrogate missing once with the mean of existing ones
+          nchars_vl <- nchar(sample_dfs[[i]]$VJ_cdr3s_aa)
+          nchars_vl[which(nchars_vl == 0)] <- mean(nchars_vl[nchars_vl > 0])
+        } else if(all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa) == 0)){
+          nchars_vl <- rep(1,length(sample_dfs[[i]]$VJ_cdr3s_aa))
+        } else {
+          nchars_vl <- nchar(sample_dfs[[i]]$VJ_cdr3s_aa)
+        }
+
+          vl_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa, method = "lv")/nchars_vl
         }else{
           vl_distance <- 0
         }
@@ -298,10 +345,12 @@ VDJ_clonotype <- function(VDJ,
         }####STOP assigning new clonotype id
       }####STOP sample loop
     }####STOP global.clonotype==F
-
     else if(global.clonotype==T){####START global.clonotype == T
       sample_dfs <- VDJ.GEX.matrix[[1]]
       sample_dfs$clonotype_id_10x <- paste0(sample_dfs$clonotype_id_10x,"_",sample_dfs$sample_id)
+
+      if(VDJ.VJ.1chain==T){
+        sample_dfs <- sample_dfs[which(sample_dfs$Nr_of_VDJ_chains==1 & sample_dfs$Nr_of_VJ_chains==1), ]}
 
       if(clone.strategy=="10x.default"){ ####START cdr3.nt
         sample_dfs$new_clonal_feature <- sample_dfs$clonotype_id_10x
@@ -336,10 +385,101 @@ VDJ_clonotype <- function(VDJ,
                                                nchar(sample_dfs$VDJ_cdr3s_aa),
                                                nchar(sample_dfs$VJ_cdr3s_aa),sep="_")
       }####STOP hvj.lvj.cdr3lengths
+      else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+        clones_temp <- (paste(sample_dfs$VDJ_vgene,
+                              sample_dfs$VDJ_jgene,
+                              sample_dfs$VJ_vgene,
+                              sample_dfs$VJ_jgene,
+                              nchar(sample_dfs$VDJ_cdr3s_aa),
+                              nchar(sample_dfs$VJ_cdr3s_aa),sep="_"))
+        sample_dfs$new_clonal_feature <- clones_temp
+        unique_clones <- unique(clones_temp)
+        for(j in 1:length(unique_clones)){
+          original_clone_indices <- which(clones_temp==unique_clones[j])
+          ### calculate distance for all within each
+          if(length(original_clone_indices) >= 2){
+            #different vl_distance depending on the strategy
 
-      if(VDJ.VJ.1chain==T){
-        sample_dfs <- sample_dfs[which(sample_dfs$Nr_of_VDJ_chains==1 & sample_dfs$Nr_of_VJ_chains==1), ]}
+            #Deal with the possibility of a missing chain and verify that a nchar length is present
+            if(any(nchar(sample_dfs$VDJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs$VDJ_cdr3s_aa[original_clone_indices]) == 0)){
+              #get nchar of heavy chains and surrogate missing once with the mean of existing ones
+              nchars_vh <- nchar(sample_dfs$VDJ_cdr3s_aa[original_clone_indices])
+              nchars_vh[which(nchars_vh == 0)] <- mean(nchars_vh[nchars_vh > 0])
+            } else if(all(nchar(sample_dfs$VDJ_cdr3s_aa[original_clone_indices]) == 0)){
+              nchars_vh <- rep(1,length(original_clone_indices))
+            } else {
+              nchars_vh <- nchar(sample_dfs$VDJ_cdr3s_aa[original_clone_indices])
+            }
 
+            vh_distance <- stringdist::stringdistmatrix(sample_dfs$VDJ_cdr3s_aa[original_clone_indices],sample_dfs$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vh
+            if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
+
+              if(any(nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices]) == 0)){
+                #get nchar of heavy chains and surrogate missing once with the mean of existing ones
+                nchars_vl <- nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices])
+                nchars_vl[which(nchars_vl == 0)] <- mean(nchars_vl[nchars_vl > 0])
+              } else if(all(nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices]) == 0)){
+                nchars_vl <- rep(1,length(original_clone_indices))
+              } else {
+                nchars_vl <- nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices])
+              }
+
+              vl_distance <- stringdist::stringdistmatrix(sample_dfs$VJ_cdr3s_aa[original_clone_indices],sample_dfs$VJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vl
+            }else{
+              vl_distance <- 0
+            }
+            combined_distance <- vh_distance + vl_distance
+            diag(combined_distance) <- NA
+            hclust_combined <- stats::hclust(stats::as.dist(combined_distance)) #convert combined_distance to a distance object
+            hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+            # paste j and cluster
+            sample_dfs$new_clonal_feature[original_clone_indices] <- paste(sample_dfs[[i]]$new_clonal_feature[original_clone_indices],j,hclust_combined_cut)
+            # need to account for the fact that hclust will not work if we have only 1 object to cluster. So assign value manually to the groups with one object.
+          }else{
+            sample_dfs$new_clonal_feature[original_clone_indices] <- paste(sample_dfs[[i]]$new_clonal_feature[original_clone_indices],j,"1")
+          }
+        }
+        unique_clones <- unique(sample_dfs$new_clonal_feature)
+      }
+      else if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
+
+        #Deal with the possibility of a missing chain and verify that a nchar length is present
+        if(any(nchar(sample_dfs$VDJ_cdr3s_aa) == 0) & !all(nchar(sample_dfs$VDJ_cdr3s_aa) == 0)){
+          #get nchar number of heavy chains and surrogate missing once with the mean of existing ones
+          nchars_vh <- nchar(sample_dfs$VDJ_cdr3s_aa)
+          nchars_vh[which(nchars_vh == 0)] <- mean(nchars_vh[nchars_vh > 0])
+        } else if(all(nchar(sample_dfs$VDJ_cdr3s_aa) == 0)){
+          nchars_vh <- rep(1,length(sample_dfs$VDJ_cdr3s_aa))
+        } else {
+          nchars_vh <- nchar(sample_dfs$VDJ_cdr3s_aa)
+        }
+
+        vh_distance <- stringdist::stringdistmatrix(sample_dfs$VDJ_cdr3s_aa, sample_dfs$VDJ_cdr3s_aa, method = "lv")/nchars_vh
+        if(clone.strategy=="CDR3.homology"){
+
+          #Deal with the possibility of a missing chain and verify that a nchar length is present
+          if(any(nchar(sample_dfs$VJ_cdr3s_aa) == 0) & !all(nchar(sample_dfs$VJ_cdr3s_aa) == 0)){
+            #get nchar number of heavy chains and surrogate missing once with the mean of existing ones
+            nchars_vl <- nchar(sample_dfs$VJ_cdr3s_aa)
+            nchars_vl[which(nchars_vl == 0)] <- mean(nchars_vl[nchars_vl > 0])
+          } else if(all(nchar(sample_dfs$VJ_cdr3s_aa) == 0)){
+            nchars_vl <- rep(1,length(sample_dfs$VJ_cdr3s_aa))
+          } else {
+            nchars_vl <- nchar(sample_dfs$VJ_cdr3s_aa)
+          }
+
+          vl_distance <- stringdist::stringdistmatrix(sample_dfs$VJ_cdr3s_aa, sample_dfs$VJ_cdr3s_aa, method = "lv")/nchars_vl
+        }else{
+          vl_distance <- 0
+        }
+        combined_distance <- vh_distance + vl_distance
+        diag(combined_distance) <- NA
+        hclust_combined <- stats::hclust(stats::as.dist(combined_distance))
+        hclust_combined_cut <- stats::cutree(hclust_combined, h = homology.threshold)
+        # paste j and cluster
+        sample_dfs$new_clonal_feature <- paste(hclust_combined_cut)
+        unique_clones <- unique(sample_dfs$new_clonal_feature)
+      }
 
       ####START recalculating clonotype_id and clonal_frequency
       #definde placeholder columns
@@ -369,12 +509,13 @@ VDJ_clonotype <- function(VDJ,
       }
     }####STOP global.clonotype==T
 
-
     if(output.format=="dataframe.per.sample"){
       return(sample_dfs)
     }
     else if(output.format=="vgm"){
-      VDJ.GEX.matrix[[1]] <- do.call("rbind",sample_dfs)
+      VDJ.GEX.matrix <- list()
+      if(!global.clonotype) VDJ.GEX.matrix[[1]] <- do.call("rbind",sample_dfs)
+      if(global.clonotype) VDJ.GEX.matrix[[1]] <- sample_dfs
       return(VDJ.GEX.matrix)
     }
 
