@@ -238,7 +238,7 @@ VDJ_clonotype <- function(VDJ,
 
                 aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-              } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+              } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                 aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
               } else { #no clone found with the light chain of this cell => open a new clone
@@ -262,7 +262,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -288,7 +288,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -314,7 +314,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -346,7 +346,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -370,7 +370,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -396,7 +396,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -422,7 +422,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -458,7 +458,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -486,7 +486,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -512,7 +512,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -538,7 +538,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -566,7 +566,7 @@ VDJ_clonotype <- function(VDJ,
                 #check if the light chain matches any already existing clone
                 if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){ #catches a cell with two vJ chains but no VDJ chain (very rare)
                   comb1 <- paste0(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_" ,stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,1], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,1])
-                  comb2 <- paste0(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2], "_" ,stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,2], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,2])
+                  comb2 <- paste0(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2], "_" ,stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,2], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,2])
                   clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, comb1)), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, comb2)))
                 } else {
                   comb1 <- paste0(aberant_cells$VJ_cdr3s_aa[cel], "_",aberant_cells$VJ_vgene[cel], "_",aberant_cells$VJ_jgene[cel])
@@ -577,7 +577,7 @@ VDJ_clonotype <- function(VDJ,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -605,7 +605,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -631,7 +631,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -657,7 +657,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -695,7 +695,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -723,7 +723,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -749,7 +749,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -775,7 +775,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
-                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                   aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
                 } else { #no clone found with the light chain of this cell => open a new clone
@@ -786,12 +786,13 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
           } ####STOP hvj.lvj.cdr3lengths   / START Homology based clonotyping
           else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
-            clones_temp <- (paste(sample_dfs[[i]]$VDJ_vgene,
+
+            clones_temp <- (paste(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
+                                  sample_dfs[[i]]$VDJ_vgene,
                                   sample_dfs[[i]]$VDJ_jgene,
+                                  nchar(sample_dfs[[i]]$VJ_cdr3s_aa),
                                   sample_dfs[[i]]$VJ_vgene,
-                                  sample_dfs[[i]]$VJ_jgene,
-                                  nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
-                                  nchar(sample_dfs[[i]]$VJ_cdr3s_aa),sep="_"))
+                                  sample_dfs[[i]]$VJ_jgene,sep="_"))
             sample_dfs[[i]]$new_clonal_feature <- clones_temp
             unique_clones <- unique(clones_temp)
             for(j in 1:length(unique_clones)){
@@ -840,6 +841,237 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               }
             }
             unique_clones <- unique(sample_dfs[[i]]$new_clonal_feature)
+
+
+            #Now deal with cells of abberant clone numbers
+            #Generate a surrogate clonal feature including classical features + the new homology based one
+            sur_clonal_feature <- paste(clones_temp, "_", sample_dfs[[i]]$new_clonal_feature)
+
+            #Proceed very similarly to above during length and V J gene clonotyping with the added step of a stringdist
+            #check cells with only one VJ chain and nothing else
+            if(length(onlyVJ_ind) > 0){
+              for(cel in onlyVJ_ind){
+                #check if the light chain matches any already existing clone
+                if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){ #catches a cell with two vJ chains but no VDJ chain (very rare)
+                  comb1 <- paste0(nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]), "_" ,stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,1], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,1])
+                  comb2 <- paste0(nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]), "_" ,stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,2], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,2])
+
+                  clone_matches <- c(which(stringr::str_detect(sur_clonal_feature, comb1)), which(stringr::str_detect(sur_clonal_feature, comb2)))
+                } else {
+                  comb1 <- paste0(nchar(aberant_cells$VJ_cdr3s_aa[cel]), "_",aberant_cells$VJ_vgene[cel], "_",aberant_cells$VJ_jgene[cel])
+                  clone_matches <- which(stringr::str_detect(sur_clonal_feature, comb1))
+                }
+                #We now have one or a set of matching clones / Now we check their homology via stringdist
+
+                if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+                  if(clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){ #in the case that homology is only calculated on the VDJ chain, here we cannot check homology, because the aberrant query cell does not contain a VDJ chain
+                  aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
+                  } else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){ #here we check for homology with all matching clones for the VJ chain
+                    if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){
+                      dists1 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                      dists2 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                      dists <- c(dists1,dists2) #concatenate
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[rep(clone_matches,2)[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VJ_cdr3s_aa[cel])
+                      }
+                    } else {
+                      dists <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], aberant_cells$VJ_cdr3s_aa[cel]) / nchar(aberant_cells$VJ_cdr3s_aa[cel]) #get distances
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[clone_matches[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VJ_cdr3s_aa[cel])
+                      }
+                    }
+                  }
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                  #We still check if the CDR3 homology threshold is fullfilled here
+                  if(any(stringdist::stringdist(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,],unique(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]))/nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,]) <= homology.threshold)){ #make sure to account for the rare case of 2 VJ chains and 0 VDJ chains
+                    aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #assign the clone
+                  } else { #open a new clone
+                    aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VJ_cdr3s_aa[cel])
+                  }
+                } else { #no clone found with the light chain of this cell => open a new clone
+                  aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VJ_cdr3s_aa[cel])
+                }
+              }
+            }
+
+
+            #check cells with only one VDJ chain and nothing else
+            if(length(onlyVDJ_ind) > 0){
+              for(cel in onlyVDJ_ind){
+                #check if the light chain matches any already existing clone
+                #check if the light chain matches any already existing clone
+                if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){ #catches a cell with two vJ chains but no VDJ chain (very rare)
+                  comb1 <- paste0(nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]), "_" ,stringr::str_split(aberant_cells$VDJ_vgene[cel], ";", simplify = T)[1,1], "_", stringr::str_split(aberant_cells$VDJ_jgene[cel], ";", simplify = T)[1,1])
+                  comb2 <- paste0(nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]), "_" ,stringr::str_split(aberant_cells$VDJ_vgene[cel], ";", simplify = T)[1,2], "_", stringr::str_split(aberant_cells$VDJ_jgene[cel], ";", simplify = T)[1,2])
+                  clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, comb1)), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, comb2)))
+                } else {
+                  comb1 <- paste0(nchar(aberant_cells$VDJ_cdr3s_aa[cel]), "_",aberant_cells$VDJ_vgene[cel], "_", aberant_cells$VDJ_jgene[cel])
+                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, comb1))
+                }
+
+                #We now have one or a set of matching clones / Now we check their homology via stringdist
+
+                if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+                  if(clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){ #checking homology
+
+                    if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
+                      dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                      dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                      dists <- c(dists1,dists2) #concatenate
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[rep(clone_matches,2)[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                      }
+                    } else {
+                      dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[clone_matches[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                      }
+                    }
+
+                  } else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){ #here we now also only check for VDJ homology, because there is no VJ chain
+
+                    if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
+                      dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                      dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                      dists <- c(dists1,dists2) #concatenate
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[rep(clone_matches,2)[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                      }
+                    } else {
+                      dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], aberant_cells$VJD_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[clone_matches[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                      }
+                    }
+                  }
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                  #We still check if the CDR3 homology threshold is fullfilled here
+                  if(any(stringdist::stringdist(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,],unique(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches]))/nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,]) <= homology.threshold)){ #make sure to account for the rare case of 2 VJ chains and 0 VDJ chains
+                    aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #assign the clone
+                  } else { #open a new clone
+                    aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                  }
+                } else { #no clone found with the light chain of this cell => open a new clone
+                  aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                }
+              }
+            }
+
+            #check cells with 2 VJ chains and 1 VDJ chain
+            if(length(multVJ_ind) > 0){
+              for(cel in multVJ_ind){
+                #get combinations
+                VDJs <- paste0(nchar(aberant_cells$VDJ_cdr3s_aa[cel]), "_",aberant_cells$VDJ_vgene[cel], "_",aberant_cells$VDJ_jgene[cel])
+                VJs <- c(paste0(nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]), "_",stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,1], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,1]),paste0(nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]), "_",stringr::str_split(aberant_cells$VJ_vgene[cel], ";", simplify = T)[1,2], "_", stringr::str_split(aberant_cells$VJ_jgene[cel], ";", simplify = T)[1,2]))
+
+                ccombs <- expand.grid(VDJs, VJs)
+                ccombs <- paste0(ccombs[,1], ccombs[,2]) #make it an array
+
+                #check if any combination of VDJ and VJ chains matches any already existing clone
+                clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[1])),which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[2])))
+
+                if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+
+                  if(clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){ #checking homology / given that we know that this cell has 1 VDJ chain, we can skip a few ifs
+
+                      dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[clone_matches[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
+                      }
+
+                  } else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
+
+                      dists1 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
+                                                       paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])) / nchar(paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]))
+                      dists2 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
+                                                       paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])) / nchar(paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]))
+                      dists <- c(dists1,dists2) #concatenate
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[rep(clone_matches,2)[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(ccombs[1],"_", aberant_cells$VDJ_cdr3s_aa[cel], "_", aberant_cells$VJ_cdr3s_aa[cel])
+                      }
+                    }
+                  } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the aberrant query clone
+                  if(stringdist::stringdist(aberant_cells$VDJ_cdr3s_aa[cel],unique(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches]))/nchar(aberant_cells$VDJ_cdr3s_aa[cel]) <= homology.threshold)
+                     & any(stringdist::stringdist(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,],unique(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]))/nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,]) <= homology.threshold)){ #make sure to account for the rare case of 2 VJ chains and 0 VDJ chains
+                    aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #assign the clone
+                  } else { #open a new clone
+                    aberant_cells$new_clonal_feature[cel] <- paste0(ccombs[1],"_", aberant_cells$VDJ_cdr3s_aa[cel], "_", aberant_cells$VJ_cdr3s_aa[cel])
+                  }
+
+                } else { #no clone found with the light chain of this cell => open a new clone
+                  aberant_cells$new_clonal_feature[cel] <- paste0(ccombs[1],"_", aberant_cells$VDJ_cdr3s_aa[cel], "_", aberant_cells$VJ_cdr3s_aa[cel])
+                }
+              }
+            }
+
+            #check cells with 2 VDJ chains and 1 VJ chain
+            if(length(multVDJ_ind) > 0){
+              for(cel in multVDJ_ind){
+                #get combinations
+                VDJs <- c(paste0(nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]), "_",stringr::str_split(aberant_cells$VDJ_vgene[cel], ";", simplify = T)[1,1], "_", stringr::str_split(aberant_cells$VDJ_jgene[cel], ";", simplify = T)[1,1]),paste0(nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]), "_",stringr::str_split(aberant_cells$VDJ_vgene[cel], ";", simplify = T)[1,2], "_", stringr::str_split(aberant_cells$VDJ_jgene[cel], ";", simplify = T)[1,2]))
+                VJs <- paste0(nchar(aberant_cells$VJ_cdr3s_aa[cel]), "_", aberant_cells$VJ_vgene[cel], "_",aberant_cells$VJ_jgene[cel])
+
+                ccombs <- expand.grid(VDJs, VJs)
+                ccombs <- paste0(ccombs[,1], ccombs[,2]) #make it an array
+
+                #check if any combination of VDJ and VJ chains matches any already existing clone
+                clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[1])),which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[2])))
+
+                if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+                  if(clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){ #checking homology / given that we know that this cell has 2 VDJ chain, we str_split those
+
+                    dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                    dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                    dists <- c(dists1,dists2) #concatenate
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[rep(clone_matches,2)[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel],"_", aberant_cells$VJ_cdr3s_aa[cel])
+                    }
+
+                  } else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
+
+                    dists1 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
+                                                     paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_", aberant_cells$VJ_cdr3s_aa[cel])) / nchar(paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_", aberant_cells$VJ_cdr3s_aa[cel]))
+                    dists2 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
+                                                     paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2], "_", aberant_cells$VJ_cdr3s_aa[cel])) / nchar(paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2], "_", aberant_cells$VJ_cdr3s_aa[cel]))
+                    dists <- c(dists1,dists2) #concatenate
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[rep(clone_matches,2)[which.min(dists)]] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(ccombs[1],"_", aberant_cells$VDJ_cdr3s_aa[cel], "_", aberant_cells$VJ_cdr3s_aa[cel])
+                    }
+                  }
+                } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the aberrant query clone
+                  if(stringdist::stringdist(aberant_cells$VJ_cdr3s_aa[cel],unique(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]))/nchar(aberant_cells$VJ_cdr3s_aa[cel]) <= homology.threshold)
+                    & any(stringdist::stringdist(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,],unique(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches]))/nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,]) <= homology.threshold)){ #make sure to account for the rare case of 2 VJ chains and 0 VDJ chains
+                      aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #assign the clone
+                    } else { #open a new clone
+                      aberant_cells$new_clonal_feature[cel] <- paste0(ccombs[1],"_", aberant_cells$VDJ_cdr3s_aa[cel], "_", aberant_cells$VJ_cdr3s_aa[cel])
+                    }
+
+                } else { #no clone found with the light chain of this cell => open a new clone
+                  aberant_cells$new_clonal_feature[cel] <- paste0(ccombs[1],"_", aberant_cells$VDJ_cdr3s_aa[cel], "_", aberant_cells$VJ_cdr3s_aa[cel])
+                }
+              }
+            }
+
           }
           else if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){
 
@@ -879,10 +1111,232 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
             # paste j and cluster
             sample_dfs[[i]]$new_clonal_feature <- paste(hclust_combined_cut)
             unique_clones <- unique(sample_dfs[[i]]$new_clonal_feature)
+
+
+            #Just check for stringdist
+            #check cells with only one VJ chain and nothing else
+            if(length(onlyVJ_ind) > 0){
+              for(cel in onlyVJ_ind){
+
+                  if(clone.strategy=="CDRH3.homology"){ #in the case that homology is only calculated on the VDJ chain, here we cannot check homology, so we check if the light chain matches to an existing clone exaclty
+
+                    if(stringr::str_detect(aberant_cells$VJ_cdr3s_aa[cel], ";")){ #catches a cell with two vJ chains but no VDJ chain (very rare)
+                      clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
+                    } else {
+                      clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+                    }
+
+                    if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+
+                      aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
+                    } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
+                      aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
+                    } else { #no clone found with the light chain of this cell => open a new clone
+                      aberant_cells$new_clonal_feature[cel] <- aberant_cells$VJ_cdr3s_aa[cel]
+                    }
+
+                  } else if(clone.strategy=="CDR3homology"){ #here we check for homology with all matching clones for the VJ chain
+                    if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){
+                      dists1 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                      dists2 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                      #get the minimum of both for each element
+                      dists <- c()
+                      for(k in 1:length(dists1)){
+                        if(dists1[k] < dists2[k]){
+                          dists <- c(dists, dists1[k])
+                        } else{
+                          dists <- c(dists, dists2[k])
+                        }
+                      }
+
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VJ_cdr3s_aa[cel])
+                      }
+                    } else {
+                      dists <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, aberant_cells$VJ_cdr3s_aa[cel]) / nchar(aberant_cells$VJ_cdr3s_aa[cel]) #get distances
+                      if(any(dists <= homology.threshold)){
+                        aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                      } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                        aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VJ_cdr3s_aa[cel])
+                      }
+                    }
+                  }
+                }
+              }
+
+            #check cells with only one VDJ chain and nothing else
+            if(length(onlyVDJ_ind) > 0){
+              for(cel in onlyVDJ_ind){
+                if(clone.strategy=="CDRH3.homology"){ #check homology for the VDJ chain
+
+                  if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
+                    dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                    dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                    #get the minimum of both for each element
+                    dists <- c()
+                    for(k in 1:length(dists1)){
+                      if(dists1[k] < dists2[k]){
+                        dists <- c(dists, dists1[k])
+                      } else{
+                        dists <- c(dists, dists2[k])
+                      }
+                    }
+
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
+                    }
+                  } else {
+                    dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
+                    }
+                  }
+
+
+                } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+
+                  if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
+                    dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                    dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                    #get the minimum of both for each element
+                    dists <- c()
+                    for(k in 1:length(dists1)){
+                      if(dists1[k] < dists2[k]){
+                        dists <- c(dists, dists1[k])
+                      } else{
+                        dists <- c(dists, dists2[k])
+                      }
+                    }
+
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
+                    }
+                  } else {
+                    dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
+                    }
+                  }
+                }
+              }
+            }
+
+            #check cells with 2 VJ chains and 1 VDJ chain
+            if(length(multVJ_ind) > 0){
+              for(cel in multVJ_ind){
+
+                if(clone.strategy=="CDRH3.homology"){ #check homology for the VDJ chain
+
+                    dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
+                    }
+
+                } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+
+                  #get combinations
+                  VDJs <- aberant_cells$VDJ_cdr3s_aa[cel]
+                  VJs <- c(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+
+                  ccombs <- expand.grid(VDJs, VJs)
+                  ccombs <- paste0(ccombs[,1], ccombs[,2]) #make it an array
+
+                  pasted_sample_dfs <- paste0(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa)
+
+                  dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[1]) / nchar(ccombs[1])
+                  dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
+                    #get the minimum of both for each element
+                    dists <- c()
+                    for(k in 1:length(dists1)){
+                      if(dists1[k] < dists2[k]){
+                        dists <- c(dists, dists1[k])
+                      } else{
+                        dists <- c(dists, dists2[k])
+                      }
+                    }
+
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- ccombs1
+                    }
+                }
+              }
+            }
+
+            #check cells with 2 VDJ chains and 1 VJ chain
+            if(length(multVDJ_ind) > 0){
+              for(cel in multVDJ_ind){
+
+                if(clone.strategy=="CDRH3.homology"){ #check homology for the VDJ chain
+
+                    dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
+                    dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                    #get the minimum of both for each element
+                    dists <- c()
+                    for(k in 1:length(dists1)){
+                      if(dists1[k] < dists2[k]){
+                        dists <- c(dists, dists1[k])
+                      } else{
+                        dists <- c(dists, dists2[k])
+                      }
+                    }
+
+                    if(any(dists <= homology.threshold)){
+                      aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                    } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                      aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
+                    }
+                  }
+
+                } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+
+                  #get combinations
+                  VDJs <- c(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
+                  VJs <- aberant_cells$VJ_cdr3s_aa[cel]
+
+                  ccombs <- expand.grid(VDJs, VJs)
+                  ccombs <- paste0(ccombs[,1], ccombs[,2]) #make it an array
+
+                  pasted_sample_dfs <- paste0(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa)
+
+                  dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[1]) / nchar(ccombs[1])
+                  dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
+                  #get the minimum of both for each element
+                  dists <- c()
+                  for(k in 1:length(dists1)){
+                    if(dists1[k] < dists2[k]){
+                      dists <- c(dists, dists1[k])
+                    } else{
+                      dists <- c(dists, dists2[k])
+                    }
+                  }
+
+                  if(any(dists <= homology.threshold)){
+                    aberant_cells$new_clonal_feature[cel] <- sample_dfs[[i]]$new_clonal_feature[which.min(dists)] #Assigning the aberrant the closest clone (which.min only returns the index of the first minimal value if this value appears more than once)
+                  } else { #No pattern match found which also is within the homology threshold -> open a new clonotype
+                    aberant_cells$new_clonal_feature[cel] <- ccombs1
+                  }
+                }
+              }
+
           }
 
           #### Combine the aberant cells dataframe with the rest
           sample_dfs[[i]] <- rbind(sample_dfs[[i]], aberant_cells)
+          unique_clones <- unique(sample_dfs[[i]]$new_clonal_feature)
 
           ####START recalculating clonotype_id and clonal_frequency
           #place holders
