@@ -14,7 +14,8 @@
 #'@param get.VDJ.stats Boolean. defaults to TRUE. Whether to generate general statistics table for VDJ repertoires. This is appended as element [[3]] of the output list.
 #'@param parallel.processing Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required
 #'@param numcores Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)
-#'@param trim.and.align Boolean. defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time
+#'@param trim.and.align Boolean. Defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time
+#'@param select.excess.chains.by.umi.count Boolean. Defaults to FALSE. There are several methods of dealing with cells containing reads for more than 1VDJ and 1VJ chain. While many analyses just exclude such cells, the VGM is designed to keep these for downstream evaluation (e.g. in VDJ_clonotype). This option presents an evidenced-based way of selectively keeping only one of the present VDJ  and VJ chains each. E.g. if set to TRUE from all present VDJ chains in a cell only the one with the highest UMI count is kept. (in case of same UMI counts, the chain first in the contig files is kept). Idea source: Zhang W et al. Sci Adv. 2021 (10.1126/sciadv.abf5835)
 #'@param gap.opening.cost Argument passed to Biostrings::pairwiseAlignment during alignment to reference. Defaults to 10
 #'@param gap.extension.cost Argument passed to Biostrings::pairwiseAlignment during alignment to reference. Defaults to 4
 #' @param integration.method String specifying which data normalization and integration pipeline should be used. Default is "scale.data", which correspondings to the ScaleData function internal to harmony package. 'sct'specifies SCTransform from the Seurat package. "harmony" should be specificied to perform harmony integration. This method requires the harmony package from bioconductor.
@@ -73,6 +74,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            get.VDJ.stats,
                            numcores,
                            trim.and.align,
+                           select.excess.chains.by.umi.count,
                            gap.opening.cost,
                            gap.extension.cost,
                            parallel.processing,
@@ -205,6 +207,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(get.VDJ.stats)) get.VDJ.stats <- T
 
   if(missing(trim.and.align)) trim.and.align <- F
+  if(missing(select.excess.chains.by.umi.count)) select.excess.chains.by.umi.count <- F
   if(missing(gap.opening.cost)) gap.opening.cost <- 10
   if(missing(gap.extension.cost)) gap.extension.cost <- 4
 
@@ -248,6 +251,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
               get.VDJ.stats,
               numcores,
               trim.and.align,
+              select.excess.chains.by.umi.count,
               gap.opening.cost,
               gap.extension.cost,
               parallel.processing,
@@ -277,6 +281,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                      "get.VDJ.stats",
                      "numcores",
                      "trim.and.align",
+                     "select.excess.chains.by.umi.count",
                      "gap.opening.cost",
                      "gap.extension.cost",
                      "parallel.processing",
@@ -697,14 +702,35 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                     annotations,
                                     gap.opening.cost,
                                     gap.extension.cost,
-                                    trim.and.align){
+                                    trim.and.align,
+                                    select.excess.chains.by.umi.count){
 
 
     #Get all the info needed to shrink data usage and search times later in the function
     #Filtering out non productive or non full length contigs from cell. This is neccessary, as a cell labled as productive and full length may still have associated contigs not fullfilling these criteria.
     curr.contigs <- contigs[which(contigs$barcode == barcodes & tolower(contigs$is_cell) == "true" & tolower(contigs$high_confidence) == "true" & tolower(contigs$productive) == "true" & tolower(contigs$full_length) == "true"),]
+
+    #Get number of chains
+    HC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRB|IGH)"))
+    LC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRA|IG(K|L))"))
+
+    #In case the cell has more than 1 VJ or VDJ chain, and the user decided to not want to have all these chains included in the later table
+    #select one of the excessive VDJ chains by umi count
+    if(HC_count > 1 & select.excess.chains.by.umi.count == T){
+      curr.contigs$umis_HC[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)")] <- curr.contigs$umis[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)")]
+      curr.contigs <- curr.contigs[c(which(is.na(curr.contigs$umis_HC) == T), which.max(curr.contigs$umis_HC)),] #getting the VDJ with most umis and all VJs
+      HC_count <- 1
+    }
+    #select one of the excessive VJ chains by umi count
+    if(LC_count > 1 & select.excess.chains.by.umi.count == T){
+      curr.contigs$umis_LC[stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))")] <- curr.contigs$umis[stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))")]
+      curr.contigs <- curr.contigs[c(which(is.na(curr.contigs$umis_LC) == T), which.max(curr.contigs$umis_LC)),] #getting the VDJ with most umis and all VJs
+      LC_count <- 1
+    }
+
     if(curr.contigs$raw_clonotype_id[1] != ''){
-      curr.references <- references[which(stringr::str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]} else {curr.references <- ""}
+      curr.references <- references[which(stringr::str_detect(names(references), curr.contigs$raw_clonotype_id[1]))]
+    } else {curr.references <- ""}
 
     #getting the relevant annotations
     curr.annotations <- annotations[stringr::str_detect(annotations$contig_id, barcodes),]
@@ -717,10 +743,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Contig info on light/a and heavy/b chains is put into different columns (see cols)
     #If only one contig is available, the fields of the other are left blank
     #If more than two contigs of one chain (e.g. 2 TRB) are present, the elements will be pasted separated by a ";" into the relevant fields (in the case of TRB, into the Hb columns)
-
-    #Get number of chains
-    HC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRB|IGH)"))
-    LC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRA|IG(K|L))"))
 
     #In this case we need to make much less effort with pasting together, so we can save time
     if(HC_count == 1 & LC_count == 1){
@@ -1367,7 +1389,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         for(i in 1:length(cell.state.markers)){
           barcodes_match_ex_crit <- c()
           #build command
-          cmd[i]<-paste0("barcodes_match_ex_crit <- WhichCells(gex.list[[j]], slot = 'counts', expression =", cell.state.markers[i],")")
+          cmd[i]<-paste0("barcodes_match_ex_crit <- SeuratObject::WhichCells(gex.list[[j]], slot = 'counts', expression =", cell.state.markers[i],")")
           is.exist<-tryCatch(expr=length(eval(parse(text=cmd[i]))), error = function(x){
             x<-F
             return(x)})
@@ -1413,16 +1435,16 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         cl <- parallel::makeCluster(numcores)
         cat(paste0("\n Started parlapply cluster with ", numcores, " cores"))
 
-        out.VDJ <- parallel::parLapply(cl, barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
+        out.VDJ <- parallel::parLapply(cl, barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align, select.excess.chains.by.umi.count = select.excess.chains.by.umi.count)
         #close any open clusters
         doParallel::stopImplicitCluster()
         gc() #garbage collection to reduce ram impact
 
       } else if(parallel.processing == "mclapply"){
         cat(paste0("\n Started mcapply cluster with ", numcores, " cores"))
-        out.VDJ <- parallel::mclapply(X = barcodes_VDJ[[i]], FUN = barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
-      } else {
-        out.VDJ <- lapply(barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align)
+        out.VDJ <- parallel::mclapply(X = barcodes_VDJ[[i]], FUN = barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align, select.excess.chains.by.umi.count = select.excess.chains.by.umi.count)
+      } else { #No parallel computing
+        out.VDJ <- lapply(barcodes_VDJ[[i]], barcode_VDJ_iteration, contigs = contig.table[[i]], references = reference.list[[i]], annotations = annotations.table[[i]], gap.extension.cost = gap.extension.cost, gap.opening.cost = gap.opening.cost, trim.and.align = trim.and.align, select.excess.chains.by.umi.count = select.excess.chains.by.umi.count)
         gc() #garbage collection to reduce ram impact
       }
 
