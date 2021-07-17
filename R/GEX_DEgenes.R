@@ -89,13 +89,13 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
   colnames(cluster_markers)[2] <- "avg_logFC"
   SYMBOL <- NULL
   cluster_markers$SYMBOL <- rownames(cluster_markers)
-
   exclude <- c()
   for (j in filter) {
     exclude <- c(exclude, stringr::str_which(rownames(cluster_markers), j))
   }
+  if(length(exclude) > 0){
   cluster_markers <- cluster_markers[-exclude,]
-
+  }
   if (return.plot=="heatmap") {
     if (logFC==TRUE) {
       ranks <- order(-cluster_markers$avg_logFC)
