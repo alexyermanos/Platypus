@@ -11,11 +11,10 @@
 #' @param kegg.plots logical, if top KEGG-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.kegg.terms.plots) KEGG-terms for each cluster will be plotted to the working directory and saved as a list element. Plots are made both based on padj and ratio.
 #' @param top.N.kegg.terms.plots The number of most significant KEGG-terms to be incluted in the kegg.plots. Default: 10.
 #' @return Returns a list of data frames and plots containing the TopGO and the TopKEGG output containing the significant GO/KEGG terms and their visualizations.
-#' @importFrom dplyr %>%
 #' @export
 #' @examples
 #' \dontrun{
-#' 
+#'
 #'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
 #'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm", ontology = "BP", go.plots = T)
 #'
