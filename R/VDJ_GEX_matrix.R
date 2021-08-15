@@ -3,7 +3,7 @@
 #' # This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
 #' # [FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
 #' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! With version 6. of cellranger and the introduction of the multi function, that allows simultaneous processing of VDJ GEX and feature barcodes, the all_contig_annotations.json file was cut out from the output. For trimming sequences, this function therefore uses the consensus_annotations.csv file
-#'@param GEX.out.directory.list List of paths pointing at the outs/ directory of each sample. Order of list items must be the same as for VDJ. ! If using downloaded data or if wishing to use the raw_feature_bc_matrix folder, please add the full path here and set GEX.path.as.is to TRUE
+#'@param GEX.out.directory.list List containing paths the outs/ directory of each sample. Order of list items must be the same as for VDJ. ! If using downloaded data or if wishing to use the raw_feature_bc_matrix folder, please add the full path here and set GEX.path.as.is to TRUE
 #'@param GEX.path.as.is If TRUE the Seurat function Read10x() is called directly on the GEX.out.directory.list input. If FALSE, "/filtered_feature_bc_matrix" (or sample_feature_bc_matrix in case of Cellranger multi data) is appended to the provided path. Defaults to FALSE. This allows for more flexibility, while still allowing users to simply providing Cellranger output directories.
 #'@param FB.out.directory.list [FB] List of paths pointing at the outs/ directory of output from the Cellranger counts function which contain Feature barcode counts. Any input will overwrite potential FB data loaded from the GEX input directories. This may be important, if wanting to input unfiltered FB data that will cover also cells in VDJ not present in GEX.
 #'@param Data.in Input for R objects from either the PlatypusDB_load_from_disk or the PlatypusDB_fetch function. If provided, input directories should not be specified. If you wish to integrate local and downloaded data, please load them via load_from_disk and fetch and provide as a list (e.g. Data.in = list(load_from_disk.output, fetch.output))
@@ -63,6 +63,35 @@
 #' ,subsample.barcodes = F
 #' ,trim.and.align = F
 #' ,group.id = c(1,2))
+#'
+#' # With Feature Barcodes
+#' ## Option 1: Cellranger multi or Cellranger count with --libraries output
+#' VDJ.out.directory.list <- list()
+#' VDJ.out.directory.list[[1]] <- "~/VDJ/S1/" #point to outs or per_sample_outs directory content
+#' VDJ.out.directory.list[[2]] <- "~/VDJ/S2/"
+#' GEX.out.directory.list <- list()
+#' GEX.out.directory.list[[1]] <- "~/GEX/S1/"
+#' GEX.out.directory.list[[2]] <- "~/GEX/S2/" #These output directories contain two matrices each GEX and FB
+#' VGM <- VDJ_GEX_matrix(
+#' VDJ.out.directory.list = VDJ.out.directory.list
+#' ,GEX.out.directory.list = GEX.out.directory.list,
+#' FB.ratio.threshold = 2)
+#'
+#' ##Option 2: Separate input of FB data from separate Cellranger count run
+#' VDJ.out.directory.list <- list()
+#' VDJ.out.directory.list[[1]] <- "~/VDJ/S1/"
+#' VDJ.out.directory.list[[2]] <- "~/VDJ/S2/"
+#' GEX.out.directory.list <- list()
+#' GEX.out.directory.list[[1]] <- "~/GEX/S1/"
+#' GEX.out.directory.list[[2]] <- "~/GEX/S2/"
+#' GEX.out.directory.list <- list()
+#' FB.out.directory.list[[1]] <- "~FB/S1/"
+#' FB.out.directory.list[[2]] <- "~FB/S1/"
+#' VGM <- VDJ_GEX_matrix(
+#' VDJ.out.directory.list = VDJ.out.directory.list,
+#' GEX.out.directory.list = GEX.out.directory.list,
+#' FB.out.directory.list = FB.out.directory.list,
+#' FB.ratio.threshold = 2)
 #' }
 VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            GEX.out.directory.list,
@@ -1242,7 +1271,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       annotations.table <- list()
       for(ijl in 1:length(annotations.list)){
         #get annotation table to make parlapply function faster
-        annotations.table[[ijl]] <- annotations.list[,c("consensus_id", "cdr3", "v_start", "j_end")]
+        annotations.table[[ijl]] <- annotations.list[[i]][,c("consensus_id", "cdr3", "v_start", "j_end")]
         names(annotations.table[[ijl]]) <- c("raw_consensus_id","sequence","temp_start","temp_end")
         annotations.table[[ijl]]$raw_consensus_id <- gsub("_consensus","_concat_ref_", annotations.table[[ijl]]$raw_consensus_id) #This is for conformity with other dataframes and the reference
         #!!! Note the missing _ after _consensus pattern! Interestingly in the 10x v6 output this _ is missing. This will probably get fixed in the next update ! => same thing a bit above in the directory input
@@ -1262,7 +1291,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
 
       vdj.loaded <- T
-      cat(paste0("Loaded VDJ data from Data.in \n"))
+      cat("Loaded VDJ data from Data.in \n")
+      print(Sys.time())
     }, error = function(e){
       cat("Loading VDJ from Data.in failed \n")
       print(e)})
@@ -1385,13 +1415,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     gex_load_error <- tryCatch({
       #add the directory identifier
 
-      gex.list <- lapply(samples.in, function(x) Seurat::CreateSeuratObject(x[[2]][[1]]))
-      if(class(x[[2]][[3]]) != "character"){ #Conditional loading just in case
-      FB.list <- lapply(samples.in, function(x) Seurat::CreateSeuratObject(x[[2]][[3]]))
-      FB.loaded <- T
-      } else {
-        FB.loaded <- F
-      }
+      gex.list <- lapply(samples.in, function(x) Seurat::CreateSeuratObject(x[[2]][[1]])) #! Here we do not have extra lines to cover the possibility of these matrices containing FB data, because this is sorted out in the PlatypusDB_load_from_disk function
       gex.metrics.table <- lapply(samples.in, function(x) return(x[[2]][[2]]))
 
       #clear GEX part in object
@@ -1406,7 +1430,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
 
       gex.loaded <- T
-      cat(paste0(Sys.time()," Loaded GEX data from Data.in \n"))
+      cat("Loaded GEX data from Data.in \n")
+      print(Sys.time())
     }, error = function(e){
       cat("Loading GEX from Data.in failed \n")
       print(e)})
@@ -1432,7 +1457,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #! Not checking if FB have already been loaded as part of GEX. If FB directory is supplied, any FB data loaded by GEX is therefore overwritten. This should allow for more flexibility of the user without having to realign the whole GEX data
   if(class(samples.in) == "character" & FB.out.directory.list[[1]] != "none"){ #No Data.in or input => proceed with loading by BC.out.directory.list
-    print("HEY")
     #Remove possible backslash at the end of the input path
     for(k in 1:length(FB.out.directory.list)){
       FB.out.directory.list[[k]]<-  gsub("/$", "", FB.out.directory.list[[k]])
@@ -1443,14 +1467,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       if(stringr::str_detect(FB.out.directory.list[[1]], "filtered_feature_bc_matrix")){
         FB.out.directory.list.p <- FB.out.directory.list
-        cat("\n ! Feature barcode path was specified explicitely to filtered_feature_bc_matrix. For better rates we recommend using the raw_feature_bc_matrix folder content ! \n ")
+        cat("! Feature barcode path was specified explicitely to filtered_feature_bc_matrix. For better rates we recommend using the raw_feature_bc_matrix folder content ! \n ")
       } else if (stringr::str_detect(FB.out.directory.list[[1]], "raw_feature_bc_matrix")){
         #Nothing to append
         FB.out.directory.list.p <- FB.out.directory.list
-        cat("\n Loading feature barcodes from raw_feature_bc_matrix folder \n")
+        cat("Loading feature barcodes from raw_feature_bc_matrix folder \n")
       } else{
         FB.out.directory.list.p <- paste(FB.out.directory.list,"/raw_feature_bc_matrix",sep="")
-        cat("\n Loading feature barcodes from raw_feature_bc_matrix folder \n")
+        cat("Loading feature barcodes from raw_feature_bc_matrix folder \n")
       }
       #Actually loading the data. Critical: if Cellranger 6.1.0 count was run with --libraries input containing both GEX and Feature Barcodes, reading it will result in a list of matrices instead of a single matrix. => the next section deals with this
       directory_read10x <- lapply(FB.out.directory.list.p, function(x) Seurat::Read10X(data.dir=x))
@@ -1495,10 +1519,26 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       cat("Loading FB failed \n")
       print(e)})
 
-    #TO REVISE, once we know the final format of this r Object
   } else if(class(samples.in) == "list"){ #GET info from samples.in
-    #The loading of FBs from data.in input is done during load GEX. In that case FB.loaded was set to T previously, so this part should never be executed
-    cat("! Error in FB loading from data.in \n")
+
+    FB.list <- lapply(samples.in, function(x) return(x[[3]][[1]]))
+
+    if(class(FB.list[[1]]) != "character"){ #check that there is actually FB info
+
+    #Next we need to check column names / names of feature barcodes. Potentially more than one library of FBs was sequenced giving us more than one matrix but all with the same column names (because same FBs may have been used across samples). We therefore rename the feature barcodes individually to make sure they stay separated
+    for(i in 1:length(FB.list)){
+      rownames(FB.list[[i]]) <- paste0("i", i, "_", rownames(FB.list[[i]]))
+    }
+
+    #Make Seurat
+    FB.list <- lapply(samples.in, function(x) Seurat::CreateSeuratObject(x[[3]][[1]]))
+    FB.loaded <- T
+    cat("Loaded FB data from data.in \n")
+    print(Sys.time())
+    } else {
+      FB.loaded <- F
+      FB.list <- "none"
+    }
   } else {
     FB.loaded <- F
     FB.list <- "none"
@@ -1751,7 +1791,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   ############################################ GEX Processing ####
   if(gex.loaded == T & Seurat.in != "loaded"){ #make sure that Seurat.in is not an input list!
     cat("Starting GEX pipeline \n")
-    print(Sys.time())
     GEX.proc <- GEX_automate_single(GEX.list = gex.list,
                                     GEX.integrate = GEX.integrate,
                                     integration.method = integration.method,
@@ -1795,7 +1834,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     FB.list <- lapply(FB.list, pick_max_feature_barcode, FB.ratio.threshold)
     #This should return a list of dataframes with each 2 columns: "orig_barcode" and "FB_assignment"
     FB.processed <- T #keeping track for VDJ
-    print("done processing")
 
     if(length(GEX.proc) == 1){ #Either only one sample or GEX.integrate == T
 
