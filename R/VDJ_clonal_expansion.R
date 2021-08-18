@@ -25,7 +25,7 @@
 #'Regrouped and recolored plot in v3
 #'Will generate a plot for each seurat cluster.
 #'Bars are filled by the sample with the highest proportion of cells in a given clonotype
-#'clonal_out <- VDJ_clonal_expansion(VDJ.matrix = VDJ.GEX.matrix.out[[1]]
+#'clonal_out <- VDJ_clonal_expansion(VDJ = VDJ.GEX.matrix.out[[1]]
 #', celltype = "Bcells", clones = 30,subtypes = F, species = "Mouse"
 #',treat.incomplete.clones = "exclude"
 #',treat.incomplete.cells = "proportional"
@@ -34,18 +34,18 @@
 #'clonal_out[[2]] #list of source dataframes
 #'
 #'T cell plot with recoloring by vgene
-#'VDJ_clonal_expansion(VDJ.matrix = VDJ.GEX.matrix.out[[1]]
+#'VDJ_clonal_expansion(VDJ = VDJ.GEX.matrix.out[[1]]
 #',celltype = "Tcells", clones = 30, group.by = "sample_id"
 #',color_by = "VDJ_vgene")
 #'
 #'Plotting only IgD clones. Increased the value for clones to scan more of the dataset
-#'VDJ_clonal_expansion(VDJ.matrix = VDJ_comb[[1]]
+#'VDJ_clonal_expansion(VDJ = VDJ_comb[[1]]
 #',celltype = "Bcells", clones = 150,subtypes = F
 #',species = "Mouse",treat.incomplete.clones = "include"
 #',treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")
 #'
 #'Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)
-#'VDJ_clonal_expansion(VDJ.matrix = VDJ_comb[[1]]
+#'VDJ_clonal_expansion(VDJ = VDJ_comb[[1]]
 #',celltype = "Bcells", clones = 150,subtypes = T, species = "Mouse"
 #',treat.incomplete.clones = "proportional"
 #',treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")
@@ -503,3 +503,5 @@ VDJ_clonal_expansion <- function(VDJ,
       return(list(output_plot,clones_per_isotype_all))
 }
 }
+
+
