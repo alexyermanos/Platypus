@@ -8,6 +8,7 @@
 #' @param B.or.Tcells Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
 #' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
+#' @param clonotype.strategy String containing the column name in the VGM which contains the clonotype information to be plotted if v3 is being used. set to "clonotype_id_10x" by default.
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @examples
 #' \dontrun{
@@ -15,7 +16,7 @@
 #'}
 #' @export
 
-VDJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L){
+VDJ_alpha_beta_Vgene_circos <- function(VDJ.GEX.matrix, V.or.J, B.or.Tcells, label.threshold, c.threshold, cell.level, clonotype.per.gene.threshold, c.count, platypus.version, filter1H1L, clonotype){
 if(missing(V.or.J)){V.or.J <- "both"}
 if(missing(label.threshold)){label.threshold <- 0}
 if(missing(c.threshold)){c.threshold <- 0}
@@ -33,7 +34,7 @@ if(platypus.version=="v3"){
   
   #########################################################################
   print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. Output of VDJ_GEX_matrix() required as input.")
-  clonotype <- "clonotype_id_10x"
+  if(missing(clonotype.strategy)){clonotype.strategy <- "clonotype_id_10x"}
   
   #swapping to a list to not change the whole function
   bk <- VDJ.GEX.matrix
@@ -151,10 +152,10 @@ if(platypus.version=="v3"){
       print("---")
       print(paste0("Processing sample ", k))
       print("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
-      print(paste("Chosen clonotype column: ", clonotype))
+      print(paste("Chosen clonotype column: ", clonotype.strategy))
       print("WARNING: If Circos plotting error occurs: Maybe your `gap.degree` is too large so that there is no space to allocate sectors -> You might want to increase clonotype.per.gene.threshold to reduce number of sectors in your Circos plots")
       
-      dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_beta_Vgene, sep="/and/")))
+      dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype.strategy]],VDJ.GEX_list[[k]]$alpha_beta_Vgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
       dummy$clonotype <- str_split_fixed(dummy$pasted, "/and/", 2)
       dummy$gene <- str_split_fixed(dummy$pasted, "/and/", 2)[,2]
@@ -163,7 +164,7 @@ if(platypus.version=="v3"){
       colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
       
       
-      dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_beta_Jgene, sep="/and/")))
+      dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype.strategy]],VDJ.GEX_list[[k]]$alpha_beta_Jgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
       dummy$clonotype <- str_split_fixed(dummy$pasted, "/and/", 2)[,1]
       dummy$gene <- str_split_fixed(dummy$pasted, "/and/", 2)[,2]
