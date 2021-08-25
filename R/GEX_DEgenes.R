@@ -8,6 +8,9 @@
 #' @param min.pct The minimum percentage of cells expressing a gene in either of the two groups to be compared.
 #' @param base The base with respect to which logarithms are computed. Default: 2
 #' @param logFC Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).
+#' @param color.p.threshold numeric specifying the adjusted p-value threshold for geom_points to be colored. Default is set to 0.01.
+#' @param color.log.threshold numeric specifying the absolute logFC threshold for geom_points to be colored. Default is set to 0.25.
+#' @param color.by.threshold Boolean. Set to TRUE to color by color.p.threshold and color.log.threshold. Set to FALSE for a continuous color scale by fold change.
 #' @param return.plot Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none
 #' @param up.genes FOR HEATMAP Integer specifying the number of upregulated genes to be shown.
 #' @param down.genes FOR HEATMAP Integer specifying the number of downregulated genes to be shown.
@@ -41,7 +44,7 @@
 #' , FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
 #' , up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 #'}
-GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,min.pct, filter, return.plot, logFC, up.genes, down.genes, base, label.n.top.genes, genes.to.label, platypus.version){
+GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,min.pct, filter, return.plot, logFC, color.p.threshold, color.log.threshold, color.by.threshold, up.genes, down.genes, base, label.n.top.genes, genes.to.label, platypus.version){
 
   SYMBOL <- NULL
   avg_logFC <- NULL
@@ -65,7 +68,11 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
   if(missing(up.genes)) up.genes <- 15
   if(missing(down.genes)) down.genes <- 15
   if(missing(base)){base <- 2}
+  if(missing(min.pct)) min.pct <- 0.25
   platypus.version <- "does not matter"
+  if(missing(color.p.threshold)){color.p.threshold <- 0.01}
+  if(missing(color.log.threshold)){color.log.threshold <- 0.25}
+  if(missing(color.by.threshold)){color.by.threshold <- T}
 
   if (missing(filter)) filter <- c("MT-", "RPL", "RPS")
 
@@ -89,6 +96,16 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
   colnames(cluster_markers)[2] <- "avg_logFC"
   SYMBOL <- NULL
   cluster_markers$SYMBOL <- rownames(cluster_markers)
+
+  #adding columns for coloring by threshold
+  cluster_markers$signif_pval <- F
+  cluster_markers$signif_pval[cluster_markers$p_val_adj < color.p.threshold] <- T
+  cluster_markers$signif_logfc <- F
+  cluster_markers$signif_logfc[abs(cluster_markers$avg_logFC) > color.log.threshold] <- T
+  cluster_markers$color_threshold <- F #adding a column that combines both p and log thresholds (and gate)
+  cluster_markers$color_threshold[cluster_markers$signif_logfc == T & cluster_markers$signif_pval == T] <- T
+
+
   exclude <- c()
   for (j in filter) {
     exclude <- c(exclude, stringr::str_which(rownames(cluster_markers), j))
@@ -107,7 +124,8 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
       cluster_markers <- cluster_markers[ranks,]
       heatmap_genes <- c(cluster_markers[which(cluster_markers$avg_logFC > 0),"SYMBOL"][1:up.genes], cluster_markers[which(cluster_markers$avg_logFC < 0),"SYMBOL"][1:down.genes])
     }
-    plot.out <- Seurat::DoHeatmap(GEX, features = heatmap_genes)
+    print(heatmap_genes)
+    plot.out <- Seurat::DoHeatmap(GEX, features = heatmap_genes, label = F) #Labels turned of as a temporary fix for Seurat related issue. See https://github.com/satijalab/seurat/issues/2399
   } else if (return.plot == "volcano"){
 
     if (logFC==TRUE) {
@@ -129,7 +147,13 @@ GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,mi
       }
     }
 
+    if(color.by.threshold == F){
     plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
+
+    } else if(color.by.threshold == T){
+
+      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = color_threshold)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_manual(values = c("black","darkred"))
+    }
   }
   if (return.plot=="none") plot.out <- NULL
   return(list(cluster_markers, plot.out))
