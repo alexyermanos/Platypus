@@ -44,11 +44,29 @@
 #' , FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
 #' , up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 #'}
-GEX_DEgenes <- function(GEX, FindMarkers.out, grouping.column, group1, group2,min.pct, filter, return.plot, logFC, color.p.threshold, color.log.threshold, color.by.threshold, up.genes, down.genes, base, label.n.top.genes, genes.to.label, platypus.version){
+GEX_DEgenes <- function(GEX,
+                        FindMarkers.out,
+                        grouping.column,
+                        group1,
+                        group2,
+                        min.pct,
+                        filter,
+                        return.plot,
+                        logFC,
+                        color.p.threshold,
+                        color.log.threshold,
+                        color.by.threshold,
+                        up.genes,
+                        down.genes,
+                        base,
+                        label.n.top.genes,
+                        genes.to.label,
+                        platypus.version){
 
   SYMBOL <- NULL
   avg_logFC <- NULL
   p_val_adj <- NULL
+  color_threshold <- NULL
 
   if(missing(FindMarkers.out)) FindMarkers.out <- "none"
   if(missing(return.plot)) return.plot <- "none"

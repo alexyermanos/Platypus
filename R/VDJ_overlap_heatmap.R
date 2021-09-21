@@ -48,7 +48,7 @@ VDJ_overlap_heatmap <- function(VDJ,
   }
   grouping <- data.frame("group" = VDJ[, grouping.column])
   if(NA %in% grouping$group) stop("NA values in grouping columns. Please choose another column or replace NA values")
-  if(length(unique(grouping)) < 3 & plot.type == "pheatmap"){
+  if(length(unique(grouping$group)) < 3 & plot.type == "pheatmap"){
     cat("\n Pheatmap plot not possible with less than 3 groups. Returning ggplot")
     plot.type <- "ggplot"
   }
@@ -150,15 +150,16 @@ VDJ_overlap_heatmap <- function(VDJ,
   print(plot_out)
 
   } else {
-
-    pheat_map <- matrix(data = NA, nrow = length(unique(combs[,1])), ncol = length(unique(combs[,1])))
-    colnames(pheat_map) <- unique(combs[,1][order(combs[,1])])
-    rownames(pheat_map) <- unique(combs[,1][order(combs[,1])])
-
-    for(i in 1:nrow(combs)){
+    #This is probably not the most elegant way to get a symmetric matrix for pheatmap....
+    allcombs <- c(unlist(as.character(combs[,1])), unlist(as.character(combs[,2]))) #get the unique values from the combinations table
+    allcombs <- ordered(as.factor(allcombs), levels = (sample.names)) #order those
+    pheat_map <- matrix(data = NA, nrow = length(unique(allcombs)), ncol = length(unique(allcombs))) #make a symmetric matrix template
+    colnames(pheat_map) <- unique(allcombs[order(allcombs)]) #rename
+    rownames(pheat_map) <- unique(allcombs[order(allcombs)])
+    for(i in 1:nrow(combs)){ #assign the corresponding values twice (once for upper triangle and once for lower)
       #upper triangle
       pheat_map[which(colnames(pheat_map) == combs[i,1]), which(rownames(pheat_map) == combs[i,2])] <- as.numeric(combs[i,5])
-      #lower triange
+      #lower triangle
       pheat_map[which(colnames(pheat_map) == combs[i,2]), which(rownames(pheat_map) == combs[i,1])] <- as.numeric(combs[i,5])
     }
     plot_out <- pheatmap::pheatmap(pheat_map,main = "pheatmap default", border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315)

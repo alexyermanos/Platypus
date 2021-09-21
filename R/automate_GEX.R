@@ -40,7 +40,6 @@ automate_GEX <- function(GEX.outs.directory.list,
                          groups){
   print("This may take longer than other repertoire associated functions. Please see Seurat vignettes for further information")
   if(missing(integration.method)) integration.method <- "scale.data"
-  if(integration.method=="harmony") require(harmony)
   if(missing(GEX.outs.directory.list)) print("Missing output directory of cellranger count. Assuming a list of 10x gene expression libraries is supplied as input.")
   if(missing(mito.filter)) mito.filter <- 5
   if(missing(integration.method)) integration.method <- "scale.data"
@@ -131,8 +130,8 @@ automate_GEX <- function(GEX.outs.directory.list,
     if(integration.method=="harmony"){
       GEX.list[[i]] <- Seurat::NormalizeData(GEX.list[[i]], normalization.method = "LogNormalize", scale.factor = norm.scale.factor)
       all.genes <- rownames(GEX.list[[i]])
-      GEX.list[[i]] <- Seurat::ScaleData(GEX.list[[i]], features = VariableFeatures(object = GEX.list[[i]]))
-      GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature=VariableFeatures(object = GEX.list[[i]]))
+      GEX.list[[i]] <- Seurat::ScaleData(GEX.list[[i]], features = Seurat::VariableFeatures(object = GEX.list[[i]]))
+      GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature=Seurat::VariableFeatures(object = GEX.list[[i]]))
       GEX.list[[i]] <- harmony::RunHarmony(GEX.list[[i]], "sample_id")
       GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]],dims=neighbor.dim,verbose = T)
       GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]],resolution = cluster.resolution)
@@ -149,7 +148,7 @@ automate_GEX <- function(GEX.outs.directory.list,
     GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]], resolution = cluster.resolution)
     }
     GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim)
-    GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[i]], dims = mds.dim)
+    GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[i]], dims = mds.dim, check_duplicates = FALSE)
 
   }
   return(GEX.list)

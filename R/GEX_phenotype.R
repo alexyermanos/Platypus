@@ -1,19 +1,18 @@
 #' Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 #' @param seurat.object A single seurat object from automate_GEX function
-#' @param cell.state.markers Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containng the c("CD4+;CD44-","CD4+;IL7R+;CD44+").
+#' @param cell.state.names Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containng the c("CD4+;CD44-","CD4+;IL7R+;CD44+").
 #' @return Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.
 #' @param cell.state.markers Character vector containing the cell state labels defined by the markers in cell.state.markers parameter. Example is c("NaiveCd4","MemoryCd4").
 #' @param default Default is TRUE - will use premade gene sets and cell states.
 #' @export
 #' @examples
 #' \dontrun{
-#' GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]], clonotype.ids= c(1,2,3,4,5))
+#' GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]]
+#' , clonotype.ids= c(1,2,3,4,5))
 #'}
-#'
+
 GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, default){
-  require(do)
-  require(Seurat)
-  require(useful)
+
   if(missing(default)) default<- TRUE
   Cap<-function(x){
     temp<-c()
@@ -62,12 +61,12 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
     }
   }
   #parse cell state markers
-  cell.state.markers<-Replace(cell.state.markers,from=";", to="&")
-  cell.state.markers<-Replace(cell.state.markers,from="\\+", to=">0")
-  cell.state.markers<-Replace(cell.state.markers,from="-", to="==0")
+  cell.state.markers<-do::Replace(cell.state.markers,from=";", to="&")
+  cell.state.markers<-do::Replace(cell.state.markers,from="\\+", to=">0")
+  cell.state.markers<-do::Replace(cell.state.markers,from="-", to="==0")
   #execute cmd
   seurat.object[["previous.ident"]] <- Seurat::Idents(object = seurat.object)#(clusters ID)
-  Idents(seurat.object)<-"Unclassified"
+  Seurat::Idents(seurat.object)<-"Unclassified"
   cmd<-c()
   for(i in 1:length(cell.state.names)){
 

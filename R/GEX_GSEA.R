@@ -1,5 +1,5 @@
-#' Conducts a Gene Set Enrichment Analysis (GSEA) on a set of genes submitted in a data frame with a metric each. 
-#' Works with the output of GEX_genes_cluster or a custom data frame containing the gene symbols either in a column "symbols" or as rownames and a metric for each gene. 
+#' Conducts a Gene Set Enrichment Analysis (GSEA) on a set of genes submitted in a data frame with a metric each.
+#' Works with the output of GEX_genes_cluster or a custom data frame containing the gene symbols either in a column "symbols" or as rownames and a metric for each gene.
 #' The name of the column containing the metric has to be declared via the input metric.colname.
 #' @param GEX.cluster.genes.output Data frame containing the list of gene symbols and a metric. Function works directly with GEX_cluster_genes output.
 #' @param MT.Rb.filter Logical, should Mitotic and Ribosomal genes be filtered out of the geneset. True by default.
@@ -9,26 +9,40 @@
 #' @param pval.adj.cutoff Only genes with a more significant adjusted pvalue are considered. Default: 0.001
 #' @param Enrichment.Plots List of Gene-set names which should be plotted as Enrichment plots in addition to the top 10 Up and Downregulated Genesets.
 #' @param my.own.geneset A list, where each element contains a gene list and is named with the corresponding pathway name. Default is set to FALSE, so that gene sets from MSigDB are used. Should not contain ".gmt" in name.
+#' @param eps Numeric, specifying boundary for calculating the p value in the GSEA.
 #' @param platypus.version Function works with V2 and V3, no need to set this parameter.
 #' @return Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.
 #' @export
 #' @examples
 #' \dontrun{
 #' df <- GEX_cluster_genes(gex_combined[[1]])
-#' 
+#'
 #' #Using gmt file to perform gsea
-#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path.to.pathways = "./c5.go.bp.v7.2.symbols.gmt")
+#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+#' , path.to.pathways = "./c5.go.bp.v7.2.symbols.gmt")
 #' cowplot::plot_grid(plotlist=output[[2]], ncol=2)
 #' View(gex_gsea[[1]])
-#' 
+#'
 #' #Directly downloading gene set collection from MSigDB to perform gsea
-#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, path.to.pathways = c("Mus musculus", "C7"))
-#' 
+#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+#' , path.to.pathways = c("Mus musculus", "C7"))
+#'
 #' #Using your own gene list to perform gsea
-#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T, my.own.geneset = my_geneset)
+#' output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+#' , my.own.geneset = my_geneset)
 #'}
 
-GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pathways, metric.colname, pval.adj.cutoff, Enrichment.Plots, my.own.geneset, platypus.version){
+GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pathways, metric.colname, pval.adj.cutoff, Enrichment.Plots, my.own.geneset, eps, platypus.version){
+
+  p_val_adj <- NULL
+  stats <- NULL
+  symbol <- NULL
+  NES <- NULL
+  ES <- NULL
+  pval <- NULL
+  pathway <- NULL
+
+  ###
   if (missing(filter)) {
     filter <- c("MT-", "RPL", "RPS")
     print("filter parameter set to c('MT-', 'RPL', 'RPS'). Mitochondrial and ribosomal genes will be filtered out")}
@@ -43,7 +57,10 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pat
     path.to.pathways <- c("Mus musculus", "C7")}
   if (class(my.own.geneset) == "logical") {print(paste0("MSigDB collection: ", path.to.pathways))}
   if (class(my.own.geneset) == "list") {print("Own gene set is being used")}
-  
+  if (missing(eps)) {
+    eps <- 1e-10
+    print("eps parameter set to 1e-10")}
+
   platypus.version <- "Does not matter"
 
   # change metric colname to 'stats' for further downstream analysis
@@ -70,31 +87,32 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pat
     }
 
     # create ranked list
-    df %>% dplyr::filter(., p_val_adj<pval.adj.cutoff)%>% dplyr::select("symbol","stats")%>% stats::na.omit()%>%dplyr::arrange(-stats)%>% dplyr::distinct(symbol, .keep_all = TRUE)-> df_ranked
+    df %>% dplyr::filter(p_val_adj<pval.adj.cutoff)%>% dplyr::select("symbol","stats")%>% stats::na.omit()%>%dplyr::arrange(-stats)%>% dplyr::distinct(symbol, .keep_all = TRUE)-> df_ranked
     df_ranked <- tibble::deframe(df_ranked)
-    
+
     if (class(my.own.geneset) == "logical"){
       if(sum(grepl(".gmt$", path.to.pathways)) == length(path.to.pathways)){
         pathway_MSig <- fgsea::gmtPathways(path.to.pathways)
       } else{
+        #PACKAGE is not loaded! Please revise!
         pathway_MSig <- msigdbr::msigdbr(species = path.to.pathways[[1]], category=path.to.pathways[[2]])
         pathway_MSig <-  split(x = toupper(pathway_MSig$gene_symbol), f = pathway_MSig$gs_name)
       }
     } else{
       pathway_MSig <- my.own.geneset
     }
-    
+
     #Run GSEA %>% safe as df
     print("pre-gsea")
-    fgsea_res <- fgsea::fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500)
+    fgsea_res <- fgsea::fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500, eps = eps)
     print(fgsea_res)
     print("post-gsea")
     fgsea_res_Tidy <- fgsea_res %>%
-      tibble::as_tibble() %>%
-      dplyr::arrange(desc(NES))
+      tidyr::as_tibble() %>%
+      dplyr::arrange(IRanges::desc(NES))
     print(fgsea_res_Tidy)
-    topPathwaysUp <- fgsea_res[ES > 0][head(order(pval), n=10), pathway]
-    topPathwaysDown <- fgsea_res[ES < 0][head(order(pval), n=10), pathway]
+    topPathwaysUp <- fgsea_res[ES > 0][utils::head(order(pval), n=10), pathway]
+    topPathwaysDown <- fgsea_res[ES < 0][utils::head(order(pval), n=10), pathway]
     topPathways<- c(topPathwaysUp, rev(topPathwaysDown))
 
     plotsUp <- list()
@@ -126,4 +144,3 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pat
     output[[4]] <- plotsCustom
     return(output)
 }
-

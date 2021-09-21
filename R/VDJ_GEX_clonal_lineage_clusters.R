@@ -5,10 +5,13 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' clonal_lineages <- VDJ_clonal_lineages(call_MIXCR.output=call_MIXCR_output, VDJ_extract_germline.output=VDJ_extract_germline_output,as.nucleotide=F,with.germline=T)
+#' clonal_lineages <- VDJ_clonal_lineages(call_MIXCR.output=call_MIXCR_output
+#' , VDJ_extract_germline.output=VDJ_extract_germline_output
+#' ,as.nucleotide=F,with.germline=T)
 #'}
 #'
-VDJ_GEX_clonal_lineage_clusters <- function(VDJ_GEX_integrate.output,VDJ_clonal_lineages.output){
+VDJ_GEX_clonal_lineage_clusters <- function(VDJ_GEX_integrate.output,
+                                            VDJ_clonal_lineages.output){
   for(i in 1:length(VDJ_clonal_lineages.output)){
     for(j in 1:length(VDJ_clonal_lineages.output[[i]])){
       barcodes <- gsub(".*_","",VDJ_clonal_lineages.output[[i]][[j]]$Name)
