@@ -1,0 +1,9 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^/vignettes/mixcr.jar
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^README\.Rmd$
+^PlatypusDB_website_documentation$
+^Admin_functions$

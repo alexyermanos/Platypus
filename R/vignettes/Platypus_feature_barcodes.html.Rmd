@@ -1,0 +1,14 @@
+---
+title: "PlatypusV3 Feature Barcodes"
+author: "Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis, Raphael Dizerens"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PlatypusV3 AgedCNS vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+fig_width: 16
+fig_height: 16
+---
+
+## Coming soon...

@@ -1,0 +1,65 @@
+authors:
+  Victor Kreiner:
+    href: https://twitter.com/KreineVic
+
+development:
+  mode: release
+
+navbar:
+  title: "Platypus"
+  left:
+    - icon: fa-home fa-lg
+      href: index.html
+    - text: "Vignettes"
+      menu:
+        - text: "Platypus V3"
+          href: articles/PlatypusV3_agedCNS.html
+        - text: "PlatypusDB"
+          href: articles/PlatypusDB.html
+        - text: "Platypus V3 Feature barcodes"
+          href: "articles/Platypus_feature_barcodes.html"
+        - text: "ABForests"
+          href: articles/ABForests.html
+        - text: "Echidna"
+          href: articles/Echidna.html
+      href: articles/index.html
+    - text: "PlatypusDB"
+      href: PlatypusDB_index.html
+    - text: "Functions"
+      href: reference/index.html
+    - text: "News"
+      href: news/index.html
+    - text: "Other Packages"
+      menu:
+        - text: "ImmuneSIM"
+          href: https://immunesim.readthedocs.io/en/latest/
+    - text: "Cute Monotremes"
+      href: cute_monotremes.html
+  right:
+   - icon: fa-twitter
+     href: https://twitter.com/alexyermanos
+   - icon: fa-twitter
+     href: https://twitter.com/KreineVic
+   - icon: fa-github
+     href: https://github.com/alexyermanos/Platypus
+
+repo:
+  url:
+    home: https://github.com/alexyermanos/Platypus
+    source: https://github.com/alexyermanos/Platypus/tree/master
+    issue: https://github.com/alexyermanos/Platypus/issues
+    user: https://github.com/alexyermanos
+
+template:
+  params:
+    bootswatch: yeti
+
+home:
+  links:
+  - text: "Report a bug at"
+    href: https://github.com/alexyermanos/Platypus/issues
+  - text: "Cite Platypus"
+    href: https://doi.org/10.1093/nargab/lqab023
+  - text: "Cite Platypus DB"
+    href: superhighimpactjournal.com
+
