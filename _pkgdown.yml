@@ -12,8 +12,10 @@ navbar:
       href: index.html
     - text: "Vignettes"
       menu:
-        - text: "Platypus V3"
+        - text: "Platypus V3 aged CNS"
           href: articles/PlatypusV3_agedCNS.html
+        - text: "Platypus V3 EAE"
+          href: articles/PlatypusV3_EAE.html
         - text: "PlatypusDB"
           href: articles/PlatypusDB.html
         - text: "Platypus V3 Feature barcodes"

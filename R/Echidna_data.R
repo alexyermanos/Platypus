@@ -225,8 +225,6 @@
 "hotspot_df"
 
 
-
-
 #' mus_b_trans
 #' A data frame contains mouse B cell average gene expression for multiple cell types, with the rows representing the gene names, column names representing the cell type names.
 #' The original single cell sequencing data is retrieved from 10xgenomics and combined with experimental data from.#?
