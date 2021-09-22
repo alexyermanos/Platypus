@@ -37,6 +37,9 @@ GEX_dottile_plot <- function(GEX,
     }
   }
 
+  #Make unique
+  genes <- unique(genes)
+
   to_del <- c()
   for(i in 1:length(genes)){
     if(!genes[i] %in% rownames(GEX)){

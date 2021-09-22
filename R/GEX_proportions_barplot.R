@@ -58,10 +58,12 @@ GEX_proportions_barplot <- function(GEX,
   melting$target.group <- as.character(unique_clusters[melting$L2])
   colnames(melting) <- c("value", "L2", "Sample", "source", "target")
 
+  print()
+
   if("factor" %in% class(GEX@meta.data[,source.group])){
     print("Ordering based on existing source group factor levels")
   melting$source <- ordered(as.factor(melting$source), levels = levels(GEX@meta.data[,source.group]))
-  print( melting$source)} else {
+  print(unique(melting$source))} else {
 
     print("Reordering source group, as original column did not contain factor levels")
     melting$source <- ordered(as.factor(melting$source), levels = unique(GEX@meta.data[,source.group]))
