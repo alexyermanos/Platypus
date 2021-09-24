@@ -1,6 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/alexyermanos/Platypus/workflows/R-CMD-check/badge.svg)](https://github.com/alexyermanos/Platypus/actions)
+
+[![license](https://img.shields.io/badge/license-GPL--2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+<!-- badges: end -->
+
+
 ![](https://repository-images.githubusercontent.com/297313954/10e0a180-713e-11eb-9a23-ef93a9d86e8b)
 
 # Platypus 
