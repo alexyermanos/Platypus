@@ -905,7 +905,8 @@ for(i in 1:initial.size.of.repertoire){
   if(vdj.productive=="random"){
     reference_id<-paste0(raw_clonotype_id,"_concat_ref_",stringr::str_sub(raw_contig_id,-1,-1))
     reference_seq<-c()
-    d_seq1<-do::Replace(data=d_seq,from="None",to="")
+    d_seq1<-gsub(pattern = "None",replacement = "",x = d_seq)
+    
     reference_seq<-paste0(v_seq,d_seq1,j_seq)
     reference<-data.frame(reference_id,reference_seq)
     reference<-reference[!(duplicated(reference$reference_id)),]
@@ -1098,8 +1099,9 @@ for(i in 1:initial.size.of.repertoire){
     Name_germ<-rep("germline_clusterUnknown",clonotype_num)
 
     Seq<-c(seq_germ,seq_combi)
-    Seq<-do::Replace(Seq,from = c(";IGK:",";IGL:"),to="_")
-    Seq<-do::Replace(Seq,from = "IGH:",to="")
+    Seq<-gsub(pattern = ";IGK:",replacement = "_",x = Seq)
+    Seq<-gsub(pattern = ";IGL:",replacement = "_",x = Seq)
+    Seq<-gsub(pattern = ";IGH:",replacement = "",x = Seq)
 
     Name<-c(Name_germ,Name)
     clonotype_id_temp<-c(clonotype_id_germ,clonotype_id)
