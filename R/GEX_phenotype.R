@@ -61,9 +61,11 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
     }
   }
   #parse cell state markers
-  cell.state.markers<-do::Replace(cell.state.markers,from=";", to="&")
-  cell.state.markers<-do::Replace(cell.state.markers,from="\\+", to=">0")
-  cell.state.markers<-do::Replace(cell.state.markers,from="-", to="==0")
+
+  cell.state.markers<-gsub(pattern = ";", replacement ="&", cell.state.markers)
+  cell.state.markers<-gsub(pattern = "\\+", replacement =">0", cell.state.markers)
+  cell.state.markers<-gsub(pattern = "-", replacement ="==0", cell.state.markers)
+  
   #execute cmd
   seurat.object[["previous.ident"]] <- Seurat::Idents(object = seurat.object)#(clusters ID)
   Seurat::Idents(seurat.object)<-"Unclassified"
