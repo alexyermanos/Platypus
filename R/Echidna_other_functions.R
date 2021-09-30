@@ -3,6 +3,7 @@
 #' @param clonotypes The clonotypes dataframe, which is the second element in the simulation output list.
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
 #' @param y.limit The upper limit for y axis in the plot.
+#' @return top abundant clonal frequencies in a barplot with ggplot2
 #' @export
 clonofreq<-function(clonotypes, top.n, y.limit){
   Clonotypes<-frequency <- NULL
@@ -45,6 +46,7 @@ clonofreq<-function(clonotypes, top.n, y.limit){
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
 #' @param colors A named character vector of colors, the names are the isotypes. If missing, the default has 11 colors coresponding to the default isotype names.
 #' @param y.limit The upper limit for y axis in the plot.
+#' @return a stacked barplot for clonotype counts grouped by isotype
 #' @export
 clonofreq.isotype.plot<-function(all.contig.annotations,top.n,y.limit,colors){
   #require(dplyr,ggplot2)
@@ -79,10 +81,11 @@ clonofreq.isotype.plot<-function(all.contig.annotations,top.n,y.limit,colors){
   return(p)
 }
 
-#' Return dataframes containing the top n abundant clonotypes and their frequency and isotype information for further processing.
+#'Return 
 #' @title Get information about the clonotype counts grouped by isotype.
 #' @param all.contig.annotations The output dataframe all_contig_annotation from function simulate.repertoire.
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
+#' @return dataframes containing the top n abundant clonotypes and their frequency and isotype information for further processing.
 #' @export
 clonofreq.isotype.data<-function(all.contig.annotations,top.n){
   #require(dplyr)
@@ -108,6 +111,7 @@ clonofreq.isotype.data<-function(all.contig.annotations,top.n){
 #' @param data A dataframe. Columns are different simulations, rows are the top clones. The first row is the top abundant clone.
 #' @param y.lab A string specifies the y lable name of the barplot.
 #' @param y.limit The upper limit for y axis in the plot.
+#' @return a barplot of mean and standard error bar of certain value of each clone.
 #' @export
 get.barplot.errorbar<-function(data,y.lab,y.limit){
   sd<-NULL
@@ -132,6 +136,7 @@ get.barplot.errorbar<-function(data,y.lab,y.limit){
 #' Get the index of top ranking clones.
 #' @param clonotypes The output "clonotypes" dataframe from simulation output.
 #' @param top.n The top n abundant clones to be selected.
+#' @return a vector of indexes of top ranking clones
 #' @export
 select.top<-function(clonotypes,top.n){
   #require(dplyr,stringr)
@@ -144,6 +149,7 @@ select.top<-function(clonotypes,top.n){
 #' @param igraph.index.attr The output "igraph.index.attr" list from simulation output.
 #' @param clonotype.select The index of the clones to be shown. If missing, all clones will be included.
 #' @param y.limit The upper limit for y axis in the plot.
+#' @return the number of unique variants in each clone in a vector and the barplot. The first item in the output is the vector representing the numbers of unique variants, the second item is the barplot.
 #' @export
 get.n.node.plot<-function(igraph.index.attr,clonotype.select,y.limit){
  #require(ggplot2)
@@ -175,6 +181,7 @@ get.n.node.plot<-function(igraph.index.attr,clonotype.select,y.limit){
 #' Get the number of unique variants in each clone in a vector. The output is the vector representing the numbers of unique variants.
 #' @param data The output "igraph.index.attr" list from simulation output.
 #' @param clonotype.select The index of the clones to be shown. If missing, all clones will be included.
+#' @return the number of unique variants in each clone in a vector. The output is the vector representing the numbers of unique variants.
 #' @export
 get.n.node.data<-function(data,clonotype.select){
   n_node<-c()
@@ -194,6 +201,7 @@ get.n.node.data<-function(data,clonotype.select){
 
 #' Get the seurat object from simulated transciptome output.
 #' @param data The output "transcriptome" dataframe from simulation output.
+#' @return the seurat object from simulated transciptome output.
 #' @export
 
 get.elbow<-function(data){
@@ -206,10 +214,11 @@ get.elbow<-function(data){
   return(gex)
 }
 
-#' Further process the the seurat object from simulated transciptome output and make UMAP ready for plotting.
+#' Further process the seurat object from simulated transciptome output and make UMAP ready for plotting.
 #' @param gex output from get.elbow function.
 #' @param d dims argurment of in Seurat::FindNeighbors() and Seurat::RunUMAP
 #' @param reso resolution argument in Seurat::FindClusters()
+#' @return Further processed seurat object from simulated transciptome output with UMAP ready for plotting.
 #' @export
 get.umap<-function(gex,d,reso){
   #require(Seurat)
@@ -226,6 +235,7 @@ get.umap<-function(gex,d,reso){
 #' Computing sequence distance according to the number of unmatched bases.
 #' @param germline A string representing the germline sequence.
 #' @param sequence  A string of the sequence to be compared, which has the same length as germline.
+#' @return the number of unmatched bases in 2 sequences.
 #' @export
 get.seq.distance<-function(germline, sequence){
 
@@ -241,6 +251,7 @@ get.seq.distance<-function(germline, sequence){
 #' @param clonotype.select The selected clonotype index, can be the output of the function "select.top".
 #' @param level Can be "node" or "cell". If "node", the function will return average mutation on unique variant level. Otherwise it will return on cell level.
 #' @param y.limit The upper limit for y axis in the plot.
+#' @return a barplot showing the average mutation per node (same heavy and light chain set) or per cell.
 #' @export
 get.avr.mut.plot<-function(igraph.index.attr,history,clonotype.select,level, y.limit){
   #require(stats,ggplot2)
@@ -306,6 +317,7 @@ get.avr.mut.plot<-function(igraph.index.attr,history,clonotype.select,level, y.l
 #' @param history  A dataframe "history" from the simulation output.
 #' @param clonotype.select The selected clonotype index, can be the output of the function "select.top".
 #' @param level Can be "clone" or "cell". If "clone", the function will return average mutation on unique variant level. Otherwise it will return on cell level.
+#' @return a bar plot showing the average mutation on clone or cell level.
 #' @export
 get.avr.mut.data<-function(igraph.index.attr,history,clonotype.select,level){
   #require(stats)
@@ -356,6 +368,7 @@ get.avr.mut.data<-function(igraph.index.attr,history,clonotype.select,level){
 #' Get paired v gene heavy chain and light chain matrix on clonotype level. A v gene usage pheatmap can be obtain by p<-pheatmap::pheatmap(vgu_matrix,show_colnames= T, main = "V Gene Usage"), where the vgu_matrix is the output of this function.
 #' @param all.contig.annotations The dataframe "all_contig_annotation" from simulation output.
 #' @param level Can be "clone" or "cell". If "clone", the function will return paired v gene usage matrix on clonotype level. Otherwise it will return on cell level.
+#' @return a paired v gene heavy chain and light chain matrix on clonotype level.
 #' @export
 get.vgu.matrix<-function(all.contig.annotations, level){
   #require(stringr,reshape2)
@@ -383,6 +396,7 @@ get.vgu.matrix<-function(all.contig.annotations, level){
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
 #' @param y.limit The upper limit for y axis in the plot.
 #' @param colors A named character vector of colors, the names are the isotypes. If missing, the default has 11 colors coresponding to the default isotype names.
+#' @return a stacked barplot for clonotype counts grouped by transcriptome state(cell type).
 #' @export
 clonofreq.trans.plot<-function(all.contig.annotations,history,trans.names,top.n,y.limit,colors){
   #require(stringr,dplyr,ggplot2)
@@ -429,6 +443,7 @@ clonofreq.trans.plot<-function(all.contig.annotations,history,trans.names,top.n,
 #' @param history The dataframe history from simulate output.
 #' @param trans.names The names of cell types which are used in transcriptome.switch.prob argument in the simulation.
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
+#' @return a dataframe with clonotype counts grouped by transcriptome state(cell type).
 #' @export
 clonofreq.trans.data<-function(all.contig.annotations,history,trans.names,top.n){
   #require(stringr,dplyr)
@@ -461,6 +476,7 @@ clonofreq.trans.data<-function(all.contig.annotations,history,trans.names,top.n)
 #' @param gex output from get.umap function.
 #' @param all.contig.annotations The output dataframe all_contig_annotations from simulation.
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
+#' @return a Seurat object ready for highlight the top abundant clones in UMAP
 #' @export
 
 umap.top.highlight<-function(gex,all.contig.annotations,top.n){
@@ -485,6 +501,7 @@ umap.top.highlight<-function(gex,all.contig.annotations,top.n){
 #' @param history The dataframe 'history' from the simulation output.
 #' @param igraph.index The list 'igraph.index' from the simulation output.
 #' @param empty.node If TRUE, there will be empty node in igraph. if FALSE, the empty node will be deleted.
+#' @return a list of clone network igraphs colored by seurat cluster id
 #' @export
 cluster.id.igraph<-function(meta.data,history,igraph.index,empty.node){
   #require(reshape2,stats,igraph)
@@ -607,6 +624,7 @@ cluster.id.igraph<-function(meta.data,history,igraph.index,empty.node){
 #' @param history The dataframe 'history' from the simulation output.
 #' @param igraph.index The list 'igraph.index' from the simulation output.
 #' @param empty.node If TRUE, there will be empty node in igraph. if FALSE, the empty node will be deleted.
+#' @return  a list of clone network igraphs without empty mode. 
 #' @export
 no.empty.node<-function(history,igraph.index){
   #require(stats,reshape2)
