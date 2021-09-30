@@ -17,6 +17,10 @@ single-cell immune repertoire sequencing experiments. The manuscript
 corresponding to Platypus v2 can be found here at Yermanos et al NARGAB
 2021 <https://doi.org/10.1093/nargab/lqab023>
 
+The website containing walkthroughs and documentation can be found here:
+https://alexyermanos.github.io/Platypus/index.html 
+
+
 # Ongoing updates in the Platypus pipeline (v3)
 
 Due to the recent changes of the default clonotyping strategy in
