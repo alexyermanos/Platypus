@@ -26,7 +26,6 @@ Imports:
     jsonlite,
     knitr,
     Matrix,
-    msa,
     plyr,
     reshape2,
     rmarkdown,
