@@ -1,9 +1,9 @@
-#' Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.
-#' @param VDJ For platypus v2 the output of the call_MIXCR function containing the full-length VDJRegion sequences.For v3 the VDJ matrix output of the VDJ_GEX_matrix function ran with trim_and_align = TRUE. (VDJ_GEX_matrix.output[[1]])
+#' Only Platypus V2 Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.
+#' @param VDJ For platypus v2 the output of the call_MIXCR function containing the full-length VDJRegion sequences.For v3 the VDJ matrix output of the VDJ_GEX_matrix function ran with trim.and.align = TRUE. (VDJ_GEX_matrix.output[[1]])
 #' @param VDJ_extract_germline.output The output from the VDJ_extract_germline function. This should have the germline information. This needs to be supplied if the with.germline argument is set to true.
 #' @param as.nucleotide Logical determining whether the full-length VDJRegion sequence should use nucleotide seqeunce. TRUE indicates nucleotide sequences and FALSE will extract amino acid sequences.
 #' @param with.germline Logical determining whether the germline sequence as determined by cellranger should be included in the output list of sequences. If so, the germline will be added to the last row of each dataframe object.
-#' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, set to "v3".
+#' @param platypus.version Default is "v3".
 #' @return returns a list containing the sequences for each clonal family as determined by the input clonotyping strategy to call_MIXCR and VDJ_extract_germline. The outer list corresponds to distinct repertoires supplied to the call_MIXCR function (e.g. VDJ.clonal.lineage.output[[i]][[j]] will contain a dataframe of the j'th clone in the i'th repertoire)
 #' @export
 #' @examples
@@ -23,7 +23,7 @@ VDJ_clonal_lineages <- function(VDJ,
   if(missing(as.nucleotide)) as.nucleotide <- c()
   if(missing(with.germline)) with.germline <- c()
   if(missing(VDJ_GEX_matrix)) VDJ_GEX_matrix <- list()
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
 
   if(platypus.version=="v2"){####START v2
 
@@ -58,7 +58,7 @@ VDJ_clonal_lineages <- function(VDJ,
     return(clonal.lineage.output)
   }####STOP v2
   else if(platypus.version=="v3"){
-    print("Compatibility with version 3 coming soon")
+    stop("Compatibility with version 3 coming soon")
     #some alignment(VDJ)...
   }
 }

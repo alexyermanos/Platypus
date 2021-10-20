@@ -15,6 +15,9 @@ get.avr.mut.data(igraph.index.attr, history, clonotype.select, level)
 
 \item{level}{Can be "clone" or "cell". If "clone", the function will return average mutation on unique variant level. Otherwise it will return on cell level.}
 }
+\value{
+a bar plot showing the average mutation on clone or cell level.
+}
 \description{
 Get information about somatic hypermutation in the simulation. This function return a barplot showing the average mutation.
 }

@@ -5,17 +5,18 @@
 #' @param axis Character. Defaults to "max". Passed to VDJ_circos
 #' @param n_cluster Integer. No default.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
-#' @param platypus.version Which platypus.version of platypus is being used. Default = "v2".
+#' @param platypus.version Which platypus.version of platypus is being used. Default = "v3".
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
+#' @export
 #' @examples
-#' \dontrun{
-#' Platypus version 2
-#' VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
+#' #Platypus version 3
+#' #prepare the small toy dataset
+#' small_vgm <- Platypus::small_vgm
+#' small_vgm[[1]]$clonotype_id_10x <- "clonotype1"
+#' small_vgm[[1]]$clonotype_frequency <- nrow(small_vgm[[1]])
+#' VDJ_clonotype_clusters_circos(small_vgm[[1]], topX=100, label.threshold=5
+#' , platypus.version = "v3", n_cluster = 2)
 #'
-#' Platypus version 3
-#' VDJ_clonotype_clusters_circos(VDJ_GEX_matrix.output[[1]], topX=100, label.threshold=5
-#' , platypus.version = "v3")
-#'}
 
 VDJ_clonotype_clusters_circos <- function(VDJ,
                                           topX,
@@ -25,11 +26,11 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
                                           n_cluster,
                                           platypus.version){
   if(missing(topX)){topX <- "all"}
-  if(missing(n_cluster)){print("Please specify cluster number n_cluster")}
+  if(missing(n_cluster)){stop("Please specify cluster number n_cluster")}
   if(missing(label.threshold)){label.threshold <- 1}
   if(missing(axis)){axis <- "max"}
   if(missing(c.count)){c.count <-T}
-  if(missing(platypus.version)){platypus.version <- "v2"}
+  if(missing(platypus.version)){platypus.version <- "v3"}
 
 
   #naming compatibility
@@ -38,7 +39,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
   VDJ <- NULL
 
   if(platypus.version == "v3"){
-      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. VDJ output of VDJ_GEX_matrix() required as input (VDJ_GEX_matrix.output[[1]]).")
+
       adj.matrix <- list()
       clonotypes <- c()
 
@@ -70,7 +71,6 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
       clonotypes_all <- NA
 
       for (k in 1:length(VDJ.GEX_list)){
-        print(paste0("Processing Sample ", k))
         n_cluster <- length(table(VDJ.GEX_list[[k]][which(VDJ.GEX_list[[k]]$clonotype_id_10x %in% clonotypes[[k]]),"seurat_clusters"]))
         adj.matrix[[k]] <- matrix(nrow =length(clonotypes[[k]]), ncol = n_cluster)
         rownames(adj.matrix[[k]]) <- clonotypes[[k]]
@@ -90,9 +90,6 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
         adj.matrix[[k]][is.nan(adj.matrix[[k]])] = 0
       }
 
-
-      print("Set colours")
-
       ggplotColours <- function(n = 6, h = c(0, 360) + 15){
         if ((diff(h) %% 360) < 1) h[2] <- h[2] - 360/n
         grDevices::hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
@@ -104,12 +101,8 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
       clonotypes_col <- stats::setNames(grDevices::rainbow(length(clonotypes_all)),sample(clonotypes_all))
       grid.col <- append(cluster_col, clonotypes_col)
 
-      print("Plotting")
       plot <- list()
       for (i in 1:length(VDJ.GEX_list)){
-        print(i)
-        print(length(VDJ.GEX_list))
-        #print(adj.matrix[[i]])
         nm = unique(unlist(dimnames(adj.matrix[[i]])))
         group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
         group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))
@@ -120,7 +113,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
 
   }else if(platypus.version == "v2"){
     ########################
-    print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus v2.0.0 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = new] for compatibility with VDJ_GEX_matrix().")
+
     adj.matrix <- list()
     clonotypes <- c()
 
@@ -130,7 +123,6 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
       }
     }
     for (k in 1:length(VDJ.GEX.matrix)){
-      print(k)
       n_cluster <-  length(stringr::str_split(VDJ.GEX.matrix[[k]]$cluster_membership_percent, pattern = ",")[[1]])
       adj.matrix[[k]] <- matrix(nrow =nrow(VDJ.GEX.matrix[[k]]), ncol = n_cluster)
       for (i in 1:nrow(VDJ.GEX.matrix[[k]])){
@@ -144,7 +136,6 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
       }
       adj.matrix[[k]][is.nan(adj.matrix[[k]])] = 0
     }
-    print("Set colours")
 
     ggplotColours <- function(n = 6, h = c(0, 360) + 15){
       if ((diff(h) %% 360) < 1) h[2] <- h[2] - 360/n
@@ -157,12 +148,8 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
     clonotypes_col <- stats::setNames(grDevices::rainbow(length(clonotypes)),sample(clonotypes))
     grid.col <- append(cluster_col, clonotypes_col)
 
-    print("Plotting")
     plot <- list()
     for (i in 1:length(VDJ.GEX.matrix)){
-      print(i)
-      print(length(VDJ.GEX.matrix))
-      #print(adj.matrix[[i]])
       nm = unique(unlist(dimnames(adj.matrix[[i]])))
       group = structure(gsub('[[:digit:]]+', '', nm), names = nm)
       group = factor(group[sample(length(group), length(group))], levels = c("cluster ", "clonotype"))
@@ -170,7 +157,7 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
     }
     plot[[i+1]] <- adj.matrix
   }else{
-    print("Please specify platypus platypus.version as either v2 or v3.")
+    stop("Please specify platypus.version as either v2 or v3.")
   }
 
   return(plot)

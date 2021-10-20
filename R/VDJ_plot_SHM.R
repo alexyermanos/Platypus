@@ -4,26 +4,31 @@
 #' @param quantile.label Numeric. Defaults to 0.9. Which points to label in the SHM scatterplot. If set to 0.9, the top 10\% of cells by SHM number will be labelled. If ggrepel throws a warning, concerning overlap it is recommended to attempt to lable less points to avoid cluttering
 #' @param point.size Size of points in plots. Passed to geom_jitter()
 #' @param mean.line.color Color of mean bar in dotplots. Passed to geom_errorbar()
+#' @param stats.to.console Boolean. Defaults to FALSE. Prints basic statistics (AOV \+ post hoc test) to console
 #' @param platypus.version Character. Only "v3" available.
 #' @return Returns a list of ggplot objects. out\[\[1\]\] is a boxplot comparing SHM by group.by. out\[\[2\]\] to out\[\[n\]\] are plots for each group that visualize VDJ and VJ SHM distribution for each group. Data for any plot can be accessed via out \[\[any\]\]$data
 #' @export
 #' @examples
-#' \dontrun{
+#'#Simulating SHM data
+#'small_vgm <- Platypus::small_vgm
+#'small_vgm[[1]]$VDJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
+#'small_vgm[[1]]$VJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
 #'
-#' Standard plots
-#' SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output
+#' #Standard plots
+#' SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 #' , group.by = "sample_id", quantile.label = 0.9)
 #'
-#' Group by transcriptional cluster and label only top 1\%
-#' SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output
+#' #Group by transcriptional cluster and label only top 1\%
+#' SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 #' , group.by = "seurat_clusters", quantile.label = 0.99)
-#'}
+#'
 
 VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
                      group.by,
                      quantile.label,
                      point.size,
                      mean.line.color,
+                     stats.to.console,
                      platypus.version){
   name <- NULL
   group <- NULL
@@ -39,6 +44,7 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
   if(missing(group.by)) group.by <- "sample_id"
   if(missing(point.size)) point.size <- 2
   if(missing(mean.line.color)) mean.line.color <- "black"
+  if(missing(stats.to.console)) stats.to.console <- F
 
   VDJ.matrix <- VDJ.mixcr.matrix
 
@@ -74,8 +80,8 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
   vjmean <- SHM_iso_VJ %>% dplyr::group_by(group) %>% dplyr::summarize(m = mean(value))
 
   #VDJ
-  print("VDJ chain SHM data summary")
-  print(as.data.frame(dplyr::group_by(SHM_iso_VDJ, group) %>%
+  if(stats.to.console) message("VDJ chain SHM data summary")
+  if(stats.to.console) message(as.data.frame(dplyr::group_by(SHM_iso_VDJ, group) %>%
   dplyr::summarise(
       count = dplyr::n(),
       mean = mean(value, na.rm = TRUE),
@@ -83,15 +89,15 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
       median = stats::median(value, na.rm = TRUE),
       IQR = stats::IQR(value, na.rm = TRUE)
     )))
-  cat("\n kruskal.test()")
-  print(stats::kruskal.test(value ~ group, data = SHM_iso_VDJ))
-  cat("\n pairwise.wilcox.test(p.adjust.method = 'BH')")
-  suppressWarnings(print(stats::pairwise.wilcox.test(SHM_iso_VDJ$value, SHM_iso_VDJ$group,p.adjust.method = "BH")))
+  if(stats.to.console) message("\n kruskal.test()")
+  if(stats.to.console) message(stats::kruskal.test(value ~ group, data = SHM_iso_VDJ))
+  if(stats.to.console) message("\n pairwise.wilcox.test(p.adjust.method = 'BH')")
+  if(stats.to.console) suppressWarnings(message(stats::pairwise.wilcox.test(SHM_iso_VDJ$value, SHM_iso_VDJ$group,p.adjust.method = "BH")))
 
   #VJ
-  print("------------")
-  print("VJ chain SHM data summary")
-  print(as.data.frame(dplyr::group_by(SHM_iso_VJ, group) %>%
+  if(stats.to.console) message("------------")
+  if(stats.to.console) message("VJ chain SHM data summary")
+  if(stats.to.console) message(as.data.frame(dplyr::group_by(SHM_iso_VJ, group) %>%
           dplyr::summarise(
             count = dplyr::n(),
             mean = mean(value, na.rm = TRUE),
@@ -99,12 +105,12 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
             median = stats::median(value, na.rm = TRUE),
             IQR = stats::IQR(value, na.rm = TRUE)
           )))
-  cat("\n kruskal.test()")
-  print(stats::kruskal.test(value ~ group, data = SHM_iso_VJ))
-  cat("\n pairwise.wilcox.test(p.adjust.method = 'BH')")
-  suppressWarnings(print(stats::pairwise.wilcox.test(SHM_iso_VJ$value, SHM_iso_VJ$group,p.adjust.method = "BH")))
+  if(stats.to.console) message("\n kruskal.test()")
+  if(stats.to.console) message(stats::kruskal.test(value ~ group, data = SHM_iso_VJ))
+  if(stats.to.console) message("\n pairwise.wilcox.test(p.adjust.method = 'BH')")
+  if(stats.to.console) suppressWarnings(message(stats::pairwise.wilcox.test(SHM_iso_VJ$value, SHM_iso_VJ$group,p.adjust.method = "BH")))
 
-  cat("\n Please refer to output[[1]] to view boxplot showing group comparions tested here")
+  if(stats.to.console) message("\n Please refer to output[[1]] to view boxplot showing group comparions tested here")
 
   #SCATTERPLOT FOR EVERY GROUP
 
@@ -123,6 +129,5 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
     out.list[[j+1]] <- ggplot2::ggplot(curr_to_plot, ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + ggplot2::geom_jitter(show.legend = T, size = 3, alpha = 0.8, position = pos) + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ ggrepel::geom_text_repel(inherit.aes = F, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black", position = pos) + ggplot2::scale_color_viridis_c(option = "B", end = 0.9)
 
   }
-  cat("\n Done")
   return(out.list)
 }

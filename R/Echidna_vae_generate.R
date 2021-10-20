@@ -8,6 +8,7 @@
 #' @param n.train number of sequence to be used in training set, the rest will be in testing set
 #' @param n.sample number of new sequence to generate from VAE model
 #' @param null.threshold threshold of predicted value to be considered as an existing base, default is 0.05. When generated sequence is too short, lower this threshold.
+#' @return A simulated VDJ repertoire on the basis of the input experimental repertoire
 #' @importFrom dplyr %>%
 #' @export
 

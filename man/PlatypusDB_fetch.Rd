@@ -27,59 +27,56 @@ PlatypusDB_fetch(
 \item{combine.objects}{Boolean. Defaults to TRUE. Whether to combine objects if appropriate. e.g. VDJ and GEX RData objects for a sample are saved as two independent objects and downloaded as such, to allow for flexibility. If combine.objects is set to TRUE, the function will coerce RData objects of each loaded sample or of each loaded VDJ_GEX_matrix appropriately. Combined input of VDJ and GEX Rdata objects can be directly supplied to the VDJ_GEX_matrix function.}
 }
 \value{
-A list of R objects if load.as.object == T or nothing if load.as.object == F
+A list of loaded project files as R objects if load.to.list = T or a name of these object loaded to the enviroment if load.to.enviroment = T.
 }
 \description{
 Loads and saves RData objects from the PlatypusDB
 }
 \examples{
-\dontrun{
+\donttest{
+
+#Get a list of available projects by name
+names(PlatypusDB_list_projects())
 
 #Load the VDJ_GEX_matrix of a project as an object and
-also save it to disk for later.
-This will download the VDJ and GEX part of the VDJ_GEX_matrix and combine
-PlatypusDB_fetch(PlatypusDB.links = c("Project1//ALL")
-,save.to.disk = T,load.to.enviroment = T, load.to.list = F
-, combine.object = T,path.to.save = "~/Platy_downloads")
+#also save it to disk for later.
+#This will download the VDJ and GEX part of the VDJ_GEX_matrix and combine
+PlatypusDB_fetch(PlatypusDB.links = c("Kuhn2021a//ALL")
+,save.to.disk = FALSE,load.to.enviroment = TRUE, load.to.list = FALSE
+, combine.object = TRUE,path.to.save = "/Downloads")
 
 #Load VDJ dataframe of the VDJ GEX matrix for all samples of one project
-PlatypusDB_fetch(PlatypusDB.links = c("Project1//VDJmatrix")
-,save.to.disk = F,load.to.enviroment = T, load.to.list = F)
-
-#Save all VDJ RData files of one project to
-disk and return them as a list object
-downloaded_objects <- PlatypusDB_fetch(
-PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = T
-,load.to.enviroment = F, load.to.list = T,path.to.save = "~/Platy_downloads")
+loaded_list <- PlatypusDB_fetch(PlatypusDB.links = c("Kuhn2021a//VDJmatrix")
+,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE)
 
 #Load the VDJ and GEX RData of 2 samples from
-2 different projects which can be directly passed
-on to the VDJ_GEX_matrix function to integrate
-downloaded_objects <- PlatypusDB_fetch(
-PlatypusDB.links = c("Project1/s1/ALL", "Project1/s2/ALL")
-,save.to.disk = F,load.to.enviroment = F, load.to.list = T
-, combine.objects = T)
+#2 different projects which can be directly passed
+#on to the VDJ_GEX_matrix function to integrate
+#downloaded_objects <- PlatypusDB_fetch(
+#PlatypusDB.links = c("Project1/s1/ALL", "Project1/s2/ALL")
+#,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE
+#, combine.objects = TRUE)
 
-integrated_samples <- VDJ_GEX_matrix_DB(data.in = downloaded_objects)
+#integrated_samples <- VDJ_GEX_matrix_DB(data.in = downloaded_objects)
 
-#Download metadata objects for mutliple projects
+#Download metadata objects for projects
 list_of_metadata_tables <- PlatypusDB_fetch(
-PlatypusDB.links = c("Project1//metadata", "Project1//metadata")
-,save.to.disk = F,load.to.enviroment = F, load.to.list = T)
+PlatypusDB.links = c("Kuhn2021a//metadata")
+,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE)
 
 #Dowload of airr_rearrangement.tsv
 #Load VDJ.RData into a list
-downloaded_objects <- PlatypusDB_fetch(
-PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = F
-,load.to.enviroment = F, load.to.list = T)
+#downloaded_objects <- PlatypusDB_fetch(
+#PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = FALSE
+#,load.to.enviroment = FALSE, load.to.list = TRUE)
 
 #Extract airr_rearrangement table for sample 1
-airr_rearrangement <- downloaded_objects[[1]][[1]][[6]]
+#airr_rearrangement <- downloaded_objects[[1]][[1]][[6]]
 #Index hierarchy: Sample, VDJ or GEX, VDJ element
 
 #Save for import to AIRR compatible pipeline
-write.table(airr_rearrangement, file = "airr_rearrangement_s1.tsv", sep='\t',
-row.names = FALSE, quote=FALSE)
+#write.table(airr_rearrangement, file = "airr_rearrangement_s1.tsv", sep='\t',
+#row.names = FALSE, quote=FALSE)
 
 }
 

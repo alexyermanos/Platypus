@@ -5,17 +5,19 @@
 #' @param metric The metric that dictates which are the top n genes returned. Possible options are "p.value" (default), "avg_logFC", "top_logFC", "bottom_logFC". "top_logFC" returns the top expressed genes for each cluster, whereas "bottom_logFC" returns the least expressed genes per cluster-both by log fold change.
 #' @param max.cell The max number of cells to display in the heatmap for each cluster, which corresponds to the number of columns. Default is set to 100 cells per cluster.
 #' @param group.colors Optional character vector. Array of colors with the same length as GEX_cluster_genes.output to color bars above the heatmap. Defaults to rainbow palette
+#' @param slot Seurat object slot from which to plot gene expression data.
 #' @param platypus.version is set automatically
 #' @return Returns a heatmap from the function DoHeatmap from the package Seurat, which is a ggplot object that can be modified or plotted. The number of genes is determined by the n.genes parameter and the number of cells per cluster is determined by the max.cell argument. This function gives a visual description of the top genes differentially expressed in each cluster.
 #' @export
 #' @examples
 #' \dontrun{
-#' For Platypus version 2
+#' #For Platypus version 2
 #' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = automate_GEX_output[[i]]
 #' ,GEX_cluster_genes.output=GEX_cluster_genes_output
 #' ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
 #'
-#' For Platypus version 3
+#' #For Platypus version 3
+#'
 #' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = VDJ_GEX_matrix.output[[2]]
 #' ,GEX_cluster_genes.output=GEX_cluster_genes_output
 #' ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
@@ -26,6 +28,7 @@ GEX_cluster_genes_heatmap <- function(GEX,
                                       metric,
                                       max.cell,
                                       group.colors,
+                                      slot,
                                       platypus.version){
 
   platypus.version <- "does not matter"
@@ -33,6 +36,7 @@ GEX_cluster_genes_heatmap <- function(GEX,
   if(missing(n.genes.per.cluster)) n.genes.per.cluster <- 5
   if(missing(metric)) metric <- "p.value"
   if(missing(group.colors)) group.colors <- grDevices::rainbow(length(GEX_cluster_genes.output))
+  if(missing(slot)) slot <- "counts"
 
   #rename in case of naming change
   if(any("avg_log2FC" %in% names(GEX_cluster_genes.output[[1]]))){
@@ -60,6 +64,6 @@ GEX_cluster_genes_heatmap <- function(GEX,
       sample_cells[[i]] <- which(GEX$seurat_clusters==unique_clusters[i])
     }
   }
-  output_heatmap <- Seurat::DoHeatmap(GEX,features = unlist(unique(holding_genes)),cells = unlist(sample_cells), group.colors = group.colors)
+  output_heatmap <- Seurat::DoHeatmap(GEX,features = unlist(unique(holding_genes)),cells = unlist(sample_cells), group.colors = group.colors, slot = slot)
   return(output_heatmap)
 }

@@ -5,56 +5,53 @@
 #'@param load.to.list Boolean. Defaults to FALSE. Whether to return loaded objects as a list. !Be aware of RAM limitations of your machine when downloading multiple large files.
 #'@param path.to.save System path to save files to.
 #'@param combine.objects Boolean. Defaults to TRUE. Whether to combine objects if appropriate. e.g. VDJ and GEX RData objects for a sample are saved as two independent objects and downloaded as such, to allow for flexibility. If combine.objects is set to TRUE, the function will coerce RData objects of each loaded sample or of each loaded VDJ_GEX_matrix appropriately. Combined input of VDJ and GEX Rdata objects can be directly supplied to the VDJ_GEX_matrix function.
-#' @return A list of R objects if load.as.object == T or nothing if load.as.object == F
+#' @return A list of loaded project files as R objects if load.to.list = T or a name of these object loaded to the enviroment if load.to.enviroment = T.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#'
+#'#Get a list of available projects by name
+#'names(PlatypusDB_list_projects())
 #'
 #' #Load the VDJ_GEX_matrix of a project as an object and
-#' also save it to disk for later.
-#' This will download the VDJ and GEX part of the VDJ_GEX_matrix and combine
-#' PlatypusDB_fetch(PlatypusDB.links = c("Project1//ALL")
-#' ,save.to.disk = T,load.to.enviroment = T, load.to.list = F
-#' , combine.object = T,path.to.save = "~/Platy_downloads")
+#' #also save it to disk for later.
+#' #This will download the VDJ and GEX part of the VDJ_GEX_matrix and combine
+#' PlatypusDB_fetch(PlatypusDB.links = c("Kuhn2021a//ALL")
+#' ,save.to.disk = FALSE,load.to.enviroment = TRUE, load.to.list = FALSE
+#' , combine.object = TRUE,path.to.save = "/Downloads")
 #'
 #' #Load VDJ dataframe of the VDJ GEX matrix for all samples of one project
-#' PlatypusDB_fetch(PlatypusDB.links = c("Project1//VDJmatrix")
-#' ,save.to.disk = F,load.to.enviroment = T, load.to.list = F)
-#'
-#' #Save all VDJ RData files of one project to
-#' disk and return them as a list object
-#'downloaded_objects <- PlatypusDB_fetch(
-#'PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = T
-#',load.to.enviroment = F, load.to.list = T,path.to.save = "~/Platy_downloads")
+#' loaded_list <- PlatypusDB_fetch(PlatypusDB.links = c("Kuhn2021a//VDJmatrix")
+#' ,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE)
 #'
 #' #Load the VDJ and GEX RData of 2 samples from
-#' 2 different projects which can be directly passed
-#' on to the VDJ_GEX_matrix function to integrate
-#'downloaded_objects <- PlatypusDB_fetch(
-#'PlatypusDB.links = c("Project1/s1/ALL", "Project1/s2/ALL")
-#',save.to.disk = F,load.to.enviroment = F, load.to.list = T
-#', combine.objects = T)
+#' #2 different projects which can be directly passed
+#' #on to the VDJ_GEX_matrix function to integrate
+#'#downloaded_objects <- PlatypusDB_fetch(
+#'#PlatypusDB.links = c("Project1/s1/ALL", "Project1/s2/ALL")
+#'#,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE
+#'#, combine.objects = TRUE)
 #'
-#' integrated_samples <- VDJ_GEX_matrix_DB(data.in = downloaded_objects)
+#' #integrated_samples <- VDJ_GEX_matrix_DB(data.in = downloaded_objects)
 #'
-#' #Download metadata objects for mutliple projects
+#' #Download metadata objects for projects
 #' list_of_metadata_tables <- PlatypusDB_fetch(
-#' PlatypusDB.links = c("Project1//metadata", "Project1//metadata")
-#' ,save.to.disk = F,load.to.enviroment = F, load.to.list = T)
+#' PlatypusDB.links = c("Kuhn2021a//metadata")
+#' ,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE)
 #'
 #' #Dowload of airr_rearrangement.tsv
 #' #Load VDJ.RData into a list
-#'downloaded_objects <- PlatypusDB_fetch(
-#'PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = F
-#',load.to.enviroment = F, load.to.list = T)
+#'#downloaded_objects <- PlatypusDB_fetch(
+#'#PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = FALSE
+#'#,load.to.enviroment = FALSE, load.to.list = TRUE)
 #'
 #' #Extract airr_rearrangement table for sample 1
-#' airr_rearrangement <- downloaded_objects[[1]][[1]][[6]]
+#' #airr_rearrangement <- downloaded_objects[[1]][[1]][[6]]
 #' #Index hierarchy: Sample, VDJ or GEX, VDJ element
 #'
 #' #Save for import to AIRR compatible pipeline
-#' write.table(airr_rearrangement, file = "airr_rearrangement_s1.tsv", sep='\t',
-#' row.names = FALSE, quote=FALSE)
+#' #write.table(airr_rearrangement, file = "airr_rearrangement_s1.tsv", sep='\t',
+#' #row.names = FALSE, quote=FALSE)
 #'
 #' }
 #'
@@ -81,10 +78,10 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   if(load.to.enviroment == F & load.to.list == F) save.to.disk <- T
 
   if(load.to.enviroment == T & load.to.list == T){
-    print("Warning: Downloaded objects will be loaded to .GlobalEnv and additionally returned as list. This doubles the storage usage. Having both load.to.enviroment and load.to.list set to TRUE is not recommended")}
+    warning("Downloaded objects will be loaded to .GlobalEnv and additionally returned as list. This doubles the storage usage. Having both load.to.enviroment and load.to.list set to TRUE is not recommended")}
 
   if(save.to.disk == T & missing(path.to.save)){
-    print("No path.to.save specified. Saving files to current working directory")
+    message("No path.to.save specified. Saving files to current working directory")
     path.to.save <- getwd()
   }
   if(save.to.disk == F & missing(path.to.save)){
@@ -95,7 +92,6 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   }
 
   if(save.to.disk == T){
-    print("Files will only be saved to disk and not loaded into working memory. Downloaded objects will not be combined by combine.objects = T.")
     combine.objects <- F
     load.to.list <- F
     load.to.enviroment <- F
@@ -114,7 +110,6 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
     }
   }
 
-  print("Input paths checked. Getting lookup table...")
   #Get the lookup table
   tryCatch({
     load(url("https://storage.googleapis.com/platypusdb_lookup/platypus_url_lookup.RData"))
@@ -122,11 +117,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
     #platypusdb_lookup <- new_lookup
 
     }, error=function(e){
-    print(e)
-    print(paste0("Failed to load lookup table. Please verify internet connection"))})
-
-  print("Got lookup table")
-
+    message(paste0("Failed to load lookup table. Please verify internet connection \n", e))})
 
   platypusdb_lookup <- platypus_url_lookup #Reassignment
 
@@ -215,7 +206,6 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
 
     to_download$size <- as.numeric(stringr::str_extract(to_download$size, "\\d+"))
 
-    print(paste0("For input array[", i,"] ",nrow(to_download), " files were selected, with a total size of ", sum(to_download$size), " bytes"))
   }
 
   to_download <- do.call(rbind, to_download_list) #combine into dataframe
@@ -229,10 +219,9 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
 
       curr_download_name <- gsub("\\.RData","",to_download$name[i]) #have a name ready to use for objects in the r enviroment without the .RData extension
 
-      print(paste0(Sys.time(), ": Starting download of ", to_download$name[i],"..."))
+      message(paste0(Sys.time(), ": Starting download of ", to_download$name[i],"..."))
 
       if(save.to.disk == T){ #if objects are to be saved to disk, this happens here.
-        print(paste0("Saving ", curr_download_name," to disk..."))
         utils::download.file(to_download$url[i], destfile = paste0(path.to.save,curr_download_name, ".RData")) #Saving directly to disk to avoid RAM usage
 
       } else { #Save to disk == F
@@ -251,11 +240,10 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
       }
       }
 
-    print(paste0("Done with ", curr_download_name,"!"))
     }, error=function(e){
-      print(e)
-      print(paste0("Failed to load",  to_download$url[i]))})
+      message(paste0("Failed to load",  to_download$url[i], "\n", e))})
   }
+
 
   } else if(combine.objects == T){ #IF COMBINING: iterating over download groups
 
@@ -274,7 +262,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
         curr_download_names <- gsub("\\.RData","",curr_to_download$name) #getting the names of the objects. [1] is VDJ [2] is GEX
 
         for(i in 1:nrow(curr_to_download)){ #load both objects!
-        print(paste0(Sys.time(), ": Starting download of ", curr_to_download$name[i],"..."))
+        message(paste0(Sys.time(), ": Starting download of ", curr_to_download$name[i],"..."))
         load(url(curr_to_download$url[i]), envir = .GlobalEnv) #download
         } #End of loop. Now both files which are to be combined (are part of one predefined group) should be present in the R enviroment
 
@@ -307,22 +295,19 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
         }
 
         if(save.to.disk == T){
-          print(paste0("Saving ", curr_download_name," to disk..."))
           utils::download.file(to_download$url[i], destfile = paste0(path.to.save,curr_download_name, ".RData")) #Saving directly to disk to avoid RAM usage
         }
 
         if(load.to.enviroment == F){
           rm(list = ls(pattern = comb_download_name, envir = .GlobalEnv), envir = .GlobalEnv)
         }
-        #Done
-        print(paste0("Done with ", comb_download_name,"!"))
 
         #This else if is there to catch an instance were the input PlatypusDB paths asked for both two files which should be combined, as well as extra files which are not to be combined (e.g. metadata). Here we can proceed as if combine.objects == F
       } else if(nrow(curr_to_download) == 1){ #if the group number of that entry was unique
 
         curr_download_name <- gsub("\\.RData","",curr_to_download$name[1])
 
-        print(paste0(Sys.time(), ": Starting download of ", curr_to_download$name[1],"..."))
+        message(paste0(Sys.time(), ": Starting download of ", curr_to_download$name[1],"..."))
         load(url(curr_to_download$url[1]), envir = .GlobalEnv) #download and load to global enviroment
 
         if(load.to.list == T){
@@ -333,36 +318,25 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
         }
 
         if(save.to.disk == T){
-          print(paste0("Saving ", curr_download_name," to disk..."))
           utils::download.file(to_download$url[i], destfile = paste0(path.to.save,curr_download_name, ".RData")) #Saving directly to disk to avoid RAM usage
         }
 
         if(load.to.enviroment == F){
           rm(list = ls(pattern = curr_download_name, envir = .GlobalEnv), envir = .GlobalEnv)
         }
-
-        print(paste0("Done with ", curr_download_name,"!"))
         #end of else if(nrow(curr_to_download) == 1)
       } else if(nrow(curr_to_download) > 2){
         print("Downloads of different samples are not combined. Please set load.to.list = T to return a single list containing info of all downloaded samples which can be used as input to the VDJ_GEX_matrix function")
-
-
       }
-
-
       }, error=function(e){
         print(e)
         print(paste0("Failed to load",  names(out.list)[j]))})
     } #end of loop over files
   } #end of if(combine.object == T)
 
-  print(paste0(Sys.time(), ": Done"))
-
   if(load.to.list == F){
-    print("Returning names of loaded objects")
     return(unlist(out.list)) #unlist to return a simple array of names of loaded files
   } else{
-    print("Returning list of loaded objects")
     return(out.list) #return loaded files
   }
 }

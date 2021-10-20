@@ -6,10 +6,9 @@
 #' @param default Default is TRUE - will use premade gene sets and cell states.
 #' @export
 #' @examples
-#' \dontrun{
-#' GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]]
-#' , clonotype.ids= c(1,2,3,4,5))
-#'}
+#' GEX_phenotype.test <- GEX_phenotype(seurat.object = Platypus::small_vgm[[2]])
+#'
+
 
 GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, default){
 
@@ -65,7 +64,7 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
   cell.state.markers<-gsub(pattern = ";", replacement ="&", cell.state.markers)
   cell.state.markers<-gsub(pattern = "\\+", replacement =">0", cell.state.markers)
   cell.state.markers<-gsub(pattern = "-", replacement ="==0", cell.state.markers)
-  
+
   #execute cmd
   seurat.object[["previous.ident"]] <- Seurat::Idents(object = seurat.object)#(clusters ID)
   Seurat::Idents(seurat.object)<-"Unclassified"

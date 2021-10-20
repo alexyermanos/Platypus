@@ -31,7 +31,7 @@ VDJ_VJ_usage_circos(
 
 \item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
 
-\item{platypus.version}{Which platypus.version of platypus is being used. Default = v2. Set to v3 if VDJ_GEX_matrix.output[[1]] is used}
+\item{platypus.version}{Which platypus.version of platypus is being used. Default = v3. Set to v3 if VDJ_GEX_matrix.output[[1]] is used}
 
 \item{filter1H1L}{Whether to filter the input VDJ in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
 }
@@ -42,7 +42,7 @@ Returns list of plots. The first n elements contain the circos plot of the n dat
 Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
 }
 \examples{
-\dontrun{
- plots <- VDJ_VJ_usage_circos(VDJ = VDJ_GEX_matrix.output[[1]], platypus.version = "v3")
-}
+ plots <- VDJ_VJ_usage_circos(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3",
+ cell.level = TRUE)
+
 }

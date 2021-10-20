@@ -20,7 +20,7 @@ VDJ_circos(Adj_matrix, group, grid.col, label.threshold, axis, c.count)
 \item{c.count}{Show clonotype or cell count on Circos plot.}
 }
 \value{
-Returns the Circos plot.
+Returns the Circos plot from input of other functions. Do not run as standalone
 }
 \description{
 Plots a Circos diagram from an adjacency matrix. Uses the Circlize chordDiagram function. Is called by VDJ_clonotype_clusters_circos(), VDJ_alpha_beta_Vgene_circos() and VDJ_VJ_usage_circos() functions or works on its own when supplied with an adjacency matrix.

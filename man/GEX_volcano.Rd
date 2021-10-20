@@ -72,6 +72,6 @@ GEX_volcano(findmarkers.output = FindMarkers.Output
 
 #using the GEX_cluster_genes output
 GEX_volcano(findmarkers.output = GEX_cluster_genes.Output
-, cluster.genes.output =T)
+, cluster.genes.output =TRUE)
 }
 }

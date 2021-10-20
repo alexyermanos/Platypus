@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_clonal_lineages.R
 \name{VDJ_clonal_lineages}
 \alias{VDJ_clonal_lineages}
-\title{Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.}
+\title{Only Platypus V2 Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.}
 \usage{
 VDJ_clonal_lineages(
   VDJ,
@@ -13,7 +13,7 @@ VDJ_clonal_lineages(
 )
 }
 \arguments{
-\item{VDJ}{For platypus v2 the output of the call_MIXCR function containing the full-length VDJRegion sequences.For v3 the VDJ matrix output of the VDJ_GEX_matrix function ran with trim_and_align = TRUE. (VDJ_GEX_matrix.output[[1]])}
+\item{VDJ}{For platypus v2 the output of the call_MIXCR function containing the full-length VDJRegion sequences.For v3 the VDJ matrix output of the VDJ_GEX_matrix function ran with trim.and.align = TRUE. (VDJ_GEX_matrix.output[[1]])}
 
 \item{VDJ_extract_germline.output}{The output from the VDJ_extract_germline function. This should have the germline information. This needs to be supplied if the with.germline argument is set to true.}
 
@@ -21,13 +21,13 @@ VDJ_clonal_lineages(
 
 \item{with.germline}{Logical determining whether the germline sequence as determined by cellranger should be included in the output list of sequences. If so, the germline will be added to the last row of each dataframe object.}
 
-\item{platypus.version}{Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, set to "v3".}
+\item{platypus.version}{Default is "v3".}
 }
 \value{
 returns a list containing the sequences for each clonal family as determined by the input clonotyping strategy to call_MIXCR and VDJ_extract_germline. The outer list corresponds to distinct repertoires supplied to the call_MIXCR function (e.g. VDJ.clonal.lineage.output[[i]][[j]] will contain a dataframe of the j'th clone in the i'th repertoire)
 }
 \description{
-Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.
+Only Platypus V2 Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.
 }
 \examples{
 \dontrun{

@@ -24,7 +24,7 @@ VDJ_call_MIXCR(
 
 \item{simplify}{Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns}
 
-\item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
+\item{platypus.version}{Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format}
 }
 \value{
 For platypus.version = "v3" returns input VDJ dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.
@@ -34,14 +34,14 @@ Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX
 }
 \examples{
 \dontrun{
-For platypus version 2
+#For platypus version 2
 VDJ_call_MIXCR(VDJ = VDJ.per.clone.output,
 mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
 
-For platypus version 3 on a Windows system
+#For platypus version 3 on a Windows system
 VDJ_call_MIXCR(VDJ = VDJ_GEX_matrix.output[[1]],
 mixcr.directory = "WILL BE SET TO CURRENT WORKING DIRECTORY",
-species = "mmu", platypus.version = "v3", simplify = T)
+species = "mmu", platypus.version = "v3", simplify = TRUE)
 }
 }
 \seealso{

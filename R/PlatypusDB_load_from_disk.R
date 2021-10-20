@@ -3,7 +3,7 @@
 #'@param GEX.out.directory.list List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ. This outs directory may also contain Feature Barcode (FB) information. Do not specify FB.out.directory in this case.
 #'@param FB.out.directory.list List of paths pointing at the outs/ directory of output of the Cellranger counts function which contain Feature barcode counts. Any input will overwrite potential FB data loaded from the GEX input directories. Length must match VDJ and GEX directory inputs. (in case of a single FB output directory for multiple samples, please specifiy this directory as many times as needed)
 #'@param batches Integer vector. Defaults to all 1, yielding all samples with batch number "b1". Give a batch number to each sample (each entry in the VDJ/GEX input lists). This will be saved as element 5 in the sample list output.
-#' @return Large list object containing all needed Cellranger outputs to run the VDJ_GEX_matrix function
+#' @return Large nested list object containing all needed Cellranger outputs to run the VDJ_GEX_matrix function. Level 1 of the list are samples, level 2 are VDJ GEX and metadata information. (e.g. out[[1]][[1]] corresponds to VDJ data objects of sample 1)
 #' @export
 #' @examples
 #' \dontrun{
@@ -63,8 +63,6 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
   gex.list <- list()
   out.list <- list() #open list containing matrices
 
-  cat("Loading in data \n")
-
   #### Load in VDJ ####
   vdj.loaded <- F
   if(VDJ.out.directory.list[[1]] != "none"){
@@ -83,7 +81,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         VDJ.out.directory_metrics <- paste(VDJ.out.directory.list,"/metrics_summary.csv",sep="")
         metrics.table <- lapply(VDJ.out.directory_metrics, function(x) utils::read.csv(x,sep=",",header=T))
       } else {
-        cat("! metrics_summary.csv file not available in at least one of the VDJ input directories. Loading will be skipped \n")
+        warning("! metrics_summary.csv file not available in at least one of the VDJ input directories. Loading will be skipped \n")
         metrics.table <- as.list(rep("none",length(VDJ.out.directory.list)))
       }
 
@@ -98,7 +96,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         #merge directly with contig dataframe to have annotations and sequence in one place for later
         contig.table[[ikj]] <- merge(contig.table[[ikj]], raw.contig.table[[ikj]], by = "contig_id", all.x = T, all.y = F) #making sure to only merge in raw contig sequences for contigs which are present in the table containing annotations
         if(sum(is.na(contig.table[[ikj]]$raw_contig)) > 0.5*nrow(contig.table[[ikj]])){
-          cat("! Merging of raw contigs and filtered_contig_annotations showed unsusually low overlap \n")
+          warning("! Merging of raw contigs and filtered_contig_annotations showed unsusually low overlap \n")
         }
       }
 
@@ -133,7 +131,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
               )}))### returns this dataframe with these four outputs. if you dont have annotations sufficient for both, then you will just an empty character vector. For high confidence cells we have start and stop.
         }
       } else { #in at least one directory the all_contig_annotations.json was not found
-        cat("Warning: At least one VDJ input directory is missing the file all_contig_annotations.json. Without this, accurate trimming and aligning of sequences is not possible. Setting trim.and.align to FALSE and proceeding. For an alternate mode of aligment please refer to the function VDJ_call_MIXCR \n")
+        warning("Warning: At least one VDJ input directory is missing the file all_contig_annotations.json. Without this, accurate trimming and aligning of sequences is not possible. Setting trim.and.align to FALSE and proceeding. For an alternate mode of aligment please refer to the function VDJ_call_MIXCR \n")
         trim.and.align <- F
         annotations.table <- as.list(rep("none", length(contig.table)))
       }
@@ -147,16 +145,15 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         if(file.exists(VDJ.out.directory_AIRR[[j]])){
           airr.table[[j]] <- utils::read.delim(VDJ.out.directory_AIRR[[j]], header = T)
         } else {
-          cat(paste0("\n airr_rearrangements.tsv not found for sample ", j, ". AIRR compatibility for this sample will not be available"))
+          warning(paste0("\n airr_rearrangements.tsv not found for sample ", j, ". AIRR compatibility for this sample will not be available"))
           airr.table[[j]] <- "none"
         }
       }
 
       vdj.loaded <- T
-      cat("Loaded VDJ data \n")
     }, error = function(e){
-      cat("Loading VDJ failed \n")
-      print(e)})
+      message(paste0("Loading VDJ failed \n ",e))
+})
   } else{
     clonotype.list <- as.list(rep("none",length(GEX.out.directory.list)))
     reference.list <- as.list(rep("none",length(GEX.out.directory.list)))
@@ -180,10 +177,10 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
 
         if(dir.exists(paste(GEX.out.directory.list[[1]],"/filtered_feature_bc_matrix",sep=""))){ #checking only for first path assuming that all sample inputs are processed with the same cellranger function
           GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/filtered_feature_bc_matrix",sep="")
-          cat("Setting GEX directory to provided path/filtered_feature_bc_matrix \n")
+          message("Setting GEX directory to provided path/filtered_feature_bc_matrix \n")
         } else if (dir.exists(paste(GEX.out.directory.list[[1]],"/sample_feature_bc_matrix",sep=""))){
           GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/sample_feature_bc_matrix",sep="")
-          cat("Setting GEX directory to provided path/sample_feature_bc_matrix \n")
+          message("Setting GEX directory to provided path/sample_feature_bc_matrix \n")
         } else {
           stop("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Please revise GEX input paths")
         }
@@ -199,15 +196,14 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       #dealing with possible mixed GEX FB inputs or multiple FB input matrices from the same directory
       for(i in 1:length(GEX.list)){ #iterating over main list
         if(class(GEX.list[[i]]) == "list"){ #this returns true only if the GEX directory import contained more than one marices => i.e. there is a GEX and a FB matrix
-          cat(paste0("GEX input ", i, " contains multiple count matrices. \n"))
           GEX_ind <- c() #open indices for GEX and FB list elements
           FB_ind <- c()
           for(j in 1:length(GEX.list[[i]])){ #Now iterating over the elements of this particular FB directory input
             if(nrow(GEX.list[[i]][[j]]) > 100){ #Checking whether this matrix may contain cite seq or feature barcodes. If the number of features is over 100, the matrix almost certainly contains GEX information. We will discard this matrix
-              cat(paste0("GEX input ", i, " element ", j, " contains > 100 features and will be loaded as GEX \n"))
+              message(paste0("GEX input ", i, " element ", j, " contains > 100 features and will be loaded as GEX \n"))
               GEX_ind <- c(GEX_ind, j)
             } else if(nrow(GEX.list[[i]][[j]]) < 100){
-              cat(paste0("GEX input ", i, " element ", j, " contains < 100 features and will be loaded as FB \n"))
+              message(paste0("GEX input ", i, " element ", j, " contains < 100 features and will be loaded as FB \n"))
               FB_ind <- c(FB_ind, j)
             }
           }
@@ -236,14 +232,8 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       }
 
       gex.loaded <- T
-      if(FB.loaded == F){
-        cat("Loaded GEX data \n")
-      } else {
-        cat("Loaded GEX and FB data \n")
-      }
     }, error = function(e){
-      cat("Loading GEX failed \n")
-      print(e)})
+      message(paste0("Loading GEX failed \n", e))})
   } else{
     GEX.list <- as.list(rep("none",length(VDJ.out.directory.list)))
     GEX.metrics <- as.list(rep("none",length(VDJ.out.directory.list)))
@@ -261,44 +251,43 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       #add the directory identifier
       if(stringr::str_detect(FB.out.directory.list[[1]], "filtered_feature_bc_matrix")){
         FB.out.directory.list.p <- FB.out.directory.list
-        cat("! Feature barcode path was specified explicitely to filtered_feature_bc_matrix. For better rates we recommend using the raw_feature_bc_matrix folder content ! \n ")
+        warning("! Feature barcode path was specified explicitely to filtered_feature_bc_matrix. For better rates we recommend using the raw_feature_bc_matrix folder content ! \n ")
       } else if (stringr::str_detect(FB.out.directory.list[[1]], "raw_feature_bc_matrix")){
         #Nothing to append
         FB.out.directory.list.p <- FB.out.directory.list
-        cat("Loading feature barcodes from raw_feature_bc_matrix folder \n")
+        message("Loading feature barcodes from raw_feature_bc_matrix folder \n")
       } else{
         FB.out.directory.list.p <- paste(FB.out.directory.list,"/raw_feature_bc_matrix",sep="")
-        cat("Loading feature barcodes from raw_feature_bc_matrix folder \n")
+        message("Loading feature barcodes from raw_feature_bc_matrix folder \n")
       }
       #Actually loading the data. Critical: if Cellranger 6.1.0 count was run with --libraries input containing both GEX and Feature Barcodes, reading it will result in a list of matrices instead of a single matrix. => the next section deals with this
       n_not_loaded <- 0
-      FB.list <- lapply(FB.out.directory.list.p, function(x) tryCatch({Seurat::Read10X(data.dir=x)}, 
+      FB.list <- lapply(FB.out.directory.list.p, function(x) tryCatch({Seurat::Read10X(data.dir=x)},
                                                                                 error = function(e){
                                                                                   n_not_loaded <- n_not_loaded + 1
                                                                                   return(NULL)})) #Catching an error which occurs when trying to load the directory "PLACEHOLDER/filtered_feature_bc_matrix" if a placeholder was provided in input directories.
-      
+
       #next we check if all elements of the new loaded list are null => if so we stop and report to the user that apparently the paths he provided were not correct
       if(n_not_loaded == length(FB.list)){
         stop("FB data loading failed from provided paths. Please revise input paths")
       }
-      
+
       #Replacing null values with "none" which will be picked up by the VGM function
       for(i in 1:length(FB.list)){
         if(is.null(FB.list[[i]])){
           FB.list[[i]] <- "none"
         }
       }
-      
-      
-      
+
+
+
       #dealing with possible mixed GEX FB inputs or multiple FB input matrices from the same directory
       for(i in 1:length(FB.list)){ #iterating over main list
         if(class(FB.list[[i]]) == "list"){ #this returns true only if the FB directory import contained more than one marices
-          cat(paste0("Feature barcode input ", i, " contains multiple count matrices. \n"))
           to_del <- c()
           for(j in 1:length(FB.list[[i]])){ #Now iterating over the elements of this particular FB directory input
             if(nrow(FB.list[[i]][[j]]) > 100){ #Checking whether this matrix may contain cite seq or feature barcodes. If the number of features is over 100, the matrix almost certainly contains GEX information. We will discard this matrix
-              cat(paste0("Feature barcode input ", i, " element ", j, " contains > 100 features and likely corresponds to GEX data. This matrix will be removed from further FB processing \n"))
+              message(paste0("Feature barcode input ", i, " element ", j, " contains > 100 features and likely corresponds to GEX data. This matrix will be removed from further FB processing \n"))
               to_del <- c(to_del, j) #Will be deleted later to not mess up the loop
             }
           }
@@ -312,15 +301,11 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       }
       #now flatten the remaining list
       FB.list <- do.call(list, unlist(FB.list, recursive=FALSE))
-      warning(paste0("At least one Feature barcode input contains multiple count matrices. Count matrices containing more than 100 features were filtered out from FB assignment as they most likely correspond to GEX data"))
       #Done => result should be a non-nested list of matrices only containing FB information. With this we can move forward
 
       FB.loaded <- T
-      cat("Loaded FB data \n")
-      print(Sys.time())
     })}, error = function(e){
-      cat("Loading FB failed \n")
-      print(e)})
+      message(paste0("Loading FB failed \n", e))})
 
   } else {
     if(FB.loaded == F){
@@ -350,7 +335,6 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       }
   names(out.list) <- c(paste0("Sample", c(1:length(VDJ.out.directory.list))))
 
-  print("Done")
   return(out.list)
 }
 

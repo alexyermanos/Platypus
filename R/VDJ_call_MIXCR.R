@@ -4,20 +4,20 @@
 #' @param mixcr.directory The directory containing an executable version of MiXCR. FOR WINDOWS USERS THIS IS SET TO THE CURRENT WORKING DIRECTORY (please paste the content of the MIXCR folder after unzipping into your working directory. Make sure, that mixcr.jar is not within any subfolders.)
 #' @param species Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR. Defaults to "hsa"
 #' @param simplify Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns
+#' @param platypus.version Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format
 #' @return For platypus.version = "v3" returns input VDJ dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.
-#' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format
 #' @seealso VDJ_extract_sequences
 #' @export
 #' @examples
 #' \dontrun{
-#' For platypus version 2
+#'#For platypus version 2
 #'VDJ_call_MIXCR(VDJ = VDJ.per.clone.output,
 #'mixcr.directory = "~/Downloads/mixcr-3.0.12/mixcr",species = "mmu")
 #'
-#'For platypus version 3 on a Windows system
+#'#For platypus version 3 on a Windows system
 #'VDJ_call_MIXCR(VDJ = VDJ_GEX_matrix.output[[1]],
 #'mixcr.directory = "WILL BE SET TO CURRENT WORKING DIRECTORY",
-#'species = "mmu", platypus.version = "v3", simplify = T)
+#'species = "mmu", platypus.version = "v3", simplify = TRUE)
 #'}
 
 VDJ_call_MIXCR <- function(VDJ,
@@ -31,15 +31,15 @@ VDJ_call_MIXCR <- function(VDJ,
 
     if(missing(simplify)) simplify <- T
     if(missing(species)) species <- "hsa"
-    if(missing(platypus.version)) platypus.version <- "v2"
+    if(missing(platypus.version)) platypus.version <- "v3"
 
     if(missing(operating.system)){
       switch(Sys.info()[['sysname']],
-             Windows= {print("Windows system detected")
+             Windows= {message("Windows system detected")
                        operating.system <- "Windows"},
-             Linux  = {print("Linux system detected")
+             Linux  = {message("Linux system detected")
                       operating.system <- "Linux"},
-             Darwin = {print("MAC system detected")
+             Darwin = {message("MAC system detected")
                       operating.system <- "Darwin"})
 
     }
@@ -47,12 +47,11 @@ VDJ_call_MIXCR <- function(VDJ,
     switch(platypus.version,
            v3 = {if(class(VDJ) != "data.frame"){stop("When selecting platypus.version = 'v3', please input the VDJ matrix of the output of the VDJ_GEX_matrix function (usually VDJ.GEX.matrix.output[[1]]")}},
            v2 = {if(class(VDJ) != "list"){stop("When selecting platypus.version = 'v2', please input the list output of VDJ.per.clone")}},
-           {print("Please input either 'v2' or 'v3' as platypus.version")})
+           {stop("Please input either 'v2' or 'v3' as platypus.version")})
 
     #Everything set up, now going through all four possibilities
     if(platypus.version == "v3" & operating.system == "Windows"){
 
-    print("!Reminder For runtime stability a MIXCR executable has to be located in current working directory")
     mixcr.directory <- getwd()
 
     system("cmd.exe", input = paste("cd ", getwd(),sep=""))
@@ -151,13 +150,10 @@ VDJ_call_MIXCR <- function(VDJ,
         VDJ[is.na(VDJ[,i]),i] <- ""
       }
     }
-
-    print("Done")
     return(VDJ)
 
     } else if (platypus.version == "v2" & operating.system == "Windows") {
 
-      print("!Reminder For runtime stability a MIXCR executable has to be located in current working directory")
       mixcr.directory <- getwd()
 
       system("cmd.exe", input = paste("cd ", getwd(),sep=""))
@@ -331,8 +327,6 @@ VDJ_call_MIXCR <- function(VDJ,
 
     } else if (platypus.version == "v3" & operating.system %in% c("Darwin", "Linux")) {
 
-      if(missing(mixcr.directory)) print("No mixcr directory supplied. Assuming working directory holds mixcr executable")
-
       VDJ <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
 
       ### need to also read in the fastas
@@ -410,13 +404,12 @@ VDJ_call_MIXCR <- function(VDJ,
         }
       }
 
-      print("Done")
       return(VDJ)
 
     } else if (platypus.version == "v2" & operating.system %in% c("Darwin", "Linux")) {
 
 
-      if(missing(mixcr.directory)) print("No mixcr directory supplied. Assuming working directory holds mixcr executable")
+      if(missing(mixcr.directory)) message("No mixcr directory supplied. Assuming working directory holds mixcr executable")
       ### need to also read in the fastas
       for(i in 1:length(VDJ.per.clone)){
         temp.seq.hc <- list()

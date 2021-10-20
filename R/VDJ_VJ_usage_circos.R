@@ -6,14 +6,15 @@
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
-#' @param platypus.version Which platypus.version of platypus is being used. Default = v2. Set to v3 if VDJ_GEX_matrix.output[[1]] is used
+#' @param platypus.version Which platypus.version of platypus is being used. Default = v3. Set to v3 if VDJ_GEX_matrix.output[[1]] is used
 #' @param filter1H1L Whether to filter the input VDJ in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
-#' @examples
-#' \dontrun{
-#'  plots <- VDJ_VJ_usage_circos(VDJ = VDJ_GEX_matrix.output[[1]], platypus.version = "v3")
-#'}
 #' @export
+#' @examples
+#'  plots <- VDJ_VJ_usage_circos(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3",
+#'  cell.level = TRUE)
+#'
+
 
 VDJ_VJ_usage_circos <- function(VDJ,
                                 A.or.B,
@@ -31,7 +32,7 @@ VDJ_VJ_usage_circos <- function(VDJ,
   if(missing(c.threshold)){c.threshold <- 0}
   if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
   if(missing(c.count)){c.count <- T}
-  if(missing(platypus.version)){platypus.version <- "v2"}
+  if(missing(platypus.version)){platypus.version <- "v3"}
   if(missing(filter1H1L)){filter1H1L <- T}
 
   #naming compatibility
@@ -41,7 +42,7 @@ VDJ_VJ_usage_circos <- function(VDJ,
 
   # If new version with VDJ_GEX_matric output should be used
   if(platypus.version=="v3"){
-      print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus 3.0.0 is being used. The output VDJ dataframe of the VDJ_GEX_matrix function (VDJ_GEX_matrix[[1]]) required as input.")
+
       clonotype <- "clonotype_id_10x"
 
       #filter for 1H1L
@@ -72,8 +73,6 @@ VDJ_VJ_usage_circos <- function(VDJ,
 
       for (i in 1:length(VDJ.GEX_list)){
 
-      print(paste0("Plotting for sample ", unique(VDJ.GEX.matrix[[1]]$sample_id)[i]))
-
         VDJ.GEX_list[[i]]$alpha_VJ_gene <- paste(VDJ.GEX_list[[i]]$VJ_vgene, VDJ.GEX_list[[i]]$VJ_jgene, sep = "_")
         VDJ.GEX_list[[i]]$beta_VJ_gene <- paste(VDJ.GEX_list[[i]]$VDJ_vgene, VDJ.GEX_list[[i]]$VDJ_jgene, sep = "_")
 
@@ -98,8 +97,7 @@ VDJ_VJ_usage_circos <- function(VDJ,
         TRV <- TRBV
         TRJ <- TRBJ
       }else{
-        print("Please specify A.or.B or leave empty to plot both.")
-        return()
+        warning("Please specify A.or.B or leave empty to plot both.")
       }
 
       # create matrix Vgenes vs Jgenes
@@ -125,11 +123,10 @@ VDJ_VJ_usage_circos <- function(VDJ,
           dummy_beta_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$beta_VJ_gene))
           colnames(dummy_beta_df[[k]]) <- c("vjgene", "count")
         }else{
-          print("---")
-          print(paste0("Processing sample ", k))
-          print("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
-          print(paste("Chosen clonotype column: ", clonotype))
-          print("WARNING: If Circos plotting error occurs: Maybe your `gap.degree` is too large so that there is no space to allocate sectors -> You might want to increase clonotype.per.gene.threshold to reduce number of sectors in your Circos plots")
+          message(paste0("Processing sample ", k))
+          message("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
+          message(paste("Chosen clonotype column: ", clonotype))
+          message("WARNING: If Circos plotting error occurs: Maybe your `gap.degree` is too large so that there is no space to allocate sectors -> You might want to increase clonotype.per.gene.threshold to reduce number of sectors in your Circos plots")
 
           dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_VJ_gene, sep="/and/")))
           colnames(dummy) <- c("pasted")
@@ -193,7 +190,6 @@ VDJ_VJ_usage_circos <- function(VDJ,
 
   # In Case old platypus.version of Platypus is being used: VDJ_analyze output is the input
 
-    print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = 'v3'] for compatibility with VDJ_GEX_matrix().")
     for (i in 1:length(VDJ.GEX.matrix)) {
       VDJ.GEX.matrix[[i]] <- VDJ.GEX.matrix[[i]][which(VDJ.GEX.matrix[[i]]$frequency >=
                                                                  c.threshold), ]
@@ -229,8 +225,7 @@ VDJ_VJ_usage_circos <- function(VDJ,
       TRJ <- TRBJ
     }
     else {
-      print("Please specify A.or.B or leave empty to plot both.")
-      return()
+      warning("Please specify A.or.B or leave empty to plot both.")
     }
     Vgene_usage_matrix <- list()
     dummy_alpha_df <- list()
@@ -309,7 +304,7 @@ VDJ_VJ_usage_circos <- function(VDJ,
 
     #--- Forward Vgene_usage_matrix to Plotting function
   }else{
-    print("Please specify platypus platypus.version as either v2 or v3.")
+    warning("Please specify platypus platypus.version as either v2 or v3.")
   }
   plots <- list()
   for (i in 1:length(Vgene_usage_matrix)){

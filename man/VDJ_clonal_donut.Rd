@@ -13,8 +13,7 @@ VDJ_clonal_donut(
   total.label.vjust,
   total.label.hjust,
   expanded.colors,
-  non.expanded.color,
-  platypus.version
+  non.expanded.color
 )
 }
 \arguments{
@@ -35,17 +34,14 @@ VDJ_clonal_donut(
 \item{expanded.colors}{Character vector. Colors to use for expanded clones. Should be more than 3 for better visibility. Defaults to a "darkorchid3"-based palette.}
 
 \item{non.expanded.color}{Character. Color to use for non expanded clones. Defaults to "black"}
-
-\item{platypus.version}{Only v3 available.}
 }
 \value{
-Returns a list of plots. One for each sample in the sample_id column
+Returns a list of circular plots showing proportions of expanded clones and non-expanded clones. One plot is generated for each sample in the sample_id column
 }
 \description{
 Generate circular plots of clonal expansion per repertoire directly from the VDJ matrix of the VDJ_GEX_matrix function
 }
 \examples{
-\dontrun{
-VDJ_clonal_donut(VDJ = VDJ_GEX_matrix.output[[1]])
-}
+VDJ_clonal_donut(VDJ = Platypus::small_vgm[[1]])
+
 }

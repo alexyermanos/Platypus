@@ -11,6 +11,9 @@ select.top(clonotypes, top.n)
 
 \item{top.n}{The top n abundant clones to be selected.}
 }
+\value{
+a vector of indexes of top ranking clones
+}
 \description{
 Get the index of top ranking clones.
 }

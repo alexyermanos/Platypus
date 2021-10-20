@@ -15,6 +15,9 @@ cluster.id.igraph(meta.data, history, igraph.index, empty.node)
 
 \item{empty.node}{If TRUE, there will be empty node in igraph. if FALSE, the empty node will be deleted.}
 }
+\value{
+a list of clone network igraphs colored by seurat cluster id
+}
 \description{
 Get clone network igraphs colored by seurat cluster id.
 }

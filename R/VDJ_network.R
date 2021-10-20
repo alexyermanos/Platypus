@@ -3,18 +3,17 @@
 #' @param distance.cutoff The threshold Levenshtein distance for which two nodes will be connected on the similarity network.
 #' @param per.sample logical value indicating if a single networks should be produced for each mouse.
 #' @param hcdr3.only logical value indicating if the network is based on heavy chain cdr3s (hcdr3.only = T) or pasted heavy and light chain cdr3s (hcdr3.only = F), works for platypus.version 3 only
-#' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format
+#' @param platypus.version Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format
 #' @param known.binders Either a character vector with cdr3s of known binders or a data frame with cdr3s in the first and the corresponding specificity in the second column. If this parameter is defined, the output will be a network with only edges between known binders and the repertoire nodes and edges between the known binders that have at least one edge to a repertoire node
 #' @return returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
 #' @export
 #' @examples
-#' \dontrun{
-#' Platypus v2
-#' VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = T,distance.cutoff = 2)
+#' #Platypus v2
+#' #network_out <- VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = TRUE,distance.cutoff = 2)
+#' #Platypus v3
+#' network_out <- VDJ_network(VDJ = Platypus::small_vgm[[1]],per.sample = FALSE,distance.cutoff = 2)
 #'
-#' Platypus v3
-#' VDJ_network(VDJ = VDJ.GEX.matrix.output[[1]],per.sample = T,distance.cutoff = 2)
-#'}
+
 VDJ_network <- function(VDJ,
                         distance.cutoff,
                         per.sample,
@@ -123,7 +122,7 @@ VDJ_network <- function(VDJ,
         clonotype_list[[i]] <- subset(clonotype.list, clonotype.list$sample_id == unique(clonotype.list$sample_id)[i])
       }
       names(clonotype_list) <- unique(clonotype_list$sample_id)
-      print(paste0("Sample order: ", paste0(unique(clonotype.list$sample_id), collapse = " ; ")))
+      message(paste0("Sample order: ", paste0(unique(clonotype.list$sample_id), collapse = " ; ")))
 
       clonotype.list <- clonotype_list
 
@@ -219,7 +218,7 @@ VDJ_network <- function(VDJ,
 
 
       names(clonotype_list) <- unique(clonotype_list$sample_id)
-      print(paste0("Sample order: ", paste0(unique(clonotype.list$sample_id), collapse = " ; ")))
+      message(paste0("Sample order: ", paste0(unique(clonotype.list$sample_id), collapse = " ; ")))
 
       clonotype.list <- clonotype_list
       known.binders <- data.frame(known.binders)

@@ -9,7 +9,7 @@ VDJ_Vgene_usage(VDJ, platypus.version)
 \arguments{
 \item{VDJ}{For platypus.version = "v2" output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus.version = "v3" output VDJ dataframe from VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
 
-\item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
+\item{platypus.version}{Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format}
 }
 \value{
 Returns a list of matrices containing the number of Vgene heavy/light chain combinations per repertoire.
@@ -18,7 +18,7 @@ Returns a list of matrices containing the number of Vgene heavy/light chain comb
 Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix
 }
 \examples{
-\dontrun{
-example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ.clonotype.output = VDJ.clonotype.output)
-}
+example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ =
+Platypus::small_vgm[[1]], platypus.version = "v3")
+
 }

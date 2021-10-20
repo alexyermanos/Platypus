@@ -5,14 +5,15 @@
 #'@param trim.and.align Boolean. defaults to FALSE. Whether to trim VJ/VDJ seqs and add information from alignment in AIRR dataframe columns. ! No alignment is done here, instead, columns containing alignment information in the AIRR dataframes are reformatted.
 #'@param filter.overlapping.barcodes.VDJ Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.
 #'@param group.id vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input AIRR list are in group 1 and the third/fourth input elements will be in group 2.
-#'@return A VDJ_GEX_Matrix object used in Platypus V3
+#' @param verbose Writes runtime status to console. Defaults to FALSE
+#'@return A VDJ_GEX_Matrix object used in Platypus V3 as an input to most analysis and plotting functions
 #' @export
 #' @examples
 #' \dontrun{
 #'
 #' VGM <- PlatypusDB_AIRR_to_VGM(AIRR.input =
 #' list("~/pathto/s1/airr_rearrangement.tsv", "~pathto/s2/airr_rearrangement.tsv"),
-#' VDJ.combine = T, group.id = c(1,2), filter.overlapping.barcodes.VDJ = T)
+#' VDJ.combine = TRUE, group.id = c(1,2), filter.overlapping.barcodes.VDJ = TRUE)
 #' }
 #'
 PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
@@ -20,7 +21,11 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
                                    VDJ.combine,
                                    trim.and.align,
                                    filter.overlapping.barcodes.VDJ,
-                                   group.id){
+                                   group.id,
+                                   verbose){
+
+  if(missing(verbose)) verbose <- F
+
 
   clonotype_id_10x <- NULL
 
@@ -264,7 +269,6 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     VDJ.stats.list <- list()
     for(k in 1:length(airr.list)){
 
-      cat(paste0("\n Getting stats for ", k, " of ", length(airr.list), "...     "))
       VDJ.stats <- c()
 
       #gsub to be able to process TCRs as well
@@ -356,7 +360,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
   ########################################################################################### STOP VDJ_GEX_stats
 
 
-  cat("\n Loading in data     ")
+  if(verbose) cat("\n Loading in data     ")
   print(Sys.time())
 
   #combine all samples into one table
@@ -369,13 +373,13 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
   #get input as list
   if(class(AIRR.input) == "list"){
     if(class(AIRR.input[[1]]) == "data.frame"){ #case 1.
-      cat("\n Dataframe input detected")
+      if(verbose) cat("\n Dataframe input detected")
       airr.list <- AIRR.input
       airr.names <- "Input from R enviroment"
       vdj_loaded <- T
 
     } else if(class(AIRR.input[[1]]) == "character"){ #case 3
-      cat("\n Local paths input detected. Loading in tables")
+      if(verbose) cat("\n Local paths input detected. Loading in tables")
       airr.names <- paste0(unlist(AIRR.input),collapse = ";")
       vdj_load_error <- tryCatch({
         airr.list <- list()
@@ -384,7 +388,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
             airr.list[[j]] <- utils::read.delim(AIRR.input[[j]], header = T)
             vdj_loaded <- T
           } else {
-            warning(paste0(" File not found for sample ", j, ". Skipping this sample..."))
+            if(verbose) warning(paste0(" File not found for sample ", j, ". Skipping this sample..."))
             airr.list[[j]] <- "none"
           }
         }
@@ -416,7 +420,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
                      "filter.overlapping.barcodes.VDJ",
                      "group.id")
 
-  cat("\n AIRR tables loaded     ")
+  if(verbose) cat("\n AIRR tables loaded     ")
   print(Sys.time())
 
 
@@ -426,13 +430,13 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
 
       out.stats <- AIRR_VDJ_stats_int(airr.list = airr.list)
       stats.done <- T
-      cat("\n Got VDJ stats    ")
-      print(Sys.time())
+      if(verbose) cat("\n Got VDJ stats    ")
+      if(verbose) print(Sys.time())
 
     }, error = function(e){e
-      cat("\n VDJ stats failed: ")
+      if(verbose) cat("\n VDJ stats failed: ")
       out.stats <- "failed"
-      print(e)})
+      if(verbose)print(e)})
   } else {
     out.stats <- "none"
   }
@@ -443,7 +447,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
   for(i in 1:length(airr.list)){
   barcodes_VDJ[[i]] <- unique(airr.list[[i]]$cell_id)
 
-  cat(paste0("\n For sample ", i, ": ", length(barcodes_VDJ[[i]])," cell assigned barcodes in VDJ"))
+  if(verbose) cat(paste0("\n For sample ", i, ": ", length(barcodes_VDJ[[i]])," cell assigned barcodes in VDJ"))
   }
 
   #remove sample overlapping barcodes in VDJ
@@ -454,7 +458,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       for(i in 1:length(barcodes_VDJ)){
         barcodes_VDJ[[i]] <- barcodes_VDJ[[i]][which(!barcodes_VDJ[[i]] %in% non_unique_barcodes)]
       }
-      cat(paste0("\n Removed a total of ", length(non_unique_barcodes), " cells with non unique barcodes"))
+      if(verbose) cat(paste0("\n Removed a total of ", length(non_unique_barcodes), " cells with non unique barcodes"))
     }
   }
 
@@ -462,7 +466,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     VDJ.proc.list <- list()
     for(i in 1:length(airr.list)){
 
-      cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(airr.list), "...     "))
+      if(verbose) cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(airr.list), "...     "))
       print(Sys.time())
 
       VDJ.proc.list[[i]] <- lapply(barcodes_VDJ[[i]], AIRR_barcode_VDJ_iteration, airrs = airr.list[[i]])
@@ -519,8 +523,8 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       VDJ.proc.list[[i]] <- merge(VDJ.proc.list[[i]], VDJ_airr, by = "orig_barcode", all.x = T, all.y = F)
       VDJ_airr <- NULL
 
-      cat(paste0("\n \t Done with ", i , " of ", length(airr.list), "     "))
-      print(Sys.time())
+      if(verbose) cat(paste0("\n \t Done with ", i , " of ", length(airr.list), "     "))
+      if(verbose) print(Sys.time())
     }
 
     VDJ.proc <- VDJ.proc.list
@@ -529,8 +533,8 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       VDJ.proc <- dplyr::bind_rows(VDJ.proc)
     }
 
-    cat("\n Done     ")
-    print(Sys.time())
+    if(verbose) cat("\n Done     ")
+    if(verbose) print(Sys.time())
 
     return(list("VDJ" = VDJ.proc,
                 "GEX" = "none",

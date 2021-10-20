@@ -31,7 +31,7 @@ All homology calculations are performed on the amino acid level.}
 
 \item{output.format}{String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframes", or "phylo.dataframe". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframes" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.}
 
-\item{platypus.version}{Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".}
+\item{platypus.version}{Default is "v3". To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".}
 }
 \value{
 Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.
@@ -40,10 +40,8 @@ Returns a list of clonotype dataframes where each list element matches the  repe
 Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
 }
 \examples{
-\dontrun{
-VDJ_clonotype(VDJ=VDJ.analyze.output,
- clone.strategy="VDJJ.VJJ.cdr3length.cdr3homology",
- homology.threshold=".3")
- }
+reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
+ clone.strategy="VDJJ.VJJ",
+ homology.threshold=".3", platypus.version = "v3")
 
 }

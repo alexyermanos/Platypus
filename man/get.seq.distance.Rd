@@ -11,6 +11,9 @@ get.seq.distance(germline, sequence)
 
 \item{sequence}{A string of the sequence to be compared, which has the same length as germline.}
 }
+\value{
+the number of unmatched bases in 2 sequences.
+}
 \description{
 Computing sequence distance according to the number of unmatched bases.
 }

@@ -1,19 +1,19 @@
-#' Loads and saves RData objects from the PlatypusDB
+#' Lists metadata tables of available projects on PlatypusDB
 #' @param keyword Character. Keyword by which to search project ids (First Author, Year) in the database. Defaults to an empty string ("") which will list all projects currently available
 #' @return A list of metadata tables by project. List element names correspond to project ids to use in the PlatypusDB_fetch function
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' #Get list of all available projects and metadata.
 #' PlatypusDB_projects <- PlatypusDB_list_projects()
 #'
 #' #Names of list are project ids to use in PlatypusDB_fetch function
-#' names(PlatpyusDB_projects)
+#' names(PlatypusDB_projects)
 #' #Common format: first author, date, letter a-z (all lowercase)
 #'
-#' View metadata of a specific project
-#' View(PlatypusDB_projects[["Yermanos2021a"]])
+#' #View metadata of a specific project
+#' print(PlatypusDB_projects[["Kuhn2021a"]])
 #'
 #' }
 #'
@@ -23,12 +23,6 @@ PlatypusDB_list_projects <- function(keyword){
 
   if(missing(keyword)) keyword <- ""
 
-  if(keyword == ""){
-    print("Fetching list of all projects...")
-  } else {
-    print(paste0("Searching for keyword ", keyword, " and returning list of hits"))
-  }
-
   #Get the lookup table
   tryCatch({
     load(url("https://storage.googleapis.com/platypusdb_lookup/platypus_url_lookup.RData"))
@@ -36,8 +30,7 @@ PlatypusDB_list_projects <- function(keyword){
     #platypusdb_lookup <- new_lookup
 
     }, error=function(e){
-    print(e)
-    print(paste0("Failed to load lookup table. Please verify internet connection"))})
+    message(paste0("Failed to load lookup table. Please verify internet connection \n ", e))})
 
   platypusdb_lookup <- platypus_url_lookup #Reassignment
 
@@ -51,7 +44,6 @@ PlatypusDB_list_projects <- function(keyword){
     }
   }
 
-  print("Downloading metadata list...")
   out.list <- list()
   for(i in 1:nrow(platypusdb_meta)){
     tryCatch({
@@ -65,11 +57,8 @@ PlatypusDB_list_projects <- function(keyword){
         rm(list = ls(pattern = curr_download_name, envir = .GlobalEnv), envir = .GlobalEnv)
 
     }, error=function(e){
-      print(e)
-      print(paste0("Failed to load",  platypusdb_meta$url[i]))})
+      message(paste0("Failed to load",  platypusdb_meta$url[i], " \n" , e))})
   }
-
-    print("Done")
     return(out.list) #return loaded files
   }
 

@@ -22,8 +22,6 @@ Returns a stacked barplot that visualizes the seurat cluster membership for diff
 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 }
 \examples{
-\dontrun{
-GEX_phenotype.test <- GEX_phenotype(seurat.object = automate.gex.output[[1]]
-, clonotype.ids= c(1,2,3,4,5))
-}
+GEX_phenotype.test <- GEX_phenotype(seurat.object = Platypus::small_vgm[[2]])
+
 }

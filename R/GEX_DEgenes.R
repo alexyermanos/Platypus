@@ -11,39 +11,37 @@
 #' @param color.p.threshold numeric specifying the adjusted p-value threshold for geom_points to be colored. Default is set to 0.01.
 #' @param color.log.threshold numeric specifying the absolute logFC threshold for geom_points to be colored. Default is set to 0.25.
 #' @param color.by.threshold Boolean. Set to TRUE to color by color.p.threshold and color.log.threshold. Set to FALSE for a continuous color scale by fold change.
-#' @param return.plot Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none
+#' @param return.plot Character specifying if a "heatmap", or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none
 #' @param up.genes FOR HEATMAP Integer specifying the number of upregulated genes to be shown.
 #' @param down.genes FOR HEATMAP Integer specifying the number of downregulated genes to be shown.
 #' @param genes.to.label FOR VOLCANO Character vector of genes to label irregardless of their p value.
 #' @param label.n.top.genes FOR VOLCANO Interger. How many top genes to label either by Fold change (if logFC == TRUE) or by p.value (if logFC == FALSE). More than 50 are not recommended. Also works in conjunction with genes.to.label
-#' @param platypus.version Function works with V2 and V3, no need to set this parameter
-#' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
+#' @return Returns a list with out[[1]] = a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups. out[[2]] = either a "heatmap" (set return.plot accordingly), or "volcano" plot
 #' @export
 #' @examples
-#' \dontrun{
-#' Basic run between two samples
-#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
-#' group1 = "s1",group2 = "s2", platypus.version = "v3")
+#' #Basic run between two samples
+#' GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+#' group1 = "s1",group2 = "s2")
 #'
-#' Getting DEGs between two seurat clusters
-#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
-#' grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
+#' #Getting DEGs between two seurat clusters
+#' #GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+#' #grouping.column = "seurat_clusters",group1 = "0",group2 = "1")
 #'
-#' Plotting a heatmap by foldchange of sample markers
-#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
-#' ,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
-#' , up.genes = 10, down.genes = 10m, logFC = TRUE)
+#' #Plotting a heatmap by foldchange of sample markers
+#' #GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+#' #,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
+#' #, up.genes = 10, down.genes = 10, logFC = TRUE)
 #'
-#' Plotting volcano by p value of sample markers. Label additional genes of interest
-#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
-#' ,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
-#' , label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
+#' #Plotting volcano by p value of sample markers. Label additional genes of interest
+#' #GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
+#' #,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
+#' #, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
 #'
-#' Generate a heatmap from an already existing FindMarkers output
-#' GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
-#' , FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
-#' , up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
-#'}
+#' #Generate a heatmap from an already existing FindMarkers output
+#' #GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+#' #, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
+#' #, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
+
 GEX_DEgenes <- function(GEX,
                         FindMarkers.out,
                         grouping.column,
@@ -60,8 +58,7 @@ GEX_DEgenes <- function(GEX,
                         down.genes,
                         base,
                         label.n.top.genes,
-                        genes.to.label,
-                        platypus.version){
+                        genes.to.label){
 
   SYMBOL <- NULL
   avg_logFC <- NULL
@@ -70,15 +67,9 @@ GEX_DEgenes <- function(GEX,
 
   if(missing(FindMarkers.out)) FindMarkers.out <- "none"
   if(missing(return.plot)) return.plot <- "none"
-  if(return.plot == T){
-    print("Please set return.plot to either 'volcano', 'heatmap' or 'none'")
-    print("Setting return.plot to 'heatmap' for now")
+  if(return.plot == T | return.plot == F){
+    warning("Please set return.plot to either 'volcano', 'heatmap' or 'none'; Setting return.plot to 'heatmap' for now")
     return.plot <- "heatmap"
-  }
-  if(return.plot == F){
-    print("Please set return.plot to either 'volcano', 'heatmap' or 'none'")
-    print("Setting return.plot to 'none' for now")
-    return.plot <- "none"
   }
   if(missing(label.n.top.genes)) label.n.top.genes <- 30
   if(missing(genes.to.label)) genes.to.label <- "none"

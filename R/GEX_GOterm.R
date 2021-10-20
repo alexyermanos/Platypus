@@ -16,11 +16,11 @@
 #' @examples
 #' \dontrun{
 #'
-#'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = T, species= "Mm", ontology = "MF")
-#'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = T, species= "Mm",
-#' ontology = "BP", go.plots = T)
+#'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = TRUE, species= "Mm", ontology = "MF")
+#'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = TRUE, species= "Mm",
+#' ontology = "BP", go.plots = TRUE)
 #'
-#' Can install the needed database with
+#'#Install the needed database with
 #'#if (!requireNamespace("BiocManager", quietly = TRUE))
 #'#install.packages("BiocManager")
 #'#BiocManager::install("org.Mm.eg.db")
@@ -46,7 +46,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   DE_genes <- NULL
   KEGG_term <- NULL
 
-  if (missing(GEX.cluster.genes.output)) {print("Please submit either GEX_cluster_genes output or list of gene Symbols")}
+  if (missing(GEX.cluster.genes.output)) {stop("Please submit either GEX_cluster_genes output or list of gene Symbols")}
   if (missing(topNgenes)) {}
   if (missing(ontology)) {ontology <- "BP"}
   if (missing(species)) {species <- "Mm"}
@@ -103,7 +103,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
         }
 
         if(missing(topNgenes)){
-          print("missing topNgenes argument: all genes will be used")
+          message("missing topNgenes argument: all genes will be used")
           gene.list[[i]] <- GEX.cluster.genes.output[[i]]$symbol$ENTREZID
         }else{
           gene.list[[i]] <- utils::head(GEX.cluster.genes.output[[i]]$symbol$ENTREZID, topNgenes)

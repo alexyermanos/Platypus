@@ -1,10 +1,10 @@
 Package: Platypus
 Type: Package
-Title: A package for single-cell immune repertoire and gene expression analysis
-Description: We present Platypus, an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. Platypus provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology (Yermanos A, et al (2021) <https://doi.org/10.1093/nargab/lqab023>). 
-Version: 3.2
-Date: 2021-09-27
-Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ayermano@ethz.ch"),
+Title: Single-Cell Immune Repertoire and Gene Expression Analysis
+Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology (Yermanos A, et al (2021) <doi:10.1093/nargab/lqab023>). 
+Version: 3.2.2
+Date: 2021-09-23
+Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "vkreiner@ethz.ch"),
              person("Andreas", "Agrafiotis", role = "ctb"),
              person("Raphael", "Kuhn", role = "ctb"),
 	     person("Victor", "Kreiner", role = "ctb"),
@@ -14,20 +14,20 @@ Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ay
              person("Chrysa", "Papadopoulou", role = "ctb"),
              person("Cédric", "Weber", role = "ctb"),
 	     person("Danielle", "Shlesinger", role = "ctb"),
-	     person("Raphael", "Dizerens", role = "ctb"))
-Maintainer: Alexander Yermanos <ayermano@ethz.ch>
+	     person("Raphael", "Dizerens ayermanos@gmail.com", role = "ctb"))
+Maintainer: Alexander Yermanos <vkreiner@ethz.ch>
 Depends:
     R(>= 3.5.0)
 Imports:
     BiocGenerics,
-    Biostrings,
+    Biostrings,   
     dplyr, 
     ggplot2,
-    jsonlite,
     knitr,
+    jsonlite,
     Matrix,
     plyr,
-    reshape2,
+    reshape2, 
     rmarkdown,
     seqinr,
     Seurat,
@@ -35,7 +35,6 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    tidyverse,
     utils,
     useful
 Suggests:
@@ -54,25 +53,24 @@ Suggests:
     gridExtra,
     harmony,
     igraph,
-    IRanges, 
+    IRanges,
     limma,
     keras,
     methods,
-    monocle3,
     msigdbr,
     org.Mm.eg.db,
     pheatmap,
     phytools,
     purrr,
     scales,
-    SeuratWrappers,
     SummarizedExperiment,
     stringdist,
     tensorflow,
     vegan,
-    velocyto
+    testthat (>= 3.0.0)
 License: GPL-2
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 LazyData: true
+Config/testthat/edition: 3

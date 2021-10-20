@@ -11,7 +11,7 @@
 #' \dontrun{
 #' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list
 #' ,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4)
-#' ,metrics10x = T,save.csv = T ,filename = "stats.csv")
+#' ,metrics10x = TRUE,save.csv = TRUE ,filename = "stats.csv")
 #' }
 
 VDJ_GEX_stats <- function(VDJ.out.directory,
@@ -55,10 +55,10 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
       GEX.metrics.list <- lapply(GEX.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
       gex.loaded <- T
     }else {
-      print("Length of GEX out directory not the same as VDJ out directory. GEX will not be loaded")
+      warning("Length of GEX out directory not the same as VDJ out directory. GEX will not be loaded")
     }
   } else {
-    print("No GEX.out.directory supplied")
+    warning("No GEX.out.directory supplied")
   }
 
   if(missing(sample.names)){sample.names <- c(1:length(VDJ.out.directory))}
@@ -66,7 +66,6 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
   VDJ.stats.list <- list()
   for(k in 1:length(clonotype.list)){
 
-    print(paste0("Starting with ", k, " of ", length(clonotype.list)))
     VDJ.stats <- c()
 
     #gsub to be able to process TCRs as well
@@ -89,9 +88,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr unique barcodes"
 
     #generate lookup table with HC and LC counts and stats per barcode
-    print("Getting lookup tables")
-    holding_bar <- utils::txtProgressBar(min = 0, max = 1, initial = 0, char = "%",
-                                         width = 100, style = 3, file = "")
+
     barcodes <- c()
     nr_HC <- c()
     nr_LC <- c()
@@ -101,8 +98,6 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     full_length <- c()
     nr_bar <- 0
     for(j in unique(contig.list[[k]]$barcode)){
-      nr_bar <- nr_bar + 1
-      utils::setTxtProgressBar(value = nr_bar/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
       barcodes <- append(barcodes, j)
       is_cell <- append(is_cell, min(contig.list[[k]]$is_cell[which(contig.list[[k]]$barcode == j)])) #because most barcodes have two contigs (1HC, 1LC), the min function is used. Normally both contigs have the same "quality stats". In case they do not, the min function always chooses FALSE if present.
       high_confidence <- append(high_confidence, min(contig.list[[k]]$high_confidence[which(contig.list[[k]]$barcode == j)]))
@@ -120,7 +115,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     nr_HC <- c()
     nr_LC <- c()
     for(l in 1:nrow(clonotype.list[[k]])){
-      utils::setTxtProgressBar(value = (nr_bar+l)/(length(unique(contig.list[[k]]$barcode)) + nrow(clonotype.list[[k]])),pb = holding_bar)
+
       clonotype_ids <- append(clonotype_ids, clonotype.list[[k]]$clonotype_id[l])
 
       nr_HC <- append(nr_HC,stringr::str_count(clonotype.list[[k]]$cdr3s_aa[l], "IGH:"))
@@ -128,8 +123,6 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     }
     lookup_stats_clono <- data.frame(clonotype_ids,nr_HC,nr_LC)
     names(lookup_stats_clono) <- c("clonotype_ids","nr_HC","nr_LC")
-
-    close(holding_bar)
 
     #number of barcodes with
     #is cell == true
@@ -217,7 +210,6 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
   }
   VDJ.stats.all <- do.call(rbind, VDJ.stats.list)
 
-  print("Compiling table")
   if(metrics10x == T){
     tryCatch({
       #for VDJ
@@ -286,7 +278,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
         VDJ.metrics.all <- cbind(VDJ.metrics.all, GEX.metrics.all)
       }
     }, error = function(e){e
-      print(paste0("Adding 10x metrix failed: ", e))})
+      message(paste0("Adding 10x metrix failed: ", e))})
 
     VDJ.stats.all <- cbind(VDJ.stats.all, VDJ.metrics.all)
   } else {}

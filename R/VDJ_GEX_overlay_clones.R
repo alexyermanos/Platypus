@@ -13,39 +13,38 @@
 #' @return A ggplot object or a list of a ggplot and a gtable legend (if split.plot.and.legend \=\= TRUE). Theme, colors etc. may be changed directly by adding new elements to this output (e.g. out \+ theme_minimal())
 #' @export
 #' @examples
-#' \dontrun{
-#' To return a single plot with top clones across samples
+#'
+#' #To return a single plot with top clones across samples
 #' overlay_clones_plot <- VDJ_GEX_overlay_clones(
-#' GEX = VDJ_GEX_matrix_output[[2]], reduction = "tsne"
-#' ,n.clones = 5, by.sample = F
-#' ,by.other.group = "none", pt.size = 1,split.plot.and.legend = F)
+#' GEX = Platypus::small_vgm[[2]], reduction = "umap"
+#' ,n.clones = 5, by.sample = FALSE
+#' ,by.other.group = "none", pt.size = 1,split.plot.and.legend = FALSE)
 #'
-#' To return a facet plot with top clones for each sample
+#' #To return a facet plot with top clones for each sample
 #' overlay_clones_plot <- VDJ_GEX_overlay_clones(
-#' GEX = VDJ_GEX_matrix_output[[2]], reduction = "tsne"
-#' ,n.clones = 5, by.sample = T, by.other.group = "none"
-#' ,pt.size = 1,ncol.facet = 2, split.plot.and.legend = F)
+#' GEX = Platypus::small_vgm[[2]], reduction = "umap"
+#' ,n.clones = 5, by.sample = TRUE, by.other.group = "none"
+#' ,pt.size = 1,ncol.facet = 2, split.plot.and.legend = FALSE)
 #'
-#' To return a facet plot and the legend separately with top clones for each group
+#' #To return a facet plot and the legend separately with top clones for each group
 #' overlay_clones_plot <- VDJ_GEX_overlay_clones(
-#' GEX = VDJ_GEX_matrix_output[[2]], reduction = "tsne"
-#' ,n.clones = 5, by.sample = T, by.other.group = "group_id", pt.size = 1
-#' ,ncol.facet = 2, split.plot.and.legend = T)
+#' GEX = Platypus::small_vgm[[2]], reduction = "umap"
+#' ,n.clones = 5, by.sample = TRUE, by.other.group = "group_id", pt.size = 1
+#' ,ncol.facet = 2, split.plot.and.legend = TRUE)
 #'
-#' To print both:
-#' overlay_clones_plot[[1]] #Plot
-#' gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend
-#' To save, ggsave() is applicable to both
+#' #To print both:
+#' #overlay_clones_plot[[1]] #Plot
+#' #gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend
+#' #To save, ggsave() is applicable to both
 #'
-#' To return a single plot with selected clones
-#' add a clonotype_to_plot column
-#' GEX@meta.data$clonotype_to_plot <- GEX$VJ_vgene == "TRAV5-1"
-#' Column with TRUE for all clones with a particular V gene
-#' overlay_clones_plot <- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"
-#' , clones.to.plot = "clonotype_to_plot", by.sample = T, by.other.group = "none"
-#' , split.plot.and.legend = F, pt.size = 1.5)
+#' #To return a single plot with selected clones
+#' #add a clonotype_to_plot column
+#' #GEX@meta.data$clonotype_to_plot <- GEX$VJ_vgene == "TRAV5-1"
+#' #Column with TRUE for all clones with a particular V gene
+#' #overlay_clones_plot <- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"
+#' #, clones.to.plot = "clonotype_to_plot", by.sample = TRUE, by.other.group = "none"
+#' #, split.plot.and.legend = FALSE, pt.size = 1.5)
 #'
-#'}
 
 VDJ_GEX_overlay_clones <- function(GEX,
                                    reduction,
@@ -98,7 +97,6 @@ VDJ_GEX_overlay_clones <- function(GEX,
     cl_unique <- cbind(cl_unique, GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == F),c(clones.to.plot)])
     names(cl_unique)[ncol(cl_unique)] <- "clonotype_to_plot"
   }
-  print(utils::head(cl_unique))
   #order by frequency
   cl_unique <- cl_unique[order(cl_unique$clonotype_frequency, decreasing = T),]
 

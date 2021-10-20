@@ -3,13 +3,13 @@
 #' @param HC.gene.number Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.
 #' @param LC.Vgene Logical indicating whether to make a barplot of the LC V genes distribution. Default is set to FALSE.
 #' @param LC.gene.number Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.
-#' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format
+#' @param platypus.version Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format
 #' @return Returns a list of ggplot objects which show the distribution of IgH and IgK/L V genes for the most used V genes.
 #' @export
 #' @examples
-#' \dontrun{
-#' #To add
-#'}
+#' VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vgm[[1]],
+#' HC.gene.number = 2, platypus.version = "v3")
+#'
 
 VDJ_Vgene_usage_barplot <- function(VDJ,
                                     HC.gene.number,
@@ -27,7 +27,8 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
   LC_Vgene_usage <- list()
   LC_Vgene_usage_plot <- list()
   if(missing(LC.Vgene)) LC.Vgene <- FALSE
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
+  if(missing(HC.gene.number)) HC.gene.number <- 10
   #naming compatibility
   VDJ.matrix <- VDJ
   VDJ <- NULL
@@ -97,7 +98,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
       clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == F,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
-    print(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
+    message(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
 
 
     for (i in 1:length(clonotype.list)){

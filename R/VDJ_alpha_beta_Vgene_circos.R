@@ -1,4 +1,4 @@
-#'Makes a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
+#'Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
 #' @param VDJ The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.
 #' @param V.or.J Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.
@@ -7,14 +7,14 @@
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param B.or.Tcells Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.
 #' @param c.count Show clonotype or cell count on Circos plot. Default = T.
-#' @param platypus.version Which platypus.version of platypus is beeing used. Default = v2.
+#' @param platypus.version Which platypus.version of platypus is being used. Default = "v3".
 #' @param filter1H1L Whether to filter the input VDJ.matrix in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @export
 #' @examples
-#' \dontrun{
-#'  plots <- VDJ_alpha_beta_Vgene_circos(VDJ_GEX_matrix.output[[1]], platypus.version="v3")
-#'}
+#'  plots <- VDJ_alpha_beta_Vgene_circos(Platypus::small_vgm[[1]]
+#'  , platypus.version="v3")
+#'
 
 VDJ_alpha_beta_Vgene_circos <- function(VDJ,
                                         V.or.J,
@@ -33,11 +33,11 @@ if(missing(c.threshold)){c.threshold <- 0}
 if(missing(cell.level)){cell.level <- F}
 if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
 if(missing(c.count)){c.count <- T}
-if(missing(platypus.version)){platypus.version ="v2"}
+if(missing(platypus.version)){platypus.version ="v3"}
 if(missing(filter1H1L)){filter1H1L <- T}
 
 #define Variables
-  
+
   clonotype <- NULL
   bk <- NULL
   VDJ.GEX.matrix <- NULL
@@ -59,15 +59,11 @@ if(missing(filter1H1L)){filter1H1L <- T}
   nm <- NULL
   group <- NULL
   level <- NULL
-  
-  
-  
-  
+
 
 if(platypus.version=="v3"){
 
   #########################################################################
-  print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. VDJ output of VDJ_GEX_matrix() is required as input. (VDJ_GEX_matrix.output[[1]])")
   clonotype <- "clonotype_id_10x"
 
   #swapping to a list to not change the whole function
@@ -81,21 +77,19 @@ if(platypus.version=="v3"){
     for(i in 1:nrow(VDJ.GEX.matrix[[1]])){
       if(substr(VDJ.GEX.matrix[[1]]$VDJ_vgene[[i]],start=1, stop = 2)=="IG"){
         B.or.Tcells <- "B"
-        print("Bcells used")
         break
       }
       if(substr(VDJ.GEX.matrix[[1]]$VDJ_vgene[[1]],start=1, stop = 2)=="TR"){
         B.or.Tcells <- "T"
-        print("Tcells used")
         break
       }
       if(i == nrow(VDJ.GEX.matrix[[1]])){
-        print("Please specify whether B or T cells are beeing analyzed (Parameter B.or.Tcells)")
+        message("Please specify whether B or T cells are beeing analyzed (Parameter B.or.Tcells)")
         break
       }
     }
   }
-  
+
   plots <- list()
 
   #filter for 1H1L
@@ -129,7 +123,7 @@ if(platypus.version=="v3"){
 
   for (i in 1:length(VDJ.GEX_list)){
 
-    print(paste0("Plotting for sample ", unique(VDJ.GEX.matrix[[1]]$sample_id)[i]))
+    message(paste0("Plotting for sample ", unique(VDJ.GEX.matrix[[1]]$sample_id)[i]))
 
     VDJ.GEX_list[[i]]$alpha_beta_Vgene <- paste(VDJ.GEX_list[[i]]$VJ_vgene, VDJ.GEX_list[[i]]$VDJ_vgene, sep = "_")
     VDJ.GEX_list[[i]]$alpha_beta_Jgene <- paste(VDJ.GEX_list[[i]]$VJ_jgene, VDJ.GEX_list[[i]]$VDJ_jgene, sep = "_")
@@ -155,7 +149,7 @@ if(platypus.version=="v3"){
     TRA <- TRAJ
     TRB <- TRBJ
   }else{
-    print("Please specify V.or.J as 'V' or 'J'. Leave empty to plot both")
+    message("Please specify V.or.J as 'V' or 'J'. Leave empty to plot both")
   }
 
 
@@ -179,17 +173,16 @@ if(platypus.version=="v3"){
     #create dummy df which will contain the counts for each combination
 
     if(cell.level == T){
-      print("---")
       dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$alpha_beta_Vgene))
       colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
       dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$alpha_beta_Jgene))
       colnames(dummy_Jgene_df[[k]]) <- c("gene", "count")
     }else{
-      print("---")
-      print(paste0("Processing sample ", k))
-      print("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
-      print(paste("Chosen clonotype column: ", clonotype))
-      print("WARNING: If Circos plotting error occurs: Maybe your `gap.degree` is too large so that there is no space to allocate sectors -> You might want to increase clonotype.per.gene.threshold to reduce number of sectors in your Circos plots")
+      #print("---")
+      message(paste0("Processing sample ", k))
+      #print("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
+      #print(paste("Chosen clonotype column: ", clonotype))
+      #print("WARNING: If Circos plotting error occurs: Maybe your `gap.degree` is too large so that there is no space to allocate sectors -> You might want to increase clonotype.per.gene.threshold to reduce number of sectors in your Circos plots")
 
       dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype]],VDJ.GEX_list[[k]]$alpha_beta_Vgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
@@ -305,7 +298,7 @@ if(platypus.version=="v3"){
         }
       }
     }else{
-      print("Please specify whether B or T cells are analyzed. (Parameter B.or.Tcells)")
+     message("Please specify whether B or T cells are analyzed. (Parameter B.or.Tcells)")
     }
 
     # Set grouping factors based on previously defined levels. Order of levels defines order of groups in Circos plot.
@@ -315,15 +308,10 @@ if(platypus.version=="v3"){
   }
   plots[[i+1]] <- Vgene_usage_matrix
 
-
-
-
 }else if(platypus.version=="v2"){
 
 
-  ###############################################################################
-  print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus 2.0.5 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = new] for compatibility with VDJ_GEX_matrix().")
-
+  ##########################################################################
   if(missing(B.or.Tcells)){
     for(i in 1:nrow(VDJ[[1]])){
       if(substr(VDJ[[1]]$HC_vgene[[i]],start=1, stop = 2)=="IG"){
@@ -335,7 +323,7 @@ if(platypus.version=="v3"){
         break
       }
       if(i == nrow(VDJ[[1]])){
-        print("Please specify whether B or T cells are beeing analyzed (Parameter B.or.Tcells)")
+        message("Please specify whether B or T cells are beeing analyzed (Parameter B.or.Tcells)")
         break
       }
     }
@@ -379,7 +367,7 @@ if(platypus.version=="v3"){
         TRA <- TRAJ
         TRB <- TRBJ
       }else{
-        print("Please specify V.or.J as 'V' or 'J'. Leave empty to plot both")
+        message("Please specify V.or.J as 'V' or 'J'. Leave empty to plot both")
       }
 
 
@@ -503,7 +491,7 @@ if(platypus.version=="v3"){
             }
           }
         }else{
-          print("Please specify whether B or T cells are analyzed. (Parameter B.or.Tcells)")
+          message("Please specify whether B or T cells are analyzed. (Parameter B.or.Tcells)")
         }
 
         # Set grouping factors based on previously defined levels. Order of levels defines order of groups in Circos plot.
@@ -513,7 +501,7 @@ if(platypus.version=="v3"){
       }
       plots[[i+1]] <- Vgene_usage_matrix
 }else{
-  print("Please specify platypus platypus.version as either v2 or v3.")
+  stop("Please specify platypus platypus.version as either v2 or v3. v3 in case of VDJ_GEX_matrix input")
   }
   return(plots)
 }

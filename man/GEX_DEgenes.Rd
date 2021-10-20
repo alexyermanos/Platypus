@@ -21,8 +21,7 @@ GEX_DEgenes(
   down.genes,
   base,
   label.n.top.genes,
-  genes.to.label,
-  platypus.version
+  genes.to.label
 )
 }
 \arguments{
@@ -40,7 +39,7 @@ GEX_DEgenes(
 
 \item{filter}{Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.}
 
-\item{return.plot}{Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none}
+\item{return.plot}{Character specifying if a "heatmap", or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none}
 
 \item{logFC}{Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).}
 
@@ -59,38 +58,34 @@ GEX_DEgenes(
 \item{label.n.top.genes}{FOR VOLCANO Interger. How many top genes to label either by Fold change (if logFC == TRUE) or by p.value (if logFC == FALSE). More than 50 are not recommended. Also works in conjunction with genes.to.label}
 
 \item{genes.to.label}{FOR VOLCANO Character vector of genes to label irregardless of their p value.}
-
-\item{platypus.version}{Function works with V2 and V3, no need to set this parameter}
 }
 \value{
-Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
+Returns a list with out[[1]] = a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups. out[[2]] = either a "heatmap" (set return.plot accordingly), or "volcano" plot
 }
 \description{
 Extracts the differentially expressed genes between two groups of cells. These groups are defined as cells having either of two entries (group1, group2) in the grouping.column of the input Seurat object metadata This function uses the FindMarkers function from the Seurat package.
 }
 \examples{
-\dontrun{
-Basic run between two samples
-GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
-group1 = "s1",group2 = "s2", platypus.version = "v3")
+#Basic run between two samples
+GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+group1 = "s1",group2 = "s2")
 
-Getting DEGs between two seurat clusters
-GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25,
-grouping.column = "seurat_clusters",group1 = "1",group2 = "4")
+#Getting DEGs between two seurat clusters
+#GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+#grouping.column = "seurat_clusters",group1 = "0",group2 = "1")
 
-Plotting a heatmap by foldchange of sample markers
-GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
-,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
-, up.genes = 10, down.genes = 10m, logFC = TRUE)
+#Plotting a heatmap by foldchange of sample markers
+#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+#,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
+#, up.genes = 10, down.genes = 10, logFC = TRUE)
 
-Plotting volcano by p value of sample markers. Label additional genes of interest
-GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
-,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
-, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
+#Plotting volcano by p value of sample markers. Label additional genes of interest
+#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
+#,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
+#, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
 
-Generate a heatmap from an already existing FindMarkers output
-GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
-, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
-, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
-}
+#Generate a heatmap from an already existing FindMarkers output
+#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
+#, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
+#, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 }

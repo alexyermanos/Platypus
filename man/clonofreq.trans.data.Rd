@@ -15,6 +15,9 @@ clonofreq.trans.data(all.contig.annotations, history, trans.names, top.n)
 
 \item{top.n}{The top n abundant clones to be shown in the plot. If missing, all clones will be shown.}
 }
+\value{
+a dataframe with clonotype counts grouped by transcriptome state(cell type).
+}
 \description{
 Dataframe with clonotype counts grouped by transcriptome state(cell type).
 }

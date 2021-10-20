@@ -1,18 +1,19 @@
 #' Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 #' ! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.
-#' @param GEX For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.
+#' @param GEX For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output \[\[2\]\]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.
 #' @param clonotype.ids  For platypus.version == "v2" Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, these repertoires should be found in the automate_GEX library.
 #' @param GEX.group.by For platypus.version == "v3". Character. Column name of the GEX@meta.data to group barplot by. Defaults to seurat_clusters
 #' @param GEX.clonotypes For platypus.version == "v3". Numeric vector with ids of clonotypes to plot e.g. c(1,2,3,4). Can also be set to "topclones"
 #' @param global.clonotypes Boolean. Defaults to FALSE. Set to True if clonotyping has been done across samples
-#' @param platypus.version Set to either v2 or v3 automatically dependent on input format: v2 if clonotype.ids is provided and v3 if GEX.clonotypes is provided
+#' @param platypus.version Set to either "v2" or "v3" depending on wether suppyling GEX_automate or VDJ_GEX_matrix\[\[2\]\] objects. Defaults to "v3"
 #' @return Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.
 #' @export
 #' @examples
-#' \dontrun{
-#' GEX_phenotype_per_clone(seurat.object = automate.gex.output[[1]]
-#' , clonotype.ids= c(1,2,3,4,5))
-#'}
+#' #For testing: only a single clonotype in two samples
+#' small_vgm_cl <- Platypus::small_vgm
+#' small_vgm_cl[[2]]$clonotype_id_10x <- "clonotype1"
+#' GEX_phenotype_per_clone(GEX = small_vgm_cl[[2]]
+#' , GEX.clonotypes = c(1), GEX.group.by = "seurat_clusters", platypus.version = "v3")
 #'
 GEX_phenotype_per_clone <- function(GEX,
                                     clonotype.ids,
@@ -26,7 +27,7 @@ GEX_phenotype_per_clone <- function(GEX,
   clonotype_id_10x <- NULL
   clonotype_id <- NULL
 
-  if(!missing(clonotype.ids)) platypus.version <- "v2"
+  if(!missing(clonotype.ids)) platypus.version <- "v3"
 
   if(!missing(GEX.clonotypes)) platypus.version <- "v3"
   if(missing(global.clonotypes)) global.clonotypes <- F
@@ -76,7 +77,7 @@ print(class(temp.matrix))
     seurat.object <- subset(GEX, cells = colnames(GEX)[which(GEX$iscursample == TRUE)])
 
     #get clonotypes to plot
-    if(GEX.clonotypes == "topclones"){ #choose 10 top expanded clones
+    if(GEX.clonotypes[[1]] == "topclones"){ #choose 10 top expanded clones
       temp_choice <- seurat.object@meta.data[,c("clonotype_id_10x", "clonotype_frequency")]
       temp_choice <- subset(temp_choice, is.na(clonotype_id_10x) == F)
       temp_choice$clonotype_frequency <- as.numeric(temp_choice$clonotype_frequency)
@@ -84,7 +85,6 @@ print(class(temp.matrix))
 
       temp_choice <- temp_choice[c(1:10),]
       desired_strings <- unique(temp_choice$clonotype_id_10x)
-      print(paste0("Selected ", desired_strings))
     } else { desired_strings <- paste0("clonotype",GEX.clonotypes)}
     if(any(!desired_strings %in% seurat.object$clonotype_id_10x)) stop("At least one provided clonotype does not exist in the GEX object")
     #get group ides to plot
@@ -117,7 +117,6 @@ print(class(temp.matrix))
 
     temp.melt$clonotype_id <- ordered(as.factor(temp.melt$clonotype_id), levels = desired_strings)
 
-    print(temp.melt)
     stacked.ggplot<- ggplot2::ggplot(data=temp.melt, ggplot2::aes(x=clonotype_id, y=value, fill=variable)) +
       ggplot2::geom_bar(stat="identity")+
       ggplot2::ylab("Cell Counts")+

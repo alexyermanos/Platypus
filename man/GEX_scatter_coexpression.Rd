@@ -16,17 +16,14 @@ GEX_scatter_coexpression(GEX, gene.1, gene.2, color.theme)
 \item{color.theme}{Character. A color to use for the composite plot}
 }
 \value{
-Returns a gridplot showing coexpression of gene.1 and gene.2
+Returns a gridplot showing coexpression scatterplot as well as histograms of gene.1 and gene.2
 }
 \description{
 Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
 }
 \examples{
-\dontrun{
-gene1 <- "BCL6"
-gene2 <- "CD40"
-ggsave(filename = paste0("Coex_", gene1,"_", gene2,"_scat.png"),
-plot = GEX_scatter_coexpression(VDJ_comb[[2]], gene1,gene2),
-dpi = 300, width = 12, height = 12)
-}
+gene1 <- "CD24A"
+gene2 <- "CD83"
+GEX_scatter_coexpression(GEX = Platypus::small_vgm[[2]], gene1,gene2)
+
 }

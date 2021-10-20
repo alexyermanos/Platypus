@@ -26,6 +26,9 @@ clonofreq.trans.plot(
 
 \item{colors}{A named character vector of colors, the names are the isotypes. If missing, the default has 11 colors coresponding to the default isotype names.}
 }
+\value{
+a stacked barplot for clonotype counts grouped by transcriptome state(cell type).
+}
 \description{
 Plot a stacked barplot for clonotype counts grouped by transcriptome state(cell type).
 }

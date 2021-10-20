@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_isotypes_per_clone.R
 \name{VDJ_isotypes_per_clone}
 \alias{VDJ_isotypes_per_clone}
-\title{Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion}
+\title{Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion}
 \usage{
 VDJ_isotypes_per_clone(
   VDJ_clonotype_output,
@@ -35,7 +35,7 @@ VDJ_isotypes_per_clone(
 
 \item{treat.incomplete.cells}{Character indicating how to proceed with cells assigned to a clonotype but missing a VDJC. "proportional" to fill in the VDJ isotype according to the proportions present in of clonotype (in case present proportions are not replicable in the total number of cells e.g. 1/3 in 10 cells, values are rounded to the next full integer and if the new counts exceed the total number of cells, 1 is subtracted from the isotype of highest frequency. If the number is below the number of cell, 1 is added to the isotype with lowest frequency to preserve diversity), "exclude" to exclude them from analysis and rank clonotypes only by the number of actual contigs of there heavy chain. This ranking may deviate from the frequency column in the clonotype table. CAVE: if treat_incomplete_cells is set to "exclude", clonotypes lacking a VDJC entierly will be removed from the analysis. This results in a similar but not identical output as when treat_incomplete_clones is set to true. The two parameters are thereby non-redundant.}
 
-\item{platypus.version}{Defaults to "v2". For a more flexible analysis in v3 use VDJ_clonal_expansion()}
+\item{platypus.version}{Defaults to "v3". For a more flexible analysis in v3 use VDJ_clonal_expansion()}
 
 \item{VDJ.matrix}{The VDJ table output of the VDJ_GEX_matrix function. (VDJ_GEX_matrix.output[[1]])}
 }
@@ -43,7 +43,7 @@ VDJ_isotypes_per_clone(
 returns a list containing plots with the percentages of isotypes for each clone on the cell level.
 }
 \description{
-Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion
+Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion
 }
 \examples{
 \dontrun{

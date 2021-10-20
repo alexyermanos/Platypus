@@ -1,4 +1,4 @@
-#' Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion
+#' Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion
 #' @param VDJ_clonotype_output list of dataframes based on the VDJ_clonotype function output.
 #' @param VDJ_per_clone_output list of dataframes based on the VDJ_per_clone function output.
 #' @param clones numeric value indicating the number of clones to be displayed on the clonal expansion plot. Can take values between 1-50. Default value is 50.
@@ -8,7 +8,7 @@
 #' @param treat.incomplete.clones Character indicating how to proceed with clonotypes lacking a VDJC (in other words, no cell within the clonotype has a VDJC). "exclude" removes these clonotypes from the analysis. This may result in a different frequency ranking of clonotypes than in the output of the VDJ_analyse function with filter.1HC.1LC = FALSE. "include" keeps these clonotypes in the analysis. In the plot they will appear has having an unknown isotype.
 #' @param treat.incomplete.cells Character indicating how to proceed with cells assigned to a clonotype but missing a VDJC. "proportional" to fill in the VDJ isotype according to the proportions present in of clonotype (in case present proportions are not replicable in the total number of cells e.g. 1/3 in 10 cells, values are rounded to the next full integer and if the new counts exceed the total number of cells, 1 is subtracted from the isotype of highest frequency. If the number is below the number of cell, 1 is added to the isotype with lowest frequency to preserve diversity), "exclude" to exclude them from analysis and rank clonotypes only by the number of actual contigs of there heavy chain. This ranking may deviate from the frequency column in the clonotype table. CAVE: if treat_incomplete_cells is set to "exclude", clonotypes lacking a VDJC entierly will be removed from the analysis. This results in a similar but not identical output as when treat_incomplete_clones is set to true. The two parameters are thereby non-redundant.
 #' @param sample.names Vector. Names for samples in the order of the VDJ_GEX_matrix or the VDJ.analyze.output. Defaults to 1-n
-#' @param platypus.version Defaults to "v2". For a more flexible analysis in v3 use VDJ_clonal_expansion()
+#' @param platypus.version Defaults to "v3". For a more flexible analysis in v3 use VDJ_clonal_expansion()
 #' @param VDJ.matrix The VDJ table output of the VDJ_GEX_matrix function. (VDJ_GEX_matrix.output[[1]])
 #' @return returns a list containing plots with the percentages of isotypes for each clone on the cell level.
 #' @export
@@ -35,7 +35,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
   ClonalRank <- NULL
 
 
-  if(missing(clones)) print("Number of clones to be displayed has not been supplied. 50 clones will be displayed by default")
+  if(missing(clones)) message("Number of clones to be displayed has not been supplied. 50 clones will be displayed by default")
   if(missing(clones)) clones <- 50
   if(missing(VDJ_clonotype_output)) VDJ_clonotype_output <- list()
   if(missing(VDJ_per_clone_output)) VDJ_per_clone_output <- list()
@@ -49,7 +49,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
   if(missing(treat.incomplete.clones)) treat.incomplete.clones <- "exclude"
   if(missing(sample.names)) sample.names <- c(1:length(VDJ.GEX.matrix.out))
 
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
 
   if(platypus.version=="v3"){ ####START v3
 
@@ -133,8 +133,8 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
           clones_per_isotype_all[[i]]$ClonalRank <- clones_per_isotype_all[[i]]$ClonalRank_2
           #reorder the dataframe the sum_counts order by decreasing sum, the clonal rank is there to keep clones that have the same count sum together as a group of rows
 
-          print("New ranking based only on present HC chains: ")
-          print(unique(clones_per_isotype_all[[i]]$clonotype_id))
+          message("New ranking based only on present HC chains: ")
+          message(unique(clones_per_isotype_all[[i]]$clonotype_id))
         }
 
         output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG" = "green4", "IGHM" = "black", "IGHA" = "red3", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells")
@@ -232,8 +232,8 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
           clones_per_isotype_all[[i]]$ClonalRank <- clones_per_isotype_all[[i]]$ClonalRank_2
           #reorder the dataframe the sum_counts order by decreasing sum, the clonal rank is there to keep clones that have the same count sum together as a group of rows
 
-          print("New ranking based only on present HC chains: ")
-          print(unique(clones_per_isotype_all[[i]]$clonotype_id))
+          message("New ranking based only on present HC chains: ")
+          message(unique(clones_per_isotype_all[[i]]$clonotype_id))
 
         }
         if (species == "Human"){
@@ -254,7 +254,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
 
 
   if(clones<1 | clones>50){
-    print("Number of clones must be an integer value between 1 and 50")
+    stop("Number of clones must be an integer value between 1 and 50")
   }else{
 
     VDJ_per_clone_output_all <- list()

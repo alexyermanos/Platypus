@@ -13,6 +13,9 @@ get.n.node.plot(igraph.index.attr, clonotype.select, y.limit)
 
 \item{y.limit}{The upper limit for y axis in the plot.}
 }
+\value{
+the number of unique variants in each clone in a vector and the barplot. The first item in the output is the vector representing the numbers of unique variants, the second item is the barplot.
+}
 \description{
 Get the number of unique variants in each clone in a vector and the barplot. The first item in the output is the vector representing the numbers of unique variants, the second item is the barplot.
 }

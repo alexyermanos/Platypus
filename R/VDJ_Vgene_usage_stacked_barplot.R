@@ -5,16 +5,15 @@
 #' @param LC.Vgene Logical indicating whether to make a barplot of the LC V gene distribution. Default is set to FALSE.
 #' @param LC.gene.number Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.
 #' @param Fraction.LC Numeric value indicating the minimum fraction of clones expressing a particular LC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.
-#' @param platypus.version Set according to input format to either "v2" or "v3". Defaults to "v2"
+#' @param platypus.version Set according to input format to either "v2" or "v3". Defaults to "v3"
 #' @return Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.
 #' @export
 #' @examples
-#' \dontrun{
-#' Platypus v2
+#' #Platypus v3
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
-#' clonotype.list = covid_vdj_repertoire_bcells, LC.Vgene = T
-#' ,HC.gene.number = 15, Fraction.HC = 1)
-#'}
+#' VDJ = Platypus::small_vgm[[1]], LC.Vgene = TRUE
+#' ,HC.gene.number = 15, Fraction.HC = 1, platypus.version = "v3")
+#'
 
 VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
                                             HC.gene.number,
@@ -48,7 +47,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
   HC_Vgene_usage_fraction <- list()
 
 
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
 
   if(platypus.version == "v2"){
 
@@ -210,7 +209,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
       clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == F,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
-    print(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
+    message(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
 
     if(LC.Vgene == F){
 

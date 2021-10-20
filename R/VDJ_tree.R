@@ -1,4 +1,4 @@
-#' Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages
+#' only Platypus v2 Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages
 #' @param clonal.lineages Output from VDJ_clonal_lineages. This should be nested list, with the outer list element corresponding to the individual repertoire and the inner list corresponding to individual clonal lineages based on the initial clonotyping strategy in the form of a dataframe with either Seq or Name.
 #' @param with.germline Logical specifying if the germline should be set as outgroup. Default is set to TRUE.
 #' @param min.sequences integer value specifying the minimum number of sequences to be allowed for clonal lineages. Default is 3.
@@ -10,8 +10,8 @@
 #' @examples
 #' \dontrun{
 #' vdj.tree <- VDJ_tree(clonal.lineages = VDJ.clonal.lineage.output
-#' ,with.germline=T,min.sequences = 5
-#' ,max.sequences = 30,unique.sequences = T)
+#' ,with.germline=TRUE,min.sequences = 5
+#' ,max.sequences = 30,unique.sequences = TRUE)
 #'}
 VDJ_tree <- function(clonal.lineages,
                      with.germline,

@@ -1,20 +1,19 @@
-#' Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
-#' @param GEX GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output[[2]])
+#' Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.
+#' @param GEX GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output\[\[2\]\])
 #' @param genes Character vector. At least 2 genes present in rownames(GEX). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.
 #' @param subsample.n Interger. Number of cells to subsample. If set to 100, 100 cells will be randomly sampled for the calculation
 #' @param plot.dotmap Boolean. Whether to return a plot
-#' @return Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T
+#' @return Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T detailing the coexpression levels of selected genes within the given cell population
 #' @export
 #' @examples
-#' \dontrun{
-#' To return a dataframe with coefficients
-#' GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
-#', genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = F)
+#' #To return a dataframe with coefficients
+#' #GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
+#' #, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = FALSE)
 #'
-#'To return a dotplot detailing coexpression and overall expression
-#' GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
-#', genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = T)
-#'}
+#' #To return a dotplot detailing coexpression and overall expression
+#' GEX_coexpression_coefficient(GEX = Platypus::small_vgm[[2]]
+#', genes = c("CD19", "CD83"), subsample.n = "none", plot.dotmap = FALSE)
+
 
 GEX_coexpression_coefficient <- function(GEX,
                                          genes,
@@ -52,7 +51,7 @@ GEX_coexpression_coefficient <- function(GEX,
 
   combs <- utils::combn(c(1:ncol(cmat)), m = 2, simplify = F)
 
-  print(paste0("Calculating coexpression for ", ncol(cmat), " genes with ", nrow(cmat), " cells"))
+  message(paste0("Calculating coexpression for ", ncol(cmat), " genes with ", nrow(cmat), " cells"))
 
   out_coef <- do.call("c", lapply(combs, coex_coef ,cmat))
   out_n_dp <- do.call("c", lapply(combs, coex_coef ,cmat))

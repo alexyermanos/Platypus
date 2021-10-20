@@ -10,7 +10,8 @@ PlatypusDB_AIRR_to_VGM(
   VDJ.combine,
   trim.and.align,
   filter.overlapping.barcodes.VDJ,
-  group.id
+  group.id,
+  verbose
 )
 }
 \arguments{
@@ -25,9 +26,11 @@ PlatypusDB_AIRR_to_VGM(
 \item{filter.overlapping.barcodes.VDJ}{Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.}
 
 \item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input AIRR list are in group 1 and the third/fourth input elements will be in group 2.}
+
+\item{verbose}{Writes runtime status to console. Defaults to FALSE}
 }
 \value{
-A VDJ_GEX_Matrix object used in Platypus V3
+A VDJ_GEX_Matrix object used in Platypus V3 as an input to most analysis and plotting functions
 }
 \description{
 Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format. All compulsory AIRR data columns are needed. Additionally, the following columns are required: c_call, cell_id, clone_id. If trim.and.align is set to TRUE additionally the following columns are needed: v_sequence_start, j_sequence_end.
@@ -37,7 +40,7 @@ Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM ob
 
 VGM <- PlatypusDB_AIRR_to_VGM(AIRR.input =
 list("~/pathto/s1/airr_rearrangement.tsv", "~pathto/s2/airr_rearrangement.tsv"),
-VDJ.combine = T, group.id = c(1,2), filter.overlapping.barcodes.VDJ = T)
+VDJ.combine = TRUE, group.id = c(1,2), filter.overlapping.barcodes.VDJ = TRUE)
 }
 
 }

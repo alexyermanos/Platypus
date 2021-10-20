@@ -10,6 +10,7 @@ VDJ_plot_SHM(
   quantile.label,
   point.size,
   mean.line.color,
+  stats.to.console,
   platypus.version
 )
 }
@@ -24,6 +25,8 @@ VDJ_plot_SHM(
 
 \item{mean.line.color}{Color of mean bar in dotplots. Passed to geom_errorbar()}
 
+\item{stats.to.console}{Boolean. Defaults to FALSE. Prints basic statistics (AOV \+ post hoc test) to console}
+
 \item{platypus.version}{Character. Only "v3" available.}
 }
 \value{
@@ -33,14 +36,17 @@ Returns a list of ggplot objects. out\[\[1\]\] is a boxplot comparing SHM by gro
 Plots for SHM based on MIXCR output generated using the VDJ_call_MIXCR function and appended to the VDJ.GEX.matrix.output
 }
 \examples{
-\dontrun{
+#Simulating SHM data
+small_vgm <- Platypus::small_vgm
+small_vgm[[1]]$VDJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
+small_vgm[[1]]$VJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
 
-Standard plots
-SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output
+#Standard plots
+SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 , group.by = "sample_id", quantile.label = 0.9)
 
-Group by transcriptional cluster and label only top 1\\%
-SHM_plots <- VDJ_plot_SHM(VDJ.matrix = VDJ_call_MIXCR.output
+#Group by transcriptional cluster and label only top 1\\%
+SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 , group.by = "seurat_clusters", quantile.label = 0.99)
-}
+
 }
