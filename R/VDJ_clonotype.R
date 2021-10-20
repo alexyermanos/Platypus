@@ -7,15 +7,13 @@
 #' @param global.clonotype Logical specifying whether clonotyping should occur across samples or only within a single sample.
 #' @param VDJ.VJ.1chain Logical specifying whether cells with multiple VDJ and VJ chains should be removed from the clonotyping. Can be either T or F for those definitions not requiring germline genes or homology thresholds, as calculating the later is difficult when multiple chains are present.
 #' @param output.format String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframes", or "phylo.dataframe". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframes" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.
-#' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
+#' @param platypus.version Default is "v3". To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
 #' @return Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.
 #' @export
 #' @examples
-#' \dontrun{
-#' VDJ_clonotype(VDJ=VDJ.analyze.output,
-#'  clone.strategy="VDJJ.VJJ.cdr3length.cdr3homology",
-#'  homology.threshold=".3")
-#'  }
+#' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
+#'  clone.strategy="VDJJ.VJJ",
+#'  homology.threshold=".3", platypus.version = "v3")
 #'
 VDJ_clonotype <- function(VDJ,
                           clone.strategy,
@@ -31,7 +29,7 @@ VDJ_clonotype <- function(VDJ,
   ccombs1 <- NULL
 
 
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
   if(missing(output.format)) output.format <- "vgm"
   if(missing(global.clonotype)) global.clonotype <- F
   if(missing(clone.strategy)) clone.strategy <- "cdr3.aa"
@@ -50,7 +48,6 @@ VDJ_clonotype <- function(VDJ,
          VDJJ.VJJ.cdr3 = {clone.strategy <- "hvj.lvj.cdr3"},
          VDJJ.VJJ.cdr3lengths = {clone.strategy <- "hvj.lvj.cdr3lengths"})
 
-  print(clone.strategy)
   if(platypus.version=="v2"){####START v2
 
     #compatibility with input naming scheme
@@ -58,8 +55,8 @@ VDJ_clonotype <- function(VDJ,
     VDJ <- NULL
 
     output.clonotype <- list()
-    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) print("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
-    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3   # Setting default homology threshold
+    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) message("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
+    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3  # Setting default homology threshold
 
     #Possible strategy options:'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','hvj.lvj.cdr3length.cdr3homology', 'hvj.lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'.
     for(i in 1:length(clonotype.list)){
@@ -537,10 +534,10 @@ VDJ_clonotype <- function(VDJ,
           prior_filtering <- nrow(sample_dfs[[i]])
           sample_dfs[[i]] <- subset(sample_dfs[[i]],  (Nr_of_VDJ_chains > 0 | Nr_of_VJ_chains > 0) & sample_dfs[[i]]$Nr_of_VDJ_chains + sample_dfs[[i]]$Nr_of_VJ_chains < 4)
           if(nrow(sample_dfs[[i]]) > 0){
-          print(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
+          message(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
 
           ####only include clones with one heavy and one light chain
-          if(VDJ.VJ.1chain== T){print("Hierarchical clonotyping is specifically designed to better incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue without filtering. For standard clonotyping with filtering set hierarchical = FALSE. ")}####STOP strict
+          if(VDJ.VJ.1chain== T){message("Hierarchical clonotyping is specifically designed to incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue without filtering.")}####STOP strict
 
           #Prepwork to increase function speed
           #find cells with 1VJ chain only
@@ -559,7 +556,6 @@ VDJ_clonotype <- function(VDJ,
 
           ####Clonotyping strategies
           if(clone.strategy=="10x.default"){ ####START cdr3.nt
-            print("No hierarchical clustering available for 10x.default. Returning input clonotype annotations")
             sample_dfs[[i]]$new_clonal_feature <- sample_dfs[[i]]$clonotype_id_10x
           } ####STOP cdr3.nt
           if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
@@ -591,8 +587,6 @@ VDJ_clonotype <- function(VDJ,
               }
             }
             }
-
-
             #check cells with only one VDJ chain and nothing else
             if(length(onlyVDJ_ind) > 0){
               for(cel in onlyVDJ_ind){
@@ -600,7 +594,7 @@ VDJ_clonotype <- function(VDJ,
                 if(stringr::str_detect(aberant_cells$VDJ_cdr3s_nt[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                   clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,2])))
                 } else {
-                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_nt[cel]))
+                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_nt[cel]))
                 }
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
@@ -708,7 +702,7 @@ VDJ_clonotype <- function(VDJ,
                 if(stringr::str_detect(aberant_cells$VDJ_cdr3s_aa[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                   clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
                 } else {
-                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_aa[cel]))
                 }
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
@@ -1720,10 +1714,10 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
         prior_filtering <- nrow(sample_dfs[[i]])
         sample_dfs[[i]] <- subset(sample_dfs[[i]],  (Nr_of_VDJ_chains > 0 | Nr_of_VJ_chains > 0) & sample_dfs[[i]]$Nr_of_VDJ_chains + sample_dfs[[i]]$Nr_of_VJ_chains < 4)
         if(nrow(sample_dfs[[i]]) > 0){
-          print(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
+          message(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
 
         ####only include clones with one heavy and one light chain
-        if(VDJ.VJ.1chain== T){print("Hierarchical clonotyping is specifically designed to better incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue with out filtering. For standard clonotyping with filtering set hierarchical = FALSE. ")}####STOP strict
+        if(VDJ.VJ.1chain== T){message("Hierarchical clonotyping is specifically designed to better incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue with out filtering. For standard clonotyping with filtering set hierarchical = FALSE. ")}####STOP strict
 
         #Prepwork to increase function speed
         #find cells with 1VJ chain only
@@ -1740,9 +1734,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
         #now filter out the rest of abberant cells from the sample_dfs
         sample_dfs[[i]] <- subset(sample_dfs[[i]],Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
 
-
         if(clone.strategy=="10x.default"){ ####START cdr3.nt
-          print("No hierarchical clustering available for 10x.default. Returning input clonotype annotations")
           sample_dfs[[i]]$new_clonal_feature <- sample_dfs[[i]]$clonotype_id_10x
         } ####STOP cdr3.nt
         if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
@@ -1783,7 +1775,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               if(stringr::str_detect(aberant_cells$VDJ_cdr3s_nt[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,2])))
               } else {
-                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_nt[cel]))
+                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_nt[cel]))
               }
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
@@ -1868,16 +1860,19 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
               } else {
                 clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+
               }
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
 
                 aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
+
               } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                 aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
               } else { #no clone found with the light chain of this cell => open a new clone
+
                 aberant_cells$new_clonal_feature[cel] <- aberant_cells$VJ_cdr3s_aa[cel]
               }
             }
@@ -1891,18 +1886,21 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               if(stringr::str_detect(aberant_cells$VDJ_cdr3s_aa[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
               } else {
-                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_aa[cel]))
               }
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+
 
                 aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
               } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
+
                 aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
               } else { #no clone found with the light chain of this cell => open a new clone
                 aberant_cells$new_clonal_feature[cel] <- aberant_cells$VDJ_cdr3s_aa[cel]
+
               }
             }
           }
