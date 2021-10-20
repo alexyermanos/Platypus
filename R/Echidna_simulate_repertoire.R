@@ -40,7 +40,7 @@
 #' @return A list containing the VDJ sequence and corresponding transcriptome data: "all_contig_annotations", "clonotypes", "all_contig", "consensus","reference","reference_real", "transcriptome","igraph_list_iso","igraph_list_trans","Seq_Name","igraph.index.attr","history","igraph.index","selected.seq","version","parameters".
 #'
 #' @export
-simulate_repertoire <- function(initial.size.of.repertoire,
+Echidna_simulate_repertoire <- function(initial.size.of.repertoire,
                                 species,
                                 cell.type,
                                 cd4.proportion,
