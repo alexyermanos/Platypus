@@ -1003,6 +1003,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #adding raw sequences directly
       curr.barcode$VDJ_sequence_nt_raw <- curr.contigs$raw_contig[1]
       curr.barcode$VJ_sequence_nt_raw <- curr.contigs$raw_contig[2]
+      print
 
     } else { # this for cells with abberrant chain numbers
 
@@ -1078,7 +1079,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(trim.and.align == T){
         tryCatch({
         #find match in annotations
-        HC_contig <- which(curr.annotations$raw_consensus_id == curr.barcode$VDJ_raw_consensus_id) #This line is never reached if trim.and.align == F (either set by the user or set by the function if the all_contig_annotations.json was present in the input folders)
+        HC_contig <- which(curr.annotations$contig_id == curr.barcode$VDJ_chain_contig) #This line is never reached if trim.and.align == F (either set by the user or set by the function if the all_contig_annotations.json was present in the input folders)
+
         #trim sequence
         curr.barcode$VDJ_sequence_nt_trimmed <- substr(curr.barcode$VDJ_sequence_nt_raw, as.numeric(curr.annotations$temp_start[HC_contig])+1, as.numeric(curr.annotations$temp_end[HC_contig])-1)
         #translate trimmed sequence
@@ -1093,7 +1095,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           } else {to_paste_ref_trimmed <-  ""}
 
         }, error=function(e){
-          to_paste_ref_trimmed <- "ALIGNMENT ERROR"
+          curr.barcode$VDJ_sequence_nt_trimmed <- "ALIGNMENT ERROR"
+          curr.barcode$VDJ_sequence_aa <- "ALIGNMENT ERROR"
+          curr.barcode$VDJ_trimmed_ref <- "ALIGNMENT ERROR"
         })
       } else {
         curr.barcode$VDJ_sequence_nt_trimmed <- ""
@@ -1120,9 +1124,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #looping contigs in annotation
       for(l in 1:nrow(curr.annotations)){
         #looping over Hb contig ids (as there may be more than 1)
-        for(c in 1:length(stringr::str_split(curr.barcode$VDJ_raw_consensus_id, ";",simplify = T))){
+        for(c in 1:length(stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T))){
           #find a match
-          if(curr.annotations$raw_consensus_id[l] == stringr::str_split(curr.barcode$VDJ_raw_consensus_id, ";",simplify = T)[c]){
+          if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T)[c]){
               #trim sequence
               to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = T)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
               #translate trimmed sequence
@@ -1160,7 +1164,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(trim.and.align == T){
         tryCatch({
          #find match in annotations
-        LC_contig <- which(curr.annotations$raw_consensus_id == curr.barcode$VJ_raw_consensus_id)
+        LC_contig <- which(curr.annotations$contig_id == curr.barcode$VJ_chain_contig)
         #trim sequence
         curr.barcode$VJ_sequence_nt_trimmed <- substr(curr.barcode$VJ_sequence_nt_raw, as.numeric(curr.annotations$temp_start[LC_contig])+1, as.numeric(curr.annotations$temp_end[LC_contig])-1)
         #translate trimmed sequence
@@ -1200,9 +1204,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #looping contigs in annotation
       for(l in 1:nrow(curr.annotations)){
         #looping over Hb contig ids (as there may be more than 1)
-        for(c in 1:length(stringr::str_split(curr.barcode$VJ_raw_consensus_id, ";",simplify = T))){
+        for(c in 1:length(stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T))){
           #find a match
-          if(curr.annotations$raw_consensus_id[l] == stringr::str_split(curr.barcode$VJ_raw_consensus_id, ";",simplify = T)[c]){
+          if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T)[c]){
               #trim sequence
               to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = T)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
               #translate trimmed sequence
