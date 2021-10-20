@@ -99,7 +99,6 @@ Code to install the packages from CRAN:
 ``` r
 install.packages("ape")
 install.packages("circlize")
-install.packages("do")
 install.packages("dplyr")
 install.packages("ggplot2")
 install.packages("ggseqlogo")
@@ -128,6 +127,7 @@ Code for installing harmony:
 install.packages("devtools")
 library(devtools)
 install_github("immunogenomics/harmony")
+### if the install github does not work, try install.packages(“harmony”) from CRAN
 ```
 
 \#\#Bioconductor Code for installing the packages from Bioconductor:
