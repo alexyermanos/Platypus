@@ -39,6 +39,8 @@ VDJ_clonotype <- function(VDJ,
 
   #Making cloning stategy fitting with VDJ / VJ naming scheme
   #This way the old keyworks will still work and this update should not break any old code
+  #remember for renaming later
+  clone.strategy.as.input <- clone.strategy
   switch(clone.strategy,
          VDJJ.VJJ.cdr3length.cdr3homology = {clone.strategy <- 'hvj.lvj.CDR3length.CDR3homology'},
          VDJJ.VJJ.cdr3length.VDJcdr3homology  = {clone.strategy <- 'hvj.lvj.CDR3length.CDRH3homology'},
@@ -331,9 +333,10 @@ VDJ_clonotype <- function(VDJ,
 
           ####START recalculating clonotype_id and clonal_frequency
           #place holders
+          sample_dfs[[i]]$new_clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
-          sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
+
 
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
@@ -352,7 +355,7 @@ VDJ_clonotype <- function(VDJ,
           #new clonotype id
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           for(j in 1:length(unique.clonal.features)){
-            sample_dfs[[i]]$clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+            sample_dfs[[i]]$new_clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
           }####STOP assigning new clonotype id
         }####STOP sample loop
       }####STOP global.clonotype==F
@@ -494,9 +497,10 @@ VDJ_clonotype <- function(VDJ,
 
         ####START recalculating clonotype_id and clonal_frequency
         #definde placeholder columns
+        sample_dfs$new_clonotype_id <- rep(NA,nrow(sample_dfs))
         sample_dfs$new_clonal_frequency <- rep(NA,nrow(sample_dfs))
         sample_dfs$new_clonal_rank <- rep(NA,nrow(sample_dfs))
-        sample_dfs$clonotype_id <- rep(NA,nrow(sample_dfs))
+
         unique.clonal.features <- unique(sample_dfs$new_clonal_feature)
 
         unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
@@ -505,8 +509,7 @@ VDJ_clonotype <- function(VDJ,
           sample_dfs$new_clonal_frequency[which(sample_dfs$new_clonal_feature==unique.clonal.features[j])] <- unique.clonal.frequencies[j]
         }####STOP assigning new frequency
 
-
-        #assining new new_clonal_rank
+        #assigning new new_clonal_rank
         sample_dfs <-sample_dfs[with(sample_dfs, order(-new_clonal_frequency)), ]
         unique.clone.frequencies <- unique(sample_dfs$new_clonal_frequency)
         for(j in 1:length(unique.clone.frequencies)){
@@ -516,7 +519,7 @@ VDJ_clonotype <- function(VDJ,
         #new clonotype id
         unique.clonal.features <- unique(sample_dfs$new_clonal_feature)
         for(j in 1:length(unique.clonal.features)){
-          sample_dfs$clonotype_id[which(sample_dfs$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+          sample_dfs$new_clonotype_id[which(sample_dfs$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
         }
       }####STOP global.clonotype==T
 
@@ -1678,12 +1681,14 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
           ####START recalculating clonotype_id and clonal_frequency
           #place holders
+          sample_dfs[[i]]$new_clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
-          sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
+
 
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
+
           for(j in 1:length(unique.clonal.features)){####START assigning new frequency
             unique.clonal.frequencies[j] <- length(which(sample_dfs[[i]]$new_clonal_feature==unique.clonal.features[j]))
             sample_dfs[[i]]$new_clonal_frequency[which(sample_dfs[[i]]$new_clonal_feature==unique.clonal.features[j])] <- unique.clonal.frequencies[j]
@@ -1699,12 +1704,11 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
           #new clonotype id
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           for(j in 1:length(unique.clonal.features)){
-            sample_dfs[[i]]$clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+            sample_dfs[[i]]$new_clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
           }####STOP assigning new clonotype id
         }####STOP sample loop
       }####STOP global.clonotype==F
 
-      #ADD GLOBAL CLONOTYPE HERE
       else if(global.clonotype==T){####START global.clonotype == T#
         sample_dfs <- list() #to avoid recoding. This is a bodge
         sample_dfs[[1]] <- VDJ.GEX.matrix[[1]]
@@ -2865,9 +2869,10 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
         ####START recalculating clonotype_id and clonal_frequency
         #place holders
+        sample_dfs[[i]]$new_clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
-        sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
+
 
         unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
         unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
@@ -2886,7 +2891,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
         #new clonotype id
         unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
         for(j in 1:length(unique.clonal.features)){
-          sample_dfs[[i]]$clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+          sample_dfs[[i]]$new_clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
         }####STOP assigning new clonotype id
       }
 
@@ -2896,9 +2901,18 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
       return(sample_dfs)
     }
     else if(output.format=="vgm"){
-      VDJ.GEX.matrix <- list()
       if(!global.clonotype) VDJ.GEX.matrix <- do.call("rbind",sample_dfs)
-      if(global.clonotype) VDJ.GEX.matrix <- sample_dfs
+      if(global.clonotype) VDJ.GEX.matrix <- sample_dfs[[1]]
+
+      #shift new columns to the front and rename
+      clono_10x_index <- which(names(VDJ.GEX.matrix) == "clonotype_id_10x")
+      VDJ.GEX.matrix<- VDJ.GEX.matrix[,c(1:clono_10x_index, ((ncol(VDJ.GEX.matrix)-3):ncol(VDJ.GEX.matrix)), (clono_10x_index+1):(ncol(VDJ.GEX.matrix)-4))]
+
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonotype_id")] <- paste0("clonotype_id_",clone.strategy.as.input)
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_feature")] <- paste0("clonal_feature_",clone.strategy.as.input)
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_frequency")] <- paste0("clonotype_frequency_",clone.strategy.as.input)
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_rank")] <- paste0("clonal_rank_",clone.strategy.as.input)
+
       return(VDJ.GEX.matrix)
     }
 
