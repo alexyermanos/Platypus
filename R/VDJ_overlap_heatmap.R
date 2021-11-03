@@ -123,8 +123,9 @@ VDJ_overlap_heatmap <- function(VDJ,
     for(j in seq((1+nc_start),(nc_start + 2*length(sample.names)), 2)){ #this way I get the correct column index directly
 
       curr_group <- subset(lookup, group == sample.names[sample_count])
-
+      
       for(i in 1:nrow(ov_df)){
+        
           ov_df[i,j] <- sum(curr_group$pasted == ov_df$overlapping_items[i]) #frequency per group
           ov_df[i,j+1] <- paste0(curr_group$barcode[which(curr_group$pasted == ov_df$overlapping_items[i])],collapse = ";")
       }
@@ -158,7 +159,7 @@ VDJ_overlap_heatmap <- function(VDJ,
       #lower triangle
       pheat_map[which(colnames(pheat_map) == combs[i,2]), which(rownames(pheat_map) == combs[i,1])] <- as.numeric(combs[i,5])
     }
-    plot_out <- pheatmap::pheatmap(pheat_map,main = "pheatmap default", border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315)
+    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315)
 
     combs <- pheat_map
 
