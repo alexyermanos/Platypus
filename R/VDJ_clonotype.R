@@ -2899,20 +2899,20 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
     if(output.format=="dataframe.per.sample"){
       return(sample_dfs)
-    }
-    else if(output.format=="vgm"){
+    } else if(output.format=="vgm"){
       if(!global.clonotype) VDJ.GEX.matrix <- do.call("rbind",sample_dfs)
       if(global.clonotype) VDJ.GEX.matrix <- sample_dfs[[1]]
 
       #shift new columns to the front and rename
-      clono_10x_index <- which(names(VDJ.GEX.matrix) == "clonotype_id_10x")
+      clono_10x_index <- which(names(VDJ.GEX.matrix) == "sample_id")
       VDJ.GEX.matrix<- VDJ.GEX.matrix[,c(1:clono_10x_index, ((ncol(VDJ.GEX.matrix)-3):ncol(VDJ.GEX.matrix)), (clono_10x_index+1):(ncol(VDJ.GEX.matrix)-4))]
 
       names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonotype_id")] <- paste0("clonotype_id_",clone.strategy.as.input)
       names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_feature")] <- paste0("clonal_feature_",clone.strategy.as.input)
       names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_frequency")] <- paste0("clonotype_frequency_",clone.strategy.as.input)
-      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_rank")] <- paste0("clonal_rank_",clone.strategy.as.input)
-
+      #names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_rank")] <- paste0("clonal_rank_",clone.strategy.as.input)
+      VDJ.GEX.matrix <- VDJ.GEX.matrix[,-c(which(names(VDJ.GEX.matrix) == "new_clonal_rank"))] #removing the clonal rank column as it has proven redundant
+      
       return(VDJ.GEX.matrix)
     }
 
