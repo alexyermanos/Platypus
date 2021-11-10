@@ -11,8 +11,7 @@ VDJ_overlap_heatmap(
   plot.type,
   pvalues.label.size,
   axis.label.size,
-  add.barcode.table,
-  platypus.version
+  add.barcode.table
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ VDJ_overlap_heatmap(
 \item{axis.label.size}{Numeric. Defaults to 4. Is passed on to ggplot theme}
 
 \item{add.barcode.table}{Boolean. Defaults to T. Whether to generate a dataframe with frequencies and barcodes of cells with overlapping features. This is useful to e.g. analyze deferentially expressed genes between cells of two samples or groups expressing the same VDJ or VJ chain}
-
-\item{platypus.version}{Character. At the moment this function runs only on the output of the VDJ_GEX_matrix function meaning that it is exclusively part of Platypus "v3". With further updates the functionality will be extended.}
 }
 \value{
 A list of a ggplot (out[[1]]), the source table or matrix for the plot out[[2]] and a table containing additional information in case that add.barcode.table was set to TRUE (out[[3]])
@@ -39,10 +36,10 @@ A list of a ggplot (out[[1]]), the source table or matrix for the plot out[[2]] 
 Yields overlap heatmap and datatable of features or combined features for different samples or groups
 }
 \examples{
-\dontrun{
-#To test the overlap of barcodes between multiple samples
-barcode_overlap <- VDJ_overlap_heatmap(VDJ = VDJ_comb[[1]]
-,feature.columns = c("barcode"),
-grouping.column = "sample_id", axis.label.size = 15)
-}
+#To test the overlap of CDR3s between multiple samples
+overlap <- VDJ_overlap_heatmap(VDJ = Platypus::small_vgm[[1]]
+,feature.columns = c("VDJ_cdr3s_aa"),
+grouping.column = "sample_id", axis.label.size = 15
+, plot.type = "ggplot")
+
 }

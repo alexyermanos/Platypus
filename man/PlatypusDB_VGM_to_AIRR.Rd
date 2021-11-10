@@ -28,9 +28,9 @@ Exports AIRR compatible tables supplemented with VDJ and GEX information from th
 }
 \examples{
 \dontrun{
-#complete workflow below...
+#complete workflow below
 #usage with airr rearrangement tables from PlatypusDB_load_from_disk
-or PlatypusDB_fetch list object
+#or PlatypusDB_fetch list object
 airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 , VDJ.features.to.append = c("VDJ_cdr3s_aa")
 , GEX.features.to.append = c("CTLA4", "TOX"), airr.rearrangements = Data.in)
@@ -50,7 +50,7 @@ airr.rearrangements = list(airr_rearrangements.s1, airr_rearrangements_2))
 
 #Complete workflow
 #set paths of cellranger directories containing
-also the airr_rearrangements.tsv file
+#also the airr_rearrangements.tsv file
 VDJ.out.directory.list <- list()
 VDJ.out.directory.list[[1]] <- c("~/cellrangerVDJ/s1")
 VDJ.out.directory.list[[2]] <- c("~/cellrangerVDJ/s2")
@@ -61,9 +61,9 @@ GEX.out.directory.list[[2]] <- c("~/cellrangerGEX/s2")
 #Run VGM with GEX and VDJ integration
 VGM <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 GEX.out.directory.list = GEX.out.directory.list,
-GEX.integrate = T, VDJ.combine = T, integrate.GEX.to.VDJ = T
-, integrate.VDJ.to.GEX = T,
-get.VDJ.stats = F, trim.and.align = F)
+GEX.integrate = TRUE, VDJ.combine = TRUE, integrate.GEX.to.VDJ = TRUE
+, integrate.VDJ.to.GEX = TRUE,
+get.VDJ.stats = FALSE, trim.and.align = FALSE)
 #Generate AIRR compatible table supplemented by GEX information
 airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM,
 VDJ.features.to.append = c("VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed"),

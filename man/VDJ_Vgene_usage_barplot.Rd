@@ -21,7 +21,7 @@ VDJ_Vgene_usage_barplot(
 
 \item{LC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.}
 
-\item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
+\item{platypus.version}{Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format}
 }
 \value{
 Returns a list of ggplot objects which show the distribution of IgH and IgK/L V genes for the most used V genes.
@@ -30,7 +30,7 @@ Returns a list of ggplot objects which show the distribution of IgH and IgK/L V 
 Produces a barplot with the most frequently used IgH and IgK/L Vgenes.
 }
 \examples{
-\dontrun{
-#To add
-}
+VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vgm[[1]],
+HC.gene.number = 2, platypus.version = "v3")
+
 }

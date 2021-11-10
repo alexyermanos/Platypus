@@ -20,7 +20,7 @@ VDJ_network(
 
 \item{per.sample}{logical value indicating if a single networks should be produced for each mouse.}
 
-\item{platypus.version}{Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format}
+\item{platypus.version}{Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format}
 
 \item{known.binders}{Either a character vector with cdr3s of known binders or a data frame with cdr3s in the first and the corresponding specificity in the second column. If this parameter is defined, the output will be a network with only edges between known binders and the repertoire nodes and edges between the known binders that have at least one edge to a repertoire node}
 
@@ -33,11 +33,9 @@ returns a list containing networks and network information. If per.sample is set
 Creates a similarity network where clones with similar CDR3s are connected.
 }
 \examples{
-\dontrun{
-Platypus v2
-VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = T,distance.cutoff = 2)
+#Platypus v2
+#network_out <- VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = TRUE,distance.cutoff = 2)
+#Platypus v3
+network_out <- VDJ_network(VDJ = Platypus::small_vgm[[1]],per.sample = FALSE,distance.cutoff = 2)
 
-Platypus v3
-VDJ_network(VDJ = VDJ.GEX.matrix.output[[1]],per.sample = T,distance.cutoff = 2)
-}
 }

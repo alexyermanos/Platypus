@@ -11,6 +11,9 @@ get.vgu.matrix(all.contig.annotations, level)
 
 \item{level}{Can be "clone" or "cell". If "clone", the function will return paired v gene usage matrix on clonotype level. Otherwise it will return on cell level.}
 }
+\value{
+a paired v gene heavy chain and light chain matrix on clonotype level.
+}
 \description{
 Get paired v gene heavy chain and light chain matrix on clonotype level. A v gene usage pheatmap can be obtain by p<-pheatmap::pheatmap(vgu_matrix,show_colnames= T, main = "V Gene Usage"), where the vgu_matrix is the output of this function.
 }

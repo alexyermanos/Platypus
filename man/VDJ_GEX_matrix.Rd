@@ -39,7 +39,8 @@ VDJ_GEX_matrix(
   subsample.barcodes,
   FB.count.threshold,
   FB.ratio.threshold,
-  group.id
+  group.id,
+  verbose
 )
 }
 \arguments{
@@ -112,9 +113,11 @@ VDJ_GEX_matrix(
 \item{FB.ratio.threshold}{Numeric. Defaults to 2 Threshold for assignment of feature barcodes by counts. A feature barcode is assigned to a cell if its counts are >FB.count.threshold and if its counts are FB.ratio.threshold-times higher than the counts of the feature barcode with second most counts.}
 
 \item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.}
+
+\item{verbose}{if TRUE prints runtime info to console. Defaults to TRUE}
 }
 \value{
-Single cell matrix including VDJ and GEX info
+Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == F, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
 }
 \description{
 # This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
@@ -123,6 +126,10 @@ Single cell matrix including VDJ and GEX info
 \examples{
 \dontrun{
 
+#FOR EXAMPLES see Platypus vignette at https://alexyermanos.github.io/Platypus/index.html
+
+#Run from local directory input. For run from PlatypusDB input see
+#PlatypusDB vignette
 VDJ.out.directory.list <- list()
 VDJ.out.directory.list[[1]] <- c("~/VDJ/S1/")
 VDJ.out.directory.list[[2]] <- c("~/VDJ/S2/")

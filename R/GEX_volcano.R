@@ -29,7 +29,7 @@
 #'
 #' #using the GEX_cluster_genes output
 #' GEX_volcano(findmarkers.output = GEX_cluster_genes.Output
-#' , cluster.genes.output =T)
+#' , cluster.genes.output =TRUE)
 #'}
 GEX_volcano <- function(DEGs.input,
                         input.type,
@@ -68,13 +68,11 @@ GEX_volcano <- function(DEGs.input,
   if(missing(condition.1)){condition.1 <- ""}
   if(missing(condition.2)){condition.2 <- ""}
   if(condition.1 =="" &  condition.2 == "" & input.type == "findmarkers"){
-    print("Conditions not provided and will not be displayed in plot title")}
+    warning("Conditions not provided and will not be displayed in plot title")}
   if(missing(explicit.title)){
-    explicit.title <- T
-    print("explicit.title parameter set to T")}
+    explicit.title <- T}
   if(missing(RP.MT.filter)){
-    RP.MT.filter <- T
-    print("RP.MT.filter parameter set to T")}
+    RP.MT.filter <- T}
   if(missing(color.p.threshold)){color.p.threshold <- 0.01}
   if(missing(color.log.threshold)){color.log.threshold <- 0.25}
   if(missing(label.p.threshold)){label.p.threshold <- 0.001}
@@ -82,21 +80,16 @@ GEX_volcano <- function(DEGs.input,
   if(missing(n.label.up)){n.label.up <- F}
   if(missing(n.label.down)){n.label.down <- F}
   if(missing(by.logFC)){
-    by.logFC <- F
-    print("by.logFC parameter was set to Inf")}
+    by.logFC <- F}
   if(missing(maximum.overlaps)){
-    maximum.overlaps <- Inf
-    print("maximum.overlaps parameter was set to Inf")}
+    maximum.overlaps <- Inf}
   if(missing(plot.adj.pvalue)){
-    plot.adj.pvalue <- F
-    print("plot.adj.pvalue parameter was set to F")}
+    plot.adj.pvalue <- F}
 
   platypus.version <- "Does not matter"
 
   ###
   if(n.label.up == F & n.label.down == F){
-    print(paste0("Geom_points colored in red represent genes with adjusted p-value < ", color.p.threshold, " and logFC > ", color.log.threshold))
-    print(paste0("Geom_points that are labeled represent genes with adjusted p-value < ", label.p.threshold, " and logFC > ", label.logfc.threshold))
   }
 
   if(class(n.label.up) != class(n.label.down)){
@@ -104,12 +97,10 @@ GEX_volcano <- function(DEGs.input,
     n.genes <- as.numeric(Filter(is.numeric, temp))
     n.label.up <- n.genes
     n.label.down <- n.genes
-    print("Same number of up- and downregulated genes will be labeled")
   } # Assuming the same number of up- and downregulated genes are to be labeled if only one is specified
 
   ###
   if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric"){
-    print(paste0("Geom_points colored in red represent genes with adjusted p-value < ", color.p.threshold, " and logFC > ", color.log.threshold))
     print(paste0("Top ", n.label.up, " and bottom ",n.label.down, " genes will be labeled"))
   }
 

@@ -2,18 +2,19 @@
 % Please edit documentation in R/GEX_heatmap.R
 \name{GEX_heatmap}
 \alias{GEX_heatmap}
-\title{Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by premade sets of B or T cell markers, or can be customly supplied by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.}
+\title{Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by pre-made sets of B or T cell markers, or can be customized by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.}
 \usage{
 GEX_heatmap(
-  GEX.object,
+  GEX,
   b.or.t,
   sample.index,
   clone.rank.threshold,
-  custom.array
+  custom.array,
+  slot
 )
 }
 \arguments{
-\item{GEX.object}{A single seurat object from clonotype_GEX function corresponding to all of the samples in a single VDJ_analyze object. This will likely be supplied as clonotype_GEX.output[[i]] if there were multiple, distinct transcriptomes.}
+\item{GEX}{A single seurat object from clonotype_GEX function corresponding to all of the samples in a single VDJ_analyze object. This will likely be supplied as clonotype_GEX.output[[i]] if there were multiple, distinct transcriptomes.}
 
 \item{b.or.t}{Logical indicating if B or T cell gene panel should be used.}
 
@@ -22,17 +23,22 @@ GEX_heatmap(
 \item{clone.rank.threshold}{A numeric that specifies the threshold clonal rank that specifies which clonotypes to extract transcriptome information from. For example, if 10 is supplied then the gene expression for the top ten clones included on the heatmap, separated by clonotype.}
 
 \item{custom.array}{Corresponds to which repertoire should be used in the case that the length of clonotype.list has a length greater than 1. The transcriptional profiles from only one repertoire can be plotted at a time.}
+
+\item{slot}{Seurat data slot from which to plot values. Can be "raw.data", "data" or "scale.data"}
 }
 \value{
-Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate.
+Returns a heatmap via Seurat::DoHeatmap of gene expression per clonotype
 }
 \description{
-Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by premade sets of B or T cell markers, or can be customly supplied by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.
+Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by pre-made sets of B or T cell markers, or can be customized by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.
 }
 \examples{
-\dontrun{
-GEX_heatmap(gex.object.output,b.or.t = "b",clone.rank.threshold = 30,sample.index = 1)
-}
+#prep the small_vgm sample dataset
+small_vgm <- Platypus::small_vgm
+small_vgm[[2]]$clone_rank <- c(1:nrow(small_vgm[[2]]@meta.data))
+GEX_heatmap(GEX = small_vgm[[2]],b.or.t = "custom"
+,clone.rank.threshold = 1,sample.index = "s1"
+,custom.array = c("CD24A","CD83"), slot = "data")
 
 }
 \seealso{

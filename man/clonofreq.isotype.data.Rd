@@ -11,6 +11,9 @@ clonofreq.isotype.data(all.contig.annotations, top.n)
 
 \item{top.n}{The top n abundant clones to be shown in the plot. If missing, all clones will be shown.}
 }
+\value{
+dataframes containing the top n abundant clonotypes and their frequency and isotype information for further processing.
+}
 \description{
-Return dataframes containing the top n abundant clonotypes and their frequency and isotype information for further processing.
+Return
 }

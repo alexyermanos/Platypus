@@ -13,6 +13,9 @@ get.barplot.errorbar(data, y.lab, y.limit)
 
 \item{y.limit}{The upper limit for y axis in the plot.}
 }
+\value{
+a barplot of mean and standard error bar of certain value of each clone.
+}
 \description{
 Return a barplot of mean and standard error bar of certain value of each clone.
 }

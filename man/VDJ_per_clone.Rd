@@ -36,11 +36,11 @@ VDJ_per_clone(
 Returns a list of dataframes containing
 }
 \description{
-Analyzes and processes the repertoire sequencing data from cellranger vdj. This provides information on the single-cell level for each clone, as opposed to the output from VDJ_analyze.
+only Platypus v2 Analyzes and processes the repertoire sequencing data from cellranger vdj. This provides information on the single-cell level for each clone, as opposed to the output from VDJ_analyze.
 }
 \examples{
 \dontrun{
-check_VDJ_per_clone <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze
+VDJ_per_clone_out <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze
 ,VDJ.out.directory = "path/to/cellranger/outs/")
 }
 }

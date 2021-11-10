@@ -7,9 +7,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' #complete workflow below...
+#' #complete workflow below
 #'#usage with airr rearrangement tables from PlatypusDB_load_from_disk
-#'or PlatypusDB_fetch list object
+#'#or PlatypusDB_fetch list object
 #'airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 #', VDJ.features.to.append = c("VDJ_cdr3s_aa")
 #', GEX.features.to.append = c("CTLA4", "TOX"), airr.rearrangements = Data.in)
@@ -29,7 +29,7 @@
 #'
 #'#Complete workflow
 #'#set paths of cellranger directories containing
-#'also the airr_rearrangements.tsv file
+#'#also the airr_rearrangements.tsv file
 #'VDJ.out.directory.list <- list()
 #'VDJ.out.directory.list[[1]] <- c("~/cellrangerVDJ/s1")
 #'VDJ.out.directory.list[[2]] <- c("~/cellrangerVDJ/s2")
@@ -41,9 +41,9 @@
 #'#Run VGM with GEX and VDJ integration
 #'VGM <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 #'GEX.out.directory.list = GEX.out.directory.list,
-#'GEX.integrate = T, VDJ.combine = T, integrate.GEX.to.VDJ = T
-#', integrate.VDJ.to.GEX = T,
-#'get.VDJ.stats = F, trim.and.align = F)
+#'GEX.integrate = TRUE, VDJ.combine = TRUE, integrate.GEX.to.VDJ = TRUE
+#', integrate.VDJ.to.GEX = TRUE,
+#'get.VDJ.stats = FALSE, trim.and.align = FALSE)
 
 #'#Generate AIRR compatible table supplemented by GEX information
 #'airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM,
@@ -121,11 +121,9 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
 
   if(class(airr.rearrangements) == "list"){
     if(class(airr.rearrangements[[1]]) == "data.frame"){ #case 1.
-      print("Dataframe input detected")
       airr.list <- airr.rearrangements
 
     } else if(class(airr.rearrangements[[1]]) == "list"){ #case 2.
-      print("List input from PlatypusDB_load_from_disk or PlatypusDB_download detected")
       #Make sense of input => we need this small parser to accept data loaded locally and downloaded and compiled from the PlatypusDB
       airr.list <- list()
       for(i in 1:length(airr.rearrangements)){ #First level
@@ -145,7 +143,6 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
       }
 
     } else if(class(airr.rearrangements[[1]]) == "character"){ #case 3
-      print("Local paths input detected. Loading in tables")
 
         vdj_load_error <- tryCatch({
           airr.list <- list()
@@ -153,7 +150,7 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
             if(file.exists(airr.rearrangements[[j]])){
               airr.list[[j]] <- utils::read.delim(airr.rearrangements[[j]], header = T)
             } else {
-              print(paste0(" airr_rearrangement.tsv not found for sample ", j, ". AIRR compatibility for this sample will not be available"))
+              warning(paste0(" airr_rearrangement.tsv not found for sample ", j, ". AIRR compatibility for this sample will not be available"))
               airr.list[[j]] <- "none"
             }
           }
@@ -161,7 +158,7 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
         }, error = function(e){e
           print(e)})
         if(inherits(vdj_load_error,"error")){
-          print("Loading airr_rearrangement from disk failed")}
+          message("Loading airr_rearrangement from disk failed")}
     }
   } else {
     stop("Please provide airr_rearrangement inputs as a list. e.g. for paths list(~/data/project/airr_rearrangement.tsv)")
@@ -178,9 +175,8 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
   }
   #Tests passed => can proceed
 
-    print(paste0("Order of samples in VGM is (Barcode prefix: entry in sample_id column): ", paste0(unique(paste0(stringr::str_split(VDJ.to.add$barcode, "_", simplify = T)[,1], ": ", VGM[[1]]$sample_id)), collapse = " / ")))
+    message(paste0("Order of samples in VGM is (Barcode prefix: entry in sample_id column): ", paste0(unique(paste0(stringr::str_split(VDJ.to.add$barcode, "_", simplify = T)[,1], ": ", VGM[[1]]$sample_id)), collapse = " / ")))
 
-    print("Merging data")
     #rename barcodes in airr and join data
     names(airr.list) <- paste0("s", c(1:length(airr.list)))
     for(i in 1:length(airr.list)){
@@ -195,6 +191,5 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
       airr.list[[i]] <- merge(airr.list[[i]], subset(GEX.to.add, stringr::str_detect(GEX.to.add$barcode,  names(airr.list)[i])), by = "barcode", all.x = T, all.y = F)
     }
 
-    print("Done")
     return(airr.list)
 }

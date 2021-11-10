@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_integrate.R
 \name{VDJ_GEX_integrate}
 \alias{VDJ_GEX_integrate}
-\title{Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
+\title{only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
 \usage{
 VDJ_GEX_integrate(GEX.object, clonotype.list, VDJ.per.clone, clonotype.level)
 }
@@ -19,7 +19,7 @@ VDJ_GEX_integrate(GEX.object, clonotype.list, VDJ.per.clone, clonotype.level)
 Returns a nested list containing information corresponding to either the clonal level or the sequence level, depending on the input argument "clonotype.level". This function essentially will update the output of the analyze_VDJ or the VDJ_per_clone functions.
 }
 \description{
-Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
+only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 }
 \examples{
 \dontrun{

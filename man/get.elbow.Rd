@@ -9,6 +9,9 @@ get.elbow(data)
 \arguments{
 \item{data}{The output "transcriptome" dataframe from simulation output.}
 }
+\value{
+the seurat object from simulated transciptome output.
+}
 \description{
 Get the seurat object from simulated transciptome output.
 }

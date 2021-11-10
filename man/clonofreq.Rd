@@ -13,6 +13,9 @@ clonofreq(clonotypes, top.n, y.limit)
 
 \item{y.limit}{The upper limit for y axis in the plot.}
 }
+\value{
+top abundant clonal frequencies in a barplot with ggplot2
+}
 \description{
 Plot the top abundant clonal frequencies in a barplot with ggplot2
 }

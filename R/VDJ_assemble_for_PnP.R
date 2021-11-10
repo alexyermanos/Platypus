@@ -1,4 +1,4 @@
-#' Assembles sequences from MIXCR output into inserts for expression in PnP cells. ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks
+#' Assembles sequences from MIXCR output into inserts for expression in PnP cells. ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING SEQUENCES FOR EXPRESSION ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks
 #' @param VDJ.mixcr.matrix Output dataframe from the VDJ_call_MIXCR function or a dataframe generated using the VDJ_GEX_matrix function and supplemented with MIXCR information (Needed columns: All Framework and CDR sequences)
 #' @param id.column Character. Column name of VDJ.mixcr.matrix to use as ID for the assembled sequences. Defaults to "barcode"
 #' @param species Character. Which IgKC sequence to use. Can be "human" or "mouse". Defaults to "mouse"
@@ -7,6 +7,7 @@
 #' @param manual_VDJLeader Character. Manual overwrite for sequence used as VDJ Leader and signal peptide.
 #' @param write.to.disk Boolean. Defaults to TRUE. Whether to save assembled sequences to working directory
 #' @param filename Character. Output file name for .fasta and .csv files if write.to.disk == T. Defaults to PnP_assembled_seqs.fasta/.csv
+#' @param verbose Print runtime message to console. Defaults to FALSE
 #' @return Returns the input VGM matrix with one additional column containing the assembles sequences. If write.to.disk == T writes a CSV containing key columns of the VGM as well as a .FASTA file to the current working director (getwd())
 #' ! Important notes on column content:
 #' 1. The column "seq_length_check" contains either "passed" or "FAILED". If FAILED, this means that at least one of the sequences (e.g. FRL1) was shorter than 9NTs and therefore considered invalid. Please check for missing sequences if you find any warnings
@@ -24,7 +25,7 @@
 #'
 #' VGM_with_PnP_seq <- VDJ_assemble_for_PnP(VDJ.mixcr.matrix = VDJ_call_MIXCR.output
 #' , id.column = "barcode",species = "mouse", manual_IgKC = "none", manual_2A = "none"
-#' , manual_VDJLeader = "none", write.to.disk = T, filename = "PnP_seq_example")
+#' , manual_VDJLeader = "none", write.to.disk = TRUE, filename = "PnP_seq_example")
 #'
 #'}
 
@@ -35,13 +36,15 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
                                  manual_2A,
                                  manual_VDJLeader,
                                  write.to.disk,
-                                 filename){
+                                 filename,
+                                 verbose){
 
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
 
 
   platypus.version <- "v3"
+  if(missing(verbose)) verbose <- F
   if(missing(species)) species <- "mouse"
   if(missing(manual_IgKC)) manual_IgKC <- "none"
   if(missing(manual_2A)) manual_2A <- "none"
@@ -53,7 +56,7 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
   VDJ.matrix <- VDJ.mixcr.matrix
 
   if(all(c("Nr_of_VJ_chains", "Nr_of_VDJ_chains") %in% names(VDJ.matrix))){
-    cat("\n Excluded cells with more or less than 1 VDJ 1 VJ chain")
+    if(verbose) message("\n Excluded cells with more or less than 1 VDJ 1 VJ chain")
     VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
   }
 
@@ -90,7 +93,7 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
   #Needed for contig check later
   VJLeader <- "ATGGATTTTCAGGTGCAGATTTTCAGCTTCCTGCTAATCAGCGCTTCAGTTATAATGTCCCGGGGG"
 
-  cat("\n Got sequences; starting assembly...")
+  if(verbose) message("\n Got sequences; starting assembly...")
 
   seq_frame <- VDJ.matrix[,which(names(VDJ.matrix) %in% c(id.column, "VDJ_nSeqFR1", "VDJ_nSeqFR2","VDJ_nSeqFR3","VDJ_nSeqFR4","VDJ_nSeqCDR1","VDJ_nSeqCDR2","VDJ_nSeqCDR3","VJ_nSeqFR1", "VJ_nSeqFR2","VJ_nSeqFR3","VJ_nSeqFR4","VJ_nSeqCDR1","VJ_nSeqCDR2","VJ_nSeqCDR3"))]
 
@@ -101,7 +104,7 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
 
   for(i in 1:nrow(seq_frame)){
     if(any(nchar(seq_frame[i,2:ncol(seq_frame)]) < 6)){
-      warning(paste0("At least one FR or CDR3 seq of cell id ",seq_frame[i,1]), " is less than 9 nt long. Please check for possible issues or missing sequences")
+      if(verbose) warning(paste0("At least one FR or CDR3 seq of cell id ",seq_frame[i,1]), " is less than 9 nt long. Please check for possible issues or missing sequences")
       seq_frame$seq_length_check[i] <- "FAILED"
     }
   }
@@ -111,7 +114,7 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
 
   for(i in 1:nrow(seq_frame)){
     if(sum(nchar(seq_frame[i,2:ncol(seq_frame)]) %% 3 != 0) > 2){ #This returns true only if more than two sequences are not divisible by three. Reason: The VDJ_FR4 and VJ_FR4 by MIXCR always contain one extra nucleotide at the end. This is trimmed of in the next section
-      warning(paste0("At least one FR or CDR3 seq of cell id ",seq_frame[i,1]), " does contain partial codons (i.e. sequence length not divisible by 3")
+      if(verbose) warning(paste0("At least one FR or CDR3 seq of cell id ",seq_frame[i,1]), " does contain partial codons (i.e. sequence length not divisible by 3")
       seq_frame$seq_codon_check[i] <- "FAILED"
     }
   }
@@ -172,7 +175,7 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
   PnP_assembled_translations <- NULL
   seq_frame$PnP_assembled_translations <- trans_test
 
-  cat("\n Please note: the sequences in the PnP_assembled_translations column resulted from pasting the VJ leader sequence (contained in the PnP vector backbone) and the PnP_assembled_seqs (The insert itself)")
+  if(verbose) message("\n Please note: the sequences in the PnP_assembled_translations column resulted from pasting the VJ leader sequence (contained in the PnP vector backbone) and the PnP_assembled_seqs (The insert itself)")
 
   seq_VJCDR3_check <- NULL
   seq_frame$seq_VJCDR3_check <- "passed"
@@ -186,22 +189,22 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
   for(i in 1:nrow(seq_frame)){
     #Check for VJ CDR3 correct translation
     if(!stringr::str_detect(seq_frame$PnP_assembled_translations[i], pattern = trans_VJ_CDR3s[i])){
-      warning(paste0("Correct VJ CDR3 AA seq not found in the assembled sequence for cell id ", seq_frame[i,1]), "!")
+      if(verbose) warning(paste0("Correct VJ CDR3 AA seq not found in the assembled sequence for cell id ", seq_frame[i,1]), "!")
       seq_frame$seq_VJCDR3_check[i] <- "FAILED"
     }
     #Check for 2A correct translation
     if(!stringr::str_detect(seq_frame$PnP_assembled_translations[i], pattern = as.character(Biostrings::translate(Biostrings::DNAStringSet(Fur_2A))))){
-      warning(paste0("Correct Furine 2A AA seq not found in the assembled sequence for cell id ", seq_frame[i,1]), "!")
+      if(verbose) warning(paste0("Correct Furine 2A AA seq not found in the assembled sequence for cell id ", seq_frame[i,1]), "!")
       seq_frame$seq_Fur2A_check[i] <- "FAILED"
     }
     #Check for VDJ CDR3 correct translation
     if(!stringr::str_detect(seq_frame$PnP_assembled_translations[i], pattern = trans_VDJ_CDR3s[i])){
-      warning(paste0("Correct VDJ CDR3 AA seq not found in the assembled sequence for cell id ", seq_frame[i,1]), "!")
+      if(verbose) warning(paste0("Correct VDJ CDR3 AA seq not found in the assembled sequence for cell id ", seq_frame[i,1]), "!")
       seq_frame$seq_VDJCDR3_check[i] <- "FAILED"
     }
     #Check for the presence of the correct two codons at the end of the VDJ FR4 region ! Using the untranslated sequence
     if(!substr(seq_frame$PnP_assembled_seqs[i], start = nchar(seq_frame$PnP_assembled_seqs[i])-5, stop = 10000) %in% c("TCCTCA", "TCTTCA","TCGTCA","TCATCA")){
-      warning(paste0("Splicing site not found at end of VDJ FR4 in the assembled sequence for cell id ", seq_frame[i,1]), "! Valid splicing site requires a TCA at the sequence end")
+      if(verbose) warning(paste0("Splicing site not found at end of VDJ FR4 in the assembled sequence for cell id ", seq_frame[i,1]), "! Valid splicing site requires a TCA at the sequence end")
       seq_frame$seq_splicesite_check[i] <- "FAILED"
     }
   }
@@ -209,21 +212,21 @@ VDJ_assemble_for_PnP <- function(VDJ.mixcr.matrix,
   cat("\n Assembly and checks done")
 
   #Assemble VGM output
-  cat("\n Adding additional columns to VDJ.mixcr.matrix input")
+  if(verbose) message("\n Adding additional columns to VDJ.mixcr.matrix input")
   VDJ.matrix <- cbind(VDJ.matrix, seq_frame)
 
   if(write.to.disk == F){
-    cat("\n Done")
+    if(verbose) message("\n Done")
     return(VDJ.matrix)
   } else {
-    cat("\n Building .FASTA and .csv file")
+    if(verbose) message("\n Building .FASTA and .csv file")
     fasta_names <- paste0("Seq ID: ", seq_frame[,1], " | seq_length_check: ", seq_frame$seq_length_check," | seq_codon_check: ", seq_frame$seq_codon_check, " | seq_VJCDR3_check: ", seq_frame$seq_VJCDR3_check," | seq_Fur2A_check: ", seq_frame$seq_Fur2A_check," | seq_VDJCDR3_check: ", seq_frame$seq_VDJCDR3_check," | seq_splicesite_check: ", seq_frame$seq_splicesite_check, " Annotations: ", seq_frame$PnP_assembled_annotations)
 
     seqinr::write.fasta(as.list(unlist(seq_frame$PnP_assembled_seqs)), names = fasta_names, file.out = paste0(filename,".fasta"))
 
     utils::write.csv(seq_frame, file = paste0(filename,".csv"))
 
-    cat("\n Done \n")
+    if(verbose) message("\n Done \n")
     return(VDJ.matrix)
   }
 }

@@ -30,15 +30,14 @@ GEX_pairwise_DEGs(
 \item{save.plot}{Boolean. Defaults to True. Whether to save plots as appropriately named .png files}
 }
 \value{
-A nested list with out[[i]][[1]] being plots and out[[i]][[2]] being DEG dataframes.
+A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.
 }
 \description{
 Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3
 }
 \examples{
-\dontrun{
-GEX_pairwise_DEGs <- function(GEX = VDJ_GEX_matrix.output[[2]],group.by = "seurat_clusters"
-,min.pct = 0.25,RP.MT.filter = T,label.n.top.genes = 50,genes.to.label = c("DIABLO","ELMO1")
-,save.plot = F)
-}
+GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
+,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
+,save.plot = FALSE)
+
 }

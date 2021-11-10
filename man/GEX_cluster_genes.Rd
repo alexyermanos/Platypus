@@ -24,13 +24,12 @@ Returns a dataframe containing the output from the FindMarkers function, which c
 Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX or VDJ_GEX_matrix
 }
 \examples{
-\dontrun{
 #Platypus version v2
-GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25
-, filter = c("MT-", "RPL", "RPS"))
+#GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25
+#, filter = c("MT-", "RPL", "RPS"))
 
 #Platypus version v3
-GEX_cluster_genes(GEX = VDJ.GEX.matrix.output[[2]], min.pct = .25
+GEX_cluster_genes(GEX = subset(Platypus::small_vgm[[2]], seurat_clusters \%in\% c(0,1)), min.pct = .25
 , filter = c("MT-", "RPL", "RPS"))
-}
+
 }

@@ -17,6 +17,9 @@ get.avr.mut.plot(igraph.index.attr, history, clonotype.select, level, y.limit)
 
 \item{y.limit}{The upper limit for y axis in the plot.}
 }
+\value{
+a barplot showing the average mutation per node (same heavy and light chain set) or per cell.
+}
 \description{
 Get information about somatic hypermutation in the simulation. This function return a barplot showing the average mutation.
 }

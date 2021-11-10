@@ -15,7 +15,7 @@ GEX_phenotype_per_clone(
 )
 }
 \arguments{
-\item{GEX}{For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.}
+\item{GEX}{For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output \[\[2\]\]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.}
 
 \item{clonotype.ids}{For platypus.version == "v2" Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, these repertoires should be found in the automate_GEX library.}
 
@@ -25,7 +25,7 @@ GEX_phenotype_per_clone(
 
 \item{GEX.clonotypes}{For platypus.version == "v3". Numeric vector with ids of clonotypes to plot e.g. c(1,2,3,4). Can also be set to "topclones"}
 
-\item{platypus.version}{Set to either v2 or v3 automatically dependent on input format: v2 if clonotype.ids is provided and v3 if GEX.clonotypes is provided}
+\item{platypus.version}{Set to either "v2" or "v3" depending on wether suppyling GEX_automate or VDJ_GEX_matrix\[\[2\]\] objects. Defaults to "v3"}
 }
 \value{
 Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.
@@ -35,9 +35,10 @@ Integrates VDJ and gene expression libraries by providing cluster membership seq
 ! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.
 }
 \examples{
-\dontrun{
-GEX_phenotype_per_clone(seurat.object = automate.gex.output[[1]]
-, clonotype.ids= c(1,2,3,4,5))
-}
+#For testing: only a single clonotype in two samples
+small_vgm_cl <- Platypus::small_vgm
+small_vgm_cl[[2]]$clonotype_id_10x <- "clonotype1"
+GEX_phenotype_per_clone(GEX = small_vgm_cl[[2]]
+, GEX.clonotypes = c(1), GEX.group.by = "seurat_clusters", platypus.version = "v3")
 
 }

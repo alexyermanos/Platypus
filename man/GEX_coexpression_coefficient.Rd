@@ -2,12 +2,12 @@
 % Please edit documentation in R/GEX_coexpression_coefficient.R
 \name{GEX_coexpression_coefficient}
 \alias{GEX_coexpression_coefficient}
-\title{Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.}
+\title{Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.}
 \usage{
 GEX_coexpression_coefficient(GEX, genes, subsample.n, plot.dotmap)
 }
 \arguments{
-\item{GEX}{GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output[[2]])}
+\item{GEX}{GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output\[\[2\]\])}
 
 \item{genes}{Character vector. At least 2 genes present in rownames(GEX). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.}
 
@@ -16,19 +16,17 @@ GEX_coexpression_coefficient(GEX, genes, subsample.n, plot.dotmap)
 \item{plot.dotmap}{Boolean. Whether to return a plot}
 }
 \value{
-Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T
+Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T detailing the coexpression levels of selected genes within the given cell population
 }
 \description{
-Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
+Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.
 }
 \examples{
-\dontrun{
-To return a dataframe with coefficients
-GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
-, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = F)
+#To return a dataframe with coefficients
+#GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
+#, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = FALSE)
 
-To return a dotplot detailing coexpression and overall expression
-GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
-, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = T)
-}
+#To return a dotplot detailing coexpression and overall expression
+GEX_coexpression_coefficient(GEX = Platypus::small_vgm[[2]]
+, genes = c("CD19", "CD83"), subsample.n = "none", plot.dotmap = FALSE)
 }

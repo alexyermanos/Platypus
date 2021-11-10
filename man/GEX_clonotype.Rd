@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_clonotype.R
 \name{GEX_clonotype}
 \alias{GEX_clonotype}
-\title{Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
+\title{Platypus V2: Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
 \usage{
 GEX_clonotype(GEX.object, VDJ.per.clone)
 }
@@ -15,7 +15,7 @@ GEX_clonotype(GEX.object, VDJ.per.clone)
 Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate
 }
 \description{
-Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
+Platypus V2: Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 }
 \examples{
 \dontrun{

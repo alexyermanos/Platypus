@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_dublets.R
 \name{VDJ_dublets}
 \alias{VDJ_dublets}
-\title{Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).}
+\title{Only Platypus v2 Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).}
 \usage{
 VDJ_dublets(clonotype.list, clone.level)
 }
@@ -15,7 +15,7 @@ VDJ_dublets(clonotype.list, clone.level)
 Returns a list of matrices containing the number of heavy/light chains per either cell or clone depending on the clone.level parameter. This can then be supplied to heatmap functions directly. Each list element corresponds to each of the input list elements of clonotypes.
 }
 \description{
-Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).
+Only Platypus v2 Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).
 }
 \examples{
 \dontrun{

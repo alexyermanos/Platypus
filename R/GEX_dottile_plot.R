@@ -4,14 +4,13 @@
 #' @param group.by Character. Name of a column in GEX@meta.data to split the plot by. If set to \"none\", a plot with a single column will be produced.
 #' @param threshold.to.plot Integer 1-100. \% of cells which must be expressing the feature to plot a point. If below, the field will be left empty
 #' @param platypus.version This is coded for \"v3\" only, but in practice any Seurat Object can be fed in
-#' @return Returns a ggplot object
+#' @return Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.
 #' @export
 #' @examples
-#' \dontrun{
-#' To return a plot detailing the expression of common genes by seurat cluster
-#'GEX_dottile_plot(GEX = VDJ.GEX.output[[2]], genes = c("CD19","CD3E"),
+#' #To return a plot detailing the expression of common genes by seurat cluster
+#'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
 #'group.by = "seurat_clusters", threshold.to.plot = 5)
-#'}
+#'
 GEX_dottile_plot <- function(GEX,
                              genes,
                              group.by,
@@ -43,7 +42,7 @@ GEX_dottile_plot <- function(GEX,
   to_del <- c()
   for(i in 1:length(genes)){
     if(!genes[i] %in% rownames(GEX)){
-      print(paste0(genes[i], " not found in seurat object. This gene is skipped"))
+      warning(paste0(genes[i], " not found in seurat object. This gene is skipped"))
       to_del <- c(to_del, i)
     }
   }
@@ -53,7 +52,7 @@ GEX_dottile_plot <- function(GEX,
 
   if(missing(group.by)) group.by <- "none"
   if(!group.by %in% names(GEX@meta.data)){
-    print("group.by column not found. Returning plot with single column")
+    warning("group.by column not found. Returning plot with single column")
     group.by <- "singlegroup"
     GEX$singlegroup <- "group"
   }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_clonal_lineage_clusters.R
 \name{VDJ_GEX_clonal_lineage_clusters}
 \alias{VDJ_GEX_clonal_lineage_clusters}
-\title{Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.}
+\title{only Platypus v2 Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.}
 \usage{
 VDJ_GEX_clonal_lineage_clusters(
   VDJ_GEX_integrate.output,
@@ -15,16 +15,16 @@ VDJ_GEX_clonal_lineage_clusters(
 \item{VDJ_clonal_lineages.output}{Output from VDJ_clonal_lineages. This should be nested list, with the outer list element corresponding to the individual repertoire and the inner list corresponding to individual clonal lineages based on the initial clonotyping strategy in the form of a dataframe with either Seq or Name. The Name currently contains the barcode following the last "_".}
 }
 \value{
-returns a nested list in the identical format to the VDJ_clonal_lineages.output but the name of each sequence will have been changed to include the transcriptional cluster corresponding to that barcode from the GEX library. This requires first running the
+a nested list in the identical format to the VDJ_clonal_lineages.output but the name of each sequence will have been changed to include the transcriptional cluster corresponding to that barcode from the GEX library. This requires first running the
 }
 \description{
-Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.
+only Platypus v2 Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.
 }
 \examples{
 \dontrun{
 clonal_lineages <- VDJ_clonal_lineages(call_MIXCR.output=call_MIXCR_output
 , VDJ_extract_germline.output=VDJ_extract_germline_output
-,as.nucleotide=F,with.germline=T)
+,as.nucleotide=FALSE,with.germline=TRUE)
 }
 
 }

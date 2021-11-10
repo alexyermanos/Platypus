@@ -15,6 +15,9 @@ AbForests_PlotGraphs(graphs, no_arg, topdf, filename)
 
 \item{filename}{name of saved pdf file based on the user's preferences.}
 }
+\value{
+Empty, output plots are written to file as specified by the user with the parameter filename
+}
 \description{
 PlotGraphs takes as input the output of AntibodyForest or ForestMetrics functions and plots all corresponding networks in the single cell immune repertoire or the corresponding ggplot object, the user specifies, from all clone lineages.
 The function gives the option in the user to store each tree or ggplot object within the repertoire in pdf format.

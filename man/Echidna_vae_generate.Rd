@@ -35,6 +35,9 @@ Echidna_vae_generate(
 
 \item{null.threshold}{threshold of predicted value to be considered as an existing base, default is 0.05. When generated sequence is too short, lower this threshold.}
 }
+\value{
+A simulated VDJ repertoire on the basis of the input experimental repertoire
+}
 \description{
 Simulate B or T cell receptor sequences by variational autoencodes(VAEs) trained with experimental data.
 }

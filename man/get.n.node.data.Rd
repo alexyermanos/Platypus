@@ -11,6 +11,9 @@ get.n.node.data(data, clonotype.select)
 
 \item{clonotype.select}{The index of the clones to be shown. If missing, all clones will be included.}
 }
+\value{
+the number of unique variants in each clone in a vector. The output is the vector representing the numbers of unique variants.
+}
 \description{
 Get the number of unique variants in each clone in a vector. The output is the vector representing the numbers of unique variants.
 }

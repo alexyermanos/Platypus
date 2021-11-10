@@ -2,7 +2,7 @@
 % Please edit documentation in R/Echidna_other_functions.R
 \name{get.umap}
 \alias{get.umap}
-\title{Further process the the seurat object from simulated transciptome output and make UMAP ready for plotting.}
+\title{Further process the seurat object from simulated transciptome output and make UMAP ready for plotting.}
 \usage{
 get.umap(gex, d, reso)
 }
@@ -13,6 +13,9 @@ get.umap(gex, d, reso)
 
 \item{reso}{resolution argument in Seurat::FindClusters()}
 }
+\value{
+Further processed seurat object from simulated transciptome output with UMAP ready for plotting.
+}
 \description{
-Further process the the seurat object from simulated transciptome output and make UMAP ready for plotting.
+Further process the seurat object from simulated transciptome output and make UMAP ready for plotting.
 }

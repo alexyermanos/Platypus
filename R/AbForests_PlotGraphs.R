@@ -6,6 +6,7 @@
 #' @param no_arg  element of list the user desires to plot : integer value,if the user desires to plot a metric and NULL, if the user desires to plot the networks.
 #' @param topdf logical value, TRUE if user wants to store plots in pdf format (the no_arg element of each list is saved in a separate page of the pdf).
 #' @param filename name of saved pdf file based on the user's preferences.
+#' @return Empty, output plots are written to file as specified by the user with the parameter filename
 #' @export
 #' @seealso AntibodyForest, ForestMetrics
 #' @examples

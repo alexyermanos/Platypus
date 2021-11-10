@@ -27,17 +27,14 @@ VDJ_variants_per_clone(
 \item{platypus.version}{Character. Only "v3" available.}
 }
 \value{
-Returns a list of dataframes. Each dataframe contains the statistics of one split.by element (in most cases, one sample)
+Returns a list of dataframes. Each dataframe contains the statistics of one split.by element (by default: one sample)
 }
 \description{
 Returns statistics and plots to examine diversity of any sequence or metadata item within clones on a by sample level or global level
 }
 \examples{
-\dontrun{
-variants_per_clone <- VDJ_variants_per_clone(VDJ = VDJ_GEX_matrix.output[[1]]
+variants_per_clone <- VDJ_variants_per_clone(VDJ = Platypus::small_vgm[[1]]
 ,variants.of = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"),
 stringDist.method = "levenshtein", split.by = "sample_id")
-take a sneakpeak
-for(i in 1:length(variants_per_clone)){print(variants_per_clone[[i]][1:10,])}
-}
+
 }

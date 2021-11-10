@@ -14,16 +14,14 @@ GEX_cluster_membership(GEX, by.group, platypus.version)
 \item{platypus.version}{Version of platypus to use. Defaults to "v2". If an output of the GEX_automate function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"}
 }
 \value{
-Returns a ggplot in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.
+Returns a ggplot object in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.
 }
 \description{
 Plots the cluster membership for each of the distinct samples in the Seurat object from the automate_GEX function. The distinct samples are determined by "sample_id" field in the Seurat object.
 }
 \examples{
-\dontrun{
-Platypus v2
-GEX_cluster_membership(GEX=automate_GEX_out[[i]])
-Platypus v3
-GEX_cluster_membership(GEX=VDJ_GEX_matrix.output[[2]])
-}
+#Platypus v2
+#GEX_cluster_membership(GEX=automate_GEX_out[[2]], platypus.version = "v2")
+#Platypus v3
+GEX_cluster_membership(GEX= Platypus::small_vgm[[2]], platypus.version = "v3")
 }

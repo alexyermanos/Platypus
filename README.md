@@ -17,6 +17,10 @@ single-cell immune repertoire sequencing experiments. The manuscript
 corresponding to Platypus v2 can be found here at Yermanos et al NARGAB
 2021 <https://doi.org/10.1093/nargab/lqab023>
 
+The website containing walkthroughs and documentation can be found here:
+https://alexyermanos.github.io/Platypus/index.html 
+
+
 # Ongoing updates in the Platypus pipeline (v3)
 
 Due to the recent changes of the default clonotyping strategy in
@@ -95,7 +99,6 @@ Code to install the packages from CRAN:
 ``` r
 install.packages("ape")
 install.packages("circlize")
-install.packages("do")
 install.packages("dplyr")
 install.packages("ggplot2")
 install.packages("ggseqlogo")
@@ -124,6 +127,7 @@ Code for installing harmony:
 install.packages("devtools")
 library(devtools)
 install_github("immunogenomics/harmony")
+### if the install github does not work, try install.packages(“harmony”) from CRAN
 ```
 
 \#\#Bioconductor Code for installing the packages from Bioconductor:

@@ -1,4 +1,4 @@
-#' Analyzes and processes the repertoire sequencing data from cellranger vdj. This provides information on the single-cell level for each clone, as opposed to the output from VDJ_analyze.
+#' only Platypus v2 Analyzes and processes the repertoire sequencing data from cellranger vdj. This provides information on the single-cell level for each clone, as opposed to the output from VDJ_analyze.
 #' @title VDJ_per_clone
 #' @param VDJ.out.directory Character vector with each element containing the path to the output of cellranger vdj runs. This corresponds to the same object used for the VDJ_analyze function. Multiple repertoires to be integrated in a single transcriptome should be supplied as multiple elements of the character vector. This can be left blank if supplying the clonotypes and contig files directly as input. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
 #' @param clonotype.list Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, the i'th entry in the directory supplied to GEX.list should correspond to the i'th element in the clonotype.list object.
@@ -12,7 +12,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' check_VDJ_per_clone <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze
+#' VDJ_per_clone_out <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze
 #' ,VDJ.out.directory = "path/to/cellranger/outs/")
 #' }
 VDJ_per_clone <- function(clonotype.list,
@@ -24,12 +24,11 @@ VDJ_per_clone <- function(clonotype.list,
                                annotations.json,
                                JSON) {
 
-  if(missing(VDJ.out.directory)) print("No output directory supplied. Assuming clonotype and contig are provided as list objects")
-  if(missing(contig.list)) print("No contig.list supplied. Assuming contigs should be extracted from working directory")
+  if(missing(VDJ.out.directory)) message("No output directory supplied. Assuming clonotype and contig are provided as list objects")
+  if(missing(contig.list)) message("No contig.list supplied. Assuming contigs should be extracted from working directory")
   if(missing(filtered.contigs)) filtered.contigs <- TRUE
   if(missing(JSON)) JSON <- FALSE
 
-  print("Reading in output files")
   ### need to also read in the fastas
   if(missing(VDJ.out.directory)==F){
     if(filtered.contigs==T)VDJ.out.directory_contigs <- paste(VDJ.out.directory,"/filtered_contig_annotations.csv",sep="")

@@ -1,19 +1,19 @@
 #' Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix
 #' @param VDJ For platypus.version = "v2" output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus.version = "v3" output VDJ dataframe from VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
-#' @param platypus.version Character. Defaults to "v2". Can be "v2" or "v3" dependent on the input format
+#' @param platypus.version Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format
 #' @return Returns a list of matrices containing the number of Vgene heavy/light chain combinations per repertoire.
 #' @export
 #' @examples
-#' \dontrun{
-#' example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ.clonotype.output = VDJ.clonotype.output)
-#'}
+#' example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ =
+#' Platypus::small_vgm[[1]], platypus.version = "v3")
+#'
 VDJ_Vgene_usage <- function(VDJ,
                             platypus.version){
     Nr_of_VDJ_chains <- NULL
     Nr_of_VJ_chains <- NULL
     sample_id <- NULL
 
-    if(missing(platypus.version)) platypus.version <- "v2"
+    if(missing(platypus.version)) platypus.version <- "v3"
     #naming compatibility
     if(platypus.version == "v2"){
       VDJ.clonotype.output <- VDJ
@@ -60,8 +60,8 @@ VDJ_Vgene_usage <- function(VDJ,
         }
       }
     }
-    return(Vgene_usage_matrix)
 
+    return(Vgene_usage_matrix)
 
 
     } else if(platypus.version == "v3"){ #new
@@ -111,6 +111,7 @@ VDJ_Vgene_usage <- function(VDJ,
           }
         }
       }
+      names(Vgene_usage_matrix) <- unique(VDJ.matrix$sample_id)
       return(Vgene_usage_matrix)
     }
 }

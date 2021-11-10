@@ -5,16 +5,13 @@
 #' @param stringDist.method Character. Passed to Biostrings::strinDist. Method to calculate distance between variants of a clone. Defaults to "levenshtein". Other options are "hamming", "quality". If "hamming" variants of a clone will be shortened from the end to the shortest variant to make all input sequences the same length.
 #' @param split.by Character. Defaults to "sample_id". Column name of VDJ to split the analysis by. This is necessary, if clonotyping was done on a per sample level (e.g. "clonotype1" in sample 1 is not the same sequence as "clonotype1" in sample 2). If clonotyping was done across samples and no splitting is necessary input "none"
 #' @param platypus.version Character. Only "v3" available.
-#' @return Returns a list of dataframes. Each dataframe contains the statistics of one split.by element (in most cases, one sample)
+#' @return Returns a list of dataframes. Each dataframe contains the statistics of one split.by element (by default: one sample)
 #' @export
 #' @examples
-#' \dontrun{
-#'variants_per_clone <- VDJ_variants_per_clone(VDJ = VDJ_GEX_matrix.output[[1]]
+#'variants_per_clone <- VDJ_variants_per_clone(VDJ = Platypus::small_vgm[[1]]
 #',variants.of = c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"),
 #'stringDist.method = "levenshtein", split.by = "sample_id")
-#'take a sneakpeak
-#'for(i in 1:length(variants_per_clone)){print(variants_per_clone[[i]][1:10,])}
-#'}
+#'
 
 VDJ_variants_per_clone <- function(VDJ,
                                    variants.of,
@@ -90,7 +87,7 @@ if(length(variants.of) > 1){
 if("VDJ_cgene" %in% names(VDJ)){
   grouping$VDJ_cgene <- VDJ$VDJ_cgene
 } else {
-  print("VDJ_cgene column not found; Isotype info will not be attached")
+  warning("VDJ_cgene column not found; Isotype info will not be attached")
 }
 
 #loop over split.by

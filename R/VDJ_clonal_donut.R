@@ -8,13 +8,11 @@
 #' @param total.label.hjust Numeric. Regulates the horizontal position of the center label
 #' @param expanded.colors Character vector. Colors to use for expanded clones. Should be more than 3 for better visibility. Defaults to a "darkorchid3"-based palette.
 #' @param non.expanded.color Character. Color to use for non expanded clones. Defaults to "black"
-#' @param platypus.version Only v3 available.
-#' @return Returns a list of plots. One for each sample in the sample_id column
+#' @return Returns a list of circular plots showing proportions of expanded clones and non-expanded clones. One plot is generated for each sample in the sample_id column
 #' @export
 #' @examples
-#' \dontrun{
-#' VDJ_clonal_donut(VDJ = VDJ_GEX_matrix.output[[1]])
-#'}
+#' VDJ_clonal_donut(VDJ = Platypus::small_vgm[[1]])
+#'
 VDJ_clonal_donut <- function(VDJ,
                              counts.to.use,
                              label.size,
@@ -23,8 +21,7 @@ VDJ_clonal_donut <- function(VDJ,
                              total.label.vjust,
                              total.label.hjust,
                              expanded.colors,
-                             non.expanded.color,
-                             platypus.version){
+                             non.expanded.color){
 
   clonotype_id <- NULL
   sample_id <- NULL
@@ -45,7 +42,7 @@ VDJ <- subset(VDJ, clonotype_id != "") #Filter possible cells with no clonotype.
 
 if(counts.to.use == "VGM"){
 
-  print("Using counts of entries in the VDJ GEX matrix")
+  message("Using counts of entries in the VDJ GEX matrix")
 
 clonotypes <- VDJ %>% dplyr::group_by(sample_id, clonotype_id) %>%  dplyr::summarise(clonotype_frequency = dplyr::n())
 clonotypes$expanded <- F
@@ -53,7 +50,7 @@ clonotypes$expanded[clonotypes$clonotype_frequency > 1] <- T
 
 } else if(counts.to.use == "freq_column" | counts.to.use == "10x"){
 
-  print("Using counts provided by 10X in the clonotype_frequency column")
+  message("Using counts provided by 10X in the clonotype_frequency column")
 
 clonotypes <- VDJ %>% dplyr::group_by(sample_id, clonotype_id) %>% dplyr::summarise(clonotype_frequency = as.numeric(clonotype_frequency[1]))
 clonotypes$expanded <- F
@@ -72,12 +69,9 @@ for(i in 1:length(unique(clonotypes$sample_id))){
   cur_c <- cur_c[order(cur_c$clonotype_frequency, decreasing = T),]
   cur_c$clonotype_id[which(cur_c$expanded == F)] <- "1 cell"
 
-  print("----------")
-  print(paste0("Sample: ", unique(clonotypes$sample_id)[i]))
+  message(paste0("Clones: Expanded: ", length(which(cur_c$expanded == T)), " / ", round((length(which(cur_c$expanded == T)) / nrow(cur_c)*100),2), "%; 1 cell ", length(which(cur_c$expanded == F)), " / ",round((length(which(cur_c$expanded == F)) / nrow(cur_c)*100),2), "%; total: ", nrow(cur_c)))
 
-  print(paste0("Clones: Expanded: ", length(which(cur_c$expanded == T)), " / ", round((length(which(cur_c$expanded == T)) / nrow(cur_c)*100),2), "%; 1 cell ", length(which(cur_c$expanded == F)), " / ",round((length(which(cur_c$expanded == F)) / nrow(cur_c)*100),2), "%; total: ", nrow(cur_c)))
-
-  print(paste0("Cells: Expanded: ", expanded_cells, " / ", round((expanded_cells / total_cells *100),2), "%; 1 cell ", nonexpanded_cells, " / ",round((nonexpanded_cells / total_cells *100),2), "%; Total: ", total_cells))
+  message(paste0("Cells: Expanded: ", expanded_cells, " / ", round((expanded_cells / total_cells *100),2), "%; 1 cell ", nonexpanded_cells, " / ",round((nonexpanded_cells / total_cells *100),2), "%; Total: ", total_cells))
 
 
   cur_c$clonotype_id_ord <- ordered(as.factor(cur_c$clonotype_id), levels = unique(cur_c$clonotype_id))

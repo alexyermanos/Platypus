@@ -80,10 +80,10 @@ Single color or color distribution on each node demonstrates the proportion of B
 }
 \examples{
 \dontrun{
-AntibodyForest(full_list,csv=FALSE, files,custom_mat=NULL,clonal_frequency=TRUE,
+AbForests_AntibodyForest(full_list = Platypus::new,csv=FALSE, files,clonal_frequency=TRUE,
 scaleByClonalFreq=TRUE,weight=TRUE,tie_flag='close_to_germ',
 scaleBybetweenness=FALSE,scaleByclocloseness_metr=FALSE,
-opt="cluster",seed=165,alg_opt="0",cdr3=NULL)
+opt="cluster",alg_opt="0",cdr3=NULL)
 }
 }
 \seealso{

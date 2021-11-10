@@ -18,15 +18,14 @@ GEX_dottile_plot(GEX, genes, group.by, threshold.to.plot, platypus.version)
 \item{platypus.version}{This is coded for \"v3\" only, but in practice any Seurat Object can be fed in}
 }
 \value{
-Returns a ggplot object
+Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.
 }
 \description{
 Outputs a dotplot for gene expression, where the color of each dot is scaled by the gene expression level and the size is scaled by the \% of cells positive for the gene
 }
 \examples{
-\dontrun{
-To return a plot detailing the expression of common genes by seurat cluster
-GEX_dottile_plot(GEX = VDJ.GEX.output[[2]], genes = c("CD19","CD3E"),
+#To return a plot detailing the expression of common genes by seurat cluster
+GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
 group.by = "seurat_clusters", threshold.to.plot = 5)
-}
+
 }

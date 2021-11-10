@@ -16,7 +16,8 @@ GEX_GSEA(
   Enrichment.Plots,
   my.own.geneset,
   eps,
-  platypus.version
+  platypus.version,
+  verbose
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ GEX_GSEA(
 \item{eps}{Numeric, specifying boundary for calculating the p value in the GSEA.}
 
 \item{platypus.version}{Function works with V2 and V3, no need to set this parameter.}
+
+\item{verbose}{Print run parameters and status to console}
 }
 \value{
 Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.
@@ -53,17 +56,17 @@ The name of the column containing the metric has to be declared via the input me
 df <- GEX_cluster_genes(gex_combined[[1]])
 
 #Using gmt file to perform gsea
-output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = TRUE
 , path.to.pathways = "./c5.go.bp.v7.2.symbols.gmt")
 cowplot::plot_grid(plotlist=output[[2]], ncol=2)
 View(gex_gsea[[1]])
 
 #Directly downloading gene set collection from MSigDB to perform gsea
-output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = TRUE
 , path.to.pathways = c("Mus musculus", "C7"))
 
 #Using your own gene list to perform gsea
-output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = T
+output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = TRUE
 , my.own.geneset = my_geneset)
 }
 }

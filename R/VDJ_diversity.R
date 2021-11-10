@@ -6,28 +6,29 @@
 #' @param subsample.to.same.n Boolean defaults to TRUE. Whether to subsample larger groups down to the size of the smallest group
 #' @param pvalues.label.size Numeric. Only used if overlap indices are calculated. Defaults to 4. Is passed on to ggplot theme
 #' @param axis.label.size Numeric. Only used if overlap indices are calculated. Defaults to 12. Is passed on to ggplot theme
-#' @param platypus.version Version of platypus to use. Defaults to "v2". If an output of the VDJ_analyze function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"
+#' @param platypus.version Version of platypus to use. Defaults to "v3". If an output of the VDJ_analyze function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"
 #' @return Returns a ggplot with the calculated metric for each group (if provided). Data is accessible via ggplot.output$data
 #' @export
 #' @examples
-#' \dontrun{
-#' Calculate shannon index for VDJ CDR3s by sample
-#' plot <- VDJ_diversity(VDJ = VDJ_GEX_matrix.output[[1]], platypus.version = "v3"
+#'
+#' #Calculate shannon index for VDJ CDR3s by sample
+#' plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3"
 #' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 #' ,metric = "shannon")
-#' For raw values use
+#' #For raw values use
 #' plot$data
 #'
-#' Calculate Gini-simpson and Simpson index for VDJ and VJ CDR3s by sample
-#' VDJ_diversity(VDJ = VDJ_GEX_matrix.output[[1]], platypus.version = "v3"
+#' #Calculate Gini-simpson and Simpson index for VDJ and VJ CDR3s by sample
+#' VDJ_diversity(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3"
 #' ,feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa"), grouping.column = "sample_id"
-#' ,metric = c("ginisimpson","simpson"))
+#' ,metric = c("ginisimpson"))
 #'
-#' Calculate Jaccard index of J gene usage between two samples
-#' VDJ_diversity(VDJ = VDJ_comb[[1]], platypus.version = "v3"
-#',feature.columns = c("VDJ_jgene"), grouping.column = "VDJ_cgene"
+#' #Calculate Jaccard index of J gene usage between two samples
+#' VDJ_diversity(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3"
+#',feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 #',metric = "jaccard")
-#'}
+#'
+
 VDJ_diversity <- function(VDJ,
                           feature.columns,
                           grouping.column,
@@ -41,9 +42,8 @@ VDJ_diversity <- function(VDJ,
   groups <- NULL
   colors <- NULL
 
-
   if(missing(grouping.column)) grouping.column <- "none"
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
   if(missing(metric)) metric <- "shannon"
   if(missing(subsample.to.same.n)) subsample.to.same.n <- T
   if(missing(feature.columns)){
@@ -96,7 +96,7 @@ VDJ_diversity <- function(VDJ,
       sampled <- subset(grouping, group == group.names[i])
       sampled <- dplyr::sample_n(grouping, min_group)
 
-      print(paste0("Subsampled group ", group.names[i], " to ", min_group, " entries"))
+      message(paste0("Subsampled group ", group.names[i], " to ", min_group, " entries"))
 
       #get frequences
       freq <- table(sampled$pasted)
@@ -104,8 +104,7 @@ VDJ_diversity <- function(VDJ,
       #get frequences
       freq <- table(subset(grouping, group == group.names[i])$pasted)
 
-      print(paste0("Used group ", group.names[i], " as a reference for subsampling with ", min_group , " entries"))
-      print("To avoid subsampling set subsample.to.same.n = FALSE")
+      message(paste0("Used group ", group.names[i], " as a reference for subsampling with ", min_group , " entries"))
     }
   } else {
     #get frequences

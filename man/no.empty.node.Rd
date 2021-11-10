@@ -13,6 +13,9 @@ no.empty.node(history, igraph.index)
 
 \item{empty.node}{If TRUE, there will be empty node in igraph. if FALSE, the empty node will be deleted.}
 }
+\value{
+a list of clone network igraphs without empty mode.
+}
 \description{
 Get clone network igraphs without empty mode. Empty node represents the 'extincted' sequences, that are not in any living cell but once existed.
 }

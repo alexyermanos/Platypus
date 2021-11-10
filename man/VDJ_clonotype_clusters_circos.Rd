@@ -27,7 +27,7 @@ VDJ_clonotype_clusters_circos(
 
 \item{n_cluster}{Integer. No default.}
 
-\item{platypus.version}{Which platypus.version of platypus is being used. Default = "v2".}
+\item{platypus.version}{Which platypus.version of platypus is being used. Default = "v3".}
 }
 \value{
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
@@ -36,12 +36,12 @@ Returns list of plots. The first n elements contain the circos plot of the n dat
 Makes a Circos plot from the VDJ_GEX_integrate output. Connects the clonotypes with the corresponding clusters.
 }
 \examples{
-\dontrun{
-Platypus version 2
-VDJ_clonotype_clusters_circos(vdj_gex_integrate_test, topX=100, label.threshold=5)
+#Platypus version 3
+#prepare the small toy dataset
+small_vgm <- Platypus::small_vgm
+small_vgm[[1]]$clonotype_id_10x <- "clonotype1"
+small_vgm[[1]]$clonotype_frequency <- nrow(small_vgm[[1]])
+VDJ_clonotype_clusters_circos(small_vgm[[1]], topX=100, label.threshold=5
+, platypus.version = "v3", n_cluster = 2)
 
-Platypus version 3
-VDJ_clonotype_clusters_circos(VDJ_GEX_matrix.output[[1]], topX=100, label.threshold=5
-, platypus.version = "v3")
-}
 }

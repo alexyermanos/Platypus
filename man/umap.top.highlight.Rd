@@ -13,6 +13,9 @@ umap.top.highlight(gex, all.contig.annotations, top.n)
 
 \item{top.n}{The top n abundant clones to be shown in the plot. If missing, all clones will be shown.}
 }
+\value{
+a Seurat object ready for highlight the top abundant clones in UMAP
+}
 \description{
 Set idents for top abundant clones in Seurat object, get ready for highlight the top abundant clones in UMAP.
 }

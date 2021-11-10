@@ -11,6 +11,7 @@ GEX_cluster_genes_heatmap(
   metric,
   max.cell,
   group.colors,
+  slot,
   platypus.version
 )
 }
@@ -27,6 +28,8 @@ GEX_cluster_genes_heatmap(
 
 \item{group.colors}{Optional character vector. Array of colors with the same length as GEX_cluster_genes.output to color bars above the heatmap. Defaults to rainbow palette}
 
+\item{slot}{Seurat object slot from which to plot gene expression data.}
+
 \item{platypus.version}{is set automatically}
 }
 \value{
@@ -37,12 +40,13 @@ Produces a heatmap displaying the expression of the top genes that define each c
 }
 \examples{
 \dontrun{
-For Platypus version 2
+#For Platypus version 2
 cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = automate_GEX_output[[i]]
 ,GEX_cluster_genes.output=GEX_cluster_genes_output
 ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
 
-For Platypus version 3
+#For Platypus version 3
+
 cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = VDJ_GEX_matrix.output[[2]]
 ,GEX_cluster_genes.output=GEX_cluster_genes_output
 ,n.genes.per.cluster=5,metric="p.value",max.cell=5)

@@ -1,21 +1,19 @@
 #' Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
 #' @param VDJ For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
-#' @param clone.strategy (Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','VDJJ.VJJ','VDJJ.VJJ.cdr3lengths','VDJJ.VJJ.cdr3length.cdr3homology', 'VDJJ.VJJ.cdr3length.VDJcdr3homology', 'cdr3.homology',or 'VDJcdr3.homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
+#' @param clone.strategy (Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','VDJJ.VJJ','VDJJ.VJJ.cdr3lengths','VDJJ.VJJ.cdr3length.CDR3.homology', 'VDJJ.VJJ.cdr3length.VDJCDR3.homology', 'cdr3.homology',or 'VDJcdr3.homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3.homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3.homology',or 'CDRH3.homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 #' All homology calculations are performed on the amino acid level.
 #' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
 #' @param hierarchical Boolean. Defaults to FALSE. This is an extention specifically for cells with aberrant numbers of chains (i.e. 0VDJ 1VJ, 1VDJ 0VJ, 0VDJ 2VJ, 2VDJ 0VJ). Cells with 2VDJ 2VJ are filtered out as these are most likely doublets. Aberrant cells are clonotyped hierarchically in post, following this procedure: 1. define clonotypes classically with all cells containing exactly 1VDJ 1VJ chains. 2. For cells with only a single chain (either VDJ or VJ), check if any clone exists, which matches the clonotyping criteria for this chain. If true, add this cell to that clone. If false, create a new clone containing that cell. In case that more than 1 existing clone matches the aberrant cell, the cell is assigned to the most frequent existing clone. Two reasons are behind this decision: 2.1. The aberrant cells is numerically more likely to be a part of the more frequent existing clone. 2.2 In case of a wrong assignment, the effect of the error is lower, if an already expanded clone is increase by one count, rather than a existing non-expanded clone being assigned a second entry and thereby resulting as expanded. 3. For cells with 3 chains, verify the clonotyping criteria on both combinations of chains (i.e. VDJ1 - VJ1, VDJ2-VJ1 in case of a cell with 2VDJ 1VJ).
 #' @param global.clonotype Logical specifying whether clonotyping should occur across samples or only within a single sample.
 #' @param VDJ.VJ.1chain Logical specifying whether cells with multiple VDJ and VJ chains should be removed from the clonotyping. Can be either T or F for those definitions not requiring germline genes or homology thresholds, as calculating the later is difficult when multiple chains are present.
 #' @param output.format String specifies function output format. Options are "vgm" (default), "dataframe.per.sample", "clone.level.dataframes", or "phylo.dataframe". "vgm" will update the existing $clonotype_id column of the input vgm, which is the output from VDJ_GEX_matrix. "dataframe.per.sample" will return a list of VDJ dataframes, where each dataframe contains the cell-level information for a given sample. "clone.level.dataframes" will convert the per.cell matrix to a clonal dataframe, in which cells of the same clone will be merged into a single row. "dataframe.per.clone" will generate nested lists of dataframes, where each dataframe contains cell-level information of a given clone.
-#' @param platypus.version Default is "v2" for compatibility. To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
+#' @param platypus.version Default is "v3". To use the output of VDJ_GEX_matrix function, one should change this argument to "v3".
 #' @return Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.
 #' @export
 #' @examples
-#' \dontrun{
-#' VDJ_clonotype(VDJ=VDJ.analyze.output,
-#'  clone.strategy="VDJJ.VJJ.cdr3length.cdr3homology",
-#'  homology.threshold=".3")
-#'  }
+#' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
+#'  clone.strategy="VDJJ.VJJ",
+#'  homology.threshold=".3", platypus.version = "v3")
 #'
 VDJ_clonotype <- function(VDJ,
                           clone.strategy,
@@ -31,7 +29,7 @@ VDJ_clonotype <- function(VDJ,
   ccombs1 <- NULL
 
 
-  if(missing(platypus.version)) platypus.version <- "v2"
+  if(missing(platypus.version)) platypus.version <- "v3"
   if(missing(output.format)) output.format <- "vgm"
   if(missing(global.clonotype)) global.clonotype <- F
   if(missing(clone.strategy)) clone.strategy <- "cdr3.aa"
@@ -41,16 +39,17 @@ VDJ_clonotype <- function(VDJ,
 
   #Making cloning stategy fitting with VDJ / VJ naming scheme
   #This way the old keyworks will still work and this update should not break any old code
+  #remember for renaming later
+  clone.strategy.as.input <- clone.strategy
   switch(clone.strategy,
-         VDJJ.VJJ.cdr3length.cdr3homology = {clone.strategy <- 'hvj.lvj.CDR3length.CDR3homology'},
-         VDJJ.VJJ.cdr3length.VDJcdr3homology  = {clone.strategy <- 'hvj.lvj.CDR3length.CDRH3homology'},
+         VDJJ.VJJ.cdr3length.CDR3.homology = {clone.strategy <- 'hvj.lvj.CDR3length.CDR3.homology'},
+         VDJJ.VJJ.cdr3length.VDJCDR3.homology  = {clone.strategy <- 'hvj.lvj.CDR3length.CDRH3.homology'},
          cdr3.homology = {clone.strategy <- 'CDR3.homology'},
          VDJcdr3.homology = {clone.strategy <- 'CDRH3.homology'},
          VDJJ.VJJ = {clone.strategy <- "hvj.lvj"},
          VDJJ.VJJ.cdr3 = {clone.strategy <- "hvj.lvj.cdr3"},
          VDJJ.VJJ.cdr3lengths = {clone.strategy <- "hvj.lvj.cdr3lengths"})
 
-  print(clone.strategy)
   if(platypus.version=="v2"){####START v2
 
     #compatibility with input naming scheme
@@ -58,10 +57,10 @@ VDJ_clonotype <- function(VDJ,
     VDJ <- NULL
 
     output.clonotype <- list()
-    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) print("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
-    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3   # Setting default homology threshold
+    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) message("No homology threshold supplied. Clonotyping based on 70% amino acid homology.")
+    if(missing(homology.threshold) & grepl(clone.strategy,pattern = "homology")) homology.threshold<-0.3  # Setting default homology threshold
 
-    #Possible strategy options:'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','hvj.lvj.cdr3length.cdr3homology', 'hvj.lvj.CDR3length.CDRH3homology', 'CDR3homology',or 'CDRH3homology'.
+    #Possible strategy options:'cdr3.aa','hvj.lvj','hvj.lvj.cdr3lengths','hvj.lvj.cdr3length.CDR3.homology', 'hvj.lvj.CDR3length.CDRH3.homology', 'CDR3.homology',or 'CDRH3.homology'.
     for(i in 1:length(clonotype.list)){
       if(clone.strategy=="cdr3.nt"){
         unique_clones <- unique(clonotype.list[[i]]$CDR3_nt_pasted)
@@ -96,7 +95,7 @@ VDJ_clonotype <- function(VDJ,
                                                       nchar(clonotype.list[[i]]$CDRL3_aa),sep="_")
 
       }
-      else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology" | clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+      else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology" | clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){  #taking into account both cases
         clones_temp <- (paste(clonotype.list[[i]]$HC_vgene,
                               clonotype.list[[i]]$HC_jgene,
                               clonotype.list[[i]]$LC_vgene,
@@ -111,7 +110,7 @@ VDJ_clonotype <- function(VDJ,
           if (length(original_clone_indices) >= 2){
             #different vl_distance depending on the strategy
             vh_distance <- stringdist::stringdistmatrix(clonotype.list[[i]]$CDRH3_aa[original_clone_indices],clonotype.list[[i]]$CDRH3_aa[original_clone_indices],method = "lv")/nchar(clonotype.list[[i]]$CDRH3_aa[original_clone_indices])
-            if (clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){
+            if (clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){
               vl_distance <- stringdist::stringdistmatrix(clonotype.list[[i]]$CDRL3_aa[original_clone_indices],clonotype.list[[i]]$CDRL3_aa[original_clone_indices],method = "lv")/nchar(clonotype.list[[i]]$CDRL3_aa[original_clone_indices])
             }else{
               vl_distance <- 0
@@ -236,7 +235,7 @@ VDJ_clonotype <- function(VDJ,
                                                         nchar(sample_dfs[[i]]$VJ_cdr3s_aa),sep="_")
 
           } ####STOP hvj.lvj.cdr3lengths   / START Homology based clonotyping
-          else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+          else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3.homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3.homology"){  #taking into account both cases
             clones_temp <- (paste(sample_dfs[[i]]$VDJ_vgene,
                                   sample_dfs[[i]]$VDJ_jgene,
                                   sample_dfs[[i]]$VJ_vgene,
@@ -263,7 +262,7 @@ VDJ_clonotype <- function(VDJ,
                 }
 
                 vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vh
-                if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
+                if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3.homology"){
 
                   if(any(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0)){
                     #get nchar of heavy chains and surrogate missing once with the mean of existing ones
@@ -334,9 +333,10 @@ VDJ_clonotype <- function(VDJ,
 
           ####START recalculating clonotype_id and clonal_frequency
           #place holders
+          sample_dfs[[i]]$new_clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
-          sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
+
 
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
@@ -355,7 +355,7 @@ VDJ_clonotype <- function(VDJ,
           #new clonotype id
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           for(j in 1:length(unique.clonal.features)){
-            sample_dfs[[i]]$clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+            sample_dfs[[i]]$new_clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
           }####STOP assigning new clonotype id
         }####STOP sample loop
       }####STOP global.clonotype==F
@@ -399,7 +399,7 @@ VDJ_clonotype <- function(VDJ,
                                                  nchar(sample_dfs$VDJ_cdr3s_aa),
                                                  nchar(sample_dfs$VJ_cdr3s_aa),sep="_")
         }####STOP hvj.lvj.cdr3lengths
-        else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+        else if(clone.strategy=="Hvj.Lvj.CDR3length.CDR3.homology" | clone.strategy=="Hvj.Lvj.CDR3length.CDRH3.homology"){  #taking into account both cases
           clones_temp <- (paste(sample_dfs$VDJ_vgene,
                                 sample_dfs$VDJ_jgene,
                                 sample_dfs$VJ_vgene,
@@ -426,7 +426,7 @@ VDJ_clonotype <- function(VDJ,
               }
 
               vh_distance <- stringdist::stringdistmatrix(sample_dfs$VDJ_cdr3s_aa[original_clone_indices],sample_dfs$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vh
-              if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3homology"){
+              if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3.homology"){
 
                 if(any(nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs$VJ_cdr3s_aa[original_clone_indices]) == 0)){
                   #get nchar of heavy chains and surrogate missing once with the mean of existing ones
@@ -497,9 +497,10 @@ VDJ_clonotype <- function(VDJ,
 
         ####START recalculating clonotype_id and clonal_frequency
         #definde placeholder columns
+        sample_dfs$new_clonotype_id <- rep(NA,nrow(sample_dfs))
         sample_dfs$new_clonal_frequency <- rep(NA,nrow(sample_dfs))
         sample_dfs$new_clonal_rank <- rep(NA,nrow(sample_dfs))
-        sample_dfs$clonotype_id <- rep(NA,nrow(sample_dfs))
+
         unique.clonal.features <- unique(sample_dfs$new_clonal_feature)
 
         unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
@@ -508,8 +509,7 @@ VDJ_clonotype <- function(VDJ,
           sample_dfs$new_clonal_frequency[which(sample_dfs$new_clonal_feature==unique.clonal.features[j])] <- unique.clonal.frequencies[j]
         }####STOP assigning new frequency
 
-
-        #assining new new_clonal_rank
+        #assigning new new_clonal_rank
         sample_dfs <-sample_dfs[with(sample_dfs, order(-new_clonal_frequency)), ]
         unique.clone.frequencies <- unique(sample_dfs$new_clonal_frequency)
         for(j in 1:length(unique.clone.frequencies)){
@@ -519,7 +519,7 @@ VDJ_clonotype <- function(VDJ,
         #new clonotype id
         unique.clonal.features <- unique(sample_dfs$new_clonal_feature)
         for(j in 1:length(unique.clonal.features)){
-          sample_dfs$clonotype_id[which(sample_dfs$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+          sample_dfs$new_clonotype_id[which(sample_dfs$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
         }
       }####STOP global.clonotype==T
 
@@ -537,10 +537,10 @@ VDJ_clonotype <- function(VDJ,
           prior_filtering <- nrow(sample_dfs[[i]])
           sample_dfs[[i]] <- subset(sample_dfs[[i]],  (Nr_of_VDJ_chains > 0 | Nr_of_VJ_chains > 0) & sample_dfs[[i]]$Nr_of_VDJ_chains + sample_dfs[[i]]$Nr_of_VJ_chains < 4)
           if(nrow(sample_dfs[[i]]) > 0){
-          print(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
+          message(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
 
           ####only include clones with one heavy and one light chain
-          if(VDJ.VJ.1chain== T){print("Hierarchical clonotyping is specifically designed to better incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue without filtering. For standard clonotyping with filtering set hierarchical = FALSE. ")}####STOP strict
+          if(VDJ.VJ.1chain== T){message("Hierarchical clonotyping is specifically designed to incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue without filtering.")}####STOP strict
 
           #Prepwork to increase function speed
           #find cells with 1VJ chain only
@@ -559,7 +559,6 @@ VDJ_clonotype <- function(VDJ,
 
           ####Clonotyping strategies
           if(clone.strategy=="10x.default"){ ####START cdr3.nt
-            print("No hierarchical clustering available for 10x.default. Returning input clonotype annotations")
             sample_dfs[[i]]$new_clonal_feature <- sample_dfs[[i]]$clonotype_id_10x
           } ####STOP cdr3.nt
           if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
@@ -591,8 +590,6 @@ VDJ_clonotype <- function(VDJ,
               }
             }
             }
-
-
             #check cells with only one VDJ chain and nothing else
             if(length(onlyVDJ_ind) > 0){
               for(cel in onlyVDJ_ind){
@@ -600,7 +597,7 @@ VDJ_clonotype <- function(VDJ,
                 if(stringr::str_detect(aberant_cells$VDJ_cdr3s_nt[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                   clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,2])))
                 } else {
-                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_nt[cel]))
+                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_nt[cel]))
                 }
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
@@ -708,7 +705,7 @@ VDJ_clonotype <- function(VDJ,
                 if(stringr::str_detect(aberant_cells$VDJ_cdr3s_aa[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                   clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
                 } else {
-                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+                  clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_aa[cel]))
                 }
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
@@ -1129,7 +1126,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
             }
 
           } ####STOP hvj.lvj.cdr3lengths   / START Homology based clonotyping
-          else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology" | clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+          else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology" | clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){  #taking into account both cases
 
             clones_temp <- (paste(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
                                   sample_dfs[[i]]$VDJ_vgene,
@@ -1157,7 +1154,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 }
 
                 vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vh
-                if (clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){
+                if (clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){
 
                   if(any(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0)){
                     #get nchar of heavy chains and surrogate missing once with the mean of existing ones
@@ -1208,9 +1205,9 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 #We now have one or a set of matching clones / Now we check their homology via stringdist
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #in the case that homology is only calculated on the VDJ chain, here we cannot check homology, because the aberrant query cell does not contain a VDJ chain
+                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #in the case that homology is only calculated on the VDJ chain, here we cannot check homology, because the aberrant query cell does not contain a VDJ chain
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
-                  } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we check for homology with all matching clones for the VJ chain
+                  } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we check for homology with all matching clones for the VJ chain
                     if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){
                       dists1 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
                       dists2 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -1260,7 +1257,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 #We now have one or a set of matching clones / Now we check their homology via stringdist
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #checking homology
+                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #checking homology
 
                     if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
                       dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
@@ -1280,7 +1277,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                       }
                     }
 
-                  } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we now also only check for VDJ homology, because there is no VJ chain
+                  } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we now also only check for VDJ homology, because there is no VJ chain
 
                     if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
                       dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
@@ -1328,7 +1325,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
 
-                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #checking homology / given that we know that this cell has 1 VDJ chain, we can skip a few ifs
+                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #checking homology / given that we know that this cell has 1 VDJ chain, we can skip a few ifs
 
                       dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
                       if(any(dists <= homology.threshold)){
@@ -1337,7 +1334,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                         aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
                       }
 
-                  } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
+                  } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
 
                       dists1 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
                                                        paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])) / nchar(paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]))
@@ -1378,7 +1375,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[1])),which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[2])))
 
                 if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #checking homology / given that we know that this cell has 2 VDJ chain, we str_split those
+                  if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #checking homology / given that we know that this cell has 2 VDJ chain, we str_split those
 
                     dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
                     dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -1389,7 +1386,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                       aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel],"_", aberant_cells$VJ_cdr3s_aa[cel])
                     }
 
-                  } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
+                  } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
 
                     dists1 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
                                                      paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_", aberant_cells$VJ_cdr3s_aa[cel])) / nchar(paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_", aberant_cells$VJ_cdr3s_aa[cel]))
@@ -1479,7 +1476,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                       aberant_cells$new_clonal_feature[cel] <- aberant_cells$VJ_cdr3s_aa[cel]
                     }
 
-                  } else if(clone.strategy=="CDR3homology"){ #here we check for homology with all matching clones for the VJ chain
+                  } else if(clone.strategy=="CDR3.homology"){ #here we check for homology with all matching clones for the VJ chain
                     if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){
                       dists1 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
                       dists2 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -1543,7 +1540,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                   }
 
 
-                } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+                } else if(clone.strategy=="CDR3.homology"){ #check homology for VDJ again, because there is no VJ chain
 
                   if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
                     dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
@@ -1588,7 +1585,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                       aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
                     }
 
-                } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+                } else if(clone.strategy=="CDR3.homology"){ #check homology for VDJ again, because there is no VJ chain
 
                   #get combinations
                   VDJs <- aberant_cells$VDJ_cdr3s_aa[cel]
@@ -1600,7 +1597,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                   pasted_sample_dfs <- paste0(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa)
 
                   dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[1]) / nchar(ccombs[1])
-                  dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
+                  dists2 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
                     #get the minimum of both for each element
                     dists <- c()
                     for(k in 1:length(dists1)){
@@ -1644,7 +1641,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                       aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
                     }
 
-                } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+                } else if(clone.strategy=="CDR3.homology"){ #check homology for VDJ again, because there is no VJ chain
 
                   #get combinations
                   VDJs <- c(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -1656,7 +1653,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                   pasted_sample_dfs <- paste0(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa)
 
                   dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[1]) / nchar(ccombs[1])
-                  dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
+                  dists2 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
                   #get the minimum of both for each element
                   dists <- c()
                   for(k in 1:length(dists1)){
@@ -1684,12 +1681,14 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
           ####START recalculating clonotype_id and clonal_frequency
           #place holders
+          sample_dfs[[i]]$new_clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
           sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
-          sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
+
 
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
+
           for(j in 1:length(unique.clonal.features)){####START assigning new frequency
             unique.clonal.frequencies[j] <- length(which(sample_dfs[[i]]$new_clonal_feature==unique.clonal.features[j]))
             sample_dfs[[i]]$new_clonal_frequency[which(sample_dfs[[i]]$new_clonal_feature==unique.clonal.features[j])] <- unique.clonal.frequencies[j]
@@ -1705,12 +1704,11 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
           #new clonotype id
           unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
           for(j in 1:length(unique.clonal.features)){
-            sample_dfs[[i]]$clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+            sample_dfs[[i]]$new_clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
           }####STOP assigning new clonotype id
         }####STOP sample loop
       }####STOP global.clonotype==F
 
-      #ADD GLOBAL CLONOTYPE HERE
       else if(global.clonotype==T){####START global.clonotype == T#
         sample_dfs <- list() #to avoid recoding. This is a bodge
         sample_dfs[[1]] <- VDJ.GEX.matrix[[1]]
@@ -1720,10 +1718,10 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
         prior_filtering <- nrow(sample_dfs[[i]])
         sample_dfs[[i]] <- subset(sample_dfs[[i]],  (Nr_of_VDJ_chains > 0 | Nr_of_VJ_chains > 0) & sample_dfs[[i]]$Nr_of_VDJ_chains + sample_dfs[[i]]$Nr_of_VJ_chains < 4)
         if(nrow(sample_dfs[[i]]) > 0){
-          print(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
+          message(paste0("Filtered out ", prior_filtering - nrow(sample_dfs[[i]]), " cells containing more than one VDJ AND VJ chain, as these likely correspond to doublets"))}
 
         ####only include clones with one heavy and one light chain
-        if(VDJ.VJ.1chain== T){print("Hierarchical clonotyping is specifically designed to better incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue with out filtering. For standard clonotyping with filtering set hierarchical = FALSE. ")}####STOP strict
+        if(VDJ.VJ.1chain== T){message("Hierarchical clonotyping is specifically designed to better incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue with out filtering. For standard clonotyping with filtering set hierarchical = FALSE. ")}####STOP strict
 
         #Prepwork to increase function speed
         #find cells with 1VJ chain only
@@ -1740,9 +1738,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
         #now filter out the rest of abberant cells from the sample_dfs
         sample_dfs[[i]] <- subset(sample_dfs[[i]],Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
 
-
         if(clone.strategy=="10x.default"){ ####START cdr3.nt
-          print("No hierarchical clustering available for 10x.default. Returning input clonotype annotations")
           sample_dfs[[i]]$new_clonal_feature <- sample_dfs[[i]]$clonotype_id_10x
         } ####STOP cdr3.nt
         if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
@@ -1783,7 +1779,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               if(stringr::str_detect(aberant_cells$VDJ_cdr3s_nt[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_nt[cel], ";", simplify = T)[1,2])))
               } else {
-                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_nt[cel]))
+                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_nt[cel]))
               }
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
@@ -1868,16 +1864,19 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
               } else {
                 clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+
               }
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
 
                 aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
+
               } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
                 aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
               } else { #no clone found with the light chain of this cell => open a new clone
+
                 aberant_cells$new_clonal_feature[cel] <- aberant_cells$VJ_cdr3s_aa[cel]
               }
             }
@@ -1891,18 +1890,21 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               if(stringr::str_detect(aberant_cells$VDJ_cdr3s_aa[cel], ";")){ #catches a cell with two vDJ chains but no VJ chain (very very rare)
                 clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])), which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])))
               } else {
-                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VJ_cdr3s_aa[cel]))
+                clone_matches <- which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature, aberant_cells$VDJ_cdr3s_aa[cel]))
               }
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
+
 
                 aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
 
               } else if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
 
+
                 aberant_cells$new_clonal_feature[cel] <- unique(sample_dfs[[i]]$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
               } else { #no clone found with the light chain of this cell => open a new clone
                 aberant_cells$new_clonal_feature[cel] <- aberant_cells$VDJ_cdr3s_aa[cel]
+
               }
             }
           }
@@ -2312,7 +2314,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
           }
 
         } ####STOP hvj.lvj.cdr3lengths   / START Homology based clonotyping
-        else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology" | clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){  #taking into account both cases
+        else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology" | clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){  #taking into account both cases
 
           clones_temp <- (paste(nchar(sample_dfs[[i]]$VDJ_cdr3s_aa),
                                 sample_dfs[[i]]$VDJ_vgene,
@@ -2340,7 +2342,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               }
 
               vh_distance <- stringdist::stringdistmatrix(sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],sample_dfs[[i]]$VDJ_cdr3s_aa[original_clone_indices],method = "lv")/nchars_vh
-              if (clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){
+              if (clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){
 
                 if(any(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0) & !all(nchar(sample_dfs[[i]]$VJ_cdr3s_aa[original_clone_indices]) == 0)){
                   #get nchar of heavy chains and surrogate missing once with the mean of existing ones
@@ -2391,9 +2393,9 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               #We now have one or a set of matching clones / Now we check their homology via stringdist
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #in the case that homology is only calculated on the VDJ chain, here we cannot check homology, because the aberrant query cell does not contain a VDJ chain
+                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #in the case that homology is only calculated on the VDJ chain, here we cannot check homology, because the aberrant query cell does not contain a VDJ chain
                   aberant_cells$new_clonal_feature[cel] <- names(which.max(table(sample_dfs[[i]]$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
-                } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we check for homology with all matching clones for the VJ chain
+                } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we check for homology with all matching clones for the VJ chain
                   if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){
                     dists1 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
                     dists2 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -2443,7 +2445,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               #We now have one or a set of matching clones / Now we check their homology via stringdist
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #checking homology
+                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #checking homology
 
                   if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
                     dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
@@ -2463,7 +2465,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                     }
                   }
 
-                } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we now also only check for VDJ homology, because there is no VJ chain
+                } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we now also only check for VDJ homology, because there is no VJ chain
 
                   if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
                     dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
@@ -2511,7 +2513,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
 
-                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #checking homology / given that we know that this cell has 1 VDJ chain, we can skip a few ifs
+                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #checking homology / given that we know that this cell has 1 VDJ chain, we can skip a few ifs
 
                   dists <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], aberant_cells$VDJ_cdr3s_aa[cel]) / nchar(aberant_cells$VDJ_cdr3s_aa[cel]) #get distances
                   if(any(dists <= homology.threshold)){
@@ -2520,7 +2522,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                     aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel])
                   }
 
-                } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
+                } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
 
                   dists1 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
                                                    paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])) / nchar(paste0(aberant_cells$VDJ_cdr3s_aa[cel], "_", stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]))
@@ -2561,7 +2563,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
               clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[1])),which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,ccombs[2])))
 
               if(length(unique(sample_dfs[[i]]$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3homology"){ #checking homology / given that we know that this cell has 2 VDJ chain, we str_split those
+                if(clone.strategy=="hvj.lvj.CDR3length.CDRH3.homology"){ #checking homology / given that we know that this cell has 2 VDJ chain, we str_split those
 
                   dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
                   dists2 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -2572,7 +2574,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                     aberant_cells$new_clonal_feature[cel] <- paste0(comb1,"_", aberant_cells$VDJ_cdr3s_aa[cel],"_", aberant_cells$VJ_cdr3s_aa[cel])
                   }
 
-                } else if(clone.strategy=="hvj.lvj.cdr3length.cdr3homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
+                } else if(clone.strategy=="hvj.lvj.cdr3length.CDR3.homology"){ #here we have to make sure that homology is fullfilled for both the VDJ chain and one of the VJ chains
 
                   dists1 <- stringdist::stringdist(paste0(sample_dfs[[i]]$VDJ_cdr3s_aa[clone_matches],"_",sample_dfs[[i]]$VJ_cdr3s_aa[clone_matches]),
                                                    paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_", aberant_cells$VJ_cdr3s_aa[cel])) / nchar(paste0(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], "_", aberant_cells$VJ_cdr3s_aa[cel]))
@@ -2662,7 +2664,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                   aberant_cells$new_clonal_feature[cel] <- aberant_cells$VJ_cdr3s_aa[cel]
                 }
 
-              } else if(clone.strategy=="CDR3homology"){ #here we check for homology with all matching clones for the VJ chain
+              } else if(clone.strategy=="CDR3.homology"){ #here we check for homology with all matching clones for the VJ chain
                 if(stringr::str_detect(aberant_cells$VJ_vgene[cel], ";")){
                   dists1 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
                   dists2 <- stringdist::stringdist(sample_dfs[[i]]$VJ_cdr3s_aa, stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2]) / nchar(stringr::str_split(aberant_cells$VJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -2726,7 +2728,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 }
 
 
-              } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+              } else if(clone.strategy=="CDR3.homology"){ #check homology for VDJ again, because there is no VJ chain
 
                 if(stringr::str_detect(aberant_cells$VDJ_vgene[cel], ";")){
                   dists1 <- stringdist::stringdist(sample_dfs[[i]]$VDJ_cdr3s_aa, stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1]) / nchar(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1])
@@ -2771,7 +2773,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                   aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
                 }
 
-              } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+              } else if(clone.strategy=="CDR3.homology"){ #check homology for VDJ again, because there is no VJ chain
 
                 #get combinations
                 VDJs <- aberant_cells$VDJ_cdr3s_aa[cel]
@@ -2783,7 +2785,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 pasted_sample_dfs <- paste0(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa)
 
                 dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[1]) / nchar(ccombs[1])
-                dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
+                dists2 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
                 #get the minimum of both for each element
                 dists <- c()
                 for(k in 1:length(dists1)){
@@ -2827,7 +2829,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                   aberant_cells$new_clonal_feature[cel] <- paste0(aberant_cells$VDJ_cdr3s_aa[cel])
                 }
 
-              } else if(clone.strategy=="CDR3homology"){ #check homology for VDJ again, because there is no VJ chain
+              } else if(clone.strategy=="CDR3.homology"){ #check homology for VDJ again, because there is no VJ chain
 
                 #get combinations
                 VDJs <- c(stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,1], stringr::str_split(aberant_cells$VDJ_cdr3s_aa[cel], ";", simplify = T)[1,2])
@@ -2839,7 +2841,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
                 pasted_sample_dfs <- paste0(sample_dfs[[i]]$VDJ_cdr3s_aa, sample_dfs[[i]]$VJ_cdr3s_aa)
 
                 dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[1]) / nchar(ccombs[1])
-                dists1 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
+                dists2 <- stringdist::stringdist(pasted_sample_dfs, ccombs[2]) / nchar(ccombs[2])
                 #get the minimum of both for each element
                 dists <- c()
                 for(k in 1:length(dists1)){
@@ -2867,9 +2869,10 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
         ####START recalculating clonotype_id and clonal_frequency
         #place holders
+        sample_dfs[[i]]$new_clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$new_clonal_frequency <- rep(NA,nrow(sample_dfs[[i]]))
         sample_dfs[[i]]$new_clonal_rank <- rep(NA,nrow(sample_dfs[[i]]))
-        sample_dfs[[i]]$clonotype_id <- rep(NA,nrow(sample_dfs[[i]]))
+
 
         unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
         unique.clonal.frequencies <- rep(NA,length(unique.clonal.features))
@@ -2888,7 +2891,7 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
         #new clonotype id
         unique.clonal.features <- unique(sample_dfs[[i]]$new_clonal_feature)
         for(j in 1:length(unique.clonal.features)){
-          sample_dfs[[i]]$clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
+          sample_dfs[[i]]$new_clonotype_id[which(sample_dfs[[i]]$new_clonal_feature == unique.clonal.features[j])] <- paste0("clonotype",j)
         }####STOP assigning new clonotype id
       }
 
@@ -2896,11 +2899,22 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
 
     if(output.format=="dataframe.per.sample"){
       return(sample_dfs)
-    }
-    else if(output.format=="vgm"){
-      VDJ.GEX.matrix <- list()
+    } else if(output.format=="vgm"){
       if(!global.clonotype) VDJ.GEX.matrix <- do.call("rbind",sample_dfs)
-      if(global.clonotype) VDJ.GEX.matrix <- sample_dfs
+      if(global.clonotype) VDJ.GEX.matrix <- sample_dfs[[1]]
+
+      #shift new columns to the front and rename
+      if("sample_id" %in% names(VDJ.GEX.matrix)){
+      clono_10x_index <- which(names(VDJ.GEX.matrix) == "sample_id")
+      VDJ.GEX.matrix<- VDJ.GEX.matrix[,c(1:clono_10x_index, ((ncol(VDJ.GEX.matrix)-3):ncol(VDJ.GEX.matrix)), (clono_10x_index+1):(ncol(VDJ.GEX.matrix)-4))]
+      }
+      
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonotype_id")] <- paste0("clonotype_id_",clone.strategy.as.input)
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_feature")] <- paste0("clonal_feature_",clone.strategy.as.input)
+      names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_frequency")] <- paste0("clonotype_frequency_",clone.strategy.as.input)
+      #names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_rank")] <- paste0("clonal_rank_",clone.strategy.as.input)
+      VDJ.GEX.matrix <- VDJ.GEX.matrix[,-c(which(names(VDJ.GEX.matrix) == "new_clonal_rank"))] #removing the clonal rank column as it has proven redundant
+      
       return(VDJ.GEX.matrix)
     }
 

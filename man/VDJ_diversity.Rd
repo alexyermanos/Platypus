@@ -30,7 +30,7 @@ VDJ_diversity(
 
 \item{axis.label.size}{Numeric. Only used if overlap indices are calculated. Defaults to 12. Is passed on to ggplot theme}
 
-\item{platypus.version}{Version of platypus to use. Defaults to "v2". If an output of the VDJ_analyze function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"}
+\item{platypus.version}{Version of platypus to use. Defaults to "v3". If an output of the VDJ_analyze function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"}
 }
 \value{
 Returns a ggplot with the calculated metric for each group (if provided). Data is accessible via ggplot.output$data
@@ -39,22 +39,22 @@ Returns a ggplot with the calculated metric for each group (if provided). Data i
 Calculates and plots common diversity and overlap measures for repertoires and alike. Require the vegan package
 }
 \examples{
-\dontrun{
-Calculate shannon index for VDJ CDR3s by sample
-plot <- VDJ_diversity(VDJ = VDJ_GEX_matrix.output[[1]], platypus.version = "v3"
+
+#Calculate shannon index for VDJ CDR3s by sample
+plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3"
 ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 ,metric = "shannon")
-For raw values use
+#For raw values use
 plot$data
 
-Calculate Gini-simpson and Simpson index for VDJ and VJ CDR3s by sample
-VDJ_diversity(VDJ = VDJ_GEX_matrix.output[[1]], platypus.version = "v3"
+#Calculate Gini-simpson and Simpson index for VDJ and VJ CDR3s by sample
+VDJ_diversity(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3"
 ,feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa"), grouping.column = "sample_id"
-,metric = c("ginisimpson","simpson"))
+,metric = c("ginisimpson"))
 
-Calculate Jaccard index of J gene usage between two samples
-VDJ_diversity(VDJ = VDJ_comb[[1]], platypus.version = "v3"
-,feature.columns = c("VDJ_jgene"), grouping.column = "VDJ_cgene"
+#Calculate Jaccard index of J gene usage between two samples
+VDJ_diversity(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3"
+,feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 ,metric = "jaccard")
-}
+
 }

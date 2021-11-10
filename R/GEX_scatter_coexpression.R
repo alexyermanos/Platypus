@@ -3,16 +3,13 @@
 #' @param gene.1 Character. Name of a gene in rownames(VDJ.matrix)
 #' @param gene.2 Character. Name of a gene in rownames(VDJ.matrix)
 #' @param color.theme Character. A color to use for the composite plot
-#' @return Returns a gridplot showing coexpression of gene.1 and gene.2
+#' @return Returns a gridplot showing coexpression scatterplot as well as histograms of gene.1 and gene.2
 #' @export
 #' @examples
-#' \dontrun{
-#'gene1 <- "BCL6"
-#'gene2 <- "CD40"
-#'ggsave(filename = paste0("Coex_", gene1,"_", gene2,"_scat.png"),
-#'plot = GEX_scatter_coexpression(VDJ_comb[[2]], gene1,gene2),
-#'dpi = 300, width = 12, height = 12)
-#'}
+#'gene1 <- "CD24A"
+#'gene2 <- "CD83"
+#'GEX_scatter_coexpression(GEX = Platypus::small_vgm[[2]], gene1,gene2)
+#'
 
 GEX_scatter_coexpression <- function(GEX,
                                      gene.1,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlatypusDB_list_projects.R
 \name{PlatypusDB_list_projects}
 \alias{PlatypusDB_list_projects}
-\title{Loads and saves RData objects from the PlatypusDB}
+\title{Lists metadata tables of available projects on PlatypusDB}
 \usage{
 PlatypusDB_list_projects(keyword)
 }
@@ -13,20 +13,20 @@ PlatypusDB_list_projects(keyword)
 A list of metadata tables by project. List element names correspond to project ids to use in the PlatypusDB_fetch function
 }
 \description{
-Loads and saves RData objects from the PlatypusDB
+Lists metadata tables of available projects on PlatypusDB
 }
 \examples{
-\dontrun{
+\donttest{
 
 #Get list of all available projects and metadata.
 PlatypusDB_projects <- PlatypusDB_list_projects()
 
 #Names of list are project ids to use in PlatypusDB_fetch function
-names(PlatpyusDB_projects)
+names(PlatypusDB_projects)
 #Common format: first author, date, letter a-z (all lowercase)
 
-View metadata of a specific project
-View(PlatypusDB_projects[["Yermanos2021a"]])
+#View metadata of a specific project
+print(PlatypusDB_projects[["Kuhn2021a"]])
 
 }
 
