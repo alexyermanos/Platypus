@@ -40,7 +40,7 @@
 #' @return A list containing the VDJ sequence and corresponding transcriptome data: "all_contig_annotations", "clonotypes", "all_contig", "consensus","reference","reference_real", "transcriptome","igraph_list_iso","igraph_list_trans","Seq_Name","igraph.index.attr","history","igraph.index","selected.seq","version","parameters".
 #'
 #' @export
-simulate_repertoire <- function(initial.size.of.repertoire,
+Echidna_simulate_repertoire <- function(initial.size.of.repertoire,
                                 species,
                                 cell.type,
                                 cd4.proportion,
@@ -889,7 +889,8 @@ for(i in 1:initial.size.of.repertoire){
     clonotypes<-merge(clonotypes,cdr3_df,by="clonotype_id",all.x=T)
     clonotypes<-clonotypes[!(duplicated(clonotypes$clonotype_id)),]
     names(clonotypes)[4:5]<-c("cdr3","cdr3_nt")
-    all_contig_annotations<-data.frame(barcode,is_cell,raw_contig_id,high_confidence,Length,chain,v_gene,d_gene,j_gene,c_gene,full_length,productive,cdr3,cdr3_nt,reads,raw_clonotype_id)
+    all_contig_annotations<-data.frame(barcode,is_cell,raw_contig_id,high_confidence,Length,chain,v_gene,d_gene,j_gene,c_gene,full_length,productive,cdr3,cdr3_nt,reads,umis,raw_clonotype_id)
+    all_contig_annotations$raw_consensus_id<-paste(raw_clonotype_id,"consensus",substr(raw_contig_id,nchar(raw_contig_id),nchar(raw_contig_id)),sep = "_")
   }
 
   raw_consensus<-.WRITE.CONSENSUS(clonotype_id,sequence.combined = seq_combi,barcode.unique = barcode_uniq,clonotypes.dataframe = clonotypes)
@@ -906,7 +907,7 @@ for(i in 1:initial.size.of.repertoire){
     reference_id<-paste0(raw_clonotype_id,"_concat_ref_",stringr::str_sub(raw_contig_id,-1,-1))
     reference_seq<-c()
     d_seq1<-gsub(pattern = "None",replacement = "",x = d_seq)
-    
+
     reference_seq<-paste0(v_seq,d_seq1,j_seq)
     reference<-data.frame(reference_id,reference_seq)
     reference<-reference[!(duplicated(reference$reference_id)),]
