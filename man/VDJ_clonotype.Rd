@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_clonotype.R
 \name{VDJ_clonotype}
 \alias{VDJ_clonotype}
-\title{Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.}
+\title{Deprecated function for Platypus V2 with options for Platypus V3. For revised hierarchical clonotyping please use VDJ_clonotype_v3() Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.}
 \usage{
 VDJ_clonotype(
   VDJ,
@@ -18,7 +18,7 @@ VDJ_clonotype(
 \arguments{
 \item{VDJ}{For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
 
-\item{clone.strategy}{(Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','VDJJ.VJJ','VDJJ.VJJ.cdr3lengths','VDJJ.VJJ.cdr3length.cdr3homology', 'VDJJ.VJJ.cdr3length.VDJcdr3homology', 'cdr3.homology',or 'VDJcdr3.homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3homology',or 'CDRH3homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
+\item{clone.strategy}{(Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','VDJJ.VJJ','VDJJ.VJJ.cdr3lengths','VDJJ.VJJ.cdr3length.CDR3.homology', 'VDJJ.VJJ.cdr3length.VDJCDR3.homology', 'cdr3.homology',or 'VDJcdr3.homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3.homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3.homology',or 'CDRH3.homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 All homology calculations are performed on the amino acid level.}
 
 \item{homology.threshold}{Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.}
@@ -37,7 +37,7 @@ All homology calculations are performed on the amino acid level.}
 Returns a list of clonotype dataframes where each list element matches the  repertoire index in the input clonotype.list object. The dataframes will be updated with clonal frequencies based on the new clonotyping definition.
 }
 \description{
-Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
+Deprecated function for Platypus V2 with options for Platypus V3. For revised hierarchical clonotyping please use VDJ_clonotype_v3() Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
 }
 \examples{
 reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
