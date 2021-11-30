@@ -1,0 +1,120 @@
+---
+title: "PlatypusV3 Feature Barcodes"
+author: "Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis, Raphael Dizerens"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PlatypusV3 feature_barcodes vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+fig_width: 16
+fig_height: 16
+---
+
+```{r setup, eval = TRUE, include=FALSE}
+gc()
+knitr::opts_chunk$set(fig.width=4, fig.height=4) 
+```
+
+## 1. Run VDJ_GEX_matrix / load a VDJ_GEX_matrix object
+```{r, eval = TRUE, fig.show='hold'}
+
+# We first integrate the GEX, VDJ and feature barcode information using the VDJ_GEX_matrix function.
+
+GEX.out.directory.list <- list()
+GEX.out.directory.list[[1]] <- "Volume/brain_trm_bcell_flud15/gex/S3_brain3"
+GEX.out.directory.list[[2]] <- "Volume/brain_trm_bcell_flud15/gex/S4_brain4"
+GEX.out.directory.list[[3]] <- "Volume/brain_trm_bcell_flud15/gex/S5_brain5"
+GEX.out.directory.list[[4]] <- "Volume/brain_trm_bcell_flud15/gex/S6_brain6"
+VDJ.out.directory.list <- list()
+VDJ.out.directory.list[[1]] <- "Volume/brain_trm_bcell_flud15/vdj/S9_brain3"
+VDJ.out.directory.list[[2]] <- "Volume/brain_trm_bcell_flud15/vdj/S10_brain4"
+VDJ.out.directory.list[[3]] <- "Volume/brain_trm_bcell_flud15/vdj/S11_brain5"
+VDJ.out.directory.list[[4]] <- "Volume/brain_trm_bcell_flud15/vdj/S12_brain6"
+FB.out.directory.list <- list()
+FB.out.directory.list[[1]] <- "Volume/test_vgm_bc/GFAP/outs/raw_feature_bc_matrix"
+FB.out.directory.list[[2]] <- "Volume/test_vgm_bc/noB/outs/raw_feature_bc_matrix"
+FB.out.directory.list[[3]] <- "Volume/test_vgm_bc/MOG/outs/raw_feature_bc_matrix"
+FB.out.directory.list[[4]] <- "Volume/test_vgm_bc/control/outs/raw_feature_bc_matrix"
+
+VDJ_comb_gex <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
+                               GEX.out.directory.list = GEX.out.directory.list,
+                               FB.out.directory.list = FB.out.directory.list,
+                               FB.ratio.threshold = 2,
+                               GEX.integrate = T,
+                               VDJ.combine = T,
+                               integrate.GEX.to.VDJ = T,
+                               integrate.VDJ.to.GEX = T,
+                               exclude.GEX.not.in.VDJ = F,
+                               filter.overlapping.barcodes.GEX = T,
+                               filter.overlapping.barcodes.VDJ = T,
+                               get.VDJ.stats = T,
+                               subsample.barcodes = F,
+                               trim.and.align = T,
+                               group.id = c(1,2,3,4))
+
+#save VDJ_GEX_matrix object
+save.image(file = "Brain_feature.RData")
+#load VDJ_GEX_matrix object
+load("/Users/raphaeldizerens/Desktop/hash/Brain_feature.RData")
+
+```
+
+## 2. Piecharts
+```{r, eval = TRUE, fig.show='hold'}
+# load function (remove once it's in the package)
+source("/Users/raphaeldizerens/Desktop/hash/Cell_hashing_piecharts.R")
+
+# To assess the quality of a cell hashing experiment, we first look at the number of cells assigned to each feature barcode. We display this as a pie chart.
+
+piecharts <- Cell_hashing_piecharts(VDJ.matrix = VDJ_comb_gex, group.by ="sample_id",label.size = 7)
+
+# Pie charts:
+piecharts
+
+```
+
+## 3. Venn diagrams
+
+```{r, eval = TRUE, fig.show='hold'}
+
+# load function (remove once it's in the package)
+source("/Users/raphaeldizerens/Desktop/hash/Cell_hashing_venn_diagram.R")
+
+# Make Venn diagrams to visualize the number of clones that contain cells assigned to one or multiple feature barcodes.
+
+# First we transform the output of the VDJ.GEX.matrix using the VDJ_clonotype function. Make sure to set "output.format" to "phylo.dataframes"
+
+clonotype_phylo.dataframes <- VDJ_clonotype(VDJ.GEX.matrix = VDJ_comb_gex,VDJ.VJ.1chain = T, global.clonotype = F,clone.strategy="10x.default", output.format = "phylo.dataframes")
+
+# The Cell_hashing_venn_diagram function plots the Venn diagrams. 
+
+# The names of the hashig barcodes considered in the plot must be provided:
+hashing_BC <- c("TotalSeq-C0951", "TotalSeq-C0952",  "TotalSeq-C0953")
+
+venn_plots <- Cell_hashing_venn_diagram(clonotype_phylo.dataframes = clonotype_phylo.dataframes, hashing_BC = hashing_BC)
+
+venn_plots
+
+```
+
+
+## 4. Clonal expansion barplots
+
+```{r, eval = TRUE, fig.show='hold'}
+# Visualize the feature barcode assignment within top expanded clones
+
+# First format the FB_assignment column
+VDJ <- VDJ_comb_gex[[1]]
+VDJ$FB_assignment <- substr(VDJ$FB_assignment, 4, nchar(VDJ$FB_assignment))
+VDJ$FB_assignment[VDJ$FB_assignment == " assignable"] <- "Not assignable"
+
+# Next, we use the VDJ_clonal_expansion to create the expansion plots
+expansion_plots <-VDJ_clonal_expansion(VDJ = VDJ,celltype = "Bcells",subtypes = T,isotypes.to.plot = "all",species = "Mouse",treat.incomplete.clones = 'exclude',treat.incomplete.cells= 'exclude', group.by = "sample_id",color.by = "FB_assignment",platypus.version = "v3",clones = 30)
+
+# (optional) add colors manually to make the plots look nicer
+expansion_plots[[1]][[1]] + ggplot2::scale_fill_manual("Hashing bracode", values = c("Not assignable"="grey","TotalSeq-C0951" = "#7CAE00", "TotalSeq-C0952"="#00BFC4",  "TotalSeq-C0953" = "#C77CFF"))
+
+```
+
+
