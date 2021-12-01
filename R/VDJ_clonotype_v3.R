@@ -8,7 +8,7 @@
 #' @param homology.threshold Numeric value between 0 and 1 corresponding to the homology threshold forn the clone.strategy arguments that require a homology threshold. Default value is set to 70 percent sequence homology. For 70 percent homology, 0.3 should be supplied as input.
 #' @param hierarchical Character. Defaults to "none". This is an extention specifically for cells with aberrant numbers of chains (i.e. 0VDJ 1VJ, 1VDJ 0VJ, 0VDJ 2VJ, 2VDJ 0VJ). Cells with 2VDJ 2VJ are filtered out as these are most likely doublets.
 #' If set to "none" aberrant cells are assigned to their own clonotypes.
-#' If set to "single.chains" the function will proceed in two steps: 0. Prefiltering: cells with 2 VDJ 2 VJ chains as well as cells with 2 VDJ and any number of VJ chains are filtered out. 1. define clonotypes classically with all cells containing exactly 1VDJ 1VJ chains. 2. For cells with only a single chain (either VDJ or VJ), check if any clone exists, which matches the clonotyping criteria for this chain. If true, add this cell to that clone. If false, create a new clone containing that cell. In case that more than 1 existing clone matches the aberrant cell, the cell is assigned to the most frequent existing clone. Two reasons are behind this decision: 2.1. The aberrant cells is numerically more likely to be a part of the more frequent existing clone. 2.2 In case of a wrong assignment, the effect of the error is lower, if an already expanded clone is increase by one count, rather than a existing non-expanded clone being assigned a second entry and thereby resulting as expanded. Cells with three chains are assigned to their own clonotypes
+#' If set to "single.chains" the function will proceed in two steps: 0. Prefiltering: cells with 2 VDJ 2 VJ chains as well as cells with 2 VDJ and any number of VJ chains are filtered out. 1. define clonotypes classically with all cells containing exactly 1VDJ 1VJ chains. 2. For cells with only a single chain (either VDJ or VJ), check if any clone exists, which matches the clonotyping criteria for this chain. If true, add this cell to that clone. If false, create a new clone containing that cell. In case that more than 1 existing clone matches the aberrant cell, the cell is assigned to the most frequent existing clone with the same sample_id entry as the cell in question (same sample prioritization criterion). If all matches are part of different sample_id entries, than the cell is assigned to the most frequent ones of these. Three reasons are behind this decision: 2.1. The aberrant cells is numerically more likely to be a part of the more frequent existing clone. 2.2 In case of a wrong assignment, the effect of the error is lower, if an already expanded clone is increase by one count, rather than a existing non-expanded clone being assigned a second entry and thereby resulting as expanded. Cells with three chains are assigned to their own clonotypes. The same sample prioritization criterion should provide some protection against false positive public clones when using global.clonotype == T
 #' If set to "double.and.single.chains" the function will proceed as if set to "single.chains" but include a third step: 3.
 #' 3. For cells with 3 chains, verify the clonotyping criteria on both combinations of chains (i.e. VDJ1 - VJ1, VDJ2-VJ1 in case of a cell with 2VDJ 1VJ).
 #' @param triple.chain.count.threshold Minimal occurrance frequency for any cell with more than 2 of either VDJ or VJ chain (e.g. 2 VDJ 1 VJ) for it to be considered as a trustworthy clone for hierarchical clonotyping ONLY when hierarchical is set to "double.and.single.chains". Defaults to 3, meaning that, an exact combination of three chains needs to appear in the dataset at least 3 times for it to be considered as a clone, into which other cells are merged. (For the counting of exact combination of chains CDR3 nucleotide string matching is used, even if clonotyping by homology)
@@ -56,7 +56,17 @@ VDJ_clonotype_v3 <- function(VDJ,
           if(sample_aberrant$Nr_of_VDJ_chains[cel] == 0){
           }
           if(length(unique(sample_dfs$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
-            curr_ab$new_clonal_feature[cel] <- names(which.max(table(sample_dfs$new_clonal_feature[clone_matches]))) #Assigning the aberrant query clone to the most frequent matching clone
+
+            #update: prioritisation of merging cells into clonotypes of the same sample
+            same_sample <- subset(sample_dfs[clone_matches,], sample_id == curr_ab$sample_id[cel])
+            #are there any existing clones in the same sample as the current aberrant cell which match this cells pattern?
+            if(nrow(same_sample) > 0){ #-> yes
+              #Assigning the aberrant query clone to the most frequent matching clone of the same sample
+              curr_ab$new_clonal_feature[cel] <- names(which.max(table(same_sample$new_clonal_feature)))
+            } else { #-> no. Proceed as before update
+              #Assigning the aberrant query clone to the most frequent matching clone
+              curr_ab$new_clonal_feature[cel] <- names(which.max(table(sample_dfs$new_clonal_feature[clone_matches])))
+            }
           } else if(length(unique(sample_dfs$new_clonal_feature[clone_matches])) == 1){#This returns TRUE if exactly one predefined clone matches the pattern of the abberant query clone
             curr_ab$new_clonal_feature[cel] <- unique(sample_dfs$new_clonal_feature[clone_matches]) #Assigning the aberrant query clone to the only matching clone
           }  #ELSE: no clone found with the light chain of this cell => open a new clone by leaving the clonal feature as is
@@ -160,6 +170,14 @@ VDJ_clonotype_v3 <- function(VDJ,
       VDJ[is.na(VDJ[,i]),i] <- ""
       VDJ[VDJ[,i] == "NA",i] <- ""
     }
+  }
+
+  if(!"sample_id" %in% names(VDJ) & global.clonotype == F){
+    stop("sample_id column needed for clonotyping by sample was not found in the input dataframe")
+  }
+  if(!"sample_id" %in% names(VDJ) & hierarchical != "none" ){
+    warning("sample_id column not found in input dataframe. This is used to merge single chain cells into existing clonotypes of the same sample with a higher priority than other samples. This feature is not available without a valid sample_id column")
+    VDJ$sample_id <- "no_info_provided"
   }
 
   #redefining count so to make sure
