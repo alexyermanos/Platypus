@@ -1454,15 +1454,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             stop(paste0("GEX loading error: for GEX directory input ", i, " the Read10x function returned more than 2 matrices. This is a likely a result of running Cellranger count or Cellranger multi with > 1 directory input for GEX or feature barcodes per sample or of having processed additional feature barcode data such as from Cite-seq. Currently this function is only capable of processing 2 output matrices from each GEX directory. Further compatibility may be added in the future."))
           }
           if(length(FB_ind) > 0){
-            FB.list[[i]] <- directory_read10x[[i]][FB_ind] #add this matrix to the FB list ! For GEX input where no FB was found this will become placeholder (see below)
-            directory_read10x[[i]] <- directory_read10x[[i]][-FB_ind] #delete the matrix from the original list, so that only the GEX matrix remains
+            FB.list[[length(FB.list)+1]] <- directory_read10x[[i]][[FB_ind]] #add this matrix to the FB list ! For GEX input where no FB was found this will become placeholder (see below)
+            directory_read10x[[i]] <- directory_read10x[[i]][[-FB_ind]] #delete the matrix from the original list, so that only the GEX matrix remains
             #Moreover we want to prevent two user inputs with FB. Here we set FB.loaded to TRUE, so that the FB loading from disk module further down will be skipped.
             FB.loaded <- T
             #at this point we have two lists: the FB.list and the directory_read10x which only contains GEX info, but is still nested. So we have to flatten it
             directory_read10x <- do.call(list, unlist(directory_read10x, recursive=FALSE))
           }
         } else{
-          FB.list[[i]] <- Matrix::Matrix(data = c(rep(1001, 10), rep(1, 10)), nrow = 2, ncol = 10, sparse = TRUE, dimnames = list( c("No-FB-data", "column2"),LETTERS[11:20])) #PLACEHOLDER MATRIX: can be converted to a seurat object and run through the whole function without needing extra IF conditions
+          FB.list[[length(FB.list)+1]] <- Matrix::Matrix(data = c(rep(1001, 10), rep(1, 10)), nrow = 2, ncol = 10, sparse = TRUE, dimnames = list( c("No-FB-data", "column2"),LETTERS[11:20])) #PLACEHOLDER MATRIX: can be converted to a seurat object and run through the whole function without needing extra IF conditions
         }
       }
 
@@ -1471,7 +1471,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(FB.loaded == T){
         #Next we need to check column names / names of feature barcodes. Potentially more than one library of FBs was sequenced giving us more than one matrix but all with the same column names (because same FBs may have been used across samples). We therefore rename the feature barcodes individually to make sure they stay separated
         for(i in 1:length(FB.list)){
+          if(ncol(FB.list[[i]]) > 0){
           colnames(FB.list[[i]]) <- paste0("i", i, "_", colnames(FB.list[[i]]))
+          } else {
+            FB.list[[i]] <- Matrix::Matrix(data = c(rep(1001, 10), rep(1, 10)), nrow = 2, ncol = 10, sparse = TRUE, dimnames = list( c("No-FB-data", "column2"),LETTERS[11:20])) #PLACEHOLDER MATRIX: can be converted to a seurat object and run through the whole function without needing extra IF conditions
+          }
         }
         #We can now convert all to Seurat objects
         FB.list <- lapply(FB.list, function(x) Seurat::CreateSeuratObject(x))
