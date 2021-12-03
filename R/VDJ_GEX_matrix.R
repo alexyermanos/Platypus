@@ -1458,12 +1458,16 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             directory_read10x[[i]] <- directory_read10x[[i]][[-FB_ind]] #delete the matrix from the original list, so that only the GEX matrix remains
             #Moreover we want to prevent two user inputs with FB. Here we set FB.loaded to TRUE, so that the FB loading from disk module further down will be skipped.
             FB.loaded <- T
-            #at this point we have two lists: the FB.list and the directory_read10x which only contains GEX info, but is still nested. So we have to flatten it
-            directory_read10x <- do.call(list, unlist(directory_read10x, recursive=FALSE))
           }
         } else{
           FB.list[[length(FB.list)+1]] <- Matrix::Matrix(data = c(rep(1001, 10), rep(1, 10)), nrow = 2, ncol = 10, sparse = TRUE, dimnames = list( c("No-FB-data", "column2"),LETTERS[11:20])) #PLACEHOLDER MATRIX: can be converted to a seurat object and run through the whole function without needing extra IF conditions
         }
+      }
+
+      if(FB.loaded == T){
+        #at this point we have two lists: the FB.list and the directory_read10x which only contains GEX info, but is still nested. So we have to flatten it
+        directory_read10x <- do.call(list, unlist(directory_read10x, recursive=FALSE))
+
       }
 
       #Done => result should be one non-nested list of matrices only containing GEX information and another containing only FB information.
