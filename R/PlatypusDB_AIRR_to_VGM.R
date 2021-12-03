@@ -39,7 +39,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     curr.contigs <- airrs[airrs$cell_id == barcodes & tolower(as.character(airrs$productive)) == "true",]
 
     #set up data structure
-    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
+    cols <- c("barcode","sample_id","group_id","clonotype_id","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
     curr.barcode <- stats::setNames(data.frame(matrix(ncol = length(cols), nrow = 1)), cols)
 
     #fill in information that do not need processing
@@ -482,10 +482,12 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       VDJ.proc.list[[i]]$group_id <- group.id[i]
 
       #add frequency column (i.e. all cells in clonotype2 will have the same entry, that is the number of cells in clonotype2)
-      clonotypes <- VDJ.proc.list[[i]] %>% dplyr::group_by(clonotype_id_10x) %>% dplyr::summarise(clonotype_frequency = dplyr::n())
-      VDJ.proc.list[[i]] <- merge(VDJ.proc.list[[i]], clonotypes, by = "clonotype_id_10x", all.x = T, all.y = F)
-      VDJ.proc.list[[i]]$expanded <- F
-      VDJ.proc.list[[i]]$expanded[VDJ.proc.list[[i]]$clonotype_frequency > 1] <- T
+      print(names(VDJ.proc.list[[i]]))
+
+      if("clonotype_id" %in% names(VDJ.proc.list[[i]])){
+        VDJ.proc.list[[i]]$clonotype_id <- "Undetermined"
+        VDJ.proc.list[[i]]$clonotype_frequency <- "Undetermined"
+      }
 
       #Add further columns to fill in in future updates
       VDJ.proc.list[[i]]$specifity <- NA
