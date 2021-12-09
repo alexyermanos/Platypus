@@ -2,6 +2,7 @@
 #' @param VDJ VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
 #' @param feature.columns A character array of column names of which the overlap should be displayed. The content of these columns is pasted together (separated by "/"). E.g. if the overlap in cells germline gene usage is desired, the input could be c("VDJ_jgene","VDJ_dgene","VDJ_vgene"). These columns would be pasted and compared across the grouping variable.
 #' @param grouping.column A column which acts as a grouping variable. If repertoires are to be compared use the sample_id column.
+#' @param jaccard Boolean. Defaults to FALSE. If set to TRUE, the overlap will be reported as jaccard index. If set to FALSE the overlap will be repored as absolute counts
 #' @param plot.type Character. Either "ggplot" or "pheatmap". Defaults to Pheatmap
 #' @param pvalues.label.size Numeric. Defaults to 4. Is passed on to ggplot theme
 #' @param axis.label.size Numeric. Defaults to 4. Is passed on to ggplot theme
@@ -19,6 +20,7 @@
 VDJ_overlap_heatmap <- function(VDJ,
                                 feature.columns,
                                 grouping.column,
+                                jaccard,
                                 plot.type,
                                 pvalues.label.size,
                                 axis.label.size,
@@ -34,6 +36,7 @@ VDJ_overlap_heatmap <- function(VDJ,
   if(missing(axis.label.size)) axis.label.size <- 4
   if(missing(add.barcode.table)) add.barcode.table <- T
   if(missing(plot.type)) plot.type <- "pheatmap"
+  if(missing(jaccard)) jaccard <- F
 
   #remove any rows that do not contain an entry for a given feature
   to_remove <- c()
@@ -79,15 +82,36 @@ VDJ_overlap_heatmap <- function(VDJ,
   ov_temp_list <- list()
   for(i in 1:nrow(combs)){
 
-    if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == F & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == F){
-    combs$overlap[i] <- sum(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])
-    ov_temp <- df.list[[which(names(df.list) == combs[i,1])]][which(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])]
-    combs$items.overlapping[i] <- paste0(ov_temp, collapse = ";")
+    if(jaccard){
 
-    } else { #if any of the two vectors to compare is empty (returning a 0 would be misleading)
-      combs$overlap[i] <- NA
-      ov_temp <- ""
+      if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == F & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == F){
+
+        intersection = sum(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])
+        union = length(df.list[[which(names(df.list) == combs[i,1])]]) + length(df.list[[which(names(df.list) == combs[i,2])]]) - intersection
+        combs$overlap[i] <- intersection/union
+
+        ov_temp <- df.list[[which(names(df.list) == combs[i,1])]][which(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])]
+        combs$items.overlapping[i] <- paste0(ov_temp, collapse = ";")
+
+      } else { #if any of the two vectors to compare is empty (returning a 0 would be misleading)
+        combs$overlap[i] <- NA
+        ov_temp <- ""
+      }
+
+    } else if(!jaccard){
+
+      if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == F & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == F){
+        combs$overlap[i] <- sum(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])
+        ov_temp <- df.list[[which(names(df.list) == combs[i,1])]][which(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])]
+        combs$items.overlapping[i] <- paste0(ov_temp, collapse = ";")
+
+      } else { #if any of the two vectors to compare is empty (returning a 0 would be misleading)
+        combs$overlap[i] <- NA
+        ov_temp <- ""
+      }
+
     }
+
 
     if(add.barcode.table == T){
       ov_temp_list[[i]] <- ov_temp
@@ -123,9 +147,9 @@ VDJ_overlap_heatmap <- function(VDJ,
     for(j in seq((1+nc_start),(nc_start + 2*length(sample.names)), 2)){ #this way I get the correct column index directly
 
       curr_group <- subset(lookup, group == sample.names[sample_count])
-      
+
       for(i in 1:nrow(ov_df)){
-        
+
           ov_df[i,j] <- sum(curr_group$pasted == ov_df$overlapping_items[i]) #frequency per group
           ov_df[i,j+1] <- paste0(curr_group$barcode[which(curr_group$pasted == ov_df$overlapping_items[i])],collapse = ";")
       }
@@ -140,7 +164,8 @@ VDJ_overlap_heatmap <- function(VDJ,
 
   #update: new labeling strategy: to show NA labels for non possible combinations, we reformat the overlap column and print that instead
 
-  combs$overlap_lab <- as.character(combs$overlap)
+  combs$overlap_lab <- round(combs$overlap,3)
+  combs$overlap_lab <- as.character(combs$overlap_lab)
   combs$overlap_lab[is.na(combs$overlap)] <- "NA"
   if(plot.type == "ggplot"){
 
@@ -155,14 +180,16 @@ VDJ_overlap_heatmap <- function(VDJ,
     rownames(pheat_map) <- unique(allcombs[order(allcombs)])
     for(i in 1:nrow(combs)){ #assign the corresponding values twice (once for upper triangle and once for lower)
       #upper triangle
-      pheat_map[which(colnames(pheat_map) == combs[i,1]), which(rownames(pheat_map) == combs[i,2])] <- as.numeric(combs[i,5])
+      pheat_map[which(colnames(pheat_map) == combs[i,1]), which(rownames(pheat_map) == combs[i,2])] <- round(as.numeric(combs[i,5]),3)
       #lower triangle
-      pheat_map[which(colnames(pheat_map) == combs[i,2]), which(rownames(pheat_map) == combs[i,1])] <- as.numeric(combs[i,5])
+      pheat_map[which(colnames(pheat_map) == combs[i,2]), which(rownames(pheat_map) == combs[i,1])] <- round(as.numeric(combs[i,5]),3)
     }
-    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315)
-
+    if(jaccard){
+    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.3f", angle_col = 315)
+    } else {
+      plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315)
+    }
     combs <- pheat_map
-
   }
   return(list(plot_out,combs,ov_df))
 }
