@@ -1,4 +1,5 @@
-#' Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format. All compulsory AIRR data columns are needed. Additionally, the following columns are required: c_call, cell_id, clone_id. If trim.and.align is set to TRUE additionally the following columns are needed: v_sequence_start, j_sequence_end.
+#' Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format. All compulsory AIRR data columns are needed. Additionally, the following columns are required: v_call, cell_id, clone_id. If trim.and.align is set to TRUE additionally the following columns are needed: v_sequence_start, j_sequence_end.
+#' Note on TRUST4 input: TRUST4 (https://doi.org/10.1038/s41592-021-01142-2) is a newly alignment tool for VDJ data by the Shirley lab. It is able to also extract VDJ sequences from 10x GEX data. We are actively testing TRUST4 as an alternative to Cellranger and can not give recommendations as of now. This function does support the conversion of TRUST4 airr output data into the Platypus VGM format. In that case, an extra column will be added describing whether the full length VDJ sequence was extracted for any given cell and chain.
 #'@param AIRR.input Source of the AIRR table(s) as a list. There are 2 available input options: 1. 1. List with local paths to .tsv files / 3. List of AIRR tables loaded in as R objects within the current R environment.
 #'@param get.VDJ.stats Boolean. Defaults to TRUE. Whether to generate summary statistics on repertoires and output those as output_VGM[[3]]
 #'@param VDJ.combine Boolean. Defaults to TRUE. Whether to integrate repertoires. A sample identifier will be appended to each barcode both. Highy recommended for all later functions
@@ -40,6 +41,15 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
 
     #set up data structure
     cols <- c("barcode","sample_id","group_id","clonotype_id","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
+
+    #trust 4 full lenght compatibility extra column
+    if(all(c("consensus_count", "complete_vdj") %in% names(curr.contigs))){
+      cols <- c(cols,"VDJ_complete_vdj","VJ_complete_vdj", "VDJ_consensus_count", "VJ_consensus_count")
+      trust4 <- T
+    } else{
+      trust4 <- F
+    }
+
     curr.barcode <- stats::setNames(data.frame(matrix(ncol = length(cols), nrow = 1)), cols)
 
     #fill in information that do not need processing
@@ -48,13 +58,13 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     #If more than two contigs of one chain (e.g. 2 TRB) are present, the elements will be pasted separated by a ";" into the relevant fields (in the case of TRB, into the Hb columns)
 
     #Get number of chains
-    HC_count <- sum(stringr::str_count(curr.contigs$c_call, pattern = "(TRB|IGH)"))
-    LC_count <- sum(stringr::str_count(curr.contigs$c_call, pattern = "(TRA|IG(K|L))"))
+    HC_count <- sum(stringr::str_count(curr.contigs$v_call, pattern = "(TRB|IGH)"))
+    LC_count <- sum(stringr::str_count(curr.contigs$v_call, pattern = "(TRA|IG(K|L))"))
 
     #In this case we need to make much less effort with pasting together, so we can save time
     if(HC_count == 1 & LC_count == 1){
 
-      if(which(stringr::str_detect(curr.contigs$c_call, "(TRA|IG(K|L))")) == 1){ #make row 1 the heavy chain in case it is not already
+      if(which(stringr::str_detect(curr.contigs$v_call, "(TRA|IG(K|L))")) == 1){ #make row 1 the heavy chain in case it is not already
         curr.contigs <- curr.contigs[c(2,1),]}
 
       #fill in the pasted info to curr.barcode directly
@@ -62,8 +72,8 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       curr.barcode$clonotype_id_10x <- curr.contigs$clone_id[1]
       curr.barcode$sample_id <- ""
       curr.barcode$group_id <- ""
-      if(stringr::str_detect(curr.contigs$c_call[1], "TR") | stringr::str_detect(curr.contigs$c_call[2], "TR")){curr.barcode$celltype <- "T cell"
-      } else if(stringr::str_detect(curr.contigs$c_call[1], "IG") | stringr::str_detect(curr.contigs$c_call[2], "IG")) {curr.barcode$celltype <- "B cell"
+      if(stringr::str_detect(curr.contigs$v_call[1], "TR") | stringr::str_detect(curr.contigs$v_call[2], "TR")){curr.barcode$celltype <- "T cell"
+      } else if(stringr::str_detect(curr.contigs$v_call[1], "IG") | stringr::str_detect(curr.contigs$v_call[2], "IG")) {curr.barcode$celltype <- "B cell"
       } else {curr.barcode$celltype <- "Unkown"}
 
       curr.barcode$Nr_of_VDJ_chains <- HC_count
@@ -86,31 +96,37 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       curr.barcode$VJ_cgene <- curr.contigs$c_call[2]
       curr.barcode$VDJ_raw_consensus_id <- ""
       curr.barcode$VJ_raw_consensus_id <- ""
+      if(trust4){
+        curr.barcode$VDJ_complete_vdj <- curr.contigs$complete_vdj[1]
+        curr.barcode$VJ_complete_vdj <- curr.contigs$complete_vdj[2]
+        curr.barcode$VDJ_consensus_count <- curr.contigs$consensus_count[1]
+        curr.barcode$VJ_consensus_count <- curr.contigs$consensus_count[2]
+      }
 
     } else { # this for cells with aberrant chain numbers
 
-      contigs_pasted <- stats::setNames(data.frame(matrix(ncol = ncol(curr.contigs), nrow = length(unique(curr.contigs$c_call)))), names(curr.contigs)) #the dataframe may be one or two rows too long, this will not matter / ROW 1 = Heavy chain information / ROW 2 = Light chain information. This order is maintained even if one of the two chains is not present!
+      contigs_pasted <- stats::setNames(data.frame(matrix(ncol = ncol(curr.contigs), nrow = length(unique(curr.contigs$v_call)))), names(curr.contigs)) #the dataframe may be one or two rows too long, this will not matter / ROW 1 = Heavy chain information / ROW 2 = Light chain information. This order is maintained even if one of the two chains is not present!
 
       #Heavy/b chain count
       if(HC_count == 1){
-        contigs_pasted[1,] <- curr.contigs[stringr::str_detect(curr.contigs$c_call, pattern = "(TRB|IGH)"),]
+        contigs_pasted[1,] <- curr.contigs[stringr::str_detect(curr.contigs$v_call, pattern = "(TRB|IGH)"),]
       } else if(HC_count == 0){
         contigs_pasted[1,] <- ""
       } else if(HC_count > 1){
         for(k in 1:ncol(curr.contigs)){
-          contigs_pasted[1,k] <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$c_call, pattern = "(TRB|IGH)")), k], collapse = ";")
+          contigs_pasted[1,k] <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$v_call, pattern = "(TRB|IGH)")), k], collapse = ";")
         }
       }
       ### Order of CDRs with multiple chains is determined here
 
       #Light/a chain count
       if(LC_count == 1){
-        contigs_pasted[2,] <- curr.contigs[stringr::str_detect(curr.contigs$c_call, pattern = "(TRA|IG(K|L))"),]
+        contigs_pasted[2,] <- curr.contigs[stringr::str_detect(curr.contigs$v_call, pattern = "(TRA|IG(K|L))"),]
       } else if(LC_count == 0){
         contigs_pasted[2,] <- ""
       } else if(LC_count > 1){
         for(k in 1:ncol(curr.contigs)){
-          contigs_pasted[2,k]  <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$c_call, pattern = "(TRA|IG(K|L))")),k],collapse = ";")
+          contigs_pasted[2,k]  <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$v_call, pattern = "(TRA|IG(K|L))")),k],collapse = ";")
         }
       }
 
@@ -119,8 +135,8 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       curr.barcode$clonotype_id_10x <- curr.contigs$clone_id[1]
       curr.barcode$sample_id <- ""
       curr.barcode$group_id <- ""
-      if(stringr::str_detect(contigs_pasted$c_call[1], "TR") | stringr::str_detect(contigs_pasted$c_call[2], "TR")){curr.barcode$celltype <- "T cell"
-      } else if(stringr::str_detect(contigs_pasted$c_call[1], "IG") | stringr::str_detect(contigs_pasted$c_call[2], "IG")) {curr.barcode$celltype <- "B cell"
+      if(stringr::str_detect(contigs_pasted$v_call[1], "TR") | stringr::str_detect(contigs_pasted$v_call[2], "TR")){curr.barcode$celltype <- "T cell"
+      } else if(stringr::str_detect(contigs_pasted$v_call[1], "IG") | stringr::str_detect(contigs_pasted$v_call[2], "IG")) {curr.barcode$celltype <- "B cell"
       } else {curr.barcode$celltype <- "Unkown"}
 
 
@@ -134,17 +150,23 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       curr.barcode$VJ_cdr3s_nt <- contigs_pasted$junction[2]
       curr.barcode$VDJ_chain_contig <- contigs_pasted$sequence_id[1]
       curr.barcode$VJ_chain_contig <- contigs_pasted$sequence_id[2]
-      curr.barcode$VDJ_chain <- substr(contigs_pasted$c_call[1], 1,3)
-      curr.barcode$VJ_chain <- substr(contigs_pasted$c_call[2], 1,3)
+      curr.barcode$VDJ_chain <- substr(contigs_pasted$v_call[1], 1,3)
+      curr.barcode$VJ_chain <- substr(contigs_pasted$v_call[2], 1,3)
       curr.barcode$VDJ_vgene <- contigs_pasted$v_call[1]
       curr.barcode$VJ_vgene <- contigs_pasted$v_call[2]
       curr.barcode$VDJ_dgene <- contigs_pasted$d_call[1]
       curr.barcode$VDJ_jgene <- contigs_pasted$j_call[1]
       curr.barcode$VJ_jgene <- contigs_pasted$j_call[2]
-      curr.barcode$VDJ_cgene <- contigs_pasted$c_call[1]
-      curr.barcode$VJ_cgene <- contigs_pasted$c_call[2]
+      curr.barcode$VDJ_cgene <- contigs_pasted$v_call[1]
+      curr.barcode$VJ_cgene <- contigs_pasted$v_call[2]
       curr.barcode$VDJ_raw_consensus_id <- ""
       curr.barcode$VJ_raw_consensus_id <- ""
+      if(trust4){
+        curr.barcode$VDJ_complete_vdj <- curr.contigs$complete_vdj[1]
+        curr.barcode$VJ_complete_vdj <- curr.contigs$complete_vdj[2]
+        curr.barcode$VDJ_consensus_count <- curr.contigs$consensus_count[1]
+        curr.barcode$VJ_consensus_count <- curr.contigs$consensus_count[2]
+      }
 
     } #end if HC | LC count > 1
 
@@ -177,7 +199,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
-      HC_rows <- curr.contigs[stringr::str_detect(curr.contigs$c_call, "(TRB|IGH)"),]
+      HC_rows <- curr.contigs[stringr::str_detect(curr.contigs$v_call, "(TRB|IGH)"),]
       #looping contigs in annotation
       for(l in 1:nrow(HC_rows)){
             #get sequence
@@ -231,7 +253,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
-      LC_rows <- curr.contigs[stringr::str_detect(curr.contigs$c_call, "(TRA|IG(K|L))"),]
+      LC_rows <- curr.contigs[stringr::str_detect(curr.contigs$v_call, "(TRA|IG(K|L))"),]
       #looping contigs in annotation
       for(l in 1:nrow(LC_rows)){
         #get sequence
@@ -272,7 +294,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       VDJ.stats <- c()
 
       #gsub to be able to process TCRs as well
-      airr.list[[k]]$chain <- substr(airr.list[[k]]$c_call, 1,3)
+      airr.list[[k]]$chain <- substr(airr.list[[k]]$v_call, 1,3)
 
       airr.list[[k]]$chain <- gsub(pattern = "TRB", replacement = "IGH", airr.list[[k]]$chain)
       airr.list[[k]]$chain <- gsub(pattern = "TRA", replacement = "IGL", airr.list[[k]]$chain)
@@ -386,6 +408,12 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
         for(j in 1:length(AIRR.input)){
           if(file.exists(AIRR.input[[j]])){
             airr.list[[j]] <- utils::read.delim(AIRR.input[[j]], header = T)
+
+            #trust 4 full lenght compatibility extra column
+            if(all(c("consensus_count", "complete_vdj") %in% names(airr.list[[j]]))){
+              if(verbose) cat(paste0("\n TRUST4 input format detected for sample ", j, ". Appending extra columns for complete_vdj and consensus_count to output VGM"))
+            }
+
             vdj_loaded <- T
           } else {
             if(verbose) warning(paste0(" File not found for sample ", j, ". Skipping this sample..."))
@@ -422,7 +450,6 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
 
   if(verbose) cat("\n AIRR tables loaded     ")
   print(Sys.time())
-
 
   stats.done <- F
   if(get.VDJ.stats == T){
@@ -474,6 +501,10 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       #bind list recieved from parLapply
       VDJ.proc.list[[i]] <- dplyr::bind_rows(VDJ.proc.list[[i]])
       VDJ.proc.list[[i]][VDJ.proc.list[[i]] == ";"] <- "" #fix bug, where if two emtpy strings are concatenated, a ";" is left behind.
+      #filter empty rows
+      nv <- nrow(VDJ.proc.list[[i]])
+      VDJ.proc.list[[i]] <- subset(VDJ.proc.list[[i]], Nr_of_VDJ_chains > 0 | Nr_of_VJ_chains > 0)
+      if(verbose) cat(paste0("\n Filtered out  ", nv -  nrow(VDJ.proc.list[[i]]), " cells with 0 chains"))
 
       #update barcodes
       VDJ.proc.list[[i]]$orig_barcode <-  VDJ.proc.list[[i]]$barcode
@@ -499,8 +530,8 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       #We give this option by automatically merging VJ and VDJ info for each cell into new columns of the VGM
 
       #remove columns that were already used and will therefore not be appended as extra data
-      airr.list[[i]]$chain_for_merge <- substr(airr.list[[i]]$c_call, 1,3)
-      airr.list[[i]] <- airr.list[[i]][,-c(which(names(airr.list[[i]]) %in% c("sequence", "sequence_aa", "sequence_id", "clone_id", "v_call", "j_call", "d_call","c_call","productive", "junction", "junction_aa", "sequence_alignment", "germline_alignment", "is_cell")))]
+      airr.list[[i]]$chain_for_merge <- substr(airr.list[[i]]$v_call, 1,3)
+      airr.list[[i]] <- airr.list[[i]][,-c(which(names(airr.list[[i]]) %in% c("sequence", "sequence_aa", "sequence_id", "clone_id", "v_call", "j_call", "d_call","c_call","productive", "junction", "junction_aa", "sequence_alignment", "germline_alignment", "is_cell", "consensus_count", "complete_vdj")))]
 
       #VJ
       VJ_airr <- subset(airr.list[[i]], stringr::str_detect(airr.list[[i]]$chain_for_merge, "(TRA|IG(K|L))"))
