@@ -38,6 +38,11 @@ VDJ_overlap_heatmap <- function(VDJ,
   if(missing(plot.type)) plot.type <- "pheatmap"
   if(missing(jaccard)) jaccard <- F
 
+  if(!"barcode" %in% names(VDJ) & add.barcode.table == T){
+    warning("'barcode' column must be present in input dataframe to add barcode table. Setting add.barcode.table to false for now")
+    add.barcode.table <- F
+  }
+
   #remove any rows that do not contain an entry for a given feature
   to_remove <- c()
   for(n in 1:nrow(VDJ)){
@@ -120,7 +125,6 @@ VDJ_overlap_heatmap <- function(VDJ,
 
   #now add a third dataframe with frequencies and barcodes of the overlapping elements
   if(add.barcode.table == T){
-    if(!"barcode" %in% names(VDJ)) stop("'barcode' column must be present in input dataframe to add barcode table")
 
     ov_all <- do.call("c", ov_temp_list)
     if(length(ov_all) > 1){
@@ -144,7 +148,7 @@ VDJ_overlap_heatmap <- function(VDJ,
     names(lookup)[3] <- "barcode"
 
     sample_count <- 1
-    for(j in seq((1+nc_start),(nc_start + 2*length(sample.names)), 2)){ #this way I get the correct column index directly
+    for(j in seq((1+nc_start),(nc_start + 2*length(sample.names)), 2)){#this way I get the correct column index directly
 
       curr_group <- subset(lookup, group == sample.names[sample_count])
 

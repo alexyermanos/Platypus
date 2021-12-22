@@ -47,7 +47,7 @@ GEX_volcano <- function(DEGs.input,
                         maximum.overlaps,
                         plot.adj.pvalue) {
 
-  avg_log2FC <- NULL
+  avg_logFC <- NULL
   minus.log10p <- NULL
   genes <- NULL
   p_val_adj <- NULL
@@ -113,10 +113,11 @@ GEX_volcano <- function(DEGs.input,
 
     if(RP.MT.filter ==T){
       exclude <- c()
-      for (i in c("MT-", "RPL", "RPS")) {
-        exclude <- c(exclude, stringr::str_which(rownames(findmarkers.output), i))
+      for (i in 1:3) {
+        exclude <- c(exclude, which(stringr::str_detect(rownames(findmarkers.output), c("MT-", "RPL", "RPS")[i])))
       }
-      findmarkers.output <- findmarkers.output[-exclude,]
+      if(length(exclude) > 0){
+      findmarkers.output <- findmarkers.output[-exclude,]}
     }
 
     findmarkers.output$genes <- rownames(findmarkers.output)
@@ -126,28 +127,28 @@ GEX_volcano <- function(DEGs.input,
       findmarkers.output$minus.log10p[which(findmarkers.output$minus.log10p == Inf)] <- findmarkers.output$minus.log10p[which(sort(findmarkers.output$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
       if(n.label.up == F & n.label.down == F) {
-        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
-          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
-          ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_log2FC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
+          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+          ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
       }
 
       if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
         if(by.logFC == F) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
-          posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
-          negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
+          posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
+          negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
         }
         if(by.logFC == T) {
           l <- dim(findmarkers.output)[1]
-          findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_log2FC),]
+          findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
           posFC_genes <- findmarkers.output$genes[1:n.label.up]
           negFC_genes <- findmarkers.output$genes[(l-n.label.down-1):l]
         }
         label.genes <- c(posFC_genes,negFC_genes)
 
-        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
-          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
+          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, genes%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
       }
@@ -158,30 +159,29 @@ GEX_volcano <- function(DEGs.input,
       findmarkers.output$minus.log10p_adj[which(findmarkers.output$minus.log10p_adj == Inf)] <- findmarkers.output$minus.log10p_adj[which(sort(findmarkers.output$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
       if(n.label.up == F & n.label.down == F) {
-        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
-          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
-          ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_log2FC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
+          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+          ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
           ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
       }
 
       if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
         if(by.logFC == F) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
-          posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC > 0)][1:n.label.up]
-          negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_log2FC < 0)][1:n.label.down]
+          posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
+          negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
         }
         if(by.logFC == T) {
           l <- dim(findmarkers.output)[1]
-          findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_log2FC),]
+          findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
           posFC_genes <- findmarkers.output$genes[1:n.label.up]
           negFC_genes <- findmarkers.output$genes[(l-n.label.down-1):l]
         }
         label.genes <- c(posFC_genes,negFC_genes)
-
-        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_log2FC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
-          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_log2FC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+        output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
+          ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, genes%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
-          ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
+          ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)") #+ ggplot2::ylim(-10, max(findmarkers.output$minus.log10p_adj)+ 30)
       }
     }
 
@@ -195,79 +195,79 @@ GEX_volcano <- function(DEGs.input,
 
   if(cluster.genes.output == T){
     output.plot <- list()
-    for (i in 1:length(findmarkers.output)) {
+    for (i in 1:1) {
 
       if(RP.MT.filter ==T){
         exclude <- c()
         for (j in c("MT-", "RPL", "RPS")) {
-          exclude <- c(exclude, stringr::str_which(rownames(findmarkers.output[[i]]), j))
+          exclude <- c(exclude, stringr::str_which(rownames(findmarkers.output), j))
         }
         if(length(exclude) != 0){
-        findmarkers.output[[i]] <- findmarkers.output[[i]][-exclude,]
+        findmarkers.output <- findmarkers.output[-exclude,]
         }
       }
 
       if(plot.adj.pvalue == F) {
-        findmarkers.output[[i]]$minus.log10p <- -log10(findmarkers.output[[i]]$p_val)
-        findmarkers.output[[i]]$minus.log10p[which(findmarkers.output[[i]]$minus.log10p == Inf)] <- findmarkers.output[[i]]$minus.log10p[which(sort(findmarkers.output[[i]]$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
+        findmarkers.output$minus.log10p <- -log10(findmarkers.output$p_val)
+        findmarkers.output$minus.log10p[which(findmarkers.output$minus.log10p == Inf)] <- findmarkers.output$minus.log10p[which(sort(findmarkers.output$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
         if(n.label.up == F & n.label.down == F) {
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
-            ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
-            ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
+            ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+            ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
         }
 
         if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
           if(by.logFC == F) {
-            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
-            posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
-            negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
+            findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+            posFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
+            negFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
           }
           if(by.logFC == T) {
-            l <- dim(findmarkers.output[[i]])[1]
-            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$avg_logFC),]
-            posFC_genes <- findmarkers.output[[i]]$SYMBOL[1:n.label.up]
-            negFC_genes <- findmarkers.output[[i]]$SYMBOL[(l-n.label.down-1):l]
+            l <- dim(findmarkers.output)[1]
+            findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
+            posFC_genes <- findmarkers.output$SYMBOL[1:n.label.up]
+            negFC_genes <- findmarkers.output$SYMBOL[(l-n.label.down-1):l]
           }
           label.genes <- c(posFC_genes,negFC_genes)
 
 
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
-            ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
-            ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], SYMBOL%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
+            ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+            ggrepel::geom_text_repel(data =subset(findmarkers.output, SYMBOL%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(p-value)")
         }
       }
 
       if(plot.adj.pvalue == T) {
-        findmarkers.output[[i]]$minus.log10p_adj <- -log10(findmarkers.output[[i]]$p_val_adj)
-        findmarkers.output[[i]]$minus.log10p_adj[which(findmarkers.output[[i]]$minus.log10p_adj == Inf)] <- findmarkers.output[[i]]$minus.log10p_adj[which(sort(findmarkers.output[[i]]$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
+        findmarkers.output$minus.log10p_adj <- -log10(findmarkers.output$p_val_adj)
+        findmarkers.output$minus.log10p_adj[which(findmarkers.output$minus.log10p_adj == Inf)] <- findmarkers.output$minus.log10p_adj[which(sort(findmarkers.output$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
         if(n.label.up == F & n.label.down == F) {
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
-            ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
-            ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
+            ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+            ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
         }
 
         if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
           if(by.logFC == F) {
-            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$p_val_adj),]
-            posFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC > 0)][1:n.label.up]
-            negFC_genes <- findmarkers.output[[i]]$SYMBOL[which(findmarkers.output[[i]]$avg_logFC < 0)][1:n.label.down]
+            findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
+            posFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
+            negFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
           }
           if(by.logFC == T) {
-            l <- dim(findmarkers.output[[i]])[1]
-            findmarkers.output[[i]] <- findmarkers.output[[i]][order(findmarkers.output[[i]]$avg_logFC),]
-            posFC_genes <- findmarkers.output[[i]]$SYMBOL[1:n.label.up]
-            negFC_genes <- findmarkers.output[[i]]$SYMBOL[(l-n.label.down-1):l]
+            l <- dim(findmarkers.output)[1]
+            findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
+            posFC_genes <- findmarkers.output$SYMBOL[1:n.label.up]
+            negFC_genes <- findmarkers.output$SYMBOL[(l-n.label.down-1):l]
           }
           label.genes <- c(posFC_genes,negFC_genes)
 
-          cluster_plot <- ggplot2::ggplot(findmarkers.output[[i]], ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
-            ggplot2::geom_point(data = subset(findmarkers.output[[i]], abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
-            ggrepel::geom_text_repel(data =subset(findmarkers.output[[i]], SYMBOL%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
+          cluster_plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
+            ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
+            ggrepel::geom_text_repel(data =subset(findmarkers.output, SYMBOL%in%label.genes),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) +
             ggplot2::theme_bw() + ggplot2::ylab("-log10(adj.p-value)")
         }
       }
