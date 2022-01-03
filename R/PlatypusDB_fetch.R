@@ -245,7 +245,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   }
 
 
-  } else if(combine.objects == T){ #IF COMBINING: iterating over download groups
+  } else if(combine.objects == T ){ #IF COMBINING: iterating over download groups
 
     for(j in 1:length(unique(to_download$group))){
       curr_to_download <- subset(to_download, group == unique(to_download$group)[j])
@@ -325,12 +325,44 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
           rm(list = ls(pattern = curr_download_name, envir = .GlobalEnv), envir = .GlobalEnv)
         }
         #end of else if(nrow(curr_to_download) == 1)
-      } else if(nrow(curr_to_download) > 2){
-        print("Downloads of different samples are not combined. Please set load.to.list = T to return a single list containing info of all downloaded samples which can be used as input to the VDJ_GEX_matrix function")
+      } else if(nrow(curr_to_download) > 2){ #looks like wrong grouping or no grouping
+        message("Downloads of different samples are not combined. Please set load.to.list = T to return a single list containing info of all downloaded samples which can be used as input to the VDJ_GEX_matrix function")
+
+        for(k in 1:nrow(to_download)){
+          tryCatch({
+
+            curr_download_name <- gsub("\\.RData","",to_download$name[k]) #have a name ready to use for objects in the r enviroment without the .RData extension
+
+            message(paste0(Sys.time(), ": Starting download of ", to_download$name[k],"..."))
+
+            if(save.to.disk == T){ #if objects are to be saved to disk, this happens here.
+              utils::download.file(to_download$url[k], destfile = paste0(path.to.save,curr_download_name, ".RData")) #Saving directly to disk to avoid RAM usage
+
+            } else { #Save to disk == F
+
+              load(url(to_download$url[k]), envir = .GlobalEnv) #download and load to global enviroment
+
+              if(load.to.list == T){
+                out.list[[k]] <- get(curr_download_name) #if a list of objects is to be returned, add the just loaded object into a list
+                names(out.list)[k] <- curr_download_name
+              } else {
+                out.list[[k]] <- curr_download_name #if not list of objects is to be returned, only the name of the loaded object is appended and will be returned for reference. (see also last few lines of the function)
+              }
+
+              if(load.to.enviroment == F){ #if objects should not present in the global enviroment at the end of the function run, we delete them from the .GlobalEnv again.
+                rm(list = ls(pattern = curr_download_name, envir = .GlobalEnv), envir = .GlobalEnv)
+              }
+            }
+
+          }, error=function(e){
+            message(paste0("Failed to load",  to_download$url[i], "\n", e))})
+
+
+        }
       }
       }, error=function(e){
-        print(e)
-        print(paste0("Failed to load",  names(out.list)[j]))})
+        message(e)
+        message(paste0("Failed to load",  names(out.list)[j]))})
     } #end of loop over files
   } #end of if(combine.object == T)
 
