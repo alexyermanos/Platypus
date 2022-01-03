@@ -8,6 +8,7 @@
 #' @param ncol.facet Integer. Defaults to 2. Number of columns in the facet_wrap plot if by.sample or by.group is TRUE
 #' @param pt.size Numeric. Defaults to 1. Size of points in DimPlot. Passed to Seurat::DimPlot
 #' @param clone.colors Character vector. Defaults to rainbow(n.clones). Colors to use for individual clones. One can provide either a vector of length n.clones or a of length Nr. of samples/groups \* n.clones. In case that a vector of length n.clones is provided and by.group or by.sample is TRUE, colors are repeated for each sample/group
+#' @param others.color Character. Color for cells that are not selected i.e. not part of the overlayed clonotypes. Defaults to "grey80". To hide the rest of the umap set to "white"
 #' @param split.plot.and.legend Boolean. Defaults to FALSE. Whether to return the plot and the legend separately as a list. This can be useful if legends get large and distort the actual plots. The packages gridExtra and cowplot are required for this. If set to TRUE a list is returned where out[[1]] is the plot which can be printed just by executing out[[1]]; out[[2]] is the legend, which can be printed either using plot(out[[2]]) or grid.arrange(out[[2]])
 #' @param platypus.version Character. At the moment this function runs only on the output of the VDJ_GEX_matrix function meaning that it is exclusively part of Platypus "v3". With further updates the functionality will be extended.
 #' @return A ggplot object or a list of a ggplot and a gtable legend (if split.plot.and.legend \=\= TRUE). Theme, colors etc. may be changed directly by adding new elements to this output (e.g. out \+ theme_minimal())
@@ -55,6 +56,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
                                    ncol.facet,
                                    pt.size,
                                    clone.colors,
+                                   others.color,
                                    split.plot.and.legend,
                                    platypus.version){
   sample_id <- NULL
@@ -74,6 +76,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
   if(missing(ncol.facet)) ncol.facet <- 2
   if(missing(split.plot.and.legend)) split.plot.and.legend <- F
   if(missing(pt.size)) pt.size <- 1
+  if(missing(others.color)) others.color <- "grey80"
 
   if(by.other.group %in% names(GEX@meta.data)){
     by.group <- T
@@ -134,7 +137,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     if(length(clone.colors) != length(unique(GEX@meta.data$cl_to_plot))-1){stop(paste0("Nr of supplied colors ", length(clone.colors)  ," does not match number of clones to plot ", length(unique(GEX@meta.data$cl_to_plot))-1))}
 
     #dimplot with cols + grey30 to color in the non selected clones
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,"grey80"), shuffle = T, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = T, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
     #check whether plot and legend should be split
     if(split.plot.and.legend == F){
       return(out.plot)
@@ -203,7 +206,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #dimplot with cols + grey30 to color in the non selected clones
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,"grey80"), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$sample_id, ncol = ncol.facet)
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$sample_id, ncol = ncol.facet)
     #! Bug in the current version of seurat: shuffle = T does not work with split_by or + facet_wrap(). The bug is reported and should be fixed soon (13.4.21) https://github.com/satijalab/seurat/issues/4300
 
     if(split.plot.and.legend == F){
@@ -269,7 +272,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #dimplot with cols + grey30 to color in the non selected clones
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,"grey80"), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Group id / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$group_id, ncol = ncol.facet)
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Group id / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$group_id, ncol = ncol.facet)
     #! Bug in the current version of seurat: shuffle = T does not work with split_by or + facet_wrap(). The bug is reported and should be fixed soon (13.4.21) https://github.com/satijalab/seurat/issues/4300
 
     if(split.plot.and.legend == F){
