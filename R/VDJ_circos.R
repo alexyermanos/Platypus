@@ -14,9 +14,11 @@
 
 VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.count){
 
-  CELL_META <- NULL
   df <- NULL
   df1 <- NULL
+  ylim <- NULL
+  xcenter <- NULL
+  sector.index <- NULL
 
 
   circlize::circos.clear()
@@ -43,13 +45,17 @@ VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.cou
 
   #Add labels to circos plot(
   circlize::circos.track(track.index = 1, panel.fun = function(x, y) {
-    if(circlize::get.cell.meta.data("xrange")>label.threshold){
-      circlize::circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
-                facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5)
+    if(circlize::get.cell.meta.data("xrange")> label.threshold){
+      ylim <- get.cell.meta.data("ylim")
+      xcenter <- get.cell.meta.data("xcenter")
+      sector.index <- get.cell.meta.data("sector.index")
+      circlize::circos.text(xcenter, ylim[1], sector.index,
+               facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col="black")
     }else{
       circlize::circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
                   facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col = "white")
     }
+    
   }, bg.border = NA) # here set bg.border to NA is important
 
   #Add axis

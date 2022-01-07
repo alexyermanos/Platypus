@@ -32,12 +32,14 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
   if(missing(platypus.version)){platypus.version <- "v2"}
 
 
-  #naming compatibility
-  VDJ.GEX.matrix <- list()
-  VDJ.GEX.matrix[[1]] <- VDJ
-  VDJ <- NULL
+
 
   if(platypus.version == "v3"){
+    #naming compatibility
+    VDJ.GEX.matrix <- list()
+    VDJ.GEX.matrix[[1]] <- VDJ
+    VDJ <- NULL
+    
       print("Reminder: VDJ_VJ_usage_circos() funcion built for new Platypus v3.0.0 is being used. VDJ output of VDJ_GEX_matrix() required as input (VDJ_GEX_matrix.output[[1]]).")
       adj.matrix <- list()
       clonotypes <- c()
@@ -119,6 +121,12 @@ VDJ_clonotype_clusters_circos <- function(VDJ,
       plot[[i+1]] <- adj.matrix
 
   }else if(platypus.version == "v2"){
+    
+    #naming compatibility
+    VDJ.GEX.matrix <- list()
+    VDJ.GEX.matrix <- VDJ
+    VDJ <- NULL
+    
     ########################
     print("Reminder: VDJ_VJ_usage_circos() funcion built for Platypus v2.0.0 is being used. Output of VDJ_analyze() required as input. Set [platypus.version = new] for compatibility with VDJ_GEX_matrix().")
     adj.matrix <- list()
