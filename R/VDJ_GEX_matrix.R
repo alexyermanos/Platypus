@@ -192,10 +192,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     for(i in 1:length(Seurat.in)){
       if(!"sample_id" %in% names(Seurat.in[[i]]@meta.data) | !"group_id" %in% names(Seurat.in[[i]]@meta.data)) stop("Seurat.in objects need to contain sample_id and group_id columns")
-      if(stringr::str_detect(Seurat.in[[i]]@meta.data$sample_id, "s\\d") == F) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
+      if(stringr::str_detect(Seurat.in[[i]]@meta.data$sample_id, "s\\d")[1] == F) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
     }
     GEX.out.directory.list <- "none"
-    if(VDJ.combine == T){
+    if(VDJ.combine == F){
       stop("Seurat input object provided, but VDJ.combine == FALSE. To return per sample VDJ_GEX_matrices please provide a Seurat object for each VDJ library entry. Othewise, please set VDJ.combine = TRUE")
     }
   }
