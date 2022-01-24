@@ -184,6 +184,20 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(stringr::str_detect(Seurat.in[[i]]@meta.data$sample_id, "s\\d") == F) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
     }
     GEX.out.directory.list <- "none"
+    if(VDJ.combine == T){
+      stop("List of Seurat input objects provided, but VDJ.combine == TRUE. To return per sample VDJ_GEX_matrices please set VDJ.combine = F. If a single VDJ_GEX_matrix object is desired, please provide a single integrated Seurat object as Seurat.in or Cellranger output directories to GEX.out.directory.list")
+    }
+  } else if (class(Seurat.in) == "Seurat"){
+    Seurat.in <- list(Seurat.in)
+
+    for(i in 1:length(Seurat.in)){
+      if(!"sample_id" %in% names(Seurat.in[[i]]@meta.data) | !"group_id" %in% names(Seurat.in[[i]]@meta.data)) stop("Seurat.in objects need to contain sample_id and group_id columns")
+      if(stringr::str_detect(Seurat.in[[i]]@meta.data$sample_id, "s\\d") == F) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
+    }
+    GEX.out.directory.list <- "none"
+    if(VDJ.combine == T){
+      stop("Seurat input object provided, but VDJ.combine == FALSE. To return per sample VDJ_GEX_matrices please provide a Seurat object for each VDJ library entry. Othewise, please set VDJ.combine = TRUE")
+    }
   }
 
   if(class(Data.in) == "character"){samples.in <- "none"}#samples in for later
@@ -340,7 +354,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(neighbor.dim)) neighbor.dim <- 1:10
   if(missing(mds.dim)) mds.dim <- 1:10
   if(GEX.out.directory.list[[1]] != "none" & VDJ.out.directory.list[[1]] != "none"){
-    if(length(VDJ.out.directory.list) != length(GEX.out.directory.list)){stop("Different number of paths supplied for VDJ and GEX")}}
+  if(length(VDJ.out.directory.list) != length(GEX.out.directory.list)){stop("Different number of paths supplied for VDJ and GEX")}}
 
 
   ############################################ Save run time parameters ####
@@ -1401,7 +1415,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #Load in GEX
   gex.loaded <- F
   FB.loaded <- F
-  if(class(samples.in) == "character" & GEX.out.directory.list[[1]] != "none"){ #No Data.in or input = Seurat.in => procceed with loading by GEX.out.directory.list
+  if(class(samples.in) == "character" & GEX.out.directory.list[[1]] != "none"){ #No Data.in or input = Seurat.in => proceed with loading by GEX.out.directory.list
 
     #Remove possible backslash at the end of the input path
     for(k in 1:length(GEX.out.directory.list)){
