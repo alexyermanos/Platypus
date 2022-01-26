@@ -3,7 +3,7 @@
 #' @return A list of metadata tables by project. List element names correspond to project ids to use in the PlatypusDB_fetch function
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'
 #' #Get list of all available projects and metadata.
 #' PlatypusDB_projects <- PlatypusDB_list_projects()

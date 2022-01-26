@@ -5,7 +5,7 @@
 #' @return A list of subsets of VDJ matrices from projects containing the query VDJ CDR3 (out[[1]]), the VJ CDR3 (out[[2]]) and cells containing both the query VDJ and VJ CDR3s (out[[3]])
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' public_clones <- PlatypusDB_find_CDR3s(VDJ.cdr3s.aa = "CMRYGNYWYFDVW"
 #' , VJ.cdr3s.aa = "CLQHGESPFTF", projects.to.search = "ALL")
 #' }

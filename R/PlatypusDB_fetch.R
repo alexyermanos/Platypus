@@ -8,7 +8,7 @@
 #' @return A list of loaded project files as R objects if load.to.list = T or a name of these object loaded to the enviroment if load.to.enviroment = T.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'
 #'#Get a list of available projects by name
 #'names(PlatypusDB_list_projects())
