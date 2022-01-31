@@ -12,9 +12,10 @@
 #' @return Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 #' @export
 #' @examples
+#' \dontrun{
 #'  plots <- VDJ_alpha_beta_Vgene_circos(Platypus::small_vgm[[1]]
 #'  , platypus.version="v3")
-#'
+#'}
 
 VDJ_alpha_beta_Vgene_circos <- function(VDJ,
                                         V.or.J,

@@ -81,7 +81,7 @@ clonofreq.isotype.plot<-function(all.contig.annotations,top.n,y.limit,colors){
   return(p)
 }
 
-#'Return 
+#'Return
 #' @title Get information about the clonotype counts grouped by isotype.
 #' @param all.contig.annotations The output dataframe all_contig_annotation from function simulate.repertoire.
 #' @param top.n The top n abundant clones to be shown in the plot. If missing, all clones will be shown.
@@ -138,7 +138,7 @@ get.barplot.errorbar<-function(data,y.lab,y.limit){
 #' @param top.n The top n abundant clones to be selected.
 #' @return a vector of indexes of top ranking clones
 #' @export
-select.top<-function(clonotypes,top.n){
+select.top.clone<-function(clonotypes,top.n){
   #require(dplyr,stringr)
   clonotypes<-clonotypes[order(clonotypes$frequency,decreasing = T),][1:top.n,]
   selected<-as.numeric(stringr::str_replace(string=clonotypes$clonotype_id,pattern = "clonotype",replacement = ""))
@@ -248,7 +248,7 @@ get.seq.distance<-function(germline, sequence){
 #' Get information about somatic hypermutation in the simulation. This function return a barplot showing the average mutation.
 #' @param igraph.index.attr A list "igraph.index.attr" from the simulation output.
 #' @param history  A dataframe "history" from the simulation output.
-#' @param clonotype.select The selected clonotype index, can be the output of the function "select.top".
+#' @param clonotype.select The selected clonotype index, can be the output of the function "select.top.clone".
 #' @param level Can be "node" or "cell". If "node", the function will return average mutation on unique variant level. Otherwise it will return on cell level.
 #' @param y.limit The upper limit for y axis in the plot.
 #' @return a barplot showing the average mutation per node (same heavy and light chain set) or per cell.
@@ -315,7 +315,7 @@ get.avr.mut.plot<-function(igraph.index.attr,history,clonotype.select,level, y.l
 #' Get information about somatic hypermutation in the simulation. This function return a barplot showing the average mutation.
 #' @param igraph.index.attr A list "igraph.index.attr" from the simulation output.
 #' @param history  A dataframe "history" from the simulation output.
-#' @param clonotype.select The selected clonotype index, can be the output of the function "select.top".
+#' @param clonotype.select The selected clonotype index, can be the output of the function "select.top.clone.clone".
 #' @param level Can be "clone" or "cell". If "clone", the function will return average mutation on unique variant level. Otherwise it will return on cell level.
 #' @return a bar plot showing the average mutation on clone or cell level.
 #' @export
@@ -624,7 +624,7 @@ cluster.id.igraph<-function(meta.data,history,igraph.index,empty.node){
 #' @param history The dataframe 'history' from the simulation output.
 #' @param igraph.index The list 'igraph.index' from the simulation output.
 #' @param empty.node If TRUE, there will be empty node in igraph. if FALSE, the empty node will be deleted.
-#' @return  a list of clone network igraphs without empty mode. 
+#' @return  a list of clone network igraphs without empty mode.
 #' @export
 no.empty.node<-function(history,igraph.index){
   #require(stats,reshape2)

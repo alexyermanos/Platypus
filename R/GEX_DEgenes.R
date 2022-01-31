@@ -85,6 +85,8 @@ GEX_DEgenes <- function(GEX,
 
   if (missing(filter)) filter <- c("MT-", "RPL", "RPS")
 
+  tryCatch({
+
   if(class(FindMarkers.out) != "data.frame"){
 
   if(missing(grouping.column)) grouping.column <- "sample_id"
@@ -166,4 +168,8 @@ GEX_DEgenes <- function(GEX,
   }
   if (return.plot=="none") plot.out <- NULL
   return(list(cluster_markers, plot.out))
+
+  }, error = function(e){
+    message("Getting DE genes failed. Please ensure that the Seurat::FindMarkers function can be run in the current R session. \n")
+    message(e)})
 }

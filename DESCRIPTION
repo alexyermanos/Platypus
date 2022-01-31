@@ -2,8 +2,8 @@ Package: Platypus
 Type: Package
 Title: Single-Cell Immune Repertoire and Gene Expression Analysis
 Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology (Yermanos A, et al (2021) <doi:10.1093/nargab/lqab023>). 
-Version: 3.2.2
-Date: 2021-09-23
+Version: 3.3.2
+Date: 2022-01-24
 Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ayermanos@gmail.com"),
              person("Andreas", "Agrafiotis", role = "ctb"),
              person("Raphael", "Kuhn", role = "ctb"),
@@ -17,22 +17,21 @@ Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ay
 	     person("Raphael", "Dizerens", role = "ctb"))
 Maintainer: Alexander Yermanos <ayermanos@gmail.com>
 Depends:
-    R(>= 3.5.0)
+    R(>= 3.5.0),
 Imports:
     BiocGenerics,
     Biostrings,   
     dplyr, 
     ggplot2,
-    knitr,
     jsonlite,
-    Matrix,
+    knitr,
+    Matrix(>= 1.3-3),
     plyr,
     reshape2, 
-    rmarkdown,
     seqinr,
-    Seurat,
-    SeuratObject, 
     stringr,
+    Seurat,
+    SeuratObject,
     tibble,
     tidyr,
     utils,
@@ -46,6 +45,8 @@ Suggests:
     doParallel,
     fda.usc,
     fgsea,
+    ggalluvial,
+    ggtree,
     ggrepel,
     ggridges,
     ggseqlogo,
@@ -62,10 +63,14 @@ Suggests:
     pheatmap,
     phytools,
     purrr,
+    readxl,
+    reticulate,
     scales,
     SummarizedExperiment,
     stringdist,
     tensorflow,
+    tidytree,
+    tidyselect,
     vegan,
     testthat (>= 3.0.0)
 License: GPL-2

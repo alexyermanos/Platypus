@@ -1,5 +1,5 @@
 #' Updated clonotyping function based on implications for cells with different chain numbers than 1 VDJ 1 VJ chains.
-#' This function offers two types of hierarchical clonotyping. The hierarchical option "single.chains" only merges cell with a single chain into clonotypes composed of cells with 1 VDJ 1 VJ chain. This is based on the assumption, that during mRNA capture and RT-PCR in GEMs, not all transcripts are captured and therefore cells may result missing a VDJ or VJ chain.
+#'@description This function offers two types of hierarchical clonotyping. The hierarchical option "single.chains" only merges cell with a single chain into clonotypes composed of cells with 1 VDJ 1 VJ chain. This is based on the assumption, that during mRNA capture and RT-PCR in GEMs, not all transcripts are captured and therefore cells may result missing a VDJ or VJ chain.
 #' The hierarchical option "double.and.single.chains" is based on the assumption, that cells with 1 VDJ and 2 VJ chains exist. For a review of the work concerning such cells as well as 2 VDJ 1 VJ cells please consult: https://doi.org/10.4049/jimmunol.1800904. The user may set a threshold of occurrence number above which cells with 1 VDJ 2 VJ chains are considered to be true and other cells with 1 VDJ 1 VJ, 1 VDJ 0 VJ and 0 VDJ 1 VDJ may be merged into the same clonotype by the strategy provided by the user. Cells with 2 VDJ chains are currently not considered in this process, as these are reported to be much rarer and, if appearing in the dataset are more likely to be doublets.
 #' We advice the user to carefully examine the output after hierarchical clonotyping before proceeding with further analysis.
 #' @param VDJ For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
@@ -22,11 +22,11 @@
 #' @examples
 #' reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
 #' clone.strategy="cdr3.nt",
-#' hierarchical = "none", global.clonotype = T)
+#' hierarchical = "none", global.clonotype = TRUE)
 #'
 #' reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
 #' clone.strategy="cdr3.homology", homology.threshold = 0.5,
-#' hierarchical = "single.chains", global.clonotype = T)
+#' hierarchical = "single.chains", global.clonotype = TRUE)
 #'
 VDJ_clonotype_v3 <- function(VDJ,
                              clone.strategy,
@@ -110,7 +110,7 @@ VDJ_clonotype_v3 <- function(VDJ,
           if(any(dists <= homology.threshold)){
             curr_ab$new_clonal_feature[cel] <- sample_dfs$new_clonal_feature[clone_matches][which.min(dists)] #Assigning the aberrant query clone to the only matching clone
             #ELSE: no clone found with the light chain of this cell => open a new clone
-          } else { curr_ab$new_clonal_feature[cel] <- paste0("hclust_nomatch_", cur_ab$unique_id_internal)}
+          } else { curr_ab$new_clonal_feature[cel] <- paste0("hclust_nomatch_", curr_ab$unique_id_internal)}
         }
       }
       sample_aberrant <- curr_ab #re transpose into list
