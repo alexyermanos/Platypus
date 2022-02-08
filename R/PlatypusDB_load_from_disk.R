@@ -158,7 +158,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
     clonotype.list <- as.list(rep("none",length(GEX.out.directory.list)))
     reference.list <- as.list(rep("none",length(GEX.out.directory.list)))
     annotations.table <- as.list(rep("none",length(GEX.out.directory.list)))
-    contigs.table <- as.list(rep("none",length(GEX.out.directory.list)))
+    contig.table <- as.list(rep("none",length(GEX.out.directory.list)))
     VDJ.out.directory.list <- as.list(rep("none",length(GEX.out.directory.list)))
     metrics.table <- as.list(rep("none",length(GEX.out.directory.list)))
     airr.table <- as.list(rep("none",length(GEX.out.directory.list)))
