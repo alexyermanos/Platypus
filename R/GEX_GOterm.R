@@ -1,7 +1,7 @@
 #' Runs a GO term analysis on a submitted list of genes. Works with the output of GEX_topN_DE_genes_per_cluster or a custom list of genes to obtain GOterms.
 #' @param GEX.cluster.genes.output Either output of Platypus::GEX_cluster_genes or custom character vector containing gene symbols. A custom gene list will not be further filtered or ordered.
 #' @param topNgenes How many of the most significant up or down regulated genes should be considered for GO term analysis. All genes will be used if left empty.
-#' @param species The species the genes belong to. Default: "Mm".
+#' @param species The species the genes belong to. Default: "Mm" (requires the package "org.Mm.eg.db"). Set to "Hs" for Human (requires the package "org.Hs.eg.db")
 #' @param ontology Ontology used for the GO terms. "MF", "BP" or "CC" possible. Default: "BP"
 #' @param up.or.down Whether up or downregulated genes should be used for GO term analysis if GEX_cluster_genes output is used. Default: "up"
 #' @param MT.Rb.filter logical, if mitochondrial and ribosomal genes should be filtered out.
@@ -16,7 +16,7 @@
 #' @examples
 #' \dontrun{
 #'
-#'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = TRUE, species= "Mm", ontology = "MF")
+#'GEX_GOterm(DE_genes_cluster,MT.Rb.filter = TRUE, ontology = "MF")
 #'GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = TRUE, species= "Mm",
 #' ontology = "BP", go.plots = TRUE)
 #'
@@ -24,6 +24,7 @@
 #'#if (!requireNamespace("BiocManager", quietly = TRUE))
 #'#install.packages("BiocManager")
 #'#BiocManager::install("org.Mm.eg.db")
+#'#BiocManager::install("org.Hs.eg.db")
 #'}
 
 GEX_GOterm <- function(GEX.cluster.genes.output,
@@ -92,8 +93,12 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
 
       for (i in 1:length(GEX.cluster.genes.output)){
         #Add entrez-ID
-        rownames(GEX.cluster.genes.output[[i]])<- stringr::str_to_title(rownames( GEX.cluster.genes.output[[i]])) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
-        GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Mm.eg.db::org.Mm.eg.db,keys=rownames(GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+        if(species == "Mm"){
+          rownames(GEX.cluster.genes.output[[i]])<- stringr::str_to_title(rownames( GEX.cluster.genes.output[[i]])) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
+          GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Mm.eg.db::org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+        } else if (species == "Hs"){
+          GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Hs.eg.db::org.Hs.eg.db,keys=rownames(GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+        }
 
         #filter for positive logfoldchanges and arrange for increasing logfoldchanges
         if(up.or.down=="down"){
@@ -112,6 +117,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   }else{
 
     GEX.cluster.genes.output <- data.frame(symbol=GEX.cluster.genes.output, dummy=NA) #add dummy, otherwise filter does not recognize df
+
     rownames(GEX.cluster.genes.output) <- stringr::str_to_upper((GEX.cluster.genes.output$symbol))
 
     if(MT.Rb.filter==T){
@@ -132,8 +138,13 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
         GEX.cluster.genes.output <- GEX.cluster.genes.output_filtered
     }
 
-    rownames(GEX.cluster.genes.output)<- stringr::str_to_title((GEX.cluster.genes.output$symbol)) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
-    GEX.cluster.genes.output$symbol <- AnnotationDbi::select(org.Mm.eg.db::org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+    if(species == "Mm"){
+      rownames(GEX.cluster.genes.output)<- stringr::str_to_title((GEX.cluster.genes.output$symbol)) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
+      GEX.cluster.genes.output$symbol <- AnnotationDbi::select(org.Mm.eg.db::org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+    } else if (species == "Hs"){
+      GEX.cluster.genes.output$symbol <- AnnotationDbi::select(org.Hs.eg.db::org.Hs.eg.db,keys=rownames(GEX.cluster.genes.output), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+    }
+
     gene.list[[1]] <- GEX.cluster.genes.output$symbol$ENTREZID
   }
 
