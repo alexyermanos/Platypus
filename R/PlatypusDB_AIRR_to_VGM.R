@@ -385,7 +385,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
 
 
   if(verbose) cat("\n Loading in data     ")
-  print(Sys.time())
+  if(verbose) print(Sys.time())
 
   #combine all samples into one table
   if(missing(get.VDJ.stats)) get.VDJ.stats <- T
@@ -451,7 +451,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
                      "group.id")
 
   if(verbose) cat("\n AIRR tables loaded     ")
-  print(Sys.time())
+  if(verbose) print(Sys.time())
 
   stats.done <- F
   if(get.VDJ.stats == T){
@@ -496,7 +496,27 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     for(i in 1:length(airr.list)){
 
       if(verbose) cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(airr.list), "...     "))
-      print(Sys.time())
+      if(verbose) print(Sys.time())
+
+      if(trim.and.align){#validate that start end end columns of V segments are available and numeric
+
+        if(any(!c("v_sequence_start", "j_sequence_end") %in% names(airr.list[[i]]))){
+          trim.and.align <- F
+          warning('Columns "v_sequence_start" and "j_sequence_end" for trimming information where not found in current airr input table. Setting trim.and.align to FALSE')
+        } else {
+          if(any(is.na(as.numeric(airr.list[[i]]$v_sequence_start))) | any(is.na(as.numeric(airr.list[[i]]$j_sequence_end)))){
+            trim.and.align <- F
+            warning('Entries in columns "v_sequence_start" or "j_sequence_end" are not convertable to numeric values. Setting trim.and.align to FALSE')
+          }
+          if(any(is.null(airr.list[[i]]$v_sequence_start)) | any(is.null(airr.list[[i]]$j_sequence_end))){
+            trim.and.align <- F
+            warning('Entries in columns "v_sequence_start" or "j_sequence_end" are not convertable to numeric values. Setting trim.and.align to FALSE')
+          }
+        }
+
+
+
+      }
 
       VDJ.proc.list[[i]] <- lapply(barcodes_VDJ[[i]], AIRR_barcode_VDJ_iteration, airrs = airr.list[[i]])
 
@@ -515,7 +535,6 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       VDJ.proc.list[[i]]$group_id <- group.id[i]
 
       #add frequency column (i.e. all cells in clonotype2 will have the same entry, that is the number of cells in clonotype2)
-      print(names(VDJ.proc.list[[i]]))
 
       if("clonotype_id" %in% names(VDJ.proc.list[[i]])){
         VDJ.proc.list[[i]]$clonotype_id <- "Undetermined"
