@@ -61,12 +61,12 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
 
     #Get number of chains
     HC_count <- sum(stringr::str_count(curr.contigs$v_call, pattern = "(TRG|TRB|IGH)"))
-    LC_count <- sum(stringr::str_count(curr.contigs$v_call, pattern = "(TRD|TRA|IG(K|L))"))
+    LC_count <- sum(stringr::str_count(curr.contigs$v_call, pattern = "(TRD|TRA|IGK|IGL)"))
 
     #In this case we need to make much less effort with pasting together, so we can save time
     if(HC_count == 1 & LC_count == 1){
 
-      if(which(stringr::str_detect(curr.contigs$v_call, "(TRD|TRA|IG(K|L))")) == 1){ #make row 1 the heavy chain in case it is not already
+      if(which(stringr::str_detect(curr.contigs$v_call, "(TRD|TRA|IGK|IGL)")) == 1){ #make row 1 the heavy chain in case it is not already
         curr.contigs <- curr.contigs[c(2,1),]}
 
       #fill in the pasted info to curr.barcode directly
@@ -108,6 +108,7 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     } else { # this for cells with aberrant chain numbers
 
       contigs_pasted <- stats::setNames(data.frame(matrix(ncol = ncol(curr.contigs), nrow = length(unique(curr.contigs$v_call)))), names(curr.contigs)) #the dataframe may be one or two rows too long, this will not matter / ROW 1 = Heavy chain information / ROW 2 = Light chain information. This order is maintained even if one of the two chains is not present!
+      if(nrow(contigs_pasted) == 3) contigs_pasted <- contigs_pasted[-3,]
 
       #Heavy/b chain count
       if(HC_count == 1){
@@ -116,19 +117,19 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
         contigs_pasted[1,] <- ""
       } else if(HC_count > 1){
         for(k in 1:ncol(curr.contigs)){
-          contigs_pasted[1,k] <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$v_call, pattern = "(TRB|IGH)")), k], collapse = ";")
+          contigs_pasted[1,k] <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$v_call, pattern = "(TRG|TRB|IGH)")), k], collapse = ";")
         }
       }
       ### Order of CDRs with multiple chains is determined here
 
       #Light/a chain count
       if(LC_count == 1){
-        contigs_pasted[2,] <- curr.contigs[stringr::str_detect(curr.contigs$v_call, pattern = "(TRD|TRA|IG(K|L))"),]
+        contigs_pasted[2,] <- curr.contigs[stringr::str_detect(curr.contigs$v_call, pattern = "(TRD|TRA|IGK|IGL)"),]
       } else if(LC_count == 0){
         contigs_pasted[2,] <- ""
       } else if(LC_count > 1){
         for(k in 1:ncol(curr.contigs)){
-          contigs_pasted[2,k]  <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$v_call, pattern = "(TRA|IG(K|L))")),k],collapse = ";")
+          contigs_pasted[2,k]  <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$v_call, pattern = "(TRD|TRA|IGK|IGL)")),k],collapse = ";")
         }
       }
 
@@ -141,10 +142,8 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       } else if(stringr::str_detect(contigs_pasted$v_call[1], "IG") | stringr::str_detect(contigs_pasted$v_call[2], "IG")) {curr.barcode$celltype <- "B cell"
       } else {curr.barcode$celltype <- "Unkown"}
 
-
       curr.barcode$Nr_of_VDJ_chains <- HC_count
       curr.barcode$Nr_of_VJ_chains <- LC_count
-
 
       curr.barcode$VDJ_cdr3s_aa <- contigs_pasted$junction_aa[1]
       curr.barcode$VJ_cdr3s_aa <- contigs_pasted$junction_aa[2]
@@ -176,12 +175,14 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     #CHECK IF THERE IS 1 2 or 0 chains to process
     if(HC_count == 1){
 
+      HC_index <- which(stringr::str_detect(curr.contigs$v_call, "(TRG|TRB|IGH)"))
+
       #extract match
-      curr.barcode$VDJ_sequence_nt_raw <- curr.contigs$sequence[1]
+      curr.barcode$VDJ_sequence_nt_raw <- curr.contigs$sequence[HC_index]
       if(trim.and.align){
-      curr.barcode$VDJ_sequence_nt_trimmed <- substr(curr.barcode$VDJ_sequence_nt_raw, as.numeric(curr.contigs$v_sequence_start[1]), as.numeric(curr.contigs$j_sequence_end[1])-1)
-      curr.barcode$VDJ_sequence_aa <- curr.contigs$sequence_aa[1]
-      curr.barcode$VDJ_trimmed_ref <- substr(curr.contigs$germline_alignment[1], as.numeric(curr.contigs$v_sequence_start[1]), as.numeric(curr.contigs$j_sequence_end[1])-1)
+      curr.barcode$VDJ_sequence_nt_trimmed <- substr(curr.barcode$VDJ_sequence_nt_raw, as.numeric(curr.contigs$v_sequence_start[HC_index]), as.numeric(curr.contigs$j_sequence_end[HC_index]))
+      curr.barcode$VDJ_sequence_aa <- curr.contigs$sequence_aa[HC_index]
+      curr.barcode$VDJ_trimmed_ref <- substr(curr.contigs$germline_alignment[HC_index], as.numeric(curr.contigs$v_sequence_start[HC_index]), as.numeric(curr.contigs$j_sequence_end[HC_index]))
       } else {
         curr.barcode$VDJ_sequence_nt_trimmed <- ""
         curr.barcode$VDJ_sequence_aa <- ""
@@ -208,11 +209,11 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
             to_paste <- append(to_paste, HC_rows$sequence[l])
             if(trim.and.align == T){
 
-              to_paste_trimmed <- c(to_paste_trimmed, substr(HC_rows$sequence[l], as.numeric(HC_rows$v_sequence_start[l]), as.numeric(HC_rows$j_sequence_end[l])-1))
+              to_paste_trimmed <- c(to_paste_trimmed, substr(HC_rows$sequence[l], as.numeric(HC_rows$v_sequence_start[l]), as.numeric(HC_rows$j_sequence_end[l])))
 
               to_paste_aa <- c(to_paste_aa, HC_rows$sequence_aa[l])
 
-              to_paste_ref_trimmed <- c(to_paste_ref_trimmed, substr(HC_rows$germline_alignment[l], as.numeric(HC_rows$v_sequence_start[l]), as.numeric(HC_rows$j_sequence_end[l])-1))
+              to_paste_ref_trimmed <- c(to_paste_ref_trimmed, substr(HC_rows$germline_alignment[l], as.numeric(HC_rows$v_sequence_start[l]), as.numeric(HC_rows$j_sequence_end[l])))
 
             } else {
               to_paste_trimmed <- ""
@@ -230,12 +231,14 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     #Light/a
     if(LC_count == 1){
 
+      LC_index <- which(stringr::str_detect(curr.contigs$v_call, "(TRD|TRA|IGK|IGL)"))
+
       #extract match
-      curr.barcode$VJ_sequence_nt_raw <- curr.contigs$sequence[2]
+      curr.barcode$VJ_sequence_nt_raw <- curr.contigs$sequence[LC_index]
       if(trim.and.align){
-        curr.barcode$VJ_sequence_nt_trimmed <- substr(curr.barcode$VJ_sequence_nt_raw, as.numeric(curr.contigs$v_sequence_start[2]), as.numeric(curr.contigs$j_sequence_end[2])-1)
-        curr.barcode$VJ_sequence_aa <- curr.contigs$sequence_aa[2]
-        curr.barcode$VJ_trimmed_ref <- substr(curr.contigs$germline_alignment[2], as.numeric(curr.contigs$v_sequence_start[2]), as.numeric(curr.contigs$j_sequence_end[2])-1)
+        curr.barcode$VJ_sequence_nt_trimmed <- substr(curr.barcode$VJ_sequence_nt_raw, as.numeric(curr.contigs$v_sequence_start[LC_index]), as.numeric(curr.contigs$j_sequence_end[LC_index]))
+        curr.barcode$VJ_sequence_aa <- curr.contigs$sequence_aa[LC_index]
+        curr.barcode$VJ_trimmed_ref <- substr(curr.contigs$germline_alignment[LC_index], as.numeric(curr.contigs$v_sequence_start[2]), as.numeric(curr.contigs$j_sequence_end[LC_index]))
       } else {
         curr.barcode$VJ_sequence_nt_trimmed <- ""
         curr.barcode$VJ_sequence_aa <- ""
@@ -248,25 +251,25 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
       curr.barcode$VJ_sequence_aa <- ""
       curr.barcode$VJ_trimmed_ref <- ""
 
-    } else if(LC_count > 1){ #MORE THAN ONE HC
+    } else if(LC_count > 1){ #MORE THAN ONE LC
       #from the annotations extract sequence and paste
       #Heavy/b
       to_paste <- c()
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
-      LC_rows <- curr.contigs[stringr::str_detect(curr.contigs$v_call, "(TRD|TRA|IG(K|L))"),]
+      LC_rows <- curr.contigs[stringr::str_detect(curr.contigs$v_call, "(TRD|TRA|IGK|IGL)"),]
       #looping contigs in annotation
       for(l in 1:nrow(LC_rows)){
         #get sequence
         to_paste <- append(to_paste, LC_rows$sequence[l])
         if(trim.and.align == T){
 
-          to_paste_trimmed <- c(to_paste_trimmed, substr(LC_rows$sequence[l], as.numeric(LC_rows$v_sequence_start[l]), as.numeric(LC_rows$j_sequence_end[l])-1))
+          to_paste_trimmed <- c(to_paste_trimmed, substr(LC_rows$sequence[l], as.numeric(LC_rows$v_sequence_start[l]), as.numeric(LC_rows$j_sequence_end[l])))
 
           to_paste_aa <- c(to_paste_aa, LC_rows$sequence_aa[l])
 
-          to_paste_ref_trimmed <- c(to_paste_ref_trimmed, substr(LC_rows$germline_alignment[l], as.numeric(LC_rows$v_sequence_start[l]), as.numeric(LC_rows$j_sequence_end[l])-1))
+          to_paste_ref_trimmed <- c(to_paste_ref_trimmed, substr(LC_rows$germline_alignment[l], as.numeric(LC_rows$v_sequence_start[l]), as.numeric(LC_rows$j_sequence_end[l])))
 
         } else {
           to_paste_trimmed <- ""
@@ -495,27 +498,26 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
     VDJ.proc.list <- list()
     for(i in 1:length(airr.list)){
 
-      if(verbose) cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(airr.list), "...     "))
+      if(verbose) cat(paste0("\n Starting VDJ barcode iteration ", i , " of ", length(airr.list), "...    "))
       if(verbose) print(Sys.time())
 
       if(trim.and.align){#validate that start end end columns of V segments are available and numeric
 
-        if(any(!c("v_sequence_start", "j_sequence_end") %in% names(airr.list[[i]]))){
+        if(any(!c("v_cigar", "j_cigar") %in% names(airr.list[[i]]))){
           trim.and.align <- F
-          warning('Columns "v_sequence_start" and "j_sequence_end" for trimming information where not found in current airr input table. Setting trim.and.align to FALSE')
-        } else {
-          if(any(is.na(as.numeric(airr.list[[i]]$v_sequence_start))) | any(is.na(as.numeric(airr.list[[i]]$j_sequence_end)))){
-            trim.and.align <- F
-            warning('Entries in columns "v_sequence_start" or "j_sequence_end" are not convertable to numeric values. Setting trim.and.align to FALSE')
-          }
-          if(any(is.null(airr.list[[i]]$v_sequence_start)) | any(is.null(airr.list[[i]]$j_sequence_end))){
-            trim.and.align <- F
-            warning('Entries in columns "v_sequence_start" or "j_sequence_end" are not convertable to numeric values. Setting trim.and.align to FALSE')
-          }
+          warning('Columns "v_cigar", "j_cigar" for trimming information where not found in current airr input table. Setting trim.and.align to FALSE')
         }
+        if(all(c("v_cigar", "j_cigar") %in% names(airr.list[[i]]))) {
+          #use CIGAR string for trimming
+          #Assume standard CIGAR output: ...S...M...S (first number indicates soft clipped nucleotides before alignment, second number indicates matching nuclotides, third number indicate soft clipped nucleotides at the end of the sequence)
+          airr.list[[i]]$v_sequence_start <- as.numeric(gsub("S","",stringr::str_extract(airr.list[[i]]$v_cigar, "^\\d+S")))+1 #first soft clipped value
+          #This returns NA if there is no clipped sequence and the alignment starts from the first nucleotide. In that case we need no trimming
+          airr.list[[i]]$v_sequence_start[is.na(airr.list[[i]]$v_sequence_start)] <- 0
 
-
-
+          airr.list[[i]]$j_sequence_end <- nchar(airr.list[[i]]$sequence) - as.numeric(gsub("S","",stringr::str_extract(airr.list[[i]]$j_cigar, "\\d+S$"))) #last soft clipped value
+          #This returns NA if there is no clipped sequence at the end and the cigar ends in ...M In that case we do not trim from this side and set the end to the length of the contig
+          airr.list[[i]]$j_sequence_end[is.na(airr.list[[i]]$j_sequence_end)] <- nchar(airr.list[[i]]$sequence)[is.na(airr.list[[i]]$j_sequence_end)]
+        }
       }
 
       VDJ.proc.list[[i]] <- lapply(barcodes_VDJ[[i]], AIRR_barcode_VDJ_iteration, airrs = airr.list[[i]])
