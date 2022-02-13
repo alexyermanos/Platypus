@@ -469,9 +469,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #gsub to be able to process TCRs as well
       contig.list[[k]]$chain <- gsub(pattern = "TRB", replacement = "IGH", contig.list[[k]]$chain)
       contig.list[[k]]$chain <- gsub(pattern = "TRA", replacement = "IGL", contig.list[[k]]$chain)
+      #gamma delta compatibility
+      contig.list[[k]]$chain <- gsub(pattern = "TRG", replacement = "IGH", contig.list[[k]]$chain)
+      contig.list[[k]]$chain <- gsub(pattern = "TRD", replacement = "IGL", contig.list[[k]]$chain)
 
       clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRB:", replacement = "IGH:", clonotype.list[[k]]$cdr3s_aa)
       clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRA:", replacement = "IGL:", clonotype.list[[k]]$cdr3s_aa)
+      #gamma delta compatibility
+      clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRG:", replacement = "IGH:", clonotype.list[[k]]$cdr3s_aa)
+      clonotype.list[[k]]$cdr3s_aa <- gsub(pattern = "TRD:", replacement = "IGL:", clonotype.list[[k]]$cdr3s_aa)
 
 
       #info on sample
@@ -869,8 +875,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }, norm.scale.factor, n.variable.features) #these are the additional arguments intput to the lapply call
 
 
-
-
       #Now select integration features
       int_feat <- Seurat::SelectIntegrationFeatures(GEX.list)
       GEX.merged <- Seurat::FindIntegrationAnchors(GEX.list, anchor.features = int_feat)
@@ -916,22 +920,22 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     curr.contigs <- contigs[which(contigs$barcode == barcodes & tolower(contigs$is_cell) == "true" & tolower(contigs$high_confidence) == "true" & tolower(contigs$productive) == "true" & tolower(contigs$full_length) == "true"),]
 
     #Get number of chains
-    HC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRB|IGH)"))
-    LC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRA|IG(K|L))"))
+    HC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRG|TRB|IGH)"))
+    LC_count <- sum(stringr::str_count(curr.contigs$chain, pattern = "(TRD|TRA|IGK|IGL)"))
 
     #In case the cell has more than 1 VJ or VDJ chain, and the user decided to not want to have all these chains included in the later table
     #select one of the excessive VDJ chains by umi count
     if(HC_count > 1 & select.excess.chains.by.umi.count == T){
-      curr.contigs$umis_HC[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)")] <- curr.contigs$umis[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)")] #getting the counts as a new column entry
-      if(!all(curr.contigs$umis_HC[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)")] >= excess.chain.confidence.count.threshold)){ #only filter chains out if not all chains present exceed the set confidence umi count threshold.
+      curr.contigs$umis_HC[stringr::str_detect(curr.contigs$chain, pattern = "(TRG|TRB|IGH)")] <- curr.contigs$umis[stringr::str_detect(curr.contigs$chain, pattern = "(TRG|TRB|IGH)")] #getting the counts as a new column entry
+      if(!all(curr.contigs$umis_HC[stringr::str_detect(curr.contigs$chain, pattern = "(TRG|TRB|IGH)")] >= excess.chain.confidence.count.threshold)){ #only filter chains out if not all chains present exceed the set confidence umi count threshold.
       curr.contigs <- curr.contigs[c(which(is.na(curr.contigs$umis_HC) == T), which.max(curr.contigs$umis_HC)),] #getting the VDJ with most umis and all VJs
       HC_count <- 1 #resetting the count to not confuse any loops below
       } #no else needed: if all chains exceed the chain.confidence.count.threshold all chains are kept
     }
     #select one of the excessive VJ chains by umi count
     if(LC_count > 1 & select.excess.chains.by.umi.count == T){
-      curr.contigs$umis_LC[stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))")] <- curr.contigs$umis[stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))")]
-      if(!all(curr.contigs$umis_LC[stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))")] >= excess.chain.confidence.count.threshold)){ #only filter chains out if not all chains present exceed the set confidence umi count threshold.
+      curr.contigs$umis_LC[stringr::str_detect(curr.contigs$chain, pattern = "(TRD|TRA|IGK|IGL)")] <- curr.contigs$umis[stringr::str_detect(curr.contigs$chain, pattern = "(TRD|TRA|IGK|IGL)")]
+      if(!all(curr.contigs$umis_LC[stringr::str_detect(curr.contigs$chain, pattern = "(TRD|TRA|IGK|IGL)")] >= excess.chain.confidence.count.threshold)){ #only filter chains out if not all chains present exceed the set confidence umi count threshold.
       curr.contigs <- curr.contigs[c(which(is.na(curr.contigs$umis_LC) == T), which.max(curr.contigs$umis_LC)),] #getting the VJ with most umis and all VDJs
       LC_count <- 1 #resetting the count to not confuse any loops below
       }#no else needed: if all chains exceed the chain.confidence.count.threshold all chains are kept
@@ -964,7 +968,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #In this case we need to make much less effort with pasting together, so we can save time
     if(HC_count == 1 & LC_count == 1){
 
-      if(which(stringr::str_detect(curr.contigs$chain, "(TRA|IG(K|L))")) == 1){ #make row 1 the heavy chain in case it is not already
+      if(which(stringr::str_detect(curr.contigs$chain, "(TRD|TRA|IGK|IGL)")) == 1){ #make row 1 the heavy chain in case it is not already
         curr.contigs <- curr.contigs[c(2,1),]}
 
       #fill in the pasted info to curr.barcode directly
@@ -1006,24 +1010,24 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #Heavy/b chain count
       if(HC_count == 1){
-        contigs_pasted[1,] <- curr.contigs[stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)"),]
+        contigs_pasted[1,] <- curr.contigs[stringr::str_detect(curr.contigs$chain, pattern = "(TRG|TRB|IGH)"),]
       } else if(HC_count == 0){
         contigs_pasted[1,] <- ""
       } else if(HC_count > 1){
         for(k in 1:ncol(curr.contigs)){
-          contigs_pasted[1,k] <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$chain, pattern = "(TRB|IGH)")), k], collapse = ";")
+          contigs_pasted[1,k] <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$chain, pattern = "(TRG|TRB|IGH)")), k], collapse = ";")
         }
       }
       ### Order of CDRs with multiple chains is determined here
 
       #Light/a chain count
       if(LC_count == 1){
-        contigs_pasted[2,] <- curr.contigs[stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))"),]
+        contigs_pasted[2,] <- curr.contigs[stringr::str_detect(curr.contigs$chain, pattern = "(TRD|TRA|IGK|IGL)"),]
       } else if(LC_count == 0){
         contigs_pasted[2,] <- ""
       } else if(LC_count > 1){
         for(k in 1:ncol(curr.contigs)){
-          contigs_pasted[2,k]  <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$chain, pattern = "(TRA|IG(K|L))")),k],collapse = ";")
+          contigs_pasted[2,k]  <- paste0(curr.contigs[which(stringr::str_detect(curr.contigs$chain, pattern = "(TRD|TRA|IGK|IGL)")),k],collapse = ";")
         }
       }
 
@@ -1074,9 +1078,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(trim.and.align == T){
         tryCatch({
           #find match in annotations
-          HC_contig <- which(curr.annotations$raw_consensus_id == curr.barcode$VDJ_raw_consensus_id) #This line is never reached if trim.and.align == F (either set by the user or set by the function if the all_contig_annotations.json was present in the input folders)
+
+          HC_contig <- which(curr.annotations$contig_id == curr.barcode$VDJ_chain_contig) #This line is never reached if trim.and.align == F (either set by the user or set by the function if the all_contig_annotations.json was present in the input folders)
+
           #trim sequence
           curr.barcode$VDJ_sequence_nt_trimmed <- substr(curr.barcode$VDJ_sequence_nt_raw, as.numeric(curr.annotations$temp_start[HC_contig])+1, as.numeric(curr.annotations$temp_end[HC_contig])-1)
+
+
           #translate trimmed sequence
           if(nchar(curr.barcode$VDJ_sequence_nt_trimmed) > 1){
             curr.barcode$VDJ_sequence_aa <- as.character(Biostrings::translate(Biostrings::DNAStringSet(curr.barcode$VDJ_sequence_nt_trimmed)))
@@ -1118,7 +1126,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             #looping over Hb contig ids (as there may be more than 1)
             for(c in 1:length(stringr::str_split(curr.barcode$VDJ_raw_consensus_id, ";",simplify = T))){
               #find a match
-              if(curr.annotations$raw_consensus_id[l] == stringr::str_split(curr.barcode$VDJ_raw_consensus_id, ";",simplify = T)[c]){
+              if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VDJ_raw_consensus_id, ";",simplify = T)[c]){
                 #trim sequence
                 to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = T)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
                 #translate trimmed sequence
@@ -1156,9 +1164,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(trim.and.align == T){
         tryCatch({
           #find match in annotations
-          LC_contig <- which(curr.annotations$raw_consensus_id == curr.barcode$VJ_raw_consensus_id)
+          LC_contig <- which(curr.annotations$contig_id == curr.barcode$VJ_chain_contig)
+
           #trim sequence
           curr.barcode$VJ_sequence_nt_trimmed <- substr(curr.barcode$VJ_sequence_nt_raw, as.numeric(curr.annotations$temp_start[LC_contig])+1, as.numeric(curr.annotations$temp_end[LC_contig])-1)
+
           #translate trimmed sequence
           if(nchar(curr.barcode$VJ_sequence_nt_trimmed) > 1){
             curr.barcode$VJ_sequence_aa <- as.character(Biostrings::translate(Biostrings::DNAStringSet(curr.barcode$VJ_sequence_nt_trimmed)))
@@ -1198,7 +1208,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             #looping over Hb contig ids (as there may be more than 1)
             for(c in 1:length(stringr::str_split(curr.barcode$VJ_raw_consensus_id, ";",simplify = T))){
               #find a match
-              if(curr.annotations$raw_consensus_id[l] == stringr::str_split(curr.barcode$VJ_raw_consensus_id, ";",simplify = T)[c]){
+              if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VJ_raw_consensus_id, ";",simplify = T)[c]){
                 #trim sequence
                 to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = T)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
                 #translate trimmed sequence
@@ -1252,6 +1262,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
       reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
+
       contig.table <- lapply(VDJ.out.directory_contigs, function(x) utils::read.csv(x,sep=",",header=T)) #better using the table format downstream
 
       #changes for compatibility with the cellranger multi pipeline
@@ -1277,7 +1288,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         }
       }
 
-
       #NEW annotations read in.
       #Reason: In Cellranger 6 the function Cellranger multi was introduced. The VDJ output of that unfortunately does not contain the all_contig_annotations.json file.
       #Therefore we now need to check if that file exists and skip it if not. If it does not exist, the function will not be able to perform trimming and aligning, so there will be a warning
@@ -1290,6 +1300,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           # pulls out the three important features: featureRegions, and of featureRegions. Used for trimming where the V region starts and where the C region ends.
           annotations.table <- list()
           for(i in 1:length(annotations.list)){
+
             #get annotation table to make VDJ_barcode_iteration later on faster
             annotations.table[[i]] <- do.call(BiocGenerics::rbind,lapply( #get relevant entries out
               annotations.list[[i]]
@@ -1312,6 +1323,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            "temp_end" = temp_end
                 )}))### returns this dataframe with these four outputs. if you dont have annotations sufficient for both, then you will just an empty character vector. For high confidence cells we have start and stop.
           }
+
+
         } else { #in at least one directory the all_contig_annotations.json was not found
           warning("Warning: At least one VDJ input directory is missing the file all_contig_annotations.json. Without this, accurate trimming and aligning of sequences is not possible. Setting trim.and.align to FALSE and proceeding. For an alternate mode of aligment please refer to the function VDJ_call_MIXCR \n")
           trim.and.align <- F
