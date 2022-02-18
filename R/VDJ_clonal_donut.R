@@ -47,7 +47,6 @@ if(!counts.to.use %in% names(VDJ)){
 
 if(counts.to.use %in% names(VDJ)){
   message(paste0("Using column ", counts.to.use, " for counting clones"))
-  counts.to.use <- "clonotype_id"
 
   VDJ$for_clonal_donut <- VDJ[,counts.to.use]
 
