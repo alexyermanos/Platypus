@@ -149,7 +149,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   to_download_list <- list()
   for(i in 1:nrow(link_parts)){
     #look for patterns were objects could be combined
-    if(stringr::str_detect(link_parts[i,4], "s\\d+/ALL.RData")){
+    if(stringr::str_detect(link_parts[i,4], "ALL.RData")){
       to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id == link_parts[i,2])
       if(nrow(to_download) == 2){
       to_download$group <- gcount
