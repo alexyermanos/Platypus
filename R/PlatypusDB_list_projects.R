@@ -59,6 +59,24 @@ PlatypusDB_list_projects <- function(keyword){
     }, error=function(e){
       message(paste0("Failed to load",  platypusdb_meta$url[i], " \n" , e))})
   }
-    return(out.list) #return loaded files
-  }
 
+  #out list reformatting
+  form.list <- list()
+  for(i in 1:length(out.list)){
+
+    out.list[[i]] <- out.list[[i]][is.na(out.list[[i]][,2]) == F,]
+
+    form.list[[i]] <- list("dataset_info" = as.data.frame(out.list[[i]][1:2,c(1:(min(which(stringr::str_detect(out.list[[i]][1,], "Free.item")))-1))]),
+                           "sample_info" = as.data.frame(out.list[[i]][c(6:nrow(out.list[[i]])),c(1:(min(which(stringr::str_detect(out.list[[i]][6,], "Free.item")))-1))])
+                    )
+
+    #setting first rows as titles
+    names(form.list[[i]][[1]]) <- form.list[[i]][[1]][1,]
+    form.list[[i]][[1]] <- form.list[[i]][[1]][-1,]
+    names(form.list[[i]][[2]]) <- form.list[[i]][[2]][1,]
+    form.list[[i]][[2]] <- form.list[[i]][[2]][-1,]
+
+    names(form.list)[i] <- names(out.list)[i]
+  }
+    return(form.list) #return loaded files
+  }
