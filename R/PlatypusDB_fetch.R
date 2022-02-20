@@ -149,8 +149,8 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   to_download_list <- list()
   for(i in 1:nrow(link_parts)){
     #look for patterns were objects could be combined
-    if(stringr::str_detect(link_parts[i,4], "ALL.RData")){
-      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id == link_parts[i,2])
+    if(stringr::str_detect(link_parts[i,4], "/ALL.RData") & link_parts[i,2] != ""){
+      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id == link_parts[i,2] & stringr::str_detect(name, ".zip") == F)
       if(nrow(to_download) == 2){
       to_download$group <- gcount
       gcount <- gcount + 1
@@ -160,7 +160,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
       }
 
     } else if(stringr::str_detect(link_parts[i,4], "ALL/ALL.RData")){
-      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id != "")
+      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id != "" & stringr::str_detect(name, ".zip") == F)
 
       for(j in 1:length(unique(to_download$sample_id))){
         to_download_s <- subset(to_download, sample_id == unique(to_download$sample_id)[j])
@@ -211,6 +211,8 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   to_download <- do.call(rbind, to_download_list) #combine into dataframe
   to_download <- to_download[duplicated(to_download$url) == F,] #make unique in case one file is entered more than once
   to_download$group <- as.character(to_download$group) #make character so that the order of rows is not disturbed by the unique() in the following
+
+  if(nrow(to_download) == 0) stop("No files found matching PlatypusDB.links. Please revise input")
 
   out.list <- list()
   if(combine.objects == F){ #IF NO OBJECTS ARE TO BE COMBINED. group column will not be used

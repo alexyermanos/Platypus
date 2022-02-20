@@ -32,19 +32,26 @@ PlatypusDB_find_CDR3s <- function(VDJ.cdr3s.aa,
   platypusdb_lookup <- platypus_url_lookup
 
   if(projects.to.search == "ALL"){
-    to_download <- paste0(platypusdb_lookup$project_id, "__CDR3s")
+    to_download <- unique(paste0(platypusdb_lookup$project_id, "__CDR3s"))
   } else {
-    to_download <- paste0(platypusdb_lookup$project_id[which(platypusdb_lookup$project_id %in% projects.to.search)], "__CDR3s")
+    to_download <- unique(paste0(platypusdb_lookup$project_id[which(platypusdb_lookup$project_id %in% projects.to.search)], "__CDR3s"))
   }
 
   out.list <- list()
   for(i in 1:length(to_download)){
     url_ <- paste0("https://storage.googleapis.com/platypusdb_cdr3s/", to_download[i], ".RData")
-    load(url(url_), envir = .GlobalEnv)
-    out.list[[i]] <- get(to_download[i])
-    out.list[[i]]$project_id <- stringr::str_split(to_download[i], "__", simplify = T)[,1]
-    rm(list = ls(pattern = to_download[i]), envir = .GlobalEnv)
-    closeAllConnections()
+
+      er <- try(load(url(url_), envir = .GlobalEnv))
+
+      if(class(er) != "try-error"){
+      out.list[[i]] <- get(to_download[i])
+      out.list[[i]]$project_id <- stringr::str_split(to_download[i], "__", simplify = T)[,1]
+      rm(list = ls(pattern = to_download[i], envir = .GlobalEnv), envir = .GlobalEnv)
+      closeAllConnections()
+      } else {
+      message(paste0("Failed to load ",  to_download[i], ". Skipping this dataset \n"))
+      rm(list = ls(pattern = to_download[i], envir = .GlobalEnv), envir = .GlobalEnv)
+    }
   }
 
   out.list <- do.call(rbind, out.list)
