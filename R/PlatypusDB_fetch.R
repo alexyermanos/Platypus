@@ -1,5 +1,5 @@
 #' Loads and saves RData objects from the PlatypusDB
-#' @param PlatypusDB.links Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is gexVGM, vdjVGM or metadata, \%sample_id\% needs to be "ALL", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For sample_id entries the the metadata table for a given project via the function PlatypusDB_list_projects()
+#' @param PlatypusDB.links Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is GEXmatrix or VDJmatrix or metadata, \%sample_id\% needs to be "", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For sample_id entries the the metadata table for a given project via the function PlatypusDB_list_projects()
 #'@param save.to.disk Boolean. Defaults to FALSE. Whether to save downloaded files individually to the directory specified in path.to.save
 #'@param load.to.enviroment Boolean. Defaults to TRUE. Whether to load objects directly into the current .GlobalEnv. An array of the names of the loaded objects will be returned. !Be aware of RAM limitations of your machine when downloading multiple large files.
 #'@param load.to.list Boolean. Defaults to FALSE. Whether to return loaded objects as a list. !Be aware of RAM limitations of your machine when downloading multiple large files.
@@ -149,7 +149,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   to_download_list <- list()
   for(i in 1:nrow(link_parts)){
     #look for patterns were objects could be combined
-    if(stringr::str_detect(link_parts[i,4], "/ALL.RData") & link_parts[i,2] != ""){
+    if(stringr::str_detect(link_parts[i,4], "/ALL.RData") & link_parts[i,2] != "" & link_parts[i,2] != "ALL"){
       to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id == link_parts[i,2] & stringr::str_detect(name, ".zip") == F)
       if(nrow(to_download) == 2){
       to_download$group <- gcount
@@ -168,9 +168,10 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
         if(all(c("VDJ.RData", "GEX.RData") %in% to_download_s$filetype) & nrow(to_download_s == 2)){
         to_download_s$group <- gcount
         gcount <- gcount + 1
-        to_download_list[[j]] <- to_download_s
+        to_download_list[[length(to_download_list)+1]] <- to_download_s
+
         } else{
-        to_download_list[[j]] <- to_download_s
+        to_download_list[[length(to_download_list)+1]] <- to_download_s
         }
       }
 
@@ -186,6 +187,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
         stop("More than 2 matrix files detected for this project #174")
       }
     } else {
+
     #subset hierarchically
     if(link_parts[i,1] == "ALL"){
       to_download <- platypusdb_lookup
@@ -208,7 +210,9 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
 
   }
 
+
   to_download <- do.call(rbind, to_download_list) #combine into dataframe
+
   to_download <- to_download[duplicated(to_download$url) == F,] #make unique in case one file is entered more than once
   to_download$group <- as.character(to_download$group) #make character so that the order of rows is not disturbed by the unique() in the following
 

@@ -189,9 +189,9 @@ VDJ_overlap_heatmap <- function(VDJ,
       pheat_map[which(colnames(pheat_map) == combs[i,2]), which(rownames(pheat_map) == combs[i,1])] <- round(as.numeric(combs[i,5]),3)
     }
     if(jaccard){
-    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.3f", angle_col = 315)
+    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.3f", angle_col = 315, fontsize_number  = pvalues.label.size, fontsize_row = axis.label.size, fontsize_col = axis.label.size)
     } else {
-      plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315)
+      plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315, fontsize_number  = pvalues.label.size, fontsize_row = axis.label.size, fontsize_col = axis.label.size)
     }
     combs <- pheat_map
   }
