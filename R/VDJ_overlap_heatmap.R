@@ -180,8 +180,8 @@ VDJ_overlap_heatmap <- function(VDJ,
     allcombs <- c(unlist(as.character(combs[,1])), unlist(as.character(combs[,2]))) #get the unique values from the combinations table
     allcombs <- ordered(as.factor(allcombs), levels = (sample.names)) #order those
     pheat_map <- matrix(data = NA, nrow = length(unique(allcombs)), ncol = length(unique(allcombs))) #make a symmetric matrix template
-    colnames(pheat_map) <- unique(allcombs[order(allcombs)]) #rename
-    rownames(pheat_map) <- unique(allcombs[order(allcombs)])
+    colnames(pheat_map) <- unique(allcombs[order(rev(allcombs))]) #rename
+    rownames(pheat_map) <- unique(allcombs[order(rev(allcombs))])
     for(i in 1:nrow(combs)){ #assign the corresponding values twice (once for upper triangle and once for lower)
       #upper triangle
       pheat_map[which(colnames(pheat_map) == combs[i,1]), which(rownames(pheat_map) == combs[i,2])] <- round(as.numeric(combs[i,5]),3)
