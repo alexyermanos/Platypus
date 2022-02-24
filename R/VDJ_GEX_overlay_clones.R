@@ -1,5 +1,5 @@
 #' Highlights the cells belonging to any number of top clonotypes or of specifically selected clonotypes from one or more samples or groups in a GEX dimensional reduction.
-#' @param GEX A single seurat object from VDJ_GEX_matrix, which also includes VDJ information in the metadata (set integrate.VDJ.to.GEX to TRUE in the VDJ_GEX_matrix function) (VDJ_GEX_matrix.output[[2]])
+#' @param GEX A single seurat object from VDJ_GEX_matrix, which also includes VDJ information in the metadata (set integrate.VDJ.to.GEX to TRUE in the VDJ_GEX_matrix function) (VDJ_GEX_matrix.output[[2]]) ! Clone ids and frequencies are drawn from the columns "clonotype_id" and "clonotype_frequency"
 #' @param reduction Character. Defaults to "umap". Name of the reduction to overlay clones on. Can be "pca", "umap", "tsne"
 #' @param n.clones Integer. Defaults to 5. To PLOT TOP N CLONES. Number of Top clones to plot. If either by.sample or by.group is TRUE, n.clones clones from each sample or group will be overlayed
 #' @param clones.to.plot Character. Alternative to n.clones. TO PLOT SPECIFIC CLONES. Must reference a column in the GEX@meta.data filled with TRUE and FALSE. Entries with TRUE label are plotted. Such a column may be generated using GEX@metadata$clones_to_plot_column <- GEX@metadata$Some_cell_identifier == "Interesting"
@@ -92,10 +92,10 @@ VDJ_GEX_overlay_clones <- function(GEX,
   GEX@meta.data$clonotype_frequency <- as.numeric(as.character(GEX@meta.data$clonotype_frequency))
 
   #make column sample + clonotype id
-  GEX@meta.data$s_cl <- paste0(GEX@meta.data$sample_id, GEX@meta.data$clonotype_id_10x)
+  GEX@meta.data$s_cl <- paste0(GEX@meta.data$sample_id, GEX@meta.data$clonotype_id)
 
   #get subset unique that column + frequency
-  cl_unique <- GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == F),c("s_cl", "sample_id","group_id", "clonotype_id_10x", "clonotype_frequency")]
+  cl_unique <- GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == F),c("s_cl", "sample_id","group_id", "clonotype_id", "clonotype_frequency")]
   if(clones.to.plot != "none"){ #if clones to plot is specified bind that column to cl_unique as well
     cl_unique <- cbind(cl_unique, GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == F),c(clones.to.plot)])
     names(cl_unique)[ncol(cl_unique)] <- "clonotype_to_plot"
@@ -116,7 +116,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #remove any empty columns
-    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id_10x) == F,]
+    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == F,]
 
     #open new column in original df
     GEX@meta.data$cl_to_plot <- "Not selected"
@@ -126,18 +126,28 @@ VDJ_GEX_overlay_clones <- function(GEX,
     track_cl_to_plot <- c()
     for(i in 1:nrow(cl_unique)){
       #paste together clonal rank and frequency
-      GEX@meta.data$cl_to_plot[which(GEX@meta.data$s_cl == cl_unique$s_cl[i])] <- paste0(i, " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id_10x[i], " / ", cl_unique$clonotype_frequency[i])
-      track_cl_to_plot <- append(track_cl_to_plot, paste0(i, " / ",cl_unique$sample_id[i], " / ",cl_unique$clonotype_id_10x[i], " / ", cl_unique$clonotype_frequency[i]))
+      GEX@meta.data$cl_to_plot[which(GEX@meta.data$s_cl == cl_unique$s_cl[i])] <- paste0(i, " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id[i], " / ", cl_unique$clonotype_frequency[i])
+      track_cl_to_plot <- append(track_cl_to_plot, paste0(i, " / ",cl_unique$sample_id[i], " / ",cl_unique$clonotype_id[i], " / ", cl_unique$clonotype_frequency[i]))
     }
     #order for plotting
-    GEX@meta.data$cl_to_plot <- ordered(as.factor(GEX@meta.data$cl_to_plot), levels = c(track_cl_to_plot, "Not selected"))
+    GEX@meta.data$cl_to_plot <- ordered(as.factor(GEX@meta.data$cl_to_plot), levels = c("Not selected", track_cl_to_plot))
 
     #Get colors right. Output is a vector of colors shorter by 1 from what is needed. That last color is grey80 and specified in the DimPlot for cells that are not highlighted
     if(missing(clone.colors)) clone.colors <- grDevices::rainbow(length(unique(GEX@meta.data$cl_to_plot))-1)
     if(length(clone.colors) != length(unique(GEX@meta.data$cl_to_plot))-1){stop(paste0("Nr of supplied colors ", length(clone.colors)  ," does not match number of clones to plot ", length(unique(GEX@meta.data$cl_to_plot))-1))}
 
+    #Prep for highlighting cells function
+
+    SeuratObject::Idents(object = GEX) <- "cl_to_plot"
+    to_highlight_list <- list()
+    for(i in 1:length(track_cl_to_plot)){
+      to_highlight_list[[i]] <- SeuratObject::WhichCells(GEX, ident =  track_cl_to_plot[i])
+    }
+
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
+
     #dimplot with cols + grey30 to color in the non selected clones
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = T, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
+    #out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors, others.color), shuffle = F, order = c("Not selected","selected"), pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
     #check whether plot and legend should be split
     if(split.plot.and.legend == F){
       return(out.plot)
@@ -168,7 +178,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #remove any empty columns
-    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id_10x) == F,]
+    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == F,]
 
     #open new column in original df
     GEX@meta.data$cl_to_plot <- "Not selected"
@@ -180,8 +190,8 @@ VDJ_GEX_overlay_clones <- function(GEX,
     r <- 1
     for(i in 1:nrow(cl_unique)){
       #paste together clonal rank and frequency
-      GEX@meta.data$cl_to_plot[which(GEX@meta.data$s_cl == cl_unique$s_cl[i])] <- paste0(r, " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id_10x[i], " / ", cl_unique$clonotype_frequency[i])
-      track_cl_to_plot <- append(track_cl_to_plot, paste0(r, " / ", cl_unique$sample_id[i], " / ", cl_unique$clonotype_id_10x[i], " / ", cl_unique$clonotype_frequency[i]))
+      GEX@meta.data$cl_to_plot[which(GEX@meta.data$s_cl == cl_unique$s_cl[i])] <- paste0(r, " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id[i], " / ", cl_unique$clonotype_frequency[i])
+      track_cl_to_plot <- append(track_cl_to_plot, paste0(r, " / ", cl_unique$sample_id[i], " / ", cl_unique$clonotype_id[i], " / ", cl_unique$clonotype_frequency[i]))
 
       if(r == n.clones){r <- 1} else {r <- r + 1}
     }
@@ -239,7 +249,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #remove any empty columns
-    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id_10x) == F,]
+    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == F,]
 
     #open new column in original df
     GEX@meta.data$cl_to_plot <- "Not selected"
@@ -251,8 +261,8 @@ VDJ_GEX_overlay_clones <- function(GEX,
     r <- 1
     for(i in 1:nrow(cl_unique)){
       #paste together clonal rank and frequency
-      GEX@meta.data$cl_to_plot[which(GEX@meta.data$s_cl == cl_unique$s_cl[i])] <- paste0(r, " / ",cl_unique$group_id[i], " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id_10x[i], " / ", cl_unique$clonotype_frequency[i])
-      track_cl_to_plot <- append(track_cl_to_plot, paste0(r, " / ",cl_unique$group_id[i], " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id_10x[i], " / ", cl_unique$clonotype_frequency[i]))
+      GEX@meta.data$cl_to_plot[which(GEX@meta.data$s_cl == cl_unique$s_cl[i])] <- paste0(r, " / ",cl_unique$group_id[i], " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id[i], " / ", cl_unique$clonotype_frequency[i])
+      track_cl_to_plot <- append(track_cl_to_plot, paste0(r, " / ",cl_unique$group_id[i], " / ",cl_unique$sample_id[i], " / ", cl_unique$clonotype_id[i], " / ", cl_unique$clonotype_frequency[i]))
 
       if(r == n.clones){r <- 1} else {r <- r + 1}
     }
