@@ -59,6 +59,7 @@ VGM_integrate <- function(VGM,
 
     to_merge <- VGM[[1]][,c("int_merge_bc",cl_VDJ_to_GEX)]
     new_GEX_meta <- merge(VGM[[2]]@meta.data, to_merge, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
+    rownames(new_GEX_meta) <- new_GEX_meta$int_merge_bc
     new_GEX_meta <- new_GEX_meta[,names(new_GEX_meta) != "int_merge_bc"]
     VGM[[2]]@meta.data <- new_GEX_meta
     message(paste0("Added columns to GEX: ", paste0(cl_VDJ_to_GEX, collapse = "; ")))
