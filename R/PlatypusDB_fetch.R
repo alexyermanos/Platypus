@@ -1,5 +1,5 @@
 #' Loads and saves RData objects from the PlatypusDB
-#' @param PlatypusDB.links Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is GEXmatrix or VDJmatrix or metadata, \%sample_id\% needs to be "", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For sample_id entries the the metadata table for a given project via the function PlatypusDB_list_projects()
+#' @param PlatypusDB.links Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is GEXmatrix or VDJmatrix, \%sample_id\% needs to be "", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For \%sample_id\% entries refer to the metadata table for a given project via the function PlatypusDB_list_projects()
 #'@param save.to.disk Boolean. Defaults to FALSE. Whether to save downloaded files individually to the directory specified in path.to.save
 #'@param load.to.enviroment Boolean. Defaults to TRUE. Whether to load objects directly into the current .GlobalEnv. An array of the names of the loaded objects will be returned. !Be aware of RAM limitations of your machine when downloading multiple large files.
 #'@param load.to.list Boolean. Defaults to FALSE. Whether to return loaded objects as a list. !Be aware of RAM limitations of your machine when downloading multiple large files.
@@ -33,11 +33,6 @@
 #'#, combine.objects = TRUE)
 #'
 #' #integrated_samples <- VDJ_GEX_matrix_DB(data.in = downloaded_objects)
-#'
-#' #Download metadata objects for projects
-#' list_of_metadata_tables <- PlatypusDB_fetch(
-#' PlatypusDB.links = c("Kuhn2021a//metadata")
-#' ,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE)
 #'
 #' #Dowload of airr_rearrangement.tsv
 #' #Load VDJ.RData into a list
@@ -106,7 +101,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
     if(stringr::str_detect(PlatypusDB.links[i], "\\.zip")){stop(".zip files are not downloadable via R. Please refer to the PlatypusDB website")}
 
     if(stringr::str_detect(PlatypusDB.links[i], ".*/.*/.*\\.RData") == F & stringr::str_detect(PlatypusDB.links[i], ".*//.*\\.RData") == F){
-      stop(paste0("Input link ", i, " does not fit the neccessary format. Please input a link with the format '[Project id]/[Sample id]/[filetype].RData' or '[Project id]//[filetype].RData' to download VDG_GEX_matrix or project metadata files. To download .zip files please refer to the PlatypusDB website. Any link element can be replaced with ALL or ALL.RData, for the final element, to download all files of that catagory"))
+      stop(paste0("Input link ", i, " does not fit the neccessary format. Please input a link with the format '[Project id]/[Sample id]/[filetype].RData' or '[Project id]//[filetype].RData' to download VDG_GEX_matrix files. To download .zip files please refer to the PlatypusDB website. Any link element can be replaced with ALL or ALL.RData, for the final element, to download all files of that catagory"))
     }
   }
 
