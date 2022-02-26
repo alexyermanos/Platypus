@@ -18,7 +18,7 @@
 #' @param VDJ.VJ.1chain Logical specifying whether cells other than once with 1 VDJ and 1 VJ chains should be considered.
 #' @param output.format Parameter output.format is deprecated. If non VGM-style output is required please refer to the function VDJ_clonotype. Output is VGM style VDJ by cell dataframe
 #' @param platypus.version Only "v3" available
-#' @return Returns a VGM[[1]]-type dataframe. All columns of the input VDJ dataframe are maintained and extra columns are added with clonotyping information.New columns are named by clonotyping strategy so to allow for multiple clonotyping identifiers to be present in the same VDJ dataframe and make comparisons between these straighforward.
+#' @return Returns a VGM[[1]]-type dataframe. The columns clonotype_id and clonotype_frequency are updated with the new clonotyping strategy. They represent the "active strategy" that downstream functions will use. Furthermore extra columns are added with clonotyping information.New columns are named by clonotyping strategy so to allow for multiple clonotyping identifiers to be present in the same VDJ dataframe and make comparisons between these straighforward.
 #' @export
 #' @examples
 #' reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
@@ -583,6 +583,21 @@ VDJ_clonotype_v3 <- function(VDJ,
   #cleanup
   VDJ.GEX.matrix <- VDJ.GEX.matrix[,-c(which(names(VDJ.GEX.matrix) %in% c("nchar_VDJ_cdr3s_aa", "nchar_VJ_cdr3s_aa","unique_id_internal")))]
   VDJ.GEX.matrix <- VDJ.GEX.matrix[,c(2:ncol(VDJ.GEX.matrix), 1)]
+
+  #Updating the active clonotype!
+
+  #First, make sure to back up existing 10x clonotyping strategy
+  if(!"clonotype_frequency_10x" %in% names(VDJ.GEX.matrix)){
+    message("Backing up 10x default clonotyping in columns clonotype_id_10x and clonotype_frequency_10x before updating clonotype_id and clonotype_frequency columns")
+
+    VDJ.GEX.matrix$clonotype_frequency_10x <- VDJ.GEX.matrix$clonotype_frequency
+    #Move clonotype_id_10x to the last column spot
+    VDJ.GEX.matrix <- VDJ.GEX.matrix[c(names(VDJ.GEX.matrix)[names(VDJ.GEX.matrix) != "clonotype_id_10x"], "clonotype_id_10x")]
+  }
+
+  VDJ.GEX.matrix$clonotype_id <- VDJ.GEX.matrix$new_clonotype_id
+  VDJ.GEX.matrix$clonotype_frequency <- VDJ.GEX.matrix$new_clonal_frequency
+
 
   if(!global.clonotype){
     if(any(stringr::str_detect(names(VDJ.GEX.matrix), paste0("clonotype_id_",clone.strategy.as.input)))){
