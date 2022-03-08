@@ -143,8 +143,9 @@ VDJ_GEX_overlay_clones <- function(GEX,
     for(i in 1:length(track_cl_to_plot)){
       to_highlight_list[[i]] <- SeuratObject::WhichCells(GEX, ident =  track_cl_to_plot[i])
     }
+    to_highlight_list <- rev(to_highlight_list) #reversing it to keep plotting order as orders of selected clones
 
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "" ) + scale_color_manual(values = c(others.color, clone.colors), labels = c("Not selected", track_cl_to_plot))
 
     #dimplot with cols + grey30 to color in the non selected clones
     #out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors, others.color), shuffle = F, order = c("Not selected","selected"), pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")

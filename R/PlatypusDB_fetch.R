@@ -81,15 +81,15 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   }
   if(save.to.disk == F & missing(path.to.save)){
     path.to.save <- "none"}
-  #making sure we have a / at the end of the path
-  if(substr(path.to.save, nchar(path.to.save), nchar(path.to.save)) != "/"){
-    path.to.save <- paste0(path.to.save, "/")
-  }
 
   if(save.to.disk == T){
     combine.objects <- F
     load.to.list <- F
     load.to.enviroment <- F
+    #making sure we have a / at the end of the path
+    if(substr(path.to.save, nchar(path.to.save), nchar(path.to.save)) != "/"){
+      path.to.save <- paste0(path.to.save, "/")
+    }
   }
 
   for(i in 1:length(PlatypusDB.links)){
