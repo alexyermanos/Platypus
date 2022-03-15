@@ -93,7 +93,7 @@ The name of the column containing the metric has to be declared via the input me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -105,6 +105,9 @@ The name of the column containing the metric has to be declared via the input me
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -113,19 +116,59 @@ The name of the column containing the metric has to be declared via the input me
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -209,7 +252,8 @@ The name of the column containing the metric has to be declared via the input me
   <span class='va'>Enrichment.Plots</span>,
   <span class='va'>my.own.geneset</span>,
   <span class='va'>eps</span>,
-  <span class='va'>platypus.version</span>
+  <span class='va'>platypus.version</span>,
+  <span class='va'>verbose</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -255,6 +299,10 @@ The name of the column containing the metric has to be declared via the input me
       <th>platypus.version</th>
       <td><p>Function works with V2 and V3, no need to set this parameter.</p></td>
     </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Print run parameters and status to console</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -266,17 +314,17 @@ The name of the column containing the metric has to be declared via the input me
 <span class='r-in'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='GEX_cluster_genes.html'>GEX_cluster_genes</a></span><span class='op'>(</span><span class='va'>gex_combined</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'>#Using gmt file to perform gsea</span></span>
-<span class='r-in'><span class='va'>output</span> <span class='op'>&lt;-</span> <span class='fu'>GEX_GSEA</span><span class='op'>(</span>GEX.cluster.genes.output <span class='op'>=</span>  <span class='va'>df</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, MT.Rb.filter <span class='op'>=</span> <span class='cn'>T</span></span>
+<span class='r-in'><span class='va'>output</span> <span class='op'>&lt;-</span> <span class='fu'>GEX_GSEA</span><span class='op'>(</span>GEX.cluster.genes.output <span class='op'>=</span>  <span class='va'>df</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, MT.Rb.filter <span class='op'>=</span> <span class='cn'>TRUE</span></span>
 <span class='r-in'>, path.to.pathways <span class='op'>=</span> <span class='st'>"./c5.go.bp.v7.2.symbols.gmt"</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'>cowplot</span><span class='fu'>::</span><span class='fu'><a href='https://wilkelab.org/cowplot/reference/plot_grid.html'>plot_grid</a></span><span class='op'>(</span>plotlist<span class='op'>=</span><span class='va'>output</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span>, ncol<span class='op'>=</span><span class='fl'>2</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/View.html'>View</a></span><span class='op'>(</span><span class='va'>gex_gsea</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'>#Directly downloading gene set collection from MSigDB to perform gsea</span></span>
-<span class='r-in'><span class='va'>output</span> <span class='op'>&lt;-</span> <span class='fu'>GEX_GSEA</span><span class='op'>(</span>GEX.cluster.genes.output <span class='op'>=</span>  <span class='va'>df</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, MT.Rb.filter <span class='op'>=</span> <span class='cn'>T</span></span>
+<span class='r-in'><span class='va'>output</span> <span class='op'>&lt;-</span> <span class='fu'>GEX_GSEA</span><span class='op'>(</span>GEX.cluster.genes.output <span class='op'>=</span>  <span class='va'>df</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, MT.Rb.filter <span class='op'>=</span> <span class='cn'>TRUE</span></span>
 <span class='r-in'>, path.to.pathways <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Mus musculus"</span>, <span class='st'>"C7"</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'>#Using your own gene list to perform gsea</span></span>
-<span class='r-in'><span class='va'>output</span> <span class='op'>&lt;-</span> <span class='fu'>GEX_GSEA</span><span class='op'>(</span>GEX.cluster.genes.output <span class='op'>=</span>  <span class='va'>df</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, MT.Rb.filter <span class='op'>=</span> <span class='cn'>T</span></span>
+<span class='r-in'><span class='va'>output</span> <span class='op'>&lt;-</span> <span class='fu'>GEX_GSEA</span><span class='op'>(</span>GEX.cluster.genes.output <span class='op'>=</span>  <span class='va'>df</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, MT.Rb.filter <span class='op'>=</span> <span class='cn'>TRUE</span></span>
 <span class='r-in'>, my.own.geneset <span class='op'>=</span> <span class='va'>my_geneset</span><span class='op'>)</span></span>
 <span class='r-in'><span class='op'>}</span></span>
 </code></pre></div>

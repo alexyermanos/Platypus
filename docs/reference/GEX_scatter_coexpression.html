@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -107,19 +110,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -214,16 +257,14 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Returns a gridplot showing coexpression of gene.1 and gene.2</p>
+    <p>Returns a gridplot showing coexpression scatterplot as well as histograms of gene.1 and gene.2</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='va'>gene1</span> <span class='op'>&lt;-</span> <span class='st'>"BCL6"</span></span>
-<span class='r-in'><span class='va'>gene2</span> <span class='op'>&lt;-</span> <span class='st'>"CD40"</span></span>
-<span class='r-in'><span class='fu'>ggsave</span><span class='op'>(</span>filename <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"Coex_"</span>, <span class='va'>gene1</span>,<span class='st'>"_"</span>, <span class='va'>gene2</span>,<span class='st'>"_scat.png"</span><span class='op'>)</span>,</span>
-<span class='r-in'>plot <span class='op'>=</span> <span class='fu'>GEX_scatter_coexpression</span><span class='op'>(</span><span class='va'>VDJ_comb</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span>, <span class='va'>gene1</span>,<span class='va'>gene2</span><span class='op'>)</span>,</span>
-<span class='r-in'>dpi <span class='op'>=</span> <span class='fl'>300</span>, width <span class='op'>=</span> <span class='fl'>12</span>, height <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>gene1</span> <span class='op'>&lt;-</span> <span class='st'>"CD24A"</span></span>
+<span class='r-in'><span class='va'>gene2</span> <span class='op'>&lt;-</span> <span class='st'>"CD83"</span></span>
+<span class='r-in'><span class='fu'>GEX_scatter_coexpression</span><span class='op'>(</span>GEX <span class='op'>=</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span>, <span class='va'>gene1</span>,<span class='va'>gene2</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='GEX_scatter_coexpression-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
 </code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

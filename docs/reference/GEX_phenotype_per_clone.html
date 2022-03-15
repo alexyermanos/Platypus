@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -102,6 +102,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -110,19 +113,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -208,7 +251,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>GEX</th>
-      <td><p>For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.</p></td>
+      <td><p>For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output \[\[2\]\]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.</p></td>
     </tr>
     <tr>
       <th>clonotype.ids</th>
@@ -228,7 +271,7 @@
     </tr>
     <tr>
       <th>platypus.version</th>
-      <td><p>Set to either v2 or v3 automatically dependent on input format: v2 if clonotype.ids is provided and v3 if GEX.clonotypes is provided</p></td>
+      <td><p>Set to either "v2" or "v3" depending on wether suppyling GEX_automate or VDJ_GEX_matrix\[\[2\]\] objects. Defaults to "v3"</p></td>
     </tr>
     </table>
 
@@ -237,10 +280,20 @@
     <p>Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='fu'>GEX_phenotype_per_clone</span><span class='op'>(</span>seurat.object <span class='op'>=</span> <span class='va'>automate.gex.output</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span></span>
-<span class='r-in'>, clonotype.ids<span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>4</span>,<span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'>#For testing: only a single clonotype in two samples</span></span>
+<span class='r-in'><span class='va'>small_vgm_cl</span> <span class='op'>&lt;-</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span></span>
+<span class='r-in'><span class='va'>small_vgm_cl</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>clonotype_id_10x</span> <span class='op'>&lt;-</span> <span class='st'>"clonotype1"</span></span>
+<span class='r-in'><span class='fu'>GEX_phenotype_per_clone</span><span class='op'>(</span>GEX <span class='op'>=</span> <span class='va'>small_vgm_cl</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span></span>
+<span class='r-in'>, GEX.clonotypes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>, GEX.group.by <span class='op'>=</span> <span class='st'>"seurat_clusters"</span>, platypus.version <span class='op'>=</span> <span class='st'>"v3"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
+<span class='r-plt'><img src='GEX_phenotype_per_clone-1.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
+<span class='r-plt'><img src='GEX_phenotype_per_clone-2.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[3]]</span>
+<span class='r-plt'><img src='GEX_phenotype_per_clone-3.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
 <span class='r-in'></span>
 </code></pre></div>
   </div>

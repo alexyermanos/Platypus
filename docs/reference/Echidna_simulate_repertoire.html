@@ -8,6 +8,13 @@
 
 <title>Simulate immune repertoire and transcriptome data — Echidna_simulate_repertoire • Platypus</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -43,7 +50,7 @@
 <meta property="og:description" content="Simulate repertoire and transcriptome matrix, with igraph tree plot for each clone showing the evolution process. the node in the tree plot are colored with transcriptome state and isotype." />
 
 
-<meta name="robots" content="noindex">
+
 
 
 
@@ -80,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -92,6 +99,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -100,16 +110,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/platypusDB_for_curators.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
+    </li>
+    <li>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -270,7 +323,7 @@
     </tr>
     <tr>
       <th>cell.division.prob</th>
-      <td><p>Probability of cells to be duplicated in each time step. Default is 0.1. If uneven probability for different clones is needed, the input should be a vector of 2 numeric items, with the first item being the lower bound, the second item being the upper bound of the division rate. The most abundant clone will get the highest division rate, and division rate of other clones will follow arithmetic progression and keep decreasing until the last abundant clone with the lower limit of division rate. If input 3 values, the third value will be the division rate for cells with selected sequences. If a fourth number is given, the division probability of selected sequence will be sampled between the third unmber and the fourth number.</p></td>
+      <td><p>Probability of cells to be duplicated in each time step. Default is 0.1. If uneven probability for different clones is needed, the input should be a vector of 2 numeric items, with the first item being the lower bound, the second item being the upper bound of the division rate. The most abundant clone will get the highest division rate, and division rate of other clones will follow arithmetic progression and keep decreasing until the last abundant clone with the lower limit of division rate. If input 3 values, the third value will be the division rate for cells with selected sequences. If a fourth number is given, the division probability of selected sequence will be sampled between the third number and the fourth number.</p></td>
     </tr>
     <tr>
       <th>sequence.selection.prob</th>
@@ -302,11 +355,11 @@
     </tr>
     <tr>
       <th>SHM.isotype.dependent</th>
-      <td><p>If TRUE, somatic hupermutation of certain isotype will happen based on probability specified in dataframe "iso_SHM_prob".</p></td>
+      <td><p>If TRUE, somatic hypermutation of certain isotype will happen based on probability specified in dataframe "iso_SHM_prob".</p></td>
     </tr>
     <tr>
       <th>SHM.phenotype.dependent</th>
-      <td><p>If TRUE, somatic hupermutation of certain phenotype will happen based on probability specified in dataframe "pheno_SHM_prob".</p></td>
+      <td><p>If TRUE, somatic hypermutation of certain phenotype will happen based on probability specified in dataframe "pheno_SHM_prob".</p></td>
     </tr>
     <tr>
       <th>max.cell.number</th>
@@ -346,7 +399,7 @@
     </tr>
     <tr>
       <th>transcriptome.switch.selection.dependent</th>
-      <td><p>If TRUE, selected cells will undergo transcriptome state switching if their transciptome state is 1.</p></td>
+      <td><p>If TRUE, selected cells will undergo transcriptome state switching if their transcriptome state is 1.</p></td>
     </tr>
     <tr>
       <th>transcriptome.states</th>
@@ -364,7 +417,7 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list containing the VDJ sequence and coresponding transcriptome data: "all_contig_annotations", "clonotypes", "all_contig", "consensus","reference", "transcriptome","igraph_list","igraph_list_trans",Seq_Name","igraph.index.attr","history".</p>
+    <p>A list containing the VDJ sequence and corresponding transcriptome data: "all_contig_annotations", "clonotypes", "all_contig", "consensus","reference","reference_real", "transcriptome","igraph_list_iso","igraph_list_trans","Seq_Name","igraph.index.attr","history","igraph.index","selected.seq","version","parameters".</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -377,7 +430,7 @@
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by Alexander Yermanos, Chrysa Papadopoulou, Andreas Agrafiotis, Raphael Kuhn, Victor Kreiner, Damiano Robbiani, Josephine Yates, Jiami Han, Cédric Weber, Danielle Shlesinger, Raphael Dizerens.</p></p>
+  <p><p>Developed by Alexander Yermanos.</p></p>
 </div>
 
 <div class="pkgdown">

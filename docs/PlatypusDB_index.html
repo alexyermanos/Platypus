@@ -30,18 +30,6 @@
 -->
 <link href="css/dataTables.bootstrap.css" rel="stylesheet">
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-<style type="text/css">
-
-.btn{
-  background-color: #f04124;
-  border-color: #b8321c;
-}
-.btn:hover{
-  background-color: #bb1f1f;
-  border-color: #b8321c;
-}
-</style>
-
 
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -59,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="PlatypusDB_index.html">PlatypusDB</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.0.1</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.0</span>
       </span>
     </div>
 
@@ -82,19 +70,16 @@
 <!-- DB articles -->
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Examples
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="AgedCNS_vignette.html">AgedCNS</a>
+      <a href="articles/platypus_database.html">PlatypusDB quickstart</a>
     </li>
     <li>
-      <a href="Tnfr2_vignette.html">Tnfr2</a>
-    </li>
-    <li>
-      <a href="public_clone_vignette.html">Public IgMs</a>
+      <a href="vignette_index.html">See all Platypus vignettes</a>
     </li>
   </ul>
 </li>
@@ -175,10 +160,12 @@
 <script>
 
   function format_doi(link){
-    if (link)
-      return "<a href='https://doi.org/" + link + "' class='external-link uri'>" + link + "</a>";
-      else
+    if (link){
+      var clean_link = link.replace("doi.org/","");
+      return "<a href='https://doi.org/" + clean_link + "' class='external-link uri'>" + clean_link + "</a>";
+      } else {
       return "";
+    }
   }
       function format_authors(link){
     if (link) {
@@ -204,7 +191,7 @@
     element: 'table-container', 
     allow_download: true,
     csv_options: {separator: ',', delimiter: '"'},
-    datatables_options: {"paging": false}, //{"aoColumns": [{ sWidth: '7%' }, { sWidth: '18%' }, { sWidth: '9%'},{ sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '17%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '8%' }]},
+    datatables_options: {"paging": false}, //{"aoColumns": [{ sWidth: '7%' }, { sWidth: '28%' }, { sWidth: '9%'},{ sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '8%' }]},
     custom_formatting: [[5, format_authors],[6, format_doi],[9, format_link],[10, format_link]]
   });
 </script>

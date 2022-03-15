@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -107,19 +110,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -234,10 +277,59 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A nested list with out[[i]][[1]] being plots and out[[i]][[2]] being DEG dataframes.</p>
+    <p>A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"></div>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'>GEX_pairwise_DEGs</span><span class='op'>(</span>GEX <span class='op'>=</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span>,group.by <span class='op'>=</span> <span class='st'>"sample_id"</span></span>
+<span class='r-in'>,min.pct <span class='op'>=</span> <span class='fl'>0.25</span>,RP.MT.filter <span class='op'>=</span> <span class='cn'>TRUE</span>,label.n.top.genes <span class='op'>=</span> <span class='fl'>2</span>,genes.to.label <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"CD24A"</span><span class='op'>)</span></span>
+<span class='r-in'>,save.plot <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Calculating pairwise DEGs 1 of 3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] s1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: s3 &lt; s2 &lt; s1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] s2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: s1 &lt; s2 &lt; s3</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Calculating pairwise DEGs 2 of 3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] s1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: s3 &lt; s2 &lt; s1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] s3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: s1 &lt; s2 &lt; s3</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Calculating pairwise DEGs 3 of 3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] s2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: s3 &lt; s2 &lt; s1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] s3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: s1 &lt; s2 &lt; s3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]][[1]]</span>
+<span class='r-plt'><img src='GEX_pairwise_DEGs-1.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]][[2]]</span>
+<span class='r-plt'><img src='GEX_pairwise_DEGs-2.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]][[3]]</span>
+<span class='r-plt'><img src='GEX_pairwise_DEGs-3.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]][[1]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>           p_val avg_log2FC pct.1 pct.2 p_val_adj  gene</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD83  0.1723594 -1.0511537 0.714 0.833 0.5170782  CD83</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD24A 0.3930155 -0.8896529 0.429 0.500 1.0000000 CD24A</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD19  0.6151259 -0.3196211 0.714 0.833 1.0000000  CD19</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]][[2]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>           p_val avg_log2FC pct.1 pct.2 p_val_adj  gene</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD24A 0.0570895  1.2947904 0.429 0.000 0.1712685 CD24A</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD19  0.4436571 -0.5756002 0.714 0.625 1.0000000  CD19</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]][[3]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>           p_val avg_log2FC pct.1 pct.2 p_val_adj  gene</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD24A 0.0388448  2.1844434 0.500 0.000 0.1165344 CD24A</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD83  0.1733424  1.1785108 0.833 0.750 0.5200272  CD83</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD19  0.6015535 -0.2559791 0.833 0.625 1.0000000  CD19</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

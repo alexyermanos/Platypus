@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -107,19 +110,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -203,7 +246,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>PlatypusDB.links</th>
-      <td><p>Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "%Project id%/%sample_id%/%filetype%". Any of the three can be "ALL", to download all files fitting the other link elements. If %filetype% is gexVGM, vdjVGM or metadata, %sample_id% needs to be "ALL", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path</p></td>
+      <td><p>Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "%Project id%/%sample_id%/%filetype%". Any of the three can be "ALL", to download all files fitting the other link elements. If %filetype% is gexVGM, vdjVGM or metadata, %sample_id% needs to be "ALL", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For sample_id entries the the metadata table for a given project via the function PlatypusDB_list_projects()</p></td>
     </tr>
     <tr>
       <th>save.to.disk</th>
@@ -229,10 +272,57 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of R objects if load.as.object == T or nothing if load.as.object == F</p>
+    <p>A list of loaded project files as R objects if load.to.list = T or a name of these object loaded to the enviroment if load.to.enviroment = T.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"></div>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Get a list of available projects by name</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='fu'><a href='PlatypusDB_list_projects.html'>PlatypusDB_list_projects</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Load the VDJ_GEX_matrix of a project as an object and</span></span>
+<span class='r-in'><span class='co'>#also save it to disk for later.</span></span>
+<span class='r-in'><span class='co'>#This will download the VDJ and GEX part of the VDJ_GEX_matrix and combine</span></span>
+<span class='r-in'><span class='fu'>PlatypusDB_fetch</span><span class='op'>(</span>PlatypusDB.links <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Kuhn2021a//ALL"</span><span class='op'>)</span></span>
+<span class='r-in'>,save.to.disk <span class='op'>=</span> <span class='cn'>FALSE</span>,load.to.enviroment <span class='op'>=</span> <span class='cn'>TRUE</span>, load.to.list <span class='op'>=</span> <span class='cn'>FALSE</span></span>
+<span class='r-in'>, combine.object <span class='op'>=</span> <span class='cn'>TRUE</span>,path.to.save <span class='op'>=</span> <span class='st'>"/Downloads"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Load VDJ dataframe of the VDJ GEX matrix for all samples of one project</span></span>
+<span class='r-in'><span class='va'>loaded_list</span> <span class='op'>&lt;-</span> <span class='fu'>PlatypusDB_fetch</span><span class='op'>(</span>PlatypusDB.links <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Kuhn2021a//VDJmatrix"</span><span class='op'>)</span></span>
+<span class='r-in'>,save.to.disk <span class='op'>=</span> <span class='cn'>FALSE</span>,load.to.enviroment <span class='op'>=</span> <span class='cn'>FALSE</span>, load.to.list <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Load the VDJ and GEX RData of 2 samples from</span></span>
+<span class='r-in'><span class='co'>#2 different projects which can be directly passed</span></span>
+<span class='r-in'><span class='co'>#on to the VDJ_GEX_matrix function to integrate</span></span>
+<span class='r-in'><span class='co'>#downloaded_objects &lt;- PlatypusDB_fetch(</span></span>
+<span class='r-in'><span class='co'>#PlatypusDB.links = c("Project1/s1/ALL", "Project1/s2/ALL")</span></span>
+<span class='r-in'><span class='co'>#,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE</span></span>
+<span class='r-in'><span class='co'>#, combine.objects = TRUE)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#integrated_samples &lt;- VDJ_GEX_matrix_DB(data.in = downloaded_objects)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Download metadata objects for projects</span></span>
+<span class='r-in'><span class='va'>list_of_metadata_tables</span> <span class='op'>&lt;-</span> <span class='fu'>PlatypusDB_fetch</span><span class='op'>(</span></span>
+<span class='r-in'>PlatypusDB.links <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Kuhn2021a//metadata"</span><span class='op'>)</span></span>
+<span class='r-in'>,save.to.disk <span class='op'>=</span> <span class='cn'>FALSE</span>,load.to.enviroment <span class='op'>=</span> <span class='cn'>FALSE</span>, load.to.list <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Dowload of airr_rearrangement.tsv</span></span>
+<span class='r-in'><span class='co'>#Load VDJ.RData into a list</span></span>
+<span class='r-in'><span class='co'>#downloaded_objects &lt;- PlatypusDB_fetch(</span></span>
+<span class='r-in'><span class='co'>#PlatypusDB.links = c("Project1/ALL/VDJ.RData"),save.to.disk = FALSE</span></span>
+<span class='r-in'><span class='co'>#,load.to.enviroment = FALSE, load.to.list = TRUE)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Extract airr_rearrangement table for sample 1</span></span>
+<span class='r-in'><span class='co'>#airr_rearrangement &lt;- downloaded_objects[[1]][[1]][[6]]</span></span>
+<span class='r-in'><span class='co'>#Index hierarchy: Sample, VDJ or GEX, VDJ element</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Save for import to AIRR compatible pipeline</span></span>
+<span class='r-in'><span class='co'>#write.table(airr_rearrangement, file = "airr_rearrangement_s1.tsv", sep='\t',</span></span>
+<span class='r-in'><span class='co'>#row.names = FALSE, quote=FALSE)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -86,7 +86,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -98,6 +98,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -106,19 +109,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -352,6 +395,12 @@ A vector of characters specifying colors used in igraph phylogenetic tree. Defau
       </tr><tr>
         
         <td>
+          <p><code><a href="Echidna_simulate_repertoire.html">Echidna_simulate_repertoire()</a></code> </p>
+        </td>
+        <td><p>Simulate immune repertoire and transcriptome data</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="Echidna_vae_generate.html">Echidna_vae_generate()</a></code> </p>
         </td>
         <td><p>Simulate B or T cell receptor sequences by variational autoencodes(VAEs) trained with experimental data.</p></td>
@@ -402,7 +451,7 @@ A vector of characters specifying colors used in igraph phylogenetic tree. Defau
         <td>
           <p><code><a href="get.umap.html">get.umap()</a></code> </p>
         </td>
-        <td><p>Further process the the seurat object from simulated transciptome output and make UMAP ready for plotting.</p></td>
+        <td><p>Further process the seurat object from simulated transciptome output and make UMAP ready for plotting.</p></td>
       </tr><tr>
         
         <td>
@@ -420,7 +469,7 @@ A vector of characters specifying colors used in igraph phylogenetic tree. Defau
         <td>
           <p><code><a href="GEX_clonotype.html">GEX_clonotype()</a></code> </p>
         </td>
-        <td><p>Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.</p></td>
+        <td><p>Platypus V2: Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.</p></td>
       </tr><tr>
         
         <td>
@@ -444,7 +493,7 @@ A vector of characters specifying colors used in igraph phylogenetic tree. Defau
         <td>
           <p><code><a href="GEX_coexpression_coefficient.html">GEX_coexpression_coefficient()</a></code> </p>
         </td>
-        <td><p>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.</p></td>
+        <td><p>Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression % is calculated as the quotient of double positive cells (counts \&gt; 0) and the sum of total cells positive for either genes.</p></td>
       </tr><tr>
         
         <td>
@@ -482,7 +531,7 @@ The name of the column containing the metric has to be declared via the input me
         <td>
           <p><code><a href="GEX_heatmap.html">GEX_heatmap()</a></code> </p>
         </td>
-        <td><p>Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by premade sets of B or T cell markers, or can be customly supplied by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.</p></td>
+        <td><p>Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by pre-made sets of B or T cell markers, or can be customized by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.</p></td>
       </tr><tr>
         
         <td>
@@ -640,7 +689,7 @@ A probability dataframe specifying SHM.nuc.prob for cells of different phenotype
         <td>
           <p><code><a href="PlatypusDB_AIRR_to_VGM.html">PlatypusDB_AIRR_to_VGM()</a></code> </p>
         </td>
-        <td><p>Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format. All compulsory AIRR data columns are needed. Additionally, the following columns are required: c_call, cell_id, clone_id. If trim.and.align is set to TRUE additionally the following columns are needed: v_sequence_start, j_sequence_end.</p></td>
+        <td><p>Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format.</p></td>
       </tr><tr>
         
         <td>
@@ -652,13 +701,13 @@ A probability dataframe specifying SHM.nuc.prob for cells of different phenotype
         <td>
           <p><code><a href="PlatypusDB_find_CDR3s.html">PlatypusDB_find_CDR3s()</a></code> </p>
         </td>
-        <td><p>Loads and saves RData objects from the PlatypusDB</p></td>
+        <td><p>Queries for the occurrence of CDR3 sequences in public datasets on PlatypusDB.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="PlatypusDB_list_projects.html">PlatypusDB_list_projects()</a></code> </p>
         </td>
-        <td><p>Loads and saves RData objects from the PlatypusDB</p></td>
+        <td><p>Lists metadata tables of available projects on PlatypusDB</p></td>
       </tr><tr>
         
         <td>
@@ -674,15 +723,15 @@ A probability dataframe specifying SHM.nuc.prob for cells of different phenotype
       </tr><tr>
         
         <td>
-          <p><code><a href="select.top.html">select.top()</a></code> </p>
+          <p><code><a href="select.top.clone.html">select.top.clone()</a></code> </p>
         </td>
         <td><p>Get the index of top ranking clones.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="simulate_repertoire.html">simulate_repertoire()</a></code> </p>
+          <p><code><a href="small_vgm.html">small_vgm</a></code> </p>
         </td>
-        <td><p>Simulate immune repertoire and transcriptome data</p></td>
+        <td><p>Small VDJ GEX matrix (VGM) for function testing purposes</p></td>
       </tr><tr>
         
         <td>
@@ -713,27 +762,45 @@ The probability for T cell transcriptome states switching. The row names of the 
       </tr><tr>
         
         <td>
+          <p><code><a href="VDJ_abundances.html">VDJ_abundances()</a></code> </p>
+        </td>
+        <td><p>Calculate abundances/counts of specific features for a VDJ dataframe</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="VDJ_alpha_beta_Vgene_circos.html">VDJ_alpha_beta_Vgene_circos()</a></code> </p>
         </td>
-        <td><p>Makes a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.</p></td>
+        <td><p>Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_analyze.html">VDJ_analyze()</a></code> </p>
         </td>
-        <td><p>Processes and organizes the repertoire sequening data from cellranger vdj and returns a list of dataframes, where each dataframe corresponds to an individual repertoire. The function will return split CDR3 sequences, germline gene information, filter out those clones with either incomplete information or doublets (multiple CDR3 sequences for a given chain). This function should be called once for desired integrated repertoire and transcriptome. For example, if there are 3 VDJ libraries and 3 GEX libraries and the goal is to analyze all three GEX libraries together (e.g. one UMAP/tSNE reduction) this then function should be called one time and the three VDJ directories should be provided as input to the single function call.</p></td>
+        <td><p>Platypus V2 Processes and organizes the repertoire sequening data from cellranger vdj and returns a list of dataframes, where each dataframe corresponds to an individual repertoire. The function will return split CDR3 sequences, germline gene information, filter out those clones with either incomplete information or doublets (multiple CDR3 sequences for a given chain). This function should be called once for desired integrated repertoire and transcriptome. For example, if there are 3 VDJ libraries and 3 GEX libraries and the goal is to analyze all three GEX libraries together (e.g. one UMAP/tSNE reduction) this then function should be called one time and the three VDJ directories should be provided as input to the single function call.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_antigen_integrate.html">VDJ_antigen_integrate()</a></code> </p>
+        </td>
+        <td><p>Integrates antigen-specific information into the VDJ/VDJ.GEX.matrix[[1]] object</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_assemble_for_PnP.html">VDJ_assemble_for_PnP()</a></code> </p>
         </td>
-        <td><p>Assembles sequences from MIXCR output into inserts for expression in PnP cells. ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks</p></td>
+        <td><p>Assembles sequences from MIXCR output into inserts for expression in PnP cells. For detailes check https://doi.org/10.1038/ncomms12535 ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING SEQUENCES FOR EXPRESSION ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_call_MIXCR.html">VDJ_call_MIXCR()</a></code> </p>
         </td>
         <td><p>Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_call_recon.html">VDJ_call_recon()</a></code> </p>
+        </td>
+        <td><p>Calls the Kaplinsky/RECON tool</p></td>
       </tr><tr>
         
         <td>
@@ -751,19 +818,25 @@ The probability for T cell transcriptome states switching. The row names of the 
         <td>
           <p><code><a href="VDJ_clonal_expansion.html">VDJ_clonal_expansion()</a></code> </p>
         </td>
-        <td><p>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.</p></td>
+        <td><p>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_clonal_expansion_abundances.html">VDJ_clonal_expansion_abundances()</a></code> </p>
+        </td>
+        <td><p>Wrapper function for VDJ_abundances to obtain ranked clonotype barplots</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_clonal_lineages.html">VDJ_clonal_lineages()</a></code> </p>
         </td>
-        <td><p>Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.</p></td>
+        <td><p>Only Platypus V2 Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_clonotype.html">VDJ_clonotype()</a></code> </p>
         </td>
-        <td><p>Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.</p></td>
+        <td><p>Deprecated function for Platypus V2 with options for Platypus V3. For revised hierarchical clonotyping please use VDJ_clonotype_v3() Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.</p></td>
       </tr><tr>
         
         <td>
@@ -773,9 +846,27 @@ The probability for T cell transcriptome states switching. The row names of the 
       </tr><tr>
         
         <td>
+          <p><code><a href="VDJ_clonotype_v3.html">VDJ_clonotype_v3()</a></code> </p>
+        </td>
+        <td><p>Updated clonotyping function based on implications for cells with different chain numbers than 1 VDJ 1 VJ chains.</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="VDJ_contigs_to_vgm.html">VDJ_contigs_to_vgm()</a></code> </p>
         </td>
         <td><p>Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_db_annotate.html">VDJ_db_annotate()</a></code> </p>
+        </td>
+        <td><p>Wrapper function of VDJ_antigen_integrate function</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_db_load.html">VDJ_db_load()</a></code> </p>
+        </td>
+        <td><p>Load and preprocess a list of antigen-specific databases</p></td>
       </tr><tr>
         
         <td>
@@ -787,50 +878,55 @@ The probability for T cell transcriptome states switching. The row names of the 
         <td>
           <p><code><a href="VDJ_dublets.html">VDJ_dublets()</a></code> </p>
         </td>
-        <td><p>Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).</p></td>
+        <td><p>Only Platypus v2 Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_dynamics.html">VDJ_dynamics()</a></code> </p>
+        </td>
+        <td><p>Tracks a specific VDJ column across multiple samples/timepoints.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_expand_aberrants.html">VDJ_expand_aberrants()</a></code> </p>
+        </td>
+        <td><p>Expand the aberrant cells in a VDJ dataframe by converting them into additional rows</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_extract_germline.html">VDJ_extract_germline()</a></code> </p>
         </td>
-        <td><p>Extracts the full-length germline sequence as determined by cellranger. This function returns an object that now contains the reference germline for each of the clones. If multiple clones (as determined by cellranger) have been merged using the VDJ_clonotype function then these sequences may have distinct germline sequences despite being in the same clonal family (nested list). This is particularly possible when homology thresholds were used to determine the clonotypes.</p></td>
+        <td><p>Only Platypus v2 Extracts the full-length germline sequence as determined by cellranger. This function returns an object that now contains the reference germline for each of the clones. If multiple clones (as determined by cellranger) have been merged using the VDJ_clonotype function then these sequences may have distinct germline sequences despite being in the same clonal family (nested list). This is particularly possible when homology thresholds were used to determine the clonotypes.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_get_public.html">VDJ_get_public()</a></code> </p>
+        </td>
+        <td><p>Function to get shared/public elements across multiple repertoires</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_GEX_clonal_lineage_clusters.html">VDJ_GEX_clonal_lineage_clusters()</a></code> </p>
         </td>
-        <td><p>Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="VDJ_GEX_clonotyme.html">VDJ_GEX_clonotyme()</a></code> </p>
-        </td>
-        <td><p>Pseudotime analysis for scRNA and repertoire sequencing datasets</p></td>
+        <td><p>only Platypus v2 Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_GEX_expansion.html">VDJ_GEX_expansion()</a></code> </p>
         </td>
-        <td><p>Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object. Output will plot which transcriptional cluster (GEX) that the cells of a given clonotype are found in.</p></td>
+        <td><p>only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object. Output will plot which transcriptional cluster (GEX) that the cells of a given clonotype are found in.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_GEX_integrate.html">VDJ_GEX_integrate()</a></code> </p>
         </td>
-        <td><p>Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.</p></td>
+        <td><p>only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_GEX_matrix.html">VDJ_GEX_matrix()</a></code> </p>
         </td>
         <td><p>Processes both raw VDJ and GEX Cellranger output to compile a single cell level table containing all available information for each cell. If using Feature Barcodes please note the [FB] paragraph in the description and all "FB." parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="VDJ_GEX_matrix_deprecated.html">VDJ_GEX_matrix_deprecated()</a></code> </p>
-        </td>
-        <td><p>DEPRECATED ! PLEASE USE VDJ_GEX_matrix function in the same folder featuring feature barcode compatibility !
-Processes both raw VDJ and GEX Cellranger output to compile a single cell level table containing all available information for each cell.</p></td>
       </tr><tr>
         
         <td>
@@ -848,7 +944,7 @@ Processes both raw VDJ and GEX Cellranger output to compile a single cell level 
         <td>
           <p><code><a href="VDJ_isotypes_per_clone.html">VDJ_isotypes_per_clone()</a></code> </p>
         </td>
-        <td><p>Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion</p></td>
+        <td><p>Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion</p></td>
       </tr><tr>
         
         <td>
@@ -865,12 +961,6 @@ A list dataframe specifying lengths and probabilities of bases deleted or insert
 <dt>vj_insertion</dt><dd><p>length and probability of inserted bases between V-J segment for light or alpha chains</p></dd>
 
 </dl></p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="VDJ_logoplot.html">VDJ_logoplot()</a></code> </p>
-        </td>
-        <td><p>Plots a logoplot of the CDR3 aminoacid region ! For platypus v3 and more flexibility use VDJ_logoplot_vector</p></td>
       </tr><tr>
         
         <td>
@@ -898,6 +988,18 @@ A list dataframe specifying lengths and probabilities of bases deleted or insert
       </tr><tr>
         
         <td>
+          <p><code><a href="VDJ_phylogenetic_trees.html">VDJ_phylogenetic_trees()</a></code> </p>
+        </td>
+        <td><p>Creates phylogenetic trees from a VDJ dataframe</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VDJ_phylogenetic_trees_plot.html">VDJ_phylogenetic_trees_plot()</a></code> </p>
+        </td>
+        <td><p>Function to plot phylogenetic trees obtained from VDJ_phylogenetic_trees</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="VDJ_plot_SHM.html">VDJ_plot_SHM()</a></code> </p>
         </td>
         <td><p>Plots for SHM based on MIXCR output generated using the VDJ_call_MIXCR function and appended to the VDJ.GEX.matrix.output</p></td>
@@ -906,13 +1008,13 @@ A list dataframe specifying lengths and probabilities of bases deleted or insert
         <td>
           <p><code><a href="VDJ_reclonotype_list_arrange.html">VDJ_reclonotype_list_arrange()</a></code> </p>
         </td>
-        <td><p>Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.</p></td>
+        <td><p>Only Platypus v2 Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="VDJ_tree.html">VDJ_tree()</a></code> </p>
         </td>
-        <td><p>Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages</p></td>
+        <td><p>only Platypus v2 Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages</p></td>
       </tr><tr>
         
         <td>
@@ -943,6 +1045,24 @@ A list dataframe specifying lengths and probabilities of bases deleted or insert
           <p><code><a href="VDJ_VJ_usage_circos.html">VDJ_VJ_usage_circos()</a></code> </p>
         </td>
         <td><p>Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VGM_expanded_clones.html">VGM_expanded_clones()</a></code> </p>
+        </td>
+        <td><p>Adds discrete columns containing TRUE / FALSE on whether a given cell is part of a expanded or not-expanded clonotype. Threshold frequency can be set.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VGM_expand_featurebarcodes.html">VGM_expand_featurebarcodes()</a></code> </p>
+        </td>
+        <td><p>Replaces the original sample_id column of a vgm object with a pasted version of the original sample_id and the last digits of the feature barcode.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VGM_integrate.html">VGM_integrate()</a></code> </p>
+        </td>
+        <td><p>(Re)-intergrated VDJ and GEX of one or two separate VGM objects. This can be used as a simple "updating" utility function, if metadata has been added to the VDJ dataframe and is also needed in the GEX matrix or the reverse. Entries are integrated by barcode. If barcodes have been altered (barcode column in VDJ and cell names in GEX), the function will not yield results</p></td>
       </tr>
     </tbody>
     </table>

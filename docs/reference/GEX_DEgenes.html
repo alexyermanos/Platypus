@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -107,19 +110,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -206,8 +249,7 @@
   <span class='va'>down.genes</span>,
   <span class='va'>base</span>,
   <span class='va'>label.n.top.genes</span>,
-  <span class='va'>genes.to.label</span>,
-  <span class='va'>platypus.version</span>
+  <span class='va'>genes.to.label</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -243,7 +285,7 @@
     </tr>
     <tr>
       <th>return.plot</th>
-      <td><p>Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none</p></td>
+      <td><p>Character specifying if a "heatmap", or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none</p></td>
     </tr>
     <tr>
       <th>logFC</th>
@@ -281,18 +323,49 @@
       <th>genes.to.label</th>
       <td><p>FOR VOLCANO Character vector of genes to label irregardless of their p value.</p></td>
     </tr>
-    <tr>
-      <th>platypus.version</th>
-      <td><p>Function works with V2 and V3, no need to set this parameter</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.</p>
+    <p>Returns a list with out[[1]] = a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups. out[[2]] = either a "heatmap" (set return.plot accordingly), or "volcano" plot</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"></div>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'>#Basic run between two samples</span></span>
+<span class='r-in'><span class='fu'>GEX_DEgenes</span><span class='op'>(</span>GEX <span class='op'>=</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span>,min.pct <span class='op'>=</span> <span class='fl'>.25</span>,</span>
+<span class='r-in'>group1 <span class='op'>=</span> <span class='st'>"s1"</span>,group2 <span class='op'>=</span> <span class='st'>"s2"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>           p_val  avg_logFC pct.1 pct.2 p_val_adj SYMBOL signif_pval</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD83  0.1723594 -1.0511537 0.714 0.833 0.5170782   CD83       FALSE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD24A 0.3930155 -0.8896529 0.429 0.500 1.0000000  CD24A       FALSE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD19  0.6151259 -0.3196211 0.714 0.833 1.0000000   CD19       FALSE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>       signif_logfc color_threshold</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD83          TRUE           FALSE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD24A         TRUE           FALSE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CD19          TRUE           FALSE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> NULL</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Getting DEGs between two seurat clusters</span></span>
+<span class='r-in'><span class='co'>#GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,</span></span>
+<span class='r-in'><span class='co'>#grouping.column = "seurat_clusters",group1 = "0",group2 = "1")</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Plotting a heatmap by foldchange of sample markers</span></span>
+<span class='r-in'><span class='co'>#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]</span></span>
+<span class='r-in'><span class='co'>#,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"</span></span>
+<span class='r-in'><span class='co'>#, up.genes = 10, down.genes = 10, logFC = TRUE)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Plotting volcano by p value of sample markers. Label additional genes of interest</span></span>
+<span class='r-in'><span class='co'>#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25</span></span>
+<span class='r-in'><span class='co'>#,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE</span></span>
+<span class='r-in'><span class='co'>#, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#Generate a heatmap from an already existing FindMarkers output</span></span>
+<span class='r-in'><span class='co'>#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]</span></span>
+<span class='r-in'><span class='co'>#, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"</span></span>
+<span class='r-in'><span class='co'>#, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
