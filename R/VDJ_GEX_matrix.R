@@ -7,6 +7,7 @@
 #'@param FB.out.directory.list [FB] List of paths pointing at the outs/ directory of output from the Cellranger counts function which contain Feature barcode counts. ! Single list elements can be a path or "PLACEHOLDER", if the corresponding input in the VDJ or GEX path does not have any adjunct FB data. This is only the case when integrating two datasets of which only one has FB data. See examples for details. Any input will overwrite potential FB data loaded from the GEX input directories. This may be important, if wanting to input unfiltered FB data that will cover also cells in VDJ not present in GEX.
 #'@param Data.in Input for R objects from either the PlatypusDB_load_from_disk or the PlatypusDB_fetch function. If provided, input directories should not be specified. If you wish to integrate local and downloaded data, please load them via load_from_disk and fetch and provide as a list (e.g. Data.in = list(load_from_disk.output, fetch.output))
 #'@param Seurat.in Alternative to GEX.out.directory.list. A seurat object. VDJ.integrate has to be set to TRUE. In metadata the column of the seurat object, sample_id and group_id must be present. sample_id must contain ids in the format "s1", "s2" ... "sn" and must be matching the order of VDJ.out.directory.list. No processing (i.e. data normalisation and integration) will be performed on these objects. They will be returned as part of the VGM and with additional VDJ data if integrate.VDJ.to.GEX = T. Filtering parameters such as overlapping barcodes, exclude.GEX.not.in.VDJ and exclude.on.cell.state.markers will be applied to the Seurat.in GEX object(s).
+#' @param GEX.read.h5 Boolean. defaults to FALSE. Whether to read GEX data from an H5 file. If set to true, please provide the each directory containing a cellranger H5 output file or a direct path to a filtered_feature_bc_matrix.h5 as one GEX.out.directory.list element.
 #'@param VDJ.combine Boolean. Defaults to TRUE. Whether to integrate repertoires. A sample identifier will be appended to each barcode both in GEX as well as in VDJ. Recommended for all later functions
 #'@param GEX.integrate Boolean. Defaults to TRUE. Whether to integrate GEX data. Default settings use the seurat scale.data option to integrate datasets. Sample identifiers will be appended to each barcode both in GEX and VDJ This is helpful when analysing different samples from the same organ or tissue, while it may be problematic when analysing different tissues.
 #'@param integrate.GEX.to.VDJ Boolean. defaults to TRUE. Whether to integrate GEX metadata (not raw counts) into the VDJ output dataframe ! Only possible, if GEX.integrate and VDJ.combine are either both FALSE or both TRUE
@@ -125,6 +126,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            FB.out.directory.list,
                            Data.in,
                            Seurat.in,
+                           GEX.read.h5,
                            VDJ.combine,
                            GEX.integrate,
                            integrate.GEX.to.VDJ,
@@ -304,6 +306,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   if(missing(GEX.out.directory.list)) GEX.out.directory.list <- "none"
+  if(missing(GEX.read.h5)) GEX.read.h5 <- FALSE
   if(missing(VDJ.out.directory.list)) VDJ.out.directory.list <- "none"
   if(missing(FB.out.directory.list)) FB.out.directory.list <- "none"
   #In case someone thinks that they have to provide placeholders always when FB information is not there
@@ -364,6 +367,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   params <- c("sample.path.vdj" = paste0(samples.paths.VDJ, collapse = " / "),
               "samples.paths.GEX" = paste0(samples.paths.GEX, collapse = " / "),
               "FB.out.directory.list" = paste0(FB.out.directory.list, collapse = " / "),
+              "GEX.read.h5" = GEX.read.h5,
               "VDJ.combine" = VDJ.combine,
               "GEX.integrate" = GEX.integrate,
               "integrate.GEX.to.VDJ" = integrate.GEX.to.VDJ,
@@ -1436,24 +1440,50 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     gex_load_error <- tryCatch({suppressWarnings({
       #add the directory identifier
 
-      if(stringr::str_detect(GEX.out.directory.list[[1]], "filtered_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]], "raw_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]], "sample_feature_bc_matrix")){
+      if (!GEX.read.h5 & (stringr::str_detect(GEX.out.directory.list[[1]],"filtered_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]],"raw_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]],"sample_feature_bc_matrix"))) {
         #Nothing to append
         GEX.out.directory.list.p <- GEX.out.directory.list
-      } else{
+      } else {  #checking only for first path assuming that all sample inputs are processed with the same cellranger function
+          if (!GEX.read.h5 & dir.exists(paste(GEX.out.directory.list[[1]],
+                                          "/filtered_feature_bc_matrix", sep = ""))) {
+            GEX.out.directory.list.p <- paste(GEX.out.directory.list,
+                                              "/filtered_feature_bc_matrix", sep = "")
+            cat("Setting GEX directory to provided path/filtered_feature_bc_matrix \n")
+          }
+          else if (!GEX.read.h5 & dir.exists(paste(GEX.out.directory.list[[1]],
+                                               "/sample_feature_bc_matrix", sep = ""))) {
+            GEX.out.directory.list.p <- paste(GEX.out.directory.list,
+                                              "/sample_feature_bc_matrix", sep = "")
+            cat("Setting GEX directory to provided path/sample_feature_bc_matrix \n")
+          }
+          else if (GEX.read.h5) {
+            GEX.out.directory.list.p <- gsub("(/filtered_feature_bc_matrix$)|(/raw_feature_bc_matrix$)|(/sample_feature_bc_matrix$)", "", GEX.out.directory.list) #removing last path element if pointing to subfolders of sample output directory
 
-        if(dir.exists(paste(GEX.out.directory.list[[1]],"/filtered_feature_bc_matrix",sep=""))){ #checking only for first path assuming that all sample inputs are processed with the same cellranger function
-          GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/filtered_feature_bc_matrix",sep="")
-          cat("Setting GEX directory to provided path/filtered_feature_bc_matrix \n")
-        } else if (dir.exists(paste(GEX.out.directory.list[[1]],"/sample_feature_bc_matrix",sep=""))){
-          GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/sample_feature_bc_matrix",sep="")
-          cat("Setting GEX directory to provided path/sample_feature_bc_matrix \n")
-        } else {
-          stop("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Please revise GEX input paths")
+            if(stringr::str_detect(GEX.out.directory.list.p[[1]],"\\.h5")){
+              print(GEX.out.directory.list.p)
+              cat("Setting GEX directory to provided .h5 file \n")
+              #Nothing to do here
+            } else {
+              GEX.out.directory.list.p <- paste(GEX.out.directory.list.p,
+                                                "/filtered_feature_bc_matrix.h5", sep = "")
+              cat("Setting GEX directory to provided path/filtered_feature_bc_matrix.h5 \n")
+            }
+          }
+          else {
+            stop("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Please revise GEX input paths")
+          }
         }
-      }
-
-      directory_read10x <- lapply(GEX.out.directory.list.p, function(x) Seurat::Read10X(data.dir=x))
-
+        if (!GEX.read.h5) {
+          directory_read10x <- lapply(GEX.out.directory.list.p,
+                                      function(x) Seurat::Read10X(data.dir = x))
+        }
+        else {
+          # seurat_from_h5 <- Read10X_h5(filename, use.names = TRUE, unique.features = TRUE)
+          directory_read10x <- lapply(GEX.out.directory.list.p,
+                                      function(x) Seurat::Read10X_h5(filename = x, use.names = TRUE, unique.features = TRUE))
+          # seurat_from_h5@Dimnames[[1]] <- toupper(seurat_from_h5@Dimnames[[1]])
+          # seurat<-CreateSeuratObject(seurat_from_h5)
+        }
       #NEW CELLRANGER 6.1. dealing with the possibility of Feature barcode information being included in the GEX directory.
       #=> Procedure: check if there is feature barcode info in the GEX that was just loaded => if not, proceed as normal
       #=> if yes, isolate the matrices for each input sample into two flat lists: GEX.list and FB.list
