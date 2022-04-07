@@ -21,6 +21,7 @@
 #'@param parallel.processing Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required
 #'@param numcores Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)
 #'@param trim.and.align Boolean. Defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time
+#'@param append.raw.reference Boolean. Defaults to TRUE. This appends the raw reference sequence for each contig even if trim.and.align is set to FALSE.
 #'@param select.excess.chains.by.umi.count Boolean. Defaults to FALSE. There are several methods of dealing with cells containing reads for more than 1VDJ and 1VJ chain. While many analyses just exclude such cells, the VGM is designed to keep these for downstream evaluation (e.g. in VDJ_clonotype). This option presents an evidenced-based way of selectively keeping or filtering only one of the present VDJ  and VJ chains each. This works in conjunction with the parameter excess.chain.confidence.count.threshold (below) Idea source: Zhang W et al. Sci Adv. 2021 (10.1126/sciadv.abf5835)
 #'@param excess.chain.confidence.count.threshold Interger. Defaults to 1000. This sets a umi count threshold for keeping excessive chains in a cell (e.g. T cells with 2 VJ and 1 VDJ chain) and only has an effect if select.excess.chains.by.umi.count is set to TRUE. For a given cell with chains and their UMI counts: VDJ1 = 3, VDJ2 = 7, VJ1 = 6. If count.threshold is kept at default (1000), the VDJ chain with the most UMIs will be kept (VDJ2), while the other is filtered out (VDJ1), leaving the cell as VDJ2, VJ1. If the count.threshold is set to 3, both chains VDJ chains of this cell are kept as their UMI counts are equal or greater to the count.threshold and therefore deemed high confidence chains. In the case of UMI counts being equal for two chains AND below the count.threshold, the first contig entry is kept, while the second is filtered. To avoid filtering excess chains, set select.excess.chains.by.umi.count to FALSE. For further notes on the implication of these please refer to the documentation of the parameter hierarchical in the function VDJ_clonotype_v3.
 #'@param gap.opening.cost Argument passed to Biostrings::pairwiseAlignment during alignment to reference. Defaults to 10
@@ -139,6 +140,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            get.VDJ.stats,
                            numcores,
                            trim.and.align,
+                           append.raw.reference,
                            select.excess.chains.by.umi.count,
                            excess.chain.confidence.count.threshold,
                            gap.opening.cost,
@@ -173,6 +175,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   do <- NULL
   specificity <- NULL
   affinity <- NULL
+  VDJ_raw_ref <- NULL
+  VJ_raw_ref <- NULL
   gex.metrics.table <- "none" #error avoidance in case only VDJ is provided and stats are requested
 
   ############################################ Sort out the input situation ####
@@ -331,6 +335,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(get.VDJ.stats)) get.VDJ.stats <- T
 
   if(missing(trim.and.align)) trim.and.align <- F
+  if(missing(append.raw.reference)) append.raw.reference <- T
   if(missing(select.excess.chains.by.umi.count)) select.excess.chains.by.umi.count <- F
   if(missing(excess.chain.confidence.count.threshold)) excess.chain.confidence.count.threshold <- 1000 #default is too high for any single chain to cross it. if set to 3 or lower, cells with double chains will be maintained if each double chain is over that umi threshold
   if(missing(gap.opening.cost)) gap.opening.cost <- 10
@@ -380,6 +385,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
               "get.VDJ.stats" =  get.VDJ.stats,
               "numcores" = numcores,
               "trim.and.align" = trim.and.align,
+              "append.raw.reference" = append.raw.reference,
               "select.excess.chains.by.umi.count" = select.excess.chains.by.umi.count,
               "excess.chain.confidence.count.threshold" = excess.chain.confidence.count.threshold,
               "gap.opening.cost," = gap.opening.cost,
@@ -951,7 +957,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {curr.references <- ""}
 
     #getting the relevant annotations ! ONLY IF TRIM AND ALIGN IS TRUE (check the VDJ loading part for reference)
-    if(trim.and.align == T){
+    if(trim.and.align == T | append.raw.reference == T){
       curr.annotations <- annotations[stringr::str_detect(annotations$contig_id, barcodes),]
     }
 
@@ -962,7 +968,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #} else {curr.annotations <- ""}
 
     #set up data structure
-    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
+    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_raw_ref","VJ_raw_ref","VDJ_trimmed_ref","VJ_trimmed_ref")
     curr.barcode <- stats::setNames(data.frame(matrix(ncol = length(cols), nrow = 1)), cols)
 
     #fill in information that do not need processing
@@ -1080,6 +1086,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #CHECK IF THERE IS 1 2 or 0 chains to process
     if(HC_count == 1){
 
+      if(append.raw.reference == T){
+        curr.barcode$VDJ_raw_ref <- as.character(reference_HC)
+      } else {
+        curr.barcode$VDJ_raw_ref <- ""
+      }
+
       if(trim.and.align == T){
         tryCatch({
           #find match in annotations
@@ -1116,11 +1128,21 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VDJ_sequence_nt_trimmed <- ""
       curr.barcode$VDJ_sequence_aa <- ""
       curr.barcode$VDJ_trimmed_ref <- ""
+      curr.barcode$VDJ_raw_ref <- ""
+
 
     } else if(HC_count > 1){ #MORE THAN ONE HC
       #from the annotations extract sequence and paste
+
+      if(append.raw.reference == T){
+        curr.barcode$VJ_raw_ref <- paste0(lapply(reference_HC, function(x) return(as.character(unlist(x)))), collapse = ";")
+      } else {
+        curr.barcode$VDJ_raw_ref <- ""
+      }
+
       #Heavy/b
       to_paste <- curr.barcode$VDJ_sequence_nt_raw
+      to_paste_ref_raw <- reference_HC
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
@@ -1166,6 +1188,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #Light/a
     if(LC_count == 1){
+
+      if(append.raw.reference == T){
+        curr.barcode$VJ_raw_ref <- as.character(reference_LC)
+      } else {
+        curr.barcode$VJ_raw_ref <- ""
+      }
+
+
       if(trim.and.align == T){
         tryCatch({
           #find match in annotations
@@ -1199,8 +1229,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VJ_sequence_nt_trimmed <- ""
       curr.barcode$VJ_sequence_aa <- ""
       curr.barcode$VJ_trimmed_ref <- ""
+      curr.barcode$VJ_raw_ref <- ""
 
     } else if(LC_count > 1){ #MORE THAN ONE LC
+
+      if(append.raw.reference == T){
+        curr.barcode$VJ_raw_ref <- paste0(lapply(reference_LC, function(x) return(as.character(unlist(x)))), collapse = ";")
+      } else {
+        curr.barcode$VJ_raw_ref <- ""
+      }
 
       to_paste <- curr.barcode$VJ_sequence_nt_raw
       to_paste_trimmed <- c()
