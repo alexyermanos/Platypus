@@ -5,7 +5,7 @@
 #' @param label.threshold Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).
 #' @param axis Option to choose the count axis for each gene. "default", "percent" or "max"  possible. Default: "max".
 #' @param c.count Show clonotype or cell count on Circos plot.
-#' @return Returns the Circos plot from input of other functions. Do not run as standalone
+#' @return Returns the Circos plot.
 #' @export
 #' @examples
 #' \dontrun{
@@ -14,9 +14,11 @@
 
 VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.count){
 
-  CELL_META <- NULL
   df <- NULL
   df1 <- NULL
+  ylim <- NULL
+  xcenter <- NULL
+  sector.index <- NULL
 
 
   circlize::circos.clear()
@@ -43,13 +45,17 @@ VDJ_circos <- function(Adj_matrix, group, grid.col, label.threshold, axis, c.cou
 
   #Add labels to circos plot(
   circlize::circos.track(track.index = 1, panel.fun = function(x, y) {
-    if(circlize::get.cell.meta.data("xrange")>label.threshold){
-      circlize::circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
-                facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5)
+    if(circlize::get.cell.meta.data("xrange")> label.threshold){
+      ylim <- circlize::get.cell.meta.data("ylim")
+      xcenter <- circlize::get.cell.meta.data("xcenter")
+      sector.index <- circlize::get.cell.meta.data("sector.index")
+      circlize::circos.text(xcenter, ylim[1], sector.index,
+               facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col="black")
     }else{
       circlize::circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index,
                   facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col = "white")
     }
+    
   }, bg.border = NA) # here set bg.border to NA is important
 
   #Add axis
