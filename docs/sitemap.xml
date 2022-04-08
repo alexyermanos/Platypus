@@ -4,25 +4,10 @@
     <loc>/404.html</loc>
   </url>
   <url>
-    <loc>/articles/ABForests.html</loc>
-  </url>
-  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/PlatypusDB.html</loc>
-  </url>
-  <url>
-    <loc>/articles/PlatypusV3.html</loc>
-  </url>
-  <url>
     <loc>/articles/PlatypusV3_agedCNS.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Platypus_feature_barcodes.html.html</loc>
-  </url>
-  <url>
-    <loc>/articles/test_file.html</loc>
   </url>
   <url>
     <loc>/authors.html</loc>
@@ -32,6 +17,9 @@
   </url>
   <url>
     <loc>/index.html</loc>
+  </url>
+  <url>
+    <loc>/LICENSE-text.html</loc>
   </url>
   <url>
     <loc>/news/index.html</loc>
@@ -295,10 +283,13 @@
     <loc>/reference/productive_seq.html</loc>
   </url>
   <url>
+    <loc>/reference/select.top.clone.html</loc>
+  </url>
+  <url>
     <loc>/reference/select.top.html</loc>
   </url>
   <url>
-    <loc>/reference/simulate_repertoire.html</loc>
+    <loc>/reference/small_vgm.html</loc>
   </url>
   <url>
     <loc>/reference/special_v.html</loc>
@@ -319,16 +310,25 @@
     <loc>/reference/vae_seq.html</loc>
   </url>
   <url>
+    <loc>/reference/VDJ_abundances.html</loc>
+  </url>
+  <url>
     <loc>/reference/VDJ_alpha_beta_Vgene_circos.html</loc>
   </url>
   <url>
     <loc>/reference/VDJ_analyze.html</loc>
   </url>
   <url>
+    <loc>/reference/VDJ_antigen_integrate.html</loc>
+  </url>
+  <url>
     <loc>/reference/VDJ_assemble_for_PnP.html</loc>
   </url>
   <url>
     <loc>/reference/VDJ_call_MIXCR.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VDJ_call_recon.html</loc>
   </url>
   <url>
     <loc>/reference/VDJ_circos.html</loc>
@@ -340,6 +340,9 @@
     <loc>/reference/VDJ_clonal_expansion.html</loc>
   </url>
   <url>
+    <loc>/reference/VDJ_clonal_expansion_abundances.html</loc>
+  </url>
+  <url>
     <loc>/reference/VDJ_clonal_lineages.html</loc>
   </url>
   <url>
@@ -349,7 +352,16 @@
     <loc>/reference/VDJ_clonotype_clusters_circos.html</loc>
   </url>
   <url>
+    <loc>/reference/VDJ_clonotype_v3.html</loc>
+  </url>
+  <url>
     <loc>/reference/VDJ_contigs_to_vgm.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VDJ_db_annotate.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VDJ_db_load.html</loc>
   </url>
   <url>
     <loc>/reference/VDJ_diversity.html</loc>
@@ -358,7 +370,16 @@
     <loc>/reference/VDJ_dublets.html</loc>
   </url>
   <url>
+    <loc>/reference/VDJ_dynamics.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VDJ_expand_aberrants.html</loc>
+  </url>
+  <url>
     <loc>/reference/VDJ_extract_germline.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VDJ_get_public.html</loc>
   </url>
   <url>
     <loc>/reference/VDJ_GEX_clonal_lineage_clusters.html</loc>
@@ -406,6 +427,12 @@
     <loc>/reference/VDJ_per_clone.html</loc>
   </url>
   <url>
+    <loc>/reference/VDJ_phylogenetic_trees.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VDJ_phylogenetic_trees_plot.html</loc>
+  </url>
+  <url>
     <loc>/reference/VDJ_plot_SHM.html</loc>
   </url>
   <url>
@@ -428,5 +455,14 @@
   </url>
   <url>
     <loc>/reference/VDJ_VJ_usage_circos.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VGM_expanded_clones.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VGM_expand_featurebarcodes.html</loc>
+  </url>
+  <url>
+    <loc>/reference/VGM_integrate.html</loc>
   </url>
 </urlset>

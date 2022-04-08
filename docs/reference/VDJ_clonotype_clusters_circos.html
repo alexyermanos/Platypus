@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@
      
   </a>
 </li>
+<li>
+  <a href="../articles/vignette_index.html">Get started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -107,19 +110,59 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
+      <a href="../articles/vignette_index.html">View all</a>
+    </li>
+    <li class="dropdown-header">First steps</li>
+    <li>
+      <a href="../articles/quickstart.html">Quickstart</a>
     </li>
     <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
+      <a href="../articles/platypus_database.html">Platypus Database</a>
     </li>
     <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
+      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
     </li>
     <li>
-      <a href="../articles/ABForests.html">ABForests</a>
+      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">GEX analysis using Seurat</li>
+    <li>
+      <a href="../articles/quality_control.html">Quality control</a>
     </li>
     <li>
-      <a href="../articles/Echidna.html">Echidna</a>
+      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
+    </li>
+    <li>
+      <a href="../articles/GEX_overview.html">GEX overview</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">VDJ analysis</li>
+    <li>
+      <a href="../articles/clonotyping.html">Clonotyping</a>
+    </li>
+    <li>
+      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
+    </li>
+    <li>
+      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
+    </li>
+    <li>
+      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
+    </li>
+    <li>
+      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
+    </li>
+    <li>
+      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
+    </li>
+    <li>
+      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Data simulation</li>
+    <li>
+      <a href="../articles/echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -228,7 +271,7 @@
     </tr>
     <tr>
       <th>platypus.version</th>
-      <td><p>Which platypus.version of platypus is being used. Default = "v2".</p></td>
+      <td><p>Which platypus.version of platypus is being used. Default = "v3".</p></td>
     </tr>
     </table>
 
@@ -237,7 +280,56 @@
     <p>Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"></div>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'>#Platypus version 3</span></span>
+<span class='r-in'><span class='co'>#prepare the small toy dataset</span></span>
+<span class='r-in'><span class='va'>small_vgm</span> <span class='op'>&lt;-</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span></span>
+<span class='r-in'><span class='va'>small_vgm</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>clonotype_id_10x</span> <span class='op'>&lt;-</span> <span class='st'>"clonotype1"</span></span>
+<span class='r-in'><span class='va'>small_vgm</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>clonotype_frequency</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>small_vgm</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>VDJ_clonotype_clusters_circos</span><span class='op'>(</span><span class='va'>small_vgm</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, topX<span class='op'>=</span><span class='fl'>100</span>, label.threshold<span class='op'>=</span><span class='fl'>5</span></span>
+<span class='r-in'>, platypus.version <span class='op'>=</span> <span class='st'>"v3"</span>, n_cluster <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='VDJ_clonotype_clusters_circos-1.png' alt='' width='700' height='433' /></span>
+<span class='r-plt'><img src='VDJ_clonotype_clusters_circos-2.png' alt='' width='700' height='433' /></span>
+<span class='r-plt'><img src='VDJ_clonotype_clusters_circos-3.png' alt='' width='700' height='433' /></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> function (x, y, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> UseMethod("plot")</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;bytecode: 0x000000004924cc58&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;environment: namespace:base&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> function (x, y, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> UseMethod("plot")</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;bytecode: 0x000000004924cc58&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;environment: namespace:base&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[3]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> function (x, y, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> UseMethod("plot")</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;bytecode: 0x000000004924cc58&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;environment: namespace:base&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[4]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[4]][[1]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            cluster 0 cluster 1 cluster 2 cluster 3 cluster 4 cluster 5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> clonotype1         5         1         1         2         0         0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            cluster 6</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> clonotype1         0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[4]][[2]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            cluster 0 cluster 1 cluster 2 cluster 3 cluster 4 cluster 5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> clonotype1         1         0         2         0         1         0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            cluster 6</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> clonotype1         0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[4]][[3]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            cluster 0 cluster 1 cluster 2 cluster 3 cluster 4 cluster 5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> clonotype1         2         2         1         3         0         0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            cluster 6</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> clonotype1         0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

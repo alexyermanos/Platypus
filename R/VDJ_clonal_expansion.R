@@ -148,7 +148,7 @@ VDJ_clonal_expansion <- function(VDJ,
           curr_rep_iso$colors <- as.character(VDJ.matrix[,color.by]) #get as character
           curr_rep_iso$colors[which(is.na(curr_rep_iso$colors))] <- "None" #replace any NAs which would mess up string counting later
 
-          if(class(VDJ.matrix[,color.by]) == "factor"){ #REORDER Depending on class in VDJ.matrix. This is an attempt at conserving existing factor levels such as in the seurat_clusters column
+          if("factor" %in% class(VDJ.matrix[1,color.by])){ #REORDER Depending on class in VDJ.matrix. This is an attempt at conserving existing factor levels such as in the seurat_clusters column
             curr_rep_iso$colors <- ordered(as.factor(curr_rep_iso$colors),levels = c(levels(VDJ.matrix[,color.by]), "None")) #reorder
           } else {
             curr_rep_iso$colors <- ordered(as.factor(curr_rep_iso$colors),levels = c(as.character(unique(VDJ.matrix[,color.by])), "None"))
@@ -268,6 +268,7 @@ VDJ_clonal_expansion <- function(VDJ,
         if(color.by == "isotype"){
         output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual(values = c("IGHG" = "green4", "IGHM" = "black", "IGHA" = "red3", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells")
         } else {
+
           output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Color, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_x_continuous(expand = c(0,0.5)) + ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells", fill = color.by) + ggplot2::scale_fill_manual(values = grDevices::rainbow(n = length(unique(clones_per_isotype_all[[i]]$Color))))
 
         }
@@ -344,8 +345,6 @@ VDJ_clonal_expansion <- function(VDJ,
           clones_per_isotype[[j]]$Counts[12] <- sum(stringr::str_count(curr_clone$isotype, "IGHD"))
           clones_per_isotype[[j]]$Counts[13] <- sum(stringr::str_count(curr_clone$isotype, "IGHE"))
           clones_per_isotype[[j]]$Counts[14] <- sum(stringr::str_count(curr_clone$isotype, "None"))
-
-
 
           clones_per_isotype[[j]]$ClonalRank <- j
 
