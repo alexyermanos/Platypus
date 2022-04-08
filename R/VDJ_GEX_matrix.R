@@ -1,14 +1,12 @@
-#'VDJ GEX processing and integration wrapper
-#'
+#' Processes both raw VDJ and GEX Cellranger output to compile a single cell level table containing all available information for each cell. If using Feature Barcodes please note the [FB] paragraph in the description and all "FB." parameters
 #' @description
-#' This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
-#'[FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
+#' # This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
+#' # [FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
 #' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: filtered_contig_annotations.csv, clonotypes.csv, concat_ref.fasta, all_contig_annotations.csv (only if trim.and.align == T) and metrics_summary.csv (Optional, will be appended to stats table if get.VDJ.stats == T)
 #'@param GEX.out.directory.list List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ.
 #'@param FB.out.directory.list [FB] List of paths pointing at the outs/ directory of output from the Cellranger counts function which contain Feature barcode counts. ! Single list elements can be a path or "PLACEHOLDER", if the corresponding input in the VDJ or GEX path does not have any adjunct FB data. This is only the case when integrating two datasets of which only one has FB data. See examples for details. Any input will overwrite potential FB data loaded from the GEX input directories. This may be important, if wanting to input unfiltered FB data that will cover also cells in VDJ not present in GEX.
 #'@param Data.in Input for R objects from either the PlatypusDB_load_from_disk or the PlatypusDB_fetch function. If provided, input directories should not be specified. If you wish to integrate local and downloaded data, please load them via load_from_disk and fetch and provide as a list (e.g. Data.in = list(load_from_disk.output, fetch.output))
 #'@param Seurat.in Alternative to GEX.out.directory.list. A seurat object. VDJ.integrate has to be set to TRUE. In metadata the column of the seurat object, sample_id and group_id must be present. sample_id must contain ids in the format "s1", "s2" ... "sn" and must be matching the order of VDJ.out.directory.list. No processing (i.e. data normalisation and integration) will be performed on these objects. They will be returned as part of the VGM and with additional VDJ data if integrate.VDJ.to.GEX = T. Filtering parameters such as overlapping barcodes, exclude.GEX.not.in.VDJ and exclude.on.cell.state.markers will be applied to the Seurat.in GEX object(s).
-#' @param GEX.read.h5 Boolean. defaults to FALSE. Whether to read GEX data from an H5 file. If set to true, please provide the each directory containing a cellranger H5 output file or a direct path to a filtered_feature_bc_matrix.h5 as one GEX.out.directory.list element.
 #'@param VDJ.combine Boolean. Defaults to TRUE. Whether to integrate repertoires. A sample identifier will be appended to each barcode both in GEX as well as in VDJ. Recommended for all later functions
 #'@param GEX.integrate Boolean. Defaults to TRUE. Whether to integrate GEX data. Default settings use the seurat scale.data option to integrate datasets. Sample identifiers will be appended to each barcode both in GEX and VDJ This is helpful when analysing different samples from the same organ or tissue, while it may be problematic when analysing different tissues.
 #'@param integrate.GEX.to.VDJ Boolean. defaults to TRUE. Whether to integrate GEX metadata (not raw counts) into the VDJ output dataframe ! Only possible, if GEX.integrate and VDJ.combine are either both FALSE or both TRUE
@@ -21,7 +19,6 @@
 #'@param parallel.processing Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required
 #'@param numcores Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)
 #'@param trim.and.align Boolean. Defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time
-#'@param append.raw.reference Boolean. Defaults to TRUE. This appends the raw reference sequence for each contig even if trim.and.align is set to FALSE.
 #'@param select.excess.chains.by.umi.count Boolean. Defaults to FALSE. There are several methods of dealing with cells containing reads for more than 1VDJ and 1VJ chain. While many analyses just exclude such cells, the VGM is designed to keep these for downstream evaluation (e.g. in VDJ_clonotype). This option presents an evidenced-based way of selectively keeping or filtering only one of the present VDJ  and VJ chains each. This works in conjunction with the parameter excess.chain.confidence.count.threshold (below) Idea source: Zhang W et al. Sci Adv. 2021 (10.1126/sciadv.abf5835)
 #'@param excess.chain.confidence.count.threshold Interger. Defaults to 1000. This sets a umi count threshold for keeping excessive chains in a cell (e.g. T cells with 2 VJ and 1 VDJ chain) and only has an effect if select.excess.chains.by.umi.count is set to TRUE. For a given cell with chains and their UMI counts: VDJ1 = 3, VDJ2 = 7, VJ1 = 6. If count.threshold is kept at default (1000), the VDJ chain with the most UMIs will be kept (VDJ2), while the other is filtered out (VDJ1), leaving the cell as VDJ2, VJ1. If the count.threshold is set to 3, both chains VDJ chains of this cell are kept as their UMI counts are equal or greater to the count.threshold and therefore deemed high confidence chains. In the case of UMI counts being equal for two chains AND below the count.threshold, the first contig entry is kept, while the second is filtered. To avoid filtering excess chains, set select.excess.chains.by.umi.count to FALSE. For further notes on the implication of these please refer to the documentation of the parameter hierarchical in the function VDJ_clonotype_v3.
 #'@param gap.opening.cost Argument passed to Biostrings::pairwiseAlignment during alignment to reference. Defaults to 10
@@ -128,7 +125,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            FB.out.directory.list,
                            Data.in,
                            Seurat.in,
-                           GEX.read.h5,
                            VDJ.combine,
                            GEX.integrate,
                            integrate.GEX.to.VDJ,
@@ -140,7 +136,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            get.VDJ.stats,
                            numcores,
                            trim.and.align,
-                           append.raw.reference,
                            select.excess.chains.by.umi.count,
                            excess.chain.confidence.count.threshold,
                            gap.opening.cost,
@@ -175,8 +170,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   do <- NULL
   specificity <- NULL
   affinity <- NULL
-  VDJ_raw_ref <- NULL
-  VJ_raw_ref <- NULL
   gex.metrics.table <- "none" #error avoidance in case only VDJ is provided and stats are requested
 
   ############################################ Sort out the input situation ####
@@ -311,7 +304,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   if(missing(GEX.out.directory.list)) GEX.out.directory.list <- "none"
-  if(missing(GEX.read.h5)) GEX.read.h5 <- FALSE
   if(missing(VDJ.out.directory.list)) VDJ.out.directory.list <- "none"
   if(missing(FB.out.directory.list)) FB.out.directory.list <- "none"
   #In case someone thinks that they have to provide placeholders always when FB information is not there
@@ -335,7 +327,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(get.VDJ.stats)) get.VDJ.stats <- T
 
   if(missing(trim.and.align)) trim.and.align <- F
-  if(missing(append.raw.reference)) append.raw.reference <- T
   if(missing(select.excess.chains.by.umi.count)) select.excess.chains.by.umi.count <- F
   if(missing(excess.chain.confidence.count.threshold)) excess.chain.confidence.count.threshold <- 1000 #default is too high for any single chain to cross it. if set to 3 or lower, cells with double chains will be maintained if each double chain is over that umi threshold
   if(missing(gap.opening.cost)) gap.opening.cost <- 10
@@ -373,7 +364,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   params <- c("sample.path.vdj" = paste0(samples.paths.VDJ, collapse = " / "),
               "samples.paths.GEX" = paste0(samples.paths.GEX, collapse = " / "),
               "FB.out.directory.list" = paste0(FB.out.directory.list, collapse = " / "),
-              "GEX.read.h5" = GEX.read.h5,
               "VDJ.combine" = VDJ.combine,
               "GEX.integrate" = GEX.integrate,
               "integrate.GEX.to.VDJ" = integrate.GEX.to.VDJ,
@@ -385,7 +375,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
               "get.VDJ.stats" =  get.VDJ.stats,
               "numcores" = numcores,
               "trim.and.align" = trim.and.align,
-              "append.raw.reference" = append.raw.reference,
               "select.excess.chains.by.umi.count" = select.excess.chains.by.umi.count,
               "excess.chain.confidence.count.threshold" = excess.chain.confidence.count.threshold,
               "gap.opening.cost," = gap.opening.cost,
@@ -957,7 +946,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {curr.references <- ""}
 
     #getting the relevant annotations ! ONLY IF TRIM AND ALIGN IS TRUE (check the VDJ loading part for reference)
-    if(trim.and.align == T | append.raw.reference == T){
+    if(trim.and.align == T){
       curr.annotations <- annotations[stringr::str_detect(annotations$contig_id, barcodes),]
     }
 
@@ -968,7 +957,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #} else {curr.annotations <- ""}
 
     #set up data structure
-    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_raw_ref","VJ_raw_ref","VDJ_trimmed_ref","VJ_trimmed_ref")
+    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref")
     curr.barcode <- stats::setNames(data.frame(matrix(ncol = length(cols), nrow = 1)), cols)
 
     #fill in information that do not need processing
@@ -1086,12 +1075,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #CHECK IF THERE IS 1 2 or 0 chains to process
     if(HC_count == 1){
 
-      if(append.raw.reference == T){
-        curr.barcode$VDJ_raw_ref <- as.character(reference_HC)
-      } else {
-        curr.barcode$VDJ_raw_ref <- ""
-      }
-
       if(trim.and.align == T){
         tryCatch({
           #find match in annotations
@@ -1128,21 +1111,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VDJ_sequence_nt_trimmed <- ""
       curr.barcode$VDJ_sequence_aa <- ""
       curr.barcode$VDJ_trimmed_ref <- ""
-      curr.barcode$VDJ_raw_ref <- ""
-
 
     } else if(HC_count > 1){ #MORE THAN ONE HC
       #from the annotations extract sequence and paste
-
-      if(append.raw.reference == T){
-        curr.barcode$VJ_raw_ref <- paste0(lapply(reference_HC, function(x) return(as.character(unlist(x)))), collapse = ";")
-      } else {
-        curr.barcode$VDJ_raw_ref <- ""
-      }
-
       #Heavy/b
       to_paste <- curr.barcode$VDJ_sequence_nt_raw
-      to_paste_ref_raw <- reference_HC
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
@@ -1188,14 +1161,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #Light/a
     if(LC_count == 1){
-
-      if(append.raw.reference == T){
-        curr.barcode$VJ_raw_ref <- as.character(reference_LC)
-      } else {
-        curr.barcode$VJ_raw_ref <- ""
-      }
-
-
       if(trim.and.align == T){
         tryCatch({
           #find match in annotations
@@ -1229,15 +1194,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VJ_sequence_nt_trimmed <- ""
       curr.barcode$VJ_sequence_aa <- ""
       curr.barcode$VJ_trimmed_ref <- ""
-      curr.barcode$VJ_raw_ref <- ""
 
     } else if(LC_count > 1){ #MORE THAN ONE LC
-
-      if(append.raw.reference == T){
-        curr.barcode$VJ_raw_ref <- paste0(lapply(reference_LC, function(x) return(as.character(unlist(x)))), collapse = ";")
-      } else {
-        curr.barcode$VJ_raw_ref <- ""
-      }
 
       to_paste <- curr.barcode$VJ_sequence_nt_raw
       to_paste_trimmed <- c()
@@ -1478,50 +1436,24 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     gex_load_error <- tryCatch({suppressWarnings({
       #add the directory identifier
 
-      if (!GEX.read.h5 & (stringr::str_detect(GEX.out.directory.list[[1]],"filtered_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]],"raw_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]],"sample_feature_bc_matrix"))) {
+      if(stringr::str_detect(GEX.out.directory.list[[1]], "filtered_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]], "raw_feature_bc_matrix") | stringr::str_detect(GEX.out.directory.list[[1]], "sample_feature_bc_matrix")){
         #Nothing to append
         GEX.out.directory.list.p <- GEX.out.directory.list
-      } else {  #checking only for first path assuming that all sample inputs are processed with the same cellranger function
-          if (!GEX.read.h5 & dir.exists(paste(GEX.out.directory.list[[1]],
-                                          "/filtered_feature_bc_matrix", sep = ""))) {
-            GEX.out.directory.list.p <- paste(GEX.out.directory.list,
-                                              "/filtered_feature_bc_matrix", sep = "")
-            cat("Setting GEX directory to provided path/filtered_feature_bc_matrix \n")
-          }
-          else if (!GEX.read.h5 & dir.exists(paste(GEX.out.directory.list[[1]],
-                                               "/sample_feature_bc_matrix", sep = ""))) {
-            GEX.out.directory.list.p <- paste(GEX.out.directory.list,
-                                              "/sample_feature_bc_matrix", sep = "")
-            cat("Setting GEX directory to provided path/sample_feature_bc_matrix \n")
-          }
-          else if (GEX.read.h5) {
-            GEX.out.directory.list.p <- gsub("(/filtered_feature_bc_matrix$)|(/raw_feature_bc_matrix$)|(/sample_feature_bc_matrix$)", "", GEX.out.directory.list) #removing last path element if pointing to subfolders of sample output directory
+      } else{
 
-            if(stringr::str_detect(GEX.out.directory.list.p[[1]],"\\.h5")){
-              print(GEX.out.directory.list.p)
-              cat("Setting GEX directory to provided .h5 file \n")
-              #Nothing to do here
-            } else {
-              GEX.out.directory.list.p <- paste(GEX.out.directory.list.p,
-                                                "/filtered_feature_bc_matrix.h5", sep = "")
-              cat("Setting GEX directory to provided path/filtered_feature_bc_matrix.h5 \n")
-            }
-          }
-          else {
-            stop("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Please revise GEX input paths")
-          }
+        if(dir.exists(paste(GEX.out.directory.list[[1]],"/filtered_feature_bc_matrix",sep=""))){ #checking only for first path assuming that all sample inputs are processed with the same cellranger function
+          GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/filtered_feature_bc_matrix",sep="")
+          cat("Setting GEX directory to provided path/filtered_feature_bc_matrix \n")
+        } else if (dir.exists(paste(GEX.out.directory.list[[1]],"/sample_feature_bc_matrix",sep=""))){
+          GEX.out.directory.list.p <- paste(GEX.out.directory.list,"/sample_feature_bc_matrix",sep="")
+          cat("Setting GEX directory to provided path/sample_feature_bc_matrix \n")
+        } else {
+          stop("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Please revise GEX input paths")
         }
-        if (!GEX.read.h5) {
-          directory_read10x <- lapply(GEX.out.directory.list.p,
-                                      function(x) Seurat::Read10X(data.dir = x))
-        }
-        else {
-          # seurat_from_h5 <- Read10X_h5(filename, use.names = TRUE, unique.features = TRUE)
-          directory_read10x <- lapply(GEX.out.directory.list.p,
-                                      function(x) Seurat::Read10X_h5(filename = x, use.names = TRUE, unique.features = TRUE))
-          # seurat_from_h5@Dimnames[[1]] <- toupper(seurat_from_h5@Dimnames[[1]])
-          # seurat<-CreateSeuratObject(seurat_from_h5)
-        }
+      }
+
+      directory_read10x <- lapply(GEX.out.directory.list.p, function(x) Seurat::Read10X(data.dir=x))
+
       #NEW CELLRANGER 6.1. dealing with the possibility of Feature barcode information being included in the GEX directory.
       #=> Procedure: check if there is feature barcode info in the GEX that was just loaded => if not, proceed as normal
       #=> if yes, isolate the matrices for each input sample into two flat lists: GEX.list and FB.list

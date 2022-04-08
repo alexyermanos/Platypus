@@ -143,9 +143,8 @@ VDJ_GEX_overlay_clones <- function(GEX,
     for(i in 1:length(track_cl_to_plot)){
       to_highlight_list[[i]] <- SeuratObject::WhichCells(GEX, ident =  track_cl_to_plot[i])
     }
-    to_highlight_list <- rev(to_highlight_list) #reversing it to keep plotting order as orders of selected clones
 
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size, sizes.highlight = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "" ) + scale_color_manual(values = c(others.color, clone.colors), labels = c("Not selected", track_cl_to_plot))
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
 
     #dimplot with cols + grey30 to color in the non selected clones
     #out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors, others.color), shuffle = F, order = c("Not selected","selected"), pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
@@ -217,7 +216,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #dimplot with cols + grey30 to color in the non selected clones
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = F, pt.size = pt.size, sizes.highlight = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$sample_id, ncol = ncol.facet)
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$sample_id, ncol = ncol.facet)
     #! Bug in the current version of seurat: shuffle = T does not work with split_by or + facet_wrap(). The bug is reported and should be fixed soon (13.4.21) https://github.com/satijalab/seurat/issues/4300
 
     if(split.plot.and.legend == F){

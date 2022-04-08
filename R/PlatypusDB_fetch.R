@@ -1,5 +1,5 @@
 #' Loads and saves RData objects from the PlatypusDB
-#' @param PlatypusDB.links Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is gexVGM, vdjVGM or metadata, \%sample_id\% needs to be "ALL", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For sample_id entries the the metadata table for a given project via the function PlatypusDB_list_projects()
+#' @param PlatypusDB.links Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is GEXmatrix or VDJmatrix, \%sample_id\% needs to be "", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For \%sample_id\% entries refer to the metadata table for a given project via the function PlatypusDB_list_projects()
 #'@param save.to.disk Boolean. Defaults to FALSE. Whether to save downloaded files individually to the directory specified in path.to.save
 #'@param load.to.enviroment Boolean. Defaults to TRUE. Whether to load objects directly into the current .GlobalEnv. An array of the names of the loaded objects will be returned. !Be aware of RAM limitations of your machine when downloading multiple large files.
 #'@param load.to.list Boolean. Defaults to FALSE. Whether to return loaded objects as a list. !Be aware of RAM limitations of your machine when downloading multiple large files.
@@ -33,11 +33,6 @@
 #'#, combine.objects = TRUE)
 #'
 #' #integrated_samples <- VDJ_GEX_matrix_DB(data.in = downloaded_objects)
-#'
-#' #Download metadata objects for projects
-#' list_of_metadata_tables <- PlatypusDB_fetch(
-#' PlatypusDB.links = c("Kuhn2021a//metadata")
-#' ,save.to.disk = FALSE,load.to.enviroment = FALSE, load.to.list = TRUE)
 #'
 #' #Dowload of airr_rearrangement.tsv
 #' #Load VDJ.RData into a list
@@ -106,7 +101,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
     if(stringr::str_detect(PlatypusDB.links[i], "\\.zip")){stop(".zip files are not downloadable via R. Please refer to the PlatypusDB website")}
 
     if(stringr::str_detect(PlatypusDB.links[i], ".*/.*/.*\\.RData") == F & stringr::str_detect(PlatypusDB.links[i], ".*//.*\\.RData") == F){
-      stop(paste0("Input link ", i, " does not fit the neccessary format. Please input a link with the format '[Project id]/[Sample id]/[filetype].RData' or '[Project id]//[filetype].RData' to download VDG_GEX_matrix or project metadata files. To download .zip files please refer to the PlatypusDB website. Any link element can be replaced with ALL or ALL.RData, for the final element, to download all files of that catagory"))
+      stop(paste0("Input link ", i, " does not fit the neccessary format. Please input a link with the format '[Project id]/[Sample id]/[filetype].RData' or '[Project id]//[filetype].RData' to download VDG_GEX_matrix files. To download .zip files please refer to the PlatypusDB website. Any link element can be replaced with ALL or ALL.RData, for the final element, to download all files of that catagory"))
     }
   }
 
@@ -149,8 +144,8 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
   to_download_list <- list()
   for(i in 1:nrow(link_parts)){
     #look for patterns were objects could be combined
-    if(stringr::str_detect(link_parts[i,4], "s\\d+/ALL.RData")){
-      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id == link_parts[i,2])
+    if(stringr::str_detect(link_parts[i,4], "/ALL.RData") & link_parts[i,2] != "" & link_parts[i,2] != "ALL"){
+      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id == link_parts[i,2] & stringr::str_detect(name, ".zip") == F)
       if(nrow(to_download) == 2){
       to_download$group <- gcount
       gcount <- gcount + 1
@@ -160,24 +155,18 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
       }
 
     } else if(stringr::str_detect(link_parts[i,4], "ALL/ALL.RData")){
-      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id != "")
-
-      #order based on sample id. This is flexible as long as sample numbers are contained such e.g. s1 or S1 and these are separated from the rest of the sample id by .
-      sample_split <- stringr::str_split(toupper(to_download$sample_id), "\\.", simplify = T)
-      sample_order <- sample_split[,stringr::str_detect(sample_split[1,],"S\\d+")]
-      sample_order <- as.numeric(gsub("S","",sample_order))
-      to_download <- to_download[order(sample_order),]
+      to_download <- subset(platypusdb_lookup, project_id == link_parts[i,1] & sample_id != "" & stringr::str_detect(name, ".zip") == F)
 
       for(j in 1:length(unique(to_download$sample_id))){
         to_download_s <- subset(to_download, sample_id == unique(to_download$sample_id)[j])
 
-
         if(all(c("VDJ.RData", "GEX.RData") %in% to_download_s$filetype) & nrow(to_download_s == 2)){
         to_download_s$group <- gcount
         gcount <- gcount + 1
-        to_download_list[[j]] <- to_download_s
+        to_download_list[[length(to_download_list)+1]] <- to_download_s
+
         } else{
-        to_download_list[[j]] <- to_download_s
+        to_download_list[[length(to_download_list)+1]] <- to_download_s
         }
       }
 
@@ -193,6 +182,7 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
         stop("More than 2 matrix files detected for this project #174")
       }
     } else {
+
     #subset hierarchically
     if(link_parts[i,1] == "ALL"){
       to_download <- platypusdb_lookup
@@ -208,12 +198,6 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
       to_download$group <- gcount
       gcount <- gcount + 1
     }
-
-      #order based on sample id. This is flexible as long as sample numbers are contained such e.g. s1 or S1 and these are separated from the rest of the sample id by .
-      sample_split <- stringr::str_split(toupper(to_download$sample_id), "\\.", simplify = T)
-      sample_order <- sample_split[,stringr::str_detect(sample_split[1,],"S\\d+")]
-      sample_order <- as.numeric(gsub("S","",sample_order))
-      to_download <- to_download[order(sample_order),]
       to_download_list[[i]] <- to_download
     }
 
@@ -221,9 +205,13 @@ PlatypusDB_fetch <- function(PlatypusDB.links,
 
   }
 
+
   to_download <- do.call(rbind, to_download_list) #combine into dataframe
+
   to_download <- to_download[duplicated(to_download$url) == F,] #make unique in case one file is entered more than once
   to_download$group <- as.character(to_download$group) #make character so that the order of rows is not disturbed by the unique() in the following
+
+  if(nrow(to_download) == 0) stop("No files found matching PlatypusDB.links. Please revise input")
 
   out.list <- list()
   if(combine.objects == F){ #IF NO OBJECTS ARE TO BE COMBINED. group column will not be used

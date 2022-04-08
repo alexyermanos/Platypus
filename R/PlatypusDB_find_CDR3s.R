@@ -2,21 +2,19 @@
 #' @param VDJ.cdr3s.aa Character A VDJ CDR3s amino acid sequence to search for
 #' @param VJ.cdr3s.aa Character A VJ CDR3s amino acid sequence to search for
 #' @param projects.to.search Optional character vector. Defaults to "ALL". Names of projects to search within.
-#' @return A list of subsets of VDJ matrices from projects containing the query VDJ CDR3 (index 1), the VJ CDR3 (index 2) and cells containing both the query VDJ and VJ CDR3s (index 3)
+#' @return A list of subsets of VDJ matrices from projects containing the query VDJ CDR3 (out[[1]]), the VJ CDR3 (out[[2]]) and cells containing both the query VDJ and VJ CDR3s (out[[3]])
 #' @export
 #' @examples
 #' \dontrun{
-#'
 #' public_clones <- PlatypusDB_find_CDR3s(VDJ.cdr3s.aa = "CMRYGNYWYFDVW"
 #' , VJ.cdr3s.aa = "CLQHGESPFTF", projects.to.search = "ALL")
-#'
 #' }
-
-
+#'
 PlatypusDB_find_CDR3s <- function(VDJ.cdr3s.aa,
                                   VJ.cdr3s.aa,
                                   projects.to.search){
   platypus_url_lookup <- NULL
+
 
   if(missing(VDJ.cdr3s.aa)) VDJ.cdr3s.aa <- c("none")
   if(missing(VJ.cdr3s.aa)) VJ.cdr3s.aa <- c("none")
@@ -83,6 +81,6 @@ PlatypusDB_find_CDR3s <- function(VDJ.cdr3s.aa,
     message("Not searching for clones (VDJ and VJ CDR3s), because input vectors are of different lengths")
     names(res) <- c("VDJ CDR3 occurences")
   }
-  message("Done")
+  print("Done")
   return(res)
 }

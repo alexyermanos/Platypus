@@ -10,10 +10,21 @@ navbar:
   left:
     - icon: fa-home fa-lg
       href: index.html
-    - text: "Get started"
-      href: articles/quickstart.html
     - text: "Vignettes"
-      href: vignette_index.html
+      menu:
+        - text: "Platypus V3 aged CNS"
+          href: articles/PlatypusV3_agedCNS.html
+        - text: "Platypus V3 EAE"
+          href: articles/PlatypusV3_EAE.html
+        - text: "PlatypusDB"
+          href: articles/PlatypusDB.html
+        - text: "Platypus V3 Feature barcodes"
+          href: "articles/Platypus_feature_barcodes.html"
+        - text: "ABForests"
+          href: articles/ABForests.html
+        - text: "Echidna"
+          href: articles/Echidna.html
+      href: articles/index.html
     - text: "PlatypusDB"
       href: PlatypusDB_index.html
     - text: "Functions"

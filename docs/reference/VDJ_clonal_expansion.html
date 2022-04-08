@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone. — VDJ_clonal_expansion • Platypus</title>
+<title>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. — VDJ_clonal_expansion • Platypus</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone. — VDJ_clonal_expansion" />
-<meta property="og:description" content="Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus &quot;v3&quot; available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone." />
+<meta property="og:title" content="Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. — VDJ_clonal_expansion" />
+<meta property="og:description" content="Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input." />
 
 
 
@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
       </span>
     </div>
 
@@ -99,9 +99,6 @@
      
   </a>
 </li>
-<li>
-  <a href="../articles/vignette_index.html">Get started</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -110,59 +107,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/vignette_index.html">View all</a>
-    </li>
-    <li class="dropdown-header">First steps</li>
-    <li>
-      <a href="../articles/quickstart.html">Quickstart</a>
+      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3</a>
     </li>
     <li>
-      <a href="../articles/platypus_database.html">Platypus Database</a>
+      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
     </li>
     <li>
-      <a href="../articles/airr_compatibility.html">AIRR compatibility and TRUST4</a>
+      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
     </li>
     <li>
-      <a href="../articles/vdj_gex_integration.html">VDJ-GEX integration</a>
-    </li>
-    <li class="divider"></li>
-    <li class="dropdown-header">GEX analysis using Seurat</li>
-    <li>
-      <a href="../articles/quality_control.html">Quality control</a>
+      <a href="../articles/ABForests.html">ABForests</a>
     </li>
     <li>
-      <a href="../articles/feature_barcodes.html">Feature Barcodes</a>
-    </li>
-    <li>
-      <a href="../articles/GEX_overview.html">GEX overview</a>
-    </li>
-    <li class="divider"></li>
-    <li class="dropdown-header">VDJ analysis</li>
-    <li>
-      <a href="../articles/clonotyping.html">Clonotyping</a>
-    </li>
-    <li>
-      <a href="../articles/clonal_expansion.html">Clonal expansion</a>
-    </li>
-    <li>
-      <a href="../articles/germline_genes.html">Germline gene and isotype usage</a>
-    </li>
-    <li>
-      <a href="../articles/sampling_diversity.html">Sampling and diversity analysis</a>
-    </li>
-    <li>
-      <a href="../articles/somatic_hypermutations.html">Somatic hypermutations</a>
-    </li>
-    <li>
-      <a href="../articles/TCR_look_up.html">TCR look up and specificity</a>
-    </li>
-    <li>
-      <a href="../articles/mixcr_antibody_expression.html">MiXCR and Antibody expression</a>
-    </li>
-    <li class="divider"></li>
-    <li class="dropdown-header">Data simulation</li>
-    <li>
-      <a href="../articles/echidna.html">Echidna</a>
+      <a href="../articles/Echidna.html">Echidna</a>
     </li>
   </ul>
 </li>
@@ -223,13 +180,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.</h1>
+    <h1>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.</h1>
     <small class="dont-index">Source: <a href='https://github.com/alexyermanos/Platypus/tree/masterR/VDJ_clonal_expansion.R'><code>R/VDJ_clonal_expansion.R</code></a></small>
     <div class="hidden name"><code>VDJ_clonal_expansion.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.</p>
+    <p>Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.</p>
     </div>
 
     <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>VDJ_clonal_expansion</span><span class='op'>(</span>
@@ -242,7 +199,8 @@
   <span class='va'>treat.incomplete.clones</span>,
   <span class='va'>treat.incomplete.cells</span>,
   <span class='va'>group.by</span>,
-  <span class='va'>color.by</span>
+  <span class='va'>color.by</span>,
+  <span class='va'>platypus.version</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -288,6 +246,10 @@
       <th>color.by</th>
       <td><p>Character. Defaults to "isotype". If set to "isotype" bars are colored by the respective IgH chain or in grey for T cells. This can alternatively be set to any column name of the VDJ. This allows coloring clones by their V_gene usage or by GEX clusters</p></td>
     </tr>
+    <tr>
+      <th>platypus.version</th>
+      <td><p>Character. Only "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -295,131 +257,7 @@
     <p>Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing also barcode and CDR3 information</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'>#Standard B cell plot for platypus version v3</span></span>
-<span class='r-in'><span class='co'>#Will generate one plot per sample (from sample_id column)</span></span>
-<span class='r-in'><span class='va'>clonal_out</span> <span class='op'>&lt;-</span> <span class='fu'>VDJ_clonal_expansion</span><span class='op'>(</span>VDJ <span class='op'>=</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>,</span>
-<span class='r-in'> celltype <span class='op'>=</span> <span class='st'>"Bcells"</span>, clones <span class='op'>=</span> <span class='fl'>30</span>,subtypes <span class='op'>=</span> <span class='cn'>FALSE</span>, species <span class='op'>=</span> <span class='st'>"Mouse"</span></span>
-<span class='r-in'> ,treat.incomplete.clones <span class='op'>=</span> <span class='st'>"exclude"</span></span>
-<span class='r-in'> ,treat.incomplete.cells <span class='op'>=</span> <span class='st'>"proportional"</span><span class='op'>)</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>#Regrouped and recolored plot in v3</span></span>
-<span class='r-in'><span class='co'>#Will generate a plot for each sample.</span></span>
-<span class='r-in'><span class='co'>#Bars are filled by the sample with the highest proportion of cells in a given clonotype</span></span>
-<span class='r-in'><span class='va'>clonal_out</span> <span class='op'>&lt;-</span> <span class='fu'>VDJ_clonal_expansion</span><span class='op'>(</span>VDJ <span class='op'>=</span> <span class='fu'>Platypus</span><span class='fu'>::</span><span class='va'><a href='small_vgm.html'>small_vgm</a></span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span></span>
-<span class='r-in'>, celltype <span class='op'>=</span> <span class='st'>"Bcells"</span>, clones <span class='op'>=</span> <span class='fl'>30</span>,subtypes <span class='op'>=</span> <span class='cn'>FALSE</span>, species <span class='op'>=</span> <span class='st'>"Mouse"</span></span>
-<span class='r-in'>,treat.incomplete.clones <span class='op'>=</span> <span class='st'>"exclude"</span></span>
-<span class='r-in'>,treat.incomplete.cells <span class='op'>=</span> <span class='st'>"proportional"</span></span>
-<span class='r-in'>,color.by <span class='op'>=</span> <span class='st'>"seurat_clusters"</span><span class='op'>)</span> <span class='co'>#change grouping with group.by = "column name"</span></span>
-<span class='r-in'><span class='va'>clonal_out</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span> <span class='co'>#list of plots</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
-<span class='r-plt'><img src='VDJ_clonal_expansion-1.png' alt='' width='700' height='433' /></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
-<span class='r-plt'><img src='VDJ_clonal_expansion-2.png' alt='' width='700' height='433' /></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [[3]]</span>
-<span class='r-plt'><img src='VDJ_clonal_expansion-3.png' alt='' width='700' height='433' /></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-in'><span class='va'>clonal_out</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span> <span class='co'>#list of source dataframes</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> $s1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>    Counts Color ClonalRank  clonotype_id         VDJ_cdr3s_aa</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1       1  None          1 clonotype1243             CVRSWDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2       1     0          2 clonotype1364          CARWNWYFDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3       1     2          3 clonotype1451         CARDYYGSSGYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4       1     3          4 clonotype1514         CARTTGAWFAYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5       1  None          5 clonotype1682        CARGKNGAWFAYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6       1  None          6 clonotype1725         CARVNLHAMDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7       1     1          7 clonotype1923     CARNGYYYGSSTFDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8       1  None          8 clonotype2040     CVRGGYDYDRDYFDFW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9       1  None          9 clonotype2053     CARSSLYYGNFYFDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10      1  None         10 clonotype2069       CARWVYQTRAMDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11      1     0         11 clonotype2100     CARDYYGSSLRYFDVW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 12      1     0         12 clonotype2271   CTFRIYYYGSSPYYFDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 13      1     3         13 clonotype2276   CTRREIYDGLSYYAMDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 14      1  None         14 clonotype2287   CARPPYYYGSSPYAMDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 15      1     0         15 clonotype2295     CVRQNYGSSHWYFDVW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 16      1  None         16 clonotype2368  CARIAFPAYYSNYRGFAYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 17      1  None         17 clonotype2386 CTRNMRLRRGTGTGYAMDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                VJ_cdr3s_aa               barcode</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1              CQQYNSYPLTF s1_CTACGTCCAAAGGCGT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2              CSQSTHVPWTF s1_TAGTGGTCAAGCGATG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3              CALWYSNHLVF s1_AGACGTTTCCACGTGG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4          CGVGDTIKEQFVYVF s1_GGGAATGCAGTGGAGT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5              CWQGTHFPLTF s1_TACTTGTCACCAGGCT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6              CQHFWGTPRTF s1_GCTGGGTGTCCAGTTA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7              CQQSNSWPLTF s1_TAAACCGAGCGCTCCA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8              CAQNLELPYTF s1_ACGATGTTCAAACCGT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9                     &lt;NA&gt; s1_CCCAGTTAGCAGGTCA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10 CQQGQSYPLTF;CQQGDTLPWTF s1_CCAATCCTCTGCAGTA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11             CKQAYDVPYTF s1_AAGGCAGTCGATCCCT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 12             CQQHYSTPFTF s1_GATCGATAGTTAGCGG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 13 CQQDYSSPWTF;CLQYASSPWTF s1_TTAACTCCAACCGCCA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 14             CQQHYSTPLTF s1_TCTCATAGTGTTGAGG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 15             CQQWSSNPPTF s1_CAACCTCTCTCCAGGG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 16             CQNDYSYPLTF s1_CAGAATCAGCAATCTC-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 17             CLQYDNLLWTF s1_CGTTGGGAGGGATCTG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> $s2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   Counts Color ClonalRank clonotype_id                  VDJ_cdr3s_aa</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1      1     0          1 clonotype516 CARNRITTVVAPMDYW;CARKDYARGDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2      1     2          2 clonotype634                  CARPPLTGFAYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3      1  None          3 clonotype635                 CARKSSHWYFDVW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4      1     4          4 clonotype649                CASGGGNPWYFDVW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5      1     2          5 clonotype686                CTRGRRPEGYFDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6      1  None          6 clonotype734               CARCGYYGYHAMDYW</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>               VJ_cdr3s_aa               barcode</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1 CQQSNSWPLTF;CQQGSSIPLTF s2_AGGTCATTCTTGGGTA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2              CHQYLSSWTF s2_CTACCCAAGACTAGAT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3             CQQHLHIPRTF s2_CCTCTGACAGACGCAA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4             CQQHYSTPYTF s2_CCTCTGACACCAGATT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5             CQQGSSIPLTF s2_TACGGATGTGGGTCAA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6             CALWYSTRYVF s2_GACCAATTCTTCATGT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> $s3</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>    Counts Color ClonalRank  clonotype_id       VDJ_cdr3s_aa  VJ_cdr3s_aa</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1       1     1          1 clonotype1028  CAREGYYGSSPYAMDYW   CLQYDNLFTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2       1     3          2 clonotype1056 CARKTEGVYYGNYVFDYW  CQQSKEVPPTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3       1     0          3  clonotype141 CARWGIYDGYYGDAMDYW  CALWYSNHLVF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4       1  None          4  clonotype390           CARTFAYW  CLQYASSPWTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5       1     1          5  clonotype464         CARMVTGAYW  CQNDYSYPLTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6       1  None          6  clonotype478        CARWDVYFDYW  CQQGNTLPRTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7       1     2          7  clonotype592       CAREATVVADYW  CQQSNEDPRTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8       1     3          8  clonotype649     CARPNSLDWYFDVW  CALWYSNHFIF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9       1  None          9  clonotype777     CARGGVTTGEFAYW  CQQYWSTPFTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10      1     3         10  clonotype897    CARPLTGTSGAMDYW CQHFWSTPPWTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11      1     0         11  clonotype921    CARKRDYDSYAMDYW  CQQSNEDPWTF</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                  barcode</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1  s3_TGGGCGTTCGGTTCGG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2  s3_CCCAGTTCACTCGACG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3  s3_ATGCGATTCCCATTAT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4  s3_AGCGTATCACGGACAA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5  s3_GTGCGGTAGCCCAGCT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6  s3_CAGAATCGTTATCCGA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7  s3_ATTATCCAGTTCGATC-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8  s3_TCTTCGGGTGCTCTTC-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9  s3_GCTCCTACAGAGTGTG-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10 s3_TCTCTAACATGGTCTA-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11 s3_GGTGCGTTCGGCCGAT-1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>#T cell plot with recoloring by vgene</span></span>
-<span class='r-in'><span class='co'>#VDJ_clonal_expansion(VDJ = VDJ.GEX.matrix.out[[1]]</span></span>
-<span class='r-in'><span class='co'>#,celltype = "Tcells", clones = 30, group.by = "sample_id"</span></span>
-<span class='r-in'><span class='co'>#,color_by = "VDJ_vgene")</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>#Plotting only IgD clones. Increased the value for clones to scan more of the dataset</span></span>
-<span class='r-in'><span class='co'>#VDJ_clonal_expansion(VDJ = VDJ_comb[[1]]</span></span>
-<span class='r-in'><span class='co'>#,celltype = "Bcells", clones = 150,subtypes = FALSE</span></span>
-<span class='r-in'><span class='co'>#,species = "Mouse",treat.incomplete.clones = "include"</span></span>
-<span class='r-in'><span class='co'>#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>#Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)</span></span>
-<span class='r-in'><span class='co'>#VDJ_clonal_expansion(VDJ = VDJ_comb[[1]]</span></span>
-<span class='r-in'><span class='co'>#,celltype = "Bcells", clones = 150,subtypes = TRUE, species = "Mouse"</span></span>
-<span class='r-in'><span class='co'>#,treat.incomplete.clones = "proportional"</span></span>
-<span class='r-in'><span class='co'>#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")</span></span>
-<span class='r-in'></span>
-</code></pre></div>
+    <div class="ref-examples sourceCode"></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
