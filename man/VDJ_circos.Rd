@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_circos.R
 \name{VDJ_circos}
 \alias{VDJ_circos}
-\title{Plots a Circos diagram from an adjacency matrix. Uses the Circlize chordDiagram function. Is called by VDJ_clonotype_clusters_circos(), VDJ_alpha_beta_Vgene_circos() and VDJ_VJ_usage_circos() functions or works on its own when supplied with an adjacency matrix.}
+\title{Internal utility for circos functions}
 \usage{
 VDJ_circos(Adj_matrix, group, grid.col, label.threshold, axis, c.count)
 }

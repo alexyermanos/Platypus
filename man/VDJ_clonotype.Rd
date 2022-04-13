@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_clonotype.R
 \name{VDJ_clonotype}
 \alias{VDJ_clonotype}
-\title{Deprecated function for Platypus V2 with options for Platypus V3. For revised hierarchical clonotyping please use VDJ_clonotype_v3() Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.}
+\title{Deprecated Platypus V2 clonotyping wrapper}
 \usage{
 VDJ_clonotype(
   VDJ,

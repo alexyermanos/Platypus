@@ -1,4 +1,6 @@
-#' Assembles sequences from MIXCR output into inserts for expression in PnP cells. For detailes check https://doi.org/10.1038/ncomms12535 ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING SEQUENCES FOR EXPRESSION ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks
+#' Ab sequence assembly for recombinant PnP expression
+#'
+#'@description Assembles sequences from MIXCR output into inserts for expression in PnP cells. For detailes check https://doi.org/10.1038/ncomms12535 ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING SEQUENCES FOR EXPRESSION ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks
 #' @param VDJ.mixcr.matrix Output dataframe from the VDJ_call_MIXCR function or a dataframe generated using the VDJ_GEX_matrix function and supplemented with MIXCR information (Needed columns: All Framework and CDR sequences)
 #' @param id.column Character. Column name of VDJ.mixcr.matrix to use as ID for the assembled sequences. Defaults to "barcode"
 #' @param species Character. Which IgKC sequence to use. Can be "human" or "mouse". Defaults to "mouse"

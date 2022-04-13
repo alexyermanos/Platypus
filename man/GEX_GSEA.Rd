@@ -2,9 +2,7 @@
 % Please edit documentation in R/GEX_GSEA.R
 \name{GEX_GSEA}
 \alias{GEX_GSEA}
-\title{Conducts a Gene Set Enrichment Analysis (GSEA) on a set of genes submitted in a data frame with a metric each.
-Works with the output of GEX_genes_cluster or a custom data frame containing the gene symbols either in a column "symbols" or as rownames and a metric for each gene.
-The name of the column containing the metric has to be declared via the input metric.colname.}
+\title{GEX Gene Set Enrichment Analysis and plotting}
 \usage{
 GEX_GSEA(
   GEX.cluster.genes.output,

@@ -2,8 +2,7 @@
 % Please edit documentation in R/GEX_phenotype_per_clone.R
 \name{GEX_phenotype_per_clone}
 \alias{GEX_phenotype_per_clone}
-\title{Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
-! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.}
+\title{Plotting of GEX phenotype by VDJ clone}
 \usage{
 GEX_phenotype_per_clone(
   GEX,

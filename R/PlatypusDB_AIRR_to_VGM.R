@@ -1,5 +1,6 @@
-#' Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format.
-#' @description All compulsory AIRR data columns are needed. Additionally, the following columns are required: v_call, cell_id, clone_id. If trim.and.align is set to TRUE additionally the following columns are needed: v_sequence_start, j_sequence_end.
+#'AIRR to Platypus V3 VGM compatibility function
+#'
+#'@description Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM object format.All compulsory AIRR data columns are needed. Additionally, the following columns are required: v_call, cell_id, clone_id. If trim.and.align is set to TRUE additionally the following columns are needed: v_sequence_start, j_sequence_end.
 #' Note on TRUST4 input: TRUST4 (https://doi.org/10.1038/s41592-021-01142-n2) is a newly alignment tool for VDJ data by the Shirley lab. It is able to also extract VDJ sequences from 10x GEX data. We are actively testing TRUST4 as an alternative to Cellranger and can not give recommendations as of now. This function does support the conversion of TRUST4 airr output data into the Platypus VGM format. In that case, an extra column will be added describing whether the full length VDJ sequence was extracted for any given cell and chain.
 #'@param AIRR.input Source of the AIRR table(s) as a list. There are 2 available input options: 1. 1. List with local paths to .tsv files / 3. List of AIRR tables loaded in as R objects within the current R environment.
 #'@param get.VDJ.stats Boolean. Defaults to TRUE. Whether to generate summary statistics on repertoires and output those as output_VGM[[3]]
@@ -398,14 +399,14 @@ PlatypusDB_AIRR_to_VGM <- function(AIRR.input,
 
   vdj_loaded <- F
   #get input as list
-  if(class(AIRR.input) == "list"){
-    if(class(AIRR.input[[1]]) == "data.frame"){ #case 1.
+  if(inherits(AIRR.input,"list")){
+    if(inherits(AIRR.input[[1]],"data.frame")){ #case 1.
       if(verbose) cat("\n Dataframe input detected")
       airr.list <- AIRR.input
       airr.names <- "Input from R enviroment"
       vdj_loaded <- T
 
-    } else if(class(AIRR.input[[1]]) == "character"){ #case 3
+    } else if(inherits(AIRR.input[[1]],"character")){ #case 3
       if(verbose) cat("\n Local paths input detected. Loading in tables")
       airr.names <- paste0(unlist(AIRR.input),collapse = ";")
       vdj_load_error <- tryCatch({

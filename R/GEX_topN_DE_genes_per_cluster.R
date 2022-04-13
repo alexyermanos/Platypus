@@ -1,4 +1,6 @@
-#' Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.
+#'Platypus V2 GEX DE genes helper
+#'
+#'@description Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.
 #' @param GEX_cluster_genes.output The output from the GEX_cluster_genes function - this should be a list with each list element corresponding to the genes, p values, logFC, pct expression for the genes differentially regulated for each cluster.
 #' @param n.genes The number of genes to be selected from each cluster. If n.genes is higher than the number of cells in a cluster then it is silently adjusted to be
 #' @param by_FC Logical indicating if the top n genes are selected based on the logFC value instead of p value. Default is FALSE.

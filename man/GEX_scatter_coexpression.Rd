@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_scatter_coexpression.R
 \name{GEX_scatter_coexpression}
 \alias{GEX_scatter_coexpression}
-\title{Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.}
+\title{Scatter plot for coexpression of two selected genes}
 \usage{
 GEX_scatter_coexpression(GEX, gene.1, gene.2, color.theme)
 }
@@ -19,7 +19,7 @@ GEX_scatter_coexpression(GEX, gene.1, gene.2, color.theme)
 Returns a gridplot showing coexpression scatterplot as well as histograms of gene.1 and gene.2
 }
 \description{
-Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
+Plots a composite figure showing single marker expression as histograms and coexpression as a scatterplot.
 }
 \examples{
 gene1 <- "CD24A"

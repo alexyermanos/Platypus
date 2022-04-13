@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_contigs_to_vgm.R
 \name{VDJ_contigs_to_vgm}
 \alias{VDJ_contigs_to_vgm}
-\title{Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain}
+\title{Local VDJ dataframe to VDJ.GEX.matrix format utility}
 \usage{
 VDJ_contigs_to_vgm(directory, sample.names, platypus.version)
 }

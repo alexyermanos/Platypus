@@ -1,4 +1,6 @@
-#' Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
+#'Plotting of GEX phenotype by VDJ clone
+#'
+#'@description Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 #' ! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.
 #' @param GEX For platypus.version == "v3" the GEX object from the output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output \[\[2\]\]). For platypus.version == "v2" a single seurat object from automate_GEX function after labeling cell phenotypes using the GEX_phenotype function.
 #' @param clonotype.ids  For platypus.version == "v2" Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, these repertoires should be found in the automate_GEX library.
@@ -61,7 +63,7 @@ print(class(temp.matrix))
     ggplot2::ylab("Cell Counts")+
     ggplot2::xlab("Clonotypes")+
     ggplot2::labs(fill = "Cell State")
-  stacked.ggplot <- stacked.ggplot + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::theme_classic()
+  stacked.ggplot <- stacked.ggplot + cowplot::theme_cowplot()+ ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank")
   return(stacked.ggplot)
 
   } else if(platypus.version == "v3"){
@@ -122,7 +124,7 @@ print(class(temp.matrix))
       ggplot2::ylab("Cell Counts")+
       ggplot2::xlab("Clonotypes")+
       ggplot2::labs(fill = "Cell State")
-    stacked.ggplot <- stacked.ggplot + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::theme_classic() +ggplot2::scale_fill_manual(values = grDevices::rainbow(length(unique(temp.melt$variable)))) + ggplot2::ggtitle(label = paste0(unique(GEX@meta.data$sample_id)[k]))
+    stacked.ggplot <- stacked.ggplot + cowplot::theme_cowplot() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") +ggplot2::scale_fill_manual(values = grDevices::rainbow(length(unique(temp.melt$variable)))) + ggplot2::ggtitle(label = paste0(unique(GEX@meta.data$sample_id)[k]))
     plot.out.list[[k]] <- stacked.ggplot
     } #end loop over sample_ids
     return(plot.out.list)

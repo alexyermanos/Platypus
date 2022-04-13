@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_pairwise_degs.R
 \name{GEX_pairwise_DEGs}
 \alias{GEX_pairwise_DEGs}
-\title{Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3}
+\title{Wrapper for calculating pairwise differentially expressed genes}
 \usage{
 GEX_pairwise_DEGs(
   GEX,

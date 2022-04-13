@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_DEgenes_persample.R
 \name{GEX_DEgenes_persample}
 \alias{GEX_DEgenes_persample}
-\title{!Only for Platypus version v2. For more flexibility and platypus v3 please refer to GEX_Degenes. Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX and further extracting sample information from the "sample_id" component of the Seurat object.}
+\title{Platypus V2 Differentially expressed genes}
 \usage{
 GEX_DEgenes_persample(
   automate.GEX,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_clonal_lineages.R
 \name{VDJ_clonal_lineages}
 \alias{VDJ_clonal_lineages}
-\title{Only Platypus V2 Organizes and extracts full-length sequences for clonal lineage inference. The output sequence can either contain the germline sequence as determined by cellranger or can just contain the sequences contained in each clonal family.}
+\title{Platypus V2 lineage utility}
 \usage{
 VDJ_clonal_lineages(
   VDJ,

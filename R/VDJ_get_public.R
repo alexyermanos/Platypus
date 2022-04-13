@@ -1,5 +1,5 @@
 #' Function to get shared/public elements across multiple repertoires
-
+#'
 #'@description Function to get shared elements across multiple repertoires, specified by the feature.columns parameter (a column of the VDJ matrix). If two columns are specified in feature.columns, the resulting shared features will combine the values from each column (at a per-cell level).
 #' @param VDJ VDJ or VDJ.GEX.matrix[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
 #' @param feature.columns Character or character vector columns of features to be assayed

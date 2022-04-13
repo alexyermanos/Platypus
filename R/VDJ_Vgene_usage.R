@@ -1,5 +1,8 @@
-#' Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix
+#'V(D)J gene usage stacked barplots
+#'
+#' @description Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix
 #' @param VDJ For platypus.version = "v2" output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus.version = "v3" output VDJ dataframe from VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
+#' @param group.by Character. Defaults to "sample_id". Column name of VDJ to group plot by.
 #' @param platypus.version Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format
 #' @return Returns a list of matrices containing the number of Vgene heavy/light chain combinations per repertoire.
 #' @export
@@ -8,6 +11,7 @@
 #' Platypus::small_vgm[[1]], platypus.version = "v3")
 #'
 VDJ_Vgene_usage <- function(VDJ,
+                            group.by,
                             platypus.version){
     Nr_of_VDJ_chains <- NULL
     Nr_of_VJ_chains <- NULL
@@ -74,6 +78,18 @@ VDJ_Vgene_usage <- function(VDJ,
       #filtering for max 1VDJ 1VJ chain
       VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
 
+      if(missing(group.by)) group.by <- "sample_id"
+      if(group.by != "sample_id"){
+        if(group.by %in% names(VDJ.matrix)){
+          VDJ.matrix$sample_id <- as.character(VDJ.matrix[,group.by])
+          if(any(is.na(VDJ.matrix$sample_id)) == T){
+            VDJ.matrix <- VDJ.matrix[!is.na(VDJ.matrix$sample_id),]
+            warning(paste0("Filtered out cells with 'NA' in grouping column"))
+          }
+          message(paste0("Grouping by: ", group.by))
+        } else {
+        warning(paste0("Group_id '",group.by, "' was not found in VDJ. Grouping by 'sample_id'"))}
+      }
 
       sample_list <- list()
       for(i in 1:length(unique(VDJ.matrix$sample_id))){

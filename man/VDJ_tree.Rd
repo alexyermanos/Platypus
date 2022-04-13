@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_tree.R
 \name{VDJ_tree}
 \alias{VDJ_tree}
-\title{only Platypus v2 Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages}
+\title{Platypus V2 phylogenetic trees.}
 \usage{
 VDJ_tree(
   clonal.lineages,
@@ -30,7 +30,7 @@ VDJ_tree(
 Returns a nested list of phylogenetic trees. The output[[i]][[j]] corresponds to the j'th clone in the i'th input repertoire. plot(output[[i]][[j]]) should display the phylogenetic tree if the ape package is loaded.
 }
 \description{
-only Platypus v2 Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages
+Please refer tp VDJ_phylogenetic_tree for Platypus V3. Produces neighbor joining phylogenetic trees from the output of VDJ_clonal_lineages
 }
 \examples{
 \dontrun{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_matrix.R
 \name{VDJ_GEX_matrix}
 \alias{VDJ_GEX_matrix}
-\title{Processes both raw VDJ and GEX Cellranger output to compile a single cell level table containing all available information for each cell. If using Feature Barcodes please note the [FB] paragraph in the description and all "FB." parameters}
+\title{VDJ GEX processing and integration wrapper}
 \usage{
 VDJ_GEX_matrix(
   VDJ.out.directory.list,
@@ -10,6 +10,7 @@ VDJ_GEX_matrix(
   FB.out.directory.list,
   Data.in,
   Seurat.in,
+  GEX.read.h5,
   VDJ.combine,
   GEX.integrate,
   integrate.GEX.to.VDJ,
@@ -21,6 +22,7 @@ VDJ_GEX_matrix(
   get.VDJ.stats,
   numcores,
   trim.and.align,
+  append.raw.reference,
   select.excess.chains.by.umi.count,
   excess.chain.confidence.count.threshold,
   gap.opening.cost,
@@ -54,7 +56,9 @@ VDJ_GEX_matrix(
 
 \item{Data.in}{Input for R objects from either the PlatypusDB_load_from_disk or the PlatypusDB_fetch function. If provided, input directories should not be specified. If you wish to integrate local and downloaded data, please load them via load_from_disk and fetch and provide as a list (e.g. Data.in = list(load_from_disk.output, fetch.output))}
 
-\item{Seurat.in}{Alternative to GEX.out.directory.list. List of processed (!) seurat objects. Length of the list can either be 1 if VDJ.integrate = TRUE or equal to the length of VDJ.out.directory.list if VDJ.integrate = FALSE. In metadata the column sample_id and group_id must be present. sample_id must contain ids in the format "s1", "s2" ... "sn" and must be matching the order of VDJ.out.directory.list. No processing (i.e. data normalisation and integration) will be performed on these objects. They will be returned as part of the VGM and with additional VDJ data if integrate.VDJ.to.GEX = T. Filtering parameters such as overlapping barcodes, exclude.GEX.not.in.VDJ and exclude.on.cell.state.markers will be applied to the Seurat.in GEX object(s).}
+\item{Seurat.in}{Alternative to GEX.out.directory.list. A seurat object. VDJ.integrate has to be set to TRUE. In metadata the column of the seurat object, sample_id and group_id must be present. sample_id must contain ids in the format "s1", "s2" ... "sn" and must be matching the order of VDJ.out.directory.list. No processing (i.e. data normalisation and integration) will be performed on these objects. They will be returned as part of the VGM and with additional VDJ data if integrate.VDJ.to.GEX = T. Filtering parameters such as overlapping barcodes, exclude.GEX.not.in.VDJ and exclude.on.cell.state.markers will be applied to the Seurat.in GEX object(s).}
+
+\item{GEX.read.h5}{Boolean. defaults to FALSE. Whether to read GEX data from an H5 file. If set to true, please provide the each directory containing a cellranger H5 output file or a direct path to a filtered_feature_bc_matrix.h5 as one GEX.out.directory.list element.}
 
 \item{VDJ.combine}{Boolean. Defaults to TRUE. Whether to integrate repertoires. A sample identifier will be appended to each barcode both in GEX as well as in VDJ. Recommended for all later functions}
 
@@ -77,6 +81,8 @@ VDJ_GEX_matrix(
 \item{numcores}{Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)}
 
 \item{trim.and.align}{Boolean. Defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time}
+
+\item{append.raw.reference}{Boolean. Defaults to TRUE. This appends the raw reference sequence for each contig even if trim.and.align is set to FALSE.}
 
 \item{select.excess.chains.by.umi.count}{Boolean. Defaults to FALSE. There are several methods of dealing with cells containing reads for more than 1VDJ and 1VJ chain. While many analyses just exclude such cells, the VGM is designed to keep these for downstream evaluation (e.g. in VDJ_clonotype). This option presents an evidenced-based way of selectively keeping or filtering only one of the present VDJ  and VJ chains each. This works in conjunction with the parameter excess.chain.confidence.count.threshold (below) Idea source: Zhang W et al. Sci Adv. 2021 (10.1126/sciadv.abf5835)}
 
@@ -116,6 +122,8 @@ VDJ_GEX_matrix(
 
 \item{FB.ratio.threshold}{Numeric. Defaults to 2 Threshold for assignment of feature barcodes by counts. A feature barcode is assigned to a cell if its counts are >FB.count.threshold and if its counts are FB.ratio.threshold-times higher than the counts of the feature barcode with second most counts.}
 
+\item{FB.exclude.pattern}{Character (regex compatible). If a feature barcode matches this pattern it will be excluded from the hashing sample assignments. This may be neccessary if CITE-seq barcodes and hashing barcodes are sequenced in the same run.}
+
 \item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.}
 
 \item{verbose}{if TRUE prints runtime info to console. Defaults to TRUE}
@@ -124,8 +132,8 @@ VDJ_GEX_matrix(
 Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == F, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
 }
 \description{
-# This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
-# [FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
+This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
+[FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
 }
 \examples{
 \dontrun{

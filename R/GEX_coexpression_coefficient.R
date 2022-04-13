@@ -1,4 +1,6 @@
-#' Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.
+#'Coexpression of selected genes
+#'
+#'@description Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.
 #' @param GEX GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output\[\[2\]\])
 #' @param genes Character vector. At least 2 genes present in rownames(GEX). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.
 #' @param subsample.n Interger. Number of cells to subsample. If set to 100, 100 cells will be randomly sampled for the calculation
@@ -75,8 +77,10 @@ GEX_coexpression_coefficient <- function(GEX,
 
   if(plot.dotmap == T){
 
-    plot_out <- ggplot2::ggplot(out_t, ggplot2::aes(x = gene.2, y = gene.1, col = coex.coef, size = perc.single.positive)) + ggplot2::geom_point(show.legend = T)  + ggplot2::theme(panel.background = ggplot2::element_blank(),panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=3),axis.text = ggplot2::element_text(size = 30), axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.95, hjust=1), axis.line = ggplot2::element_blank(), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30), legend.key = ggplot2::element_rect(fill = "white", color = "white"), legend.position = "right") + ggplot2::labs(title = "", x = "", y = "", color = "Coexpression coefficient", size = "% of single positives") + ggplot2::scale_color_viridis_c(option = "B", end = 0.9) + ggplot2::scale_size_binned(breaks = c(5,25,50,75), labels = c("<5","5", "25",">50"),range = c(2,7)) + ggplot2::scale_x_discrete(limits = rev)
-    plot_out
+    plot_out <- ggplot2::ggplot(out_t, ggplot2::aes(x = gene.2, y = gene.1, col = coex.coef, size = perc.single.positive)) + ggplot2::geom_point(show.legend = T) + cowplot::theme_cowplot()  + ggplot2::labs(title = "", x = "", y = "", color = "Coexpression coefficient", size = "% of single positives") + ggplot2::scale_color_viridis_c(option = "B", end = 0.9) + ggplot2::scale_x_discrete(limits = rev)
+
+    #+ ggplot2::scale_size_binned(breaks = c(5,25,50,75), labels = c("<5","5", "25",">50"),range = c(2,7))
+    #panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.95, hjust=1), axis.line = ggplot2::element_blank(), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30), legend.key = ggplot2::element_rect(fill = "white", color = "white"),
 
     return(plot_out)
 

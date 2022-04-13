@@ -1,4 +1,6 @@
-#' Only Platypus v2 Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.
+#'Platypus V2 dataframe utility
+#'
+#' @description Only Platypus v2 Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.
 #' @param VDJ_clonotype.output The output object from the VDJ_clonotype function. The column of the merged nucleotide clonotype IDs will be used to rearrange the new object.
 #' @param VDJ_analyze.output The output from the initial VDJ_analyze, containing clonotype information based on nucleotide sequence.
 #' @param Platypus_list.object The new list object from one of Platypus functions (for example, clonal lineages, VDJ_per_clne, etc) that should be merged based on the VDJ_clonotype output structure. nested list structure, where outer list corresponds to repertoire and the inner list corresponds to clones (on the nucleotide level).

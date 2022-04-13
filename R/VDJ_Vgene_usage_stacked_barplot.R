@@ -1,11 +1,15 @@
-#' Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.
+#'V(D)J gene usage stacked barplots
+#'
+#' @description Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.
 #' @param VDJ Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])
+#' @param group.by Character. Defaults to "sample_id". Column name of VDJ to group plot by.
 #' @param HC.gene.number Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.
 #' @param Fraction.HC Numeric value indicating the minimum fraction of clones expressing a particular HC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.
 #' @param LC.Vgene Logical indicating whether to make a barplot of the LC V gene distribution. Default is set to FALSE.
 #' @param LC.gene.number Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.
 #' @param Fraction.LC Numeric value indicating the minimum fraction of clones expressing a particular LC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.
 #' @param platypus.version Set according to input format to either "v2" or "v3". Defaults to "v3"
+#' @param is.bulk logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_Vgene_usage_stacked_barplot function is compatible for use with bulk data. Defaults to False (F).
 #' @return Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.
 #' @export
 #' @examples
@@ -16,12 +20,14 @@
 #'
 
 VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
+                                            group.by,
                                             HC.gene.number,
                                             Fraction.HC,
                                             LC.Vgene,
                                             LC.gene.number,
                                             Fraction.LC,
-                                            platypus.version){
+                                            platypus.version,
+                                            is.bulk){
 
   Vgene <- NULL
   Percentage <- NULL
@@ -31,6 +37,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
   Sample <- NULL
   Frequency <- NULL
 
+  if(missing(is.bulk)) is.bulk <- F
   if (missing(Fraction.HC)) Fraction.HC <- 0
   if (missing(HC.gene.number)) HC.gene.number <- 10
   if (missing(LC.Vgene)) LC.Vgene <- FALSE
@@ -198,15 +205,29 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
   } else if(platypus.version == "v3"){
 
-    #filtering for max 1VDJ 1VJ chain
-    VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
+    if(is.bulk == F){
+      #filtering for max 1VDJ 1VJ chain
+      VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
+    }
 
+    if(missing(group.by)) group.by <- "sample_id"
+    if(group.by != "sample_id"){
+      if(group.by %in% names(VDJ.matrix)){
+        VDJ.matrix$sample_id <- as.character(VDJ.matrix[,group.by])
+        if(any(is.na(VDJ.matrix$sample_id)) == T){
+          VDJ.matrix <- VDJ.matrix[!is.na(VDJ.matrix$sample_id),]
+          warning(paste0("Filtered out cells with 'NA' in grouping column"))
+        }
+        message(paste0("Grouping by: ", group.by))
+      } else {
+        warning(paste0("Group_id '",group.by, "' was not found in VDJ. Grouping by 'sample_id'"))}
+    }
 
     clonotype.list <- list()
     for(i in 1:length(unique(VDJ.matrix$sample_id))){
       clonotype.list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
       #get unique clones
-      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == F,]
+      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id) == F,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
     message(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
@@ -273,7 +294,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
     #Assign the sample id
     for (i in 1:length(HC_Vgene_usage_top)){
-      HC_Vgene_usage_top[[i]]$Sample <- as.character(i)
+      HC_Vgene_usage_top[[i]]$Sample <-  unique(VDJ.matrix$sample_id)[i]
     }
 
     #And then bind together for plotting
@@ -282,8 +303,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
     plotting_df <- plotting_df[!is.na(plotting_df$Vgene), ]
 
     Vgene_usage_plot[[1]] <- ggplot2::ggplot(plotting_df, ggplot2::aes(fill = Vgene, y=Frequency, x=Sample)) +
-      ggplot2::geom_bar(position="fill", stat="identity", color="black", width = 0.7) +
-      ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      ggplot2::geom_bar(position="fill", stat="identity", color="black", width = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
       ggplot2::ylab("% of unique clones") + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ggtitle(paste0("IgH V gene stacked"))
 
 
@@ -347,7 +367,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
       #Assign the sample id
       for (i in 1:length(LC_Vgene_usage_top)){
-        LC_Vgene_usage_top[[i]]$Sample <- as.character(i)
+        LC_Vgene_usage_top[[i]]$Sample <- unique(VDJ.matrix$sample_id)[i]
       }
 
       #And then bind together
@@ -355,8 +375,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
       plotting_df <- plotting_df[!is.na(plotting_df$Vgene), ]
 
       Vgene_usage_plot[[1]] <- ggplot2::ggplot(plotting_df, ggplot2::aes(fill = Vgene, y=Frequency, x=Sample)) +
-        ggplot2::geom_bar(position="fill", stat="identity", color="black", width = 0.7) +
-        ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
+        ggplot2::geom_bar(position="fill", stat="identity", color="black", width = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
         ggplot2::ylab("% of unique clones") + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ggtitle(paste0("IgK/L V gene stacked"))
 
     }

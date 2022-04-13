@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlatypusDB_list_projects.R
 \name{PlatypusDB_list_projects}
 \alias{PlatypusDB_list_projects}
-\title{Lists metadata tables of available projects on PlatypusDB}
+\title{Metadata download by project for PlatypusDB}
 \usage{
 PlatypusDB_list_projects(keyword)
 }
@@ -16,7 +16,7 @@ A list of metadata tables by project. List element names correspond to project i
 Lists metadata tables of available projects on PlatypusDB
 }
 \examples{
-\donttest{
+\dontrun{
 
 #Get list of all available projects and metadata.
 PlatypusDB_projects <- PlatypusDB_list_projects()

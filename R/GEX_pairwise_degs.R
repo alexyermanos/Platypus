@@ -1,4 +1,6 @@
-#' Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3
+#'Wrapper for calculating pairwise differentially expressed genes
+#'
+#'@description Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3
 #' @param GEX Output Seurat object of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]])
 #' @param group.by Character. Defaults to "seurat_clusters" Column name of GEX@meta.data to use for pairwise comparisons. More than 20 groups are discuraged.
 #' @param min.pct Numeric. Defaults to 0.25 passed to Seurat::FindMarkers
@@ -76,7 +78,7 @@ GEX_pairwise_DEGs <- function(GEX,
         }
       }
 
-    plot.out <- ggplot2::ggplot(degs, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + ggplot2::theme(legend.position = "none",panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)")+ ggrepel::geom_text_repel(data = degs_rel, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
+    plot.out <- ggplot2::ggplot(degs, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(legend.position = "none") + ggplot2::labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)")+ ggrepel::geom_text_repel(data = degs_rel, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
 
     if(save.plot == T){
       ggplot2::ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 300, width = 12, height = 12)

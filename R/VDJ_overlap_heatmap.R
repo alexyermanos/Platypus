@@ -1,4 +1,6 @@
-#' Yields overlap heatmap and datatable of features or combined features for different samples or groups
+#'Wrapper to determine and plot overlap between VDJ features across groups
+#'
+#' @description Yields overlap heatmap and datatable of features or combined features for different samples or groups
 #' @param VDJ VDJ output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
 #' @param feature.columns A character array of column names of which the overlap should be displayed. The content of these columns is pasted together (separated by "/"). E.g. if the overlap in cells germline gene usage is desired, the input could be c("VDJ_jgene","VDJ_dgene","VDJ_vgene"). These columns would be pasted and compared across the grouping variable.
 #' @param grouping.column A column which acts as a grouping variable. If repertoires are to be compared use the sample_id column.

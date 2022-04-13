@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_expansion.R
 \name{VDJ_GEX_expansion}
 \alias{VDJ_GEX_expansion}
-\title{only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object. Output will plot which transcriptional cluster (GEX) that the cells of a given clonotype are found in.}
+\title{Platypus V2 utility}
 \usage{
 VDJ_GEX_expansion(
   GEX.list,

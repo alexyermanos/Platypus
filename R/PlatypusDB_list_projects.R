@@ -1,4 +1,6 @@
-#' Lists metadata tables of available projects on PlatypusDB
+#'Metadata download by project for PlatypusDB
+#'
+#'@description Lists metadata tables of available projects on PlatypusDB
 #' @param keyword Character. Keyword by which to search project ids (First Author, Year) in the database. Defaults to an empty string ("") which will list all projects currently available
 #' @return A list of metadata tables by project. List element names correspond to project ids to use in the PlatypusDB_fetch function
 #' @export

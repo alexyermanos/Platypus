@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_cluster_membership.R
 \name{GEX_cluster_membership}
 \alias{GEX_cluster_membership}
-\title{Plots the cluster membership for each of the distinct samples in the Seurat object from the automate_GEX function. The distinct samples are determined by "sample_id" field in the Seurat object.}
+\title{Cluster membership plots by sample}
 \usage{
 GEX_cluster_membership(GEX, by.group, platypus.version)
 }

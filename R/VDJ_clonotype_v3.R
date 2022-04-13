@@ -1,4 +1,6 @@
-#' Updated clonotyping function based on implications for cells with different chain numbers than 1 VDJ 1 VJ chains.
+#' Platypus V3 clonotyping wrapper
+#'
+#'@description Updated clonotyping function based on implications for cells with different chain numbers than 1 VDJ 1 VJ chains.
 #'@description This function offers two types of hierarchical clonotyping. The hierarchical option "single.chains" only merges cell with a single chain into clonotypes composed of cells with 1 VDJ 1 VJ chain. This is based on the assumption, that during mRNA capture and RT-PCR in GEMs, not all transcripts are captured and therefore cells may result missing a VDJ or VJ chain.
 #' The hierarchical option "double.and.single.chains" is based on the assumption, that cells with 1 VDJ and 2 VJ chains exist. For a review of the work concerning such cells as well as 2 VDJ 1 VJ cells please consult: https://doi.org/10.4049/jimmunol.1800904. The user may set a threshold of occurrence number above which cells with 1 VDJ 2 VJ chains are considered to be true and other cells with 1 VDJ 1 VJ, 1 VDJ 0 VJ and 0 VDJ 1 VDJ may be merged into the same clonotype by the strategy provided by the user. Cells with 2 VDJ chains are currently not considered in this process, as these are reported to be much rarer and, if appearing in the dataset are more likely to be doublets.
 #' We advice the user to carefully examine the output after hierarchical clonotyping before proceeding with further analysis.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_heatmap.R
 \name{GEX_heatmap}
 \alias{GEX_heatmap}
-\title{Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by pre-made sets of B or T cell markers, or can be customized by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.}
+\title{Flexible GEX heatmap wrapper}
 \usage{
 GEX_heatmap(
   GEX,

@@ -1,4 +1,6 @@
-#' only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object. Output will plot which transcriptional cluster (GEX) that the cells of a given clonotype are found in.
+#'Platypus V2 utility
+#'
+#'@description only Platypus v2 Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object. Output will plot which transcriptional cluster (GEX) that the cells of a given clonotype are found in.
 #' @param GEX.list The output of the automate_GEX function.
 #' @param VDJ.GEX.integrate.list Output from VDJ_GEX_integrate function. This object needs to have the GEX and VDJ information combined and integrated. This should be on the CLONAL level from the VDJ_GEX_integrate function.
 #' @param highlight.isotype (Optional) isotype to plot, choose between ["None","A","E","M","G","G1","G2A","G2B","G2C","G3"]. Default is None.

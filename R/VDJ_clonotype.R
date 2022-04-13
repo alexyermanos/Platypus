@@ -1,4 +1,6 @@
-#' Deprecated function for Platypus V2 with options for Platypus V3. For revised hierarchical clonotyping please use VDJ_clonotype_v3() Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
+#' Deprecated Platypus V2 clonotyping wrapper
+#'
+#'@description Deprecated function for Platypus V2 with options for Platypus V3. For revised hierarchical clonotyping please use VDJ_clonotype_v3() Returns a list of clonotype dataframes following additional clonotyping. This function works best following filtering to ensure that each clone only has one heavy chain and one light chain.
 #' @param VDJ For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
 #' @param clone.strategy (Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options include 'cdr3.nt', 'cdr3.aa','VDJJ.VJJ','VDJJ.VJJ.cdr3lengths','VDJJ.VJJ.cdr3length.CDR3.homology', 'VDJJ.VJJ.cdr3length.VDJCDR3.homology', 'cdr3.homology',or 'VDJcdr3.homology'. 'cdr3.aa' will convert the default cell ranger clonotyping to amino acid based. 'Hvj.Lvj' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'CDR3length' will group all sequences with identical CDRH3 and CDRL3 sequence lengths. Those arguments including 'CDR3.homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3.homology',or 'CDRH3.homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the CDRH3 sequence respictevely).
 #' All homology calculations are performed on the amino acid level.
@@ -180,9 +182,9 @@ VDJ_clonotype <- function(VDJ,
   }####STOP v2
   if(platypus.version=="v3"){####START v3
 
-    
+
     message("Please consider using the updated function VDJ_clonotype_v3 with increased flexibility for hierarchical clonotyping and overall higher performance.")
-    
+
     #compatibility with input naming scheme
     VDJ.GEX.matrix <- list()
     VDJ.GEX.matrix[[1]] <- VDJ
@@ -570,9 +572,9 @@ VDJ_clonotype <- function(VDJ,
                                                          sample_dfs[[i]]$VJ_cdr3s_nt)
 
             n_new_clones <- length(unique(sample_dfs[[i]]$new_clonal_feature))
-            
+
             print()
-            
+
             #check cells with only one VJ chain and nothing else
             if(length(onlyVJ_ind) > 0){
             for(cel in onlyVJ_ind){
@@ -2908,26 +2910,26 @@ clone_matches <- c(which(stringr::str_detect(sample_dfs[[i]]$new_clonal_feature,
       if(!global.clonotype) VDJ.GEX.matrix <- do.call("rbind",sample_dfs)
 
       if(global.clonotype){
-        if(class(sample_dfs)=="list"){
+        if(inherits(sample_dfs,"list")){
           VDJ.GEX.matrix <- sample_dfs[[1]]
         } else {
           VDJ.GEX.matrix <- sample_dfs
         }
-      } 
+      }
 
       #shift new columns to the front and rename
       if("sample_id" %in% names(VDJ.GEX.matrix)){
       clono_10x_index <- which(names(VDJ.GEX.matrix) == "sample_id")
       VDJ.GEX.matrix<- VDJ.GEX.matrix[,c(1:clono_10x_index, ((ncol(VDJ.GEX.matrix)-3):ncol(VDJ.GEX.matrix)), (clono_10x_index+1):(ncol(VDJ.GEX.matrix)-4))]
       }
-      
+
       names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonotype_id")] <- paste0("clonotype_id_",clone.strategy.as.input)
       names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_feature")] <- paste0("clonal_feature_",clone.strategy.as.input)
       names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_frequency")] <- paste0("clonotype_frequency_",clone.strategy.as.input)
       #names(VDJ.GEX.matrix)[which(names(VDJ.GEX.matrix) == "new_clonal_rank")] <- paste0("clonal_rank_",clone.strategy.as.input)
-      
+
       VDJ.GEX.matrix <- VDJ.GEX.matrix[,-c(which(names(VDJ.GEX.matrix) == "new_clonal_rank"))] #removing the clonal rank column as it has proven redundant
-      
+
       return(VDJ.GEX.matrix)
     }
 

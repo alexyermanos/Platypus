@@ -32,7 +32,7 @@ GEX_proportions_barplot(GEX = Platypus::small_vgm[[2]], source.group = "sample_i
 #To return a stacked barplot which shows the \% of cells of each
 #cluster attributed to each sample
 GEX_proportions_barplot(GEX = Platypus::small_vgm[[2]],
-source.group = "sample_id", target.group = "seurat_clusters"
+source.group = "seurat_clusters", target.group = "sample_id"
 ,stacked.plot = TRUE)
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_analyze.R
 \name{VDJ_analyze}
 \alias{VDJ_analyze}
-\title{Platypus V2 Processes and organizes the repertoire sequening data from cellranger vdj and returns a list of dataframes, where each dataframe corresponds to an individual repertoire. The function will return split CDR3 sequences, germline gene information, filter out those clones with either incomplete information or doublets (multiple CDR3 sequences for a given chain). This function should be called once for desired integrated repertoire and transcriptome. For example, if there are 3 VDJ libraries and 3 GEX libraries and the goal is to analyze all three GEX libraries together (e.g. one UMAP/tSNE reduction) this then function should be called one time and the three VDJ directories should be provided as input to the single function call.}
+\title{Platypus V2 VDJ processing wrapper.}
 \usage{
 VDJ_analyze(
   VDJ.out.directory,

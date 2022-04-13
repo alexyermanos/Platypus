@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_dublets.R
 \name{VDJ_dublets}
 \alias{VDJ_dublets}
-\title{Only Platypus v2 Produces a matrix indicating either the number of cells or clones which contain multiple heavy or light chains (or alpha/beta in the case of T cells).}
+\title{Platypus V2 annotation utility}
 \usage{
 VDJ_dublets(clonotype.list, clone.level)
 }

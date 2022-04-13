@@ -2,12 +2,13 @@
 % Please edit documentation in R/VDJ_overlap_heatmap.R
 \name{VDJ_overlap_heatmap}
 \alias{VDJ_overlap_heatmap}
-\title{Yields overlap heatmap and datatable of features or combined features for different samples or groups}
+\title{Wrapper to determine and plot overlap between VDJ features across groups}
 \usage{
 VDJ_overlap_heatmap(
   VDJ,
   feature.columns,
   grouping.column,
+  jaccard,
   plot.type,
   pvalues.label.size,
   axis.label.size,
@@ -20,6 +21,8 @@ VDJ_overlap_heatmap(
 \item{feature.columns}{A character array of column names of which the overlap should be displayed. The content of these columns is pasted together (separated by "/"). E.g. if the overlap in cells germline gene usage is desired, the input could be c("VDJ_jgene","VDJ_dgene","VDJ_vgene"). These columns would be pasted and compared across the grouping variable.}
 
 \item{grouping.column}{A column which acts as a grouping variable. If repertoires are to be compared use the sample_id column.}
+
+\item{jaccard}{Boolean. Defaults to FALSE. If set to TRUE, the overlap will be reported as jaccard index. If set to FALSE the overlap will be repored as absolute counts}
 
 \item{plot.type}{Character. Either "ggplot" or "pheatmap". Defaults to Pheatmap}
 

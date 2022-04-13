@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_coexpression_coefficient.R
 \name{GEX_coexpression_coefficient}
 \alias{GEX_coexpression_coefficient}
-\title{Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.}
+\title{Coexpression of selected genes}
 \usage{
 GEX_coexpression_coefficient(GEX, genes, subsample.n, plot.dotmap)
 }

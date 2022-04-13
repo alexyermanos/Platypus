@@ -1,5 +1,5 @@
 #' Load and preprocess a list of antigen-specific databases
-
+#'
 #'@description Preprocessing function for several antigen databases for both TCRs (VDJdb, McPAS-TCR, TBAdb) and BCRs (TBAdb), saving them either at a specified path, or loading them as a database list for downstream integration/analyses.
 #' @param databases list of databases to be processed and saved. Currently supported ones include: VDJdb(='vdjdb'), McPAS-TCR(='mcpas'), TBAdb(='tbdadb_tcr' or 'tbadb_bcr').
 #' @param file.paths list of file paths for the specified databases (in the database parameter). If NULL, will try to locally download the databases from the archived download links.

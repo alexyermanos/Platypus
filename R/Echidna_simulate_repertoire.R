@@ -1,6 +1,6 @@
-#' Simulate repertoire and transcriptome matrix, with igraph tree plot for each clone showing the evolution process. the node in the tree plot are colored with transcriptome state and isotype.
-#'
+
 #' @title Simulate immune repertoire and transcriptome data
+#' @description Simulate repertoire and transcriptome matrix, with igraph tree plot for each clone showing the evolution process. the node in the tree plot are colored with transcriptome state and isotype.
 #'
 #' @param initial.size.of.repertoire The initial number of existing cells when the evolution starts. Default is 10.
 #' @param species The species of the simulated repertoire, can be "mus" for mouse or "hum" for human. Default is "mus".

@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_topN_DE_genes_per_cluster.R
 \name{GEX_topN_DE_genes_per_cluster}
 \alias{GEX_topN_DE_genes_per_cluster}
-\title{Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.}
+\title{Platypus V2 GEX DE genes helper}
 \usage{
 GEX_topN_DE_genes_per_cluster(GEX_cluster_genes.output, n.genes, by_FC, filter)
 }

@@ -1,4 +1,6 @@
-#' (Re)-intergrated VDJ and GEX of one or two separate VGM objects. This can be used as a simple "updating" utility function, if metadata has been added to the VDJ dataframe and is also needed in the GEX matrix or the reverse. Entries are integrated by barcode. If barcodes have been altered (barcode column in VDJ and cell names in GEX), the function will not yield results
+#' Utility for VDJ GEX matrix to integrated VDJ and GEX objects after addition of data to either
+#'
+#'@description (Re)-intergrated VDJ and GEX of one or two separate VGM objects. This can be used as a simple "updating" utility function, if metadata has been added to the VDJ dataframe and is also needed in the GEX matrix or the reverse. Entries are integrated by barcode. If barcodes have been altered (barcode column in VDJ and cell names in GEX), the function will not yield results
 #' @param VGM Output object from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output)
 #' @param columns.to.transfer Optional. Character Vector. Column names of either the VDJ matrix or GEX meta.data that should be transferred to the corresponding other matrix. if not provided all columns missing from one will be integrated into the other matrix
 #' @param genes.to.VDJ Character vector of gene names in GEX. In many cases it is useful to extract expression values for a gene to metadata. This is done via SeuratObject::FetchData(vars  = genes,slot = seurat.slot) function. The VGM integrate takes gene ids, extracts these and adds them to the VDJ dataframe. If provided, no other columns are integrated between VDJ and GEX and columns.to.transfer is ignored.
@@ -15,6 +17,8 @@
 #' small_vgm <- VGM_integrate(
 #' VGM = small_vgm,
 #' columns.to.transfer = NULL) #transfer all new columns
+#' #and update clonotype_id and clonotype_frequency column
+#' #(as does VDJ_clonotype_v3 in VDJ)
 #'
 #' small_vgm <- VGM_integrate(
 #' VGM = small_vgm,
@@ -38,7 +42,7 @@ VGM_integrate <- function(VGM,
   #VERSION is set for now:
   platypus.version <- "v3"
 
-  if(class(VGM[[1]]) != "data.frame"){
+  if(!inherits(VGM[[1]],"data.frame")){
     stop("No VDJ matrix found in the provided VGM[[1]]")
   }
   if(!class(VGM[[2]]) %in% c("Seurat","SeuratObject")){
@@ -61,9 +65,14 @@ VGM_integrate <- function(VGM,
       cl_VDJ_to_GEX <- c()
       }
     } else {
+
+      VGM[[2]]@meta.data <- VGM[[2]]@meta.data[-c(which(names(VGM[[2]]@meta.data) %in% c("clonotype_id", "clonotype_frequency")))]#remove columns to allow updating these in case a new clonotyping strategy has been added
+
     cl_VDJ_to_GEX <- names(VGM[[1]])[!names(VGM[[1]]) %in% names(VGM[[2]]@meta.data)]
-    message("Integrating all VDJ columns which are not in GEX to GEX")
-  }
+    cl_VDJ_to_GEX <- cl_VDJ_to_GEX[!cl_VDJ_to_GEX %in% c("barcode", "GEX_available")]
+    if(length(cl_VDJ_to_GEX)>0)message("Integrating all VDJ columns which are not in GEX to GEX")
+    }
+
   if(length(cl_VDJ_to_GEX) > 0){
     VGM[[2]]@meta.data[,"int_merge_bc"] <- colnames(VGM[[2]])
     VGM[[1]][,"int_merge_bc"] <- VGM[[1]]$barcode
@@ -72,6 +81,7 @@ VGM_integrate <- function(VGM,
     new_GEX_meta <- merge(VGM[[2]]@meta.data, to_merge, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
     rownames(new_GEX_meta) <- new_GEX_meta$int_merge_bc
     new_GEX_meta <- new_GEX_meta[,names(new_GEX_meta) != "int_merge_bc"]
+    VGM[[1]] <- VGM[[1]][,names(VGM[[1]]) != "int_merge_bc"]
     VGM[[2]]@meta.data <- new_GEX_meta
     message(paste0("Added columns to GEX: ", paste0(cl_VDJ_to_GEX, collapse = "; ")))
   }
@@ -85,7 +95,8 @@ VGM_integrate <- function(VGM,
     }
   } else {
     cl_GEX_to_VDJ <- names(VGM[[2]]@meta.data)[!names(VGM[[2]]@meta.data) %in% names(VGM[[1]])]
-    message("Integrating all VDJ columns which are not in GEX to GEX")
+    cl_GEX_to_VDJ <- cl_GEX_to_VDJ[!cl_GEX_to_VDJ %in% c("nCount_RNA", "nFeature_RNA", "VDJ_available", "percent.mt", "RNA_snn_res.0.5", "FB_assignment.y")]
+    if(length(cl_GEX_to_VDJ)>0) message("Integrating all GEX columns which are not in VDJ to VDJ")
   }
   if(length(cl_GEX_to_VDJ) > 0){
     VGM[[2]]@meta.data[,"int_merge_bc"] <- colnames(VGM[[2]])
@@ -93,7 +104,9 @@ VGM_integrate <- function(VGM,
 
     to_merge <- VGM[[2]]@meta.data[,c("int_merge_bc",cl_GEX_to_VDJ)]
     new_VDJ <- merge(VGM[[1]], to_merge, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
+    VGM[[2]]@meta.data <- VGM[[2]]@meta.data[,names(VGM[[2]]@meta.data) != "int_merge_bc"]
     new_VDJ <- new_VDJ[,names(new_VDJ) != "int_merge_bc"]
+
     VGM[[1]] <- new_VDJ
     message(paste0("Added columns to VDJ: ", paste0(cl_GEX_to_VDJ, collapse = "; ")))
   }

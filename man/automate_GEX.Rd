@@ -2,7 +2,7 @@
 % Please edit documentation in R/automate_GEX.R
 \name{automate_GEX}
 \alias{automate_GEX}
-\title{Automates the transcriptional analysis of the gene expression libraries from cellranger. This function will integrate multiple samples}
+\title{GEX processing wrapper in Platypus V2}
 \usage{
 automate_GEX(
   GEX.outs.directory.list,

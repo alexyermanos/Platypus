@@ -38,6 +38,9 @@ Returns a list of dataframes containing
 \description{
 only Platypus v2 Analyzes and processes the repertoire sequencing data from cellranger vdj. This provides information on the single-cell level for each clone, as opposed to the output from VDJ_analyze.
 }
+\details{
+Platypus V2 data frame utility
+}
 \examples{
 \dontrun{
 VDJ_per_clone_out <- VDJ_per_clone(clonotype.list = output.from.VDJ_analyze

@@ -1,5 +1,6 @@
-#' Replaces the original sample_id column of a vgm object with a pasted version of the original sample_id and the last digits of the feature barcode.
-#'@description The VGM_expand_featurebarcodes function function can be used to trace back the cell origin of each sample after using cell hashing for single-cell sequencing.
+#' Utility for feature barcode assignment including clonal information
+#'
+#'@description The VGM_expand_featurebarcodes function function can be used to trace back the cell origin of each sample after using cell hashing for single-cell sequencing. Replaces the original sample_id column of a vgm object with a pasted version of the original sample_id and the last digits of the feature barcode.
 #'
 #'The original sample_id is stored in a new column called original_sample_id. Additionally, a second new column is created containing final barcode assignment information.
 #'Those barcodes match the origin FB_assignment if by.majority.barcodes is set to FALSE (default). However, if this input parameter is set to TRUE, the majority barcode assignment in stored in this colum.
@@ -81,8 +82,6 @@ VGM_expand_featurebarcodes <- function(vgm,
   #create final_fb_assignment column
   final_fb_assignment <- NULL
   VDJ$final_fb_assignment <- NA
-
-
 
   # Step 1: Barcode Assignment
   if(by.majority.barcodes == FALSE){ #original barcode assigned

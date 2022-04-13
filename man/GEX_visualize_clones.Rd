@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_visualize_clones.R
 \name{GEX_visualize_clones}
 \alias{GEX_visualize_clones}
-\title{!Only for platypus version v2. For platypus v3 refer to: VDJ_GEX_overlay_clones() Visualize selected clonotypes on the tSNE or UMAP projection.}
+\title{Platypus V2 GEX and VDJ integration for visualizing clone clustering}
 \usage{
 GEX_visualize_clones(
   GEX.list,

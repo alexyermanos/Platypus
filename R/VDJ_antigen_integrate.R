@@ -92,7 +92,7 @@ VDJ_antigen_integrate <- function(VDJ,
 
       matched_feature_values <- sapply(all_clonotypes, function(x) if(x!='clonotypeNA') antigen_df[features[[i]]][which(antigen_df[clonotype_column]==x),]  else NA)
 
-      matched_max_feature_values <- sapply(matched_feature_values, function(x) if(class(x[1])=='numeric') {if(!is.na(x[1])) x[which.max(x)] else NA} else if(class(x[1])!='numeric'){if(!is.na(x[1])) paste(unlist(x), collapse=';') else NA})
+      matched_max_feature_values <- sapply(matched_feature_values, function(x) if(inherits(x[1],'numeric')) {if(!is.na(x[1])) x[which.max(x)] else NA} else if(!inherits(x[1],'numeric')){if(!is.na(x[1])) paste(unlist(x), collapse=';') else NA})
       sample_df$new_feature <- matched_max_feature_values
 
       if(length(binder_threshold)!=0){
@@ -164,8 +164,8 @@ VDJ_antigen_integrate <- function(VDJ,
       aberrant_indices <- which(sample_df$Nr_of_VDJ_chains==2 | sample_df$Nr_of_VJ_chains==2)
       matched_feature_values <- lapply(matched_indices_from_distance_matrix, function(x) if(!is.na(x[1])) unlist(antigen_df[,features[[i]]][x]) else NA)
 
-      #matched_max_indices <- mapply(function(x,y) if(class(y[1])=='numeric') {if(!is.na(x[1])) x[which.max(y)] else NA} else if(class(y)!='numeric{'){ x[1]}, matched_indices_from_distance_matrix, matched_feature_values)
-      matched_values <- sapply(matched_feature_values, function(x) if(class(x[1])=='numeric') {if(!is.na(x[1])) x[which.max(x)] else NA} else if(class(x)!='numeric'){if(!is.na(x[1])) paste0(x, collapse=';') else NA})
+      #matched_max_indices <- mapply(function(x,y) if(inherits(y[1])=='numeric') {if(!is.na(x[1])) x[which.max(y)] else NA} else if(inherits(y)!='numeric{'){ x[1]}, matched_indices_from_distance_matrix, matched_feature_values)
+      matched_values <- sapply(matched_feature_values, function(x) if(inherits(x[1],'numeric')) {if(!is.na(x[1])) x[which.max(x)] else NA} else if(!inherits(x,'numeric')){if(!is.na(x[1])) paste0(x, collapse=';') else NA})
       class <- unique(lapply(matched_values, function(x) class(x)))
 
       matched_indices <- which(!is.na(matched_values))
@@ -226,7 +226,7 @@ VDJ_antigen_integrate <- function(VDJ,
   VDJ <- NULL
 
   antigen_dfs <- list()
-  if(class(antigen.data.list[[1]])=='data.frame'){
+  if(inherits(antigen.data.list[[1]],'data.frame')){
     antigen_dfs <- antigen.data.list
     antigen_names <- names(antigen.data.list)
     if(is.null(antigen_names)) {antigen_names <- paste0(rep('antigen_', length(antigen_dfs)), 1:length(antigen_dfs))}

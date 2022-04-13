@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_diversity.R
 \name{VDJ_diversity}
 \alias{VDJ_diversity}
-\title{Calculates and plots common diversity and overlap measures for repertoires and alike. Require the vegan package}
+\title{Diversity metrics for VDJ}
 \usage{
 VDJ_diversity(
   VDJ,

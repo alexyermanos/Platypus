@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlatypusDB_find_CDR3s.R
 \name{PlatypusDB_find_CDR3s}
 \alias{PlatypusDB_find_CDR3s}
-\title{Queries for the occurrence of CDR3 sequences in public datasets on PlatypusDB.}
+\title{CDR3 query function for PlatypusDB}
 \usage{
 PlatypusDB_find_CDR3s(VDJ.cdr3s.aa, VJ.cdr3s.aa, projects.to.search)
 }
@@ -14,15 +14,18 @@ PlatypusDB_find_CDR3s(VDJ.cdr3s.aa, VJ.cdr3s.aa, projects.to.search)
 \item{projects.to.search}{Optional character vector. Defaults to "ALL". Names of projects to search within.}
 }
 \value{
-A list of subsets of VDJ matrices from projects containing the query VDJ CDR3 (out[[1]]), the VJ CDR3 (out[[2]]) and cells containing both the query VDJ and VJ CDR3s (out[[3]])
+A list of subsets of VDJ matrices from projects
+containing the query VDJ CDR3 (out[[1]]),
+the VJ CDR3 (out[[2]]) and cells containing both the query VDJ and VJ CDR3s (out[[3]])
 }
 \description{
 Queries for the occurrence of CDR3 sequences in public datasets on PlatypusDB.
 }
 \examples{
-\donttest{
+\dontrun{
+
 public_clones <- PlatypusDB_find_CDR3s(VDJ.cdr3s.aa = "CMRYGNYWYFDVW"
 , VJ.cdr3s.aa = "CLQHGESPFTF", projects.to.search = "ALL")
-}
 
+}
 }

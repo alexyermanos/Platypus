@@ -1,4 +1,6 @@
-#' Returns statistics and plots to examine diversity of any sequence or metadata item within clones on a by sample level or global level
+#'Wrapper for variant analysis by clone
+#'
+#' @description Returns statistics and plots to examine diversity of any sequence or metadata item within clones on a by sample level or global level
 #' @param VDJ VDJ output of the VDJ_GEX_matrix (VDJ_GEX_matrix.output[[1]]). VDJ matrix supplemented with with MIXCR information is also valid
 #' @param variants.of Character vector. Defaults to c("VDJ_cdr3s_aa", "VJ_cdr3s_aa"). Column name(s) of VDJ to examine variants of. If more than one name is given, these columns will be pasted together. The default will therefore return statistics on the number of variants of VDJ and VJ cdr3s in every clone
 #' @param clonotypes.col Column name of the VDJ column containing clonotype information. Defaults to "clonotype_id_10x". This is useful if alternative clonotyping strategies have been used and are stored in other columns

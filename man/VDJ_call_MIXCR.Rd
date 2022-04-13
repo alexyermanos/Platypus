@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_call_MIXCR.R
 \name{VDJ_call_MIXCR}
 \alias{VDJ_call_MIXCR}
-\title{Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.}
+\title{MiXCR wrapper for Platypus V3 VDJ object}
 \usage{
 VDJ_call_MIXCR(
   VDJ,

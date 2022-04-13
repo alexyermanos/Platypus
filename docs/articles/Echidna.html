@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
       </span>
     </div>
 
@@ -52,32 +52,11 @@
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Vignettes
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/PlatypusV3_agedCNS.html">Platypus V3 aged CNS</a>
-    </li>
-    <li>
-      <a href="../articles/PlatypusV3_EAE.html">Platypus V3 EAE</a>
-    </li>
-    <li>
-      <a href="../articles/PlatypusDB.html">PlatypusDB</a>
-    </li>
-    <li>
-      <a href="../articles/Platypus_feature_barcodes.html">Platypus V3 Feature barcodes</a>
-    </li>
-    <li>
-      <a href="../articles/ABForests.html">ABForests</a>
-    </li>
-    <li>
-      <a href="../articles/Echidna.html">Echidna</a>
-    </li>
-  </ul>
+  <a href="../articles/quickstart.html">Get started</a>
+</li>
+<li>
+  <a href="../vignette_index.html">Vignettes</a>
 </li>
 <li>
   <a href="../PlatypusDB_index.html">PlatypusDB</a>
@@ -133,11 +112,14 @@
 
       
 
-      </header><script src="Echidna_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to Echidna</h1>
+                        <h4 data-toc-skip class="author">Jiami Han,
+Victor Kreiner, Alexander Yermanos</h4>
             
+            <h4 data-toc-skip class="date">2022-04-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/alexyermanos/Platypus/tree/mastervignettes/Echidna.Rmd" class="external-link"><code>vignettes/Echidna.Rmd</code></a></small>
       <div class="hidden name"><code>Echidna.Rmd</code></div>
@@ -146,20 +128,32 @@
 
     
     
-<p>All example simulations are mouse cell simulations. Load the package and get started!</p>
+<p>All example simulations are mouse cell simulations. Load the package
+and get started!</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Platypus</span><span class="op">)</span> <span class="co">#All Echidna functions are contained within Platypus v3.1</span></code></pre></div>
-<div id="simulate-naive-and-expanded-repertoires" class="section level2">
-<h2 class="hasAnchor">
-<a href="#simulate-naive-and-expanded-repertoires" class="anchor" aria-hidden="true"></a>Simulate naive and expanded repertoires</h2>
-<p>In Echidna, there are pre-installed R objects used as parameters and users are allowed to change it. For example, class_switch_prob_mus controls the probability for mouse class switching. It is a 9*9 matrix.The row and column names are initially “IGHM”,“IGHD”,“IGHG1”,“IGHG2A”,“IGHG2B”,“IGHG2C”,“IGHG3”,“IGHE”,“IGHA”. The probability for a cell to switch from “IGHM” to “IGHD” is the value at class_switch_prob_mus[1,2].</p>
-<p>Naive B cell repertoires contain clones with minor clonal expansion and are mostly IgM+ cells. To simulate naive repertoires, first set the isotype and phenotype switching probability matrix to 0:</p>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Platypus</span><span class="op">)</span> </code></pre></div>
+<div class="section level2">
+<h2 id="simulate-naive-and-expanded-repertoires">Simulate naive and expanded repertoires<a class="anchor" aria-label="anchor" href="#simulate-naive-and-expanded-repertoires"></a>
+</h2>
+<p>In Echidna, there are pre-installed R objects used as parameters and
+users are allowed to change it. For example, class_switch_prob_mus
+controls the probability for mouse class switching. It is a 9*9
+matrix.The row and column names are initially
+“IGHM”,“IGHD”,“IGHG1”,“IGHG2A”,“IGHG2B”,“IGHG2C”,“IGHG3”,“IGHE”,“IGHA”.
+The probability for a cell to switch from “IGHM” to “IGHD” is the value
+at class_switch_prob_mus[1,2].</p>
+<p>Naive B cell repertoires contain clones with minor clonal expansion
+and are mostly IgM+ cells. To simulate naive repertoires, first set the
+isotype and phenotype switching probability matrix to 0:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="va">class_switch_prob_mus</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0</span>
+<code class="sourceCode R">
+<span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="va">class_switch_prob_mus</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0</span>
 <span class="va">trans_switch_prob_b</span><span class="op">[</span><span class="va">trans_switch_prob_b</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0</span></code></pre></div>
-<p>Then use simulator function: Here we turn off clonal.selection, to suppress the growth of big clones and give an even clonal frequency distribution:</p>
+<p>Then use simulator function: Here we turn off clonal.selection, to
+suppress the growth of big clones and give an even clonal frequency
+distribution:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">naive</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">500</span>,
+<code class="sourceCode R"><span class="va">naive</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">500</span>,
                               duration.of.evolution <span class="op">=</span> <span class="fl">30</span>,
                               vdj.branch.prob <span class="op">=</span> <span class="fl">0.5</span>,
                               cell.division.prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>,<span class="fl">0.3</span><span class="op">)</span>,
@@ -171,17 +165,26 @@
                               transcriptome.on <span class="op">=</span> <span class="cn">T</span>,
                               SHM.nuc.prob <span class="op">=</span> <span class="fl">0.00001</span>
 <span class="op">)</span></code></pre></div>
-<p>Use clonofreq.isotype.plot to see the barplot of clonal frequency, colored with isotypes.</p>
+<p>Use clonofreq.isotype.plot to see the barplot of clonal frequency,
+colored with isotypes.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/clonofreq.isotype.plot.html">clonofreq.isotype.plot</a></span><span class="op">(</span><span class="va">naive</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fl">50</span>, y.limit <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></code></pre></div>
 <p><img src="Echidna_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<p>Use clonofreq.trans.plot to see the barplot of clonal frequency, colored with phenotypes.</p>
+<p>Use clonofreq.trans.plot to see the barplot of clonal frequency,
+colored with phenotypes.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/clonofreq.trans.plot.html">clonofreq.trans.plot</a></span><span class="op">(</span>all.contig.annotations <span class="op">=</span> <span class="va">naive</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, top.n <span class="op">=</span> <span class="fl">50</span>, y.limit <span class="op">=</span> <span class="fl">50</span>, trans.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">trans_switch_prob_b</span><span class="op">)</span>,history <span class="op">=</span><span class="va">naive</span><span class="op">[[</span><span class="fl">12</span><span class="op">]</span><span class="op">]</span> <span class="op">)</span></code></pre></div>
 <p><img src="Echidna_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
-<p>Expanded repertoires have more expanded clones, more variations in cell differentiation, and class-switching. To simulate expanded repertoire, First set the class switching probability matrix to a desired value - e.g., we can skew the final repertoire to have mostly IgG+ cells and some fraction of other isotypes; Then set the phenotype switching matrix to make the final phenotype distribution has majority of plasma cells and some germinal center and memory B cells.</p>
+<p>Expanded repertoires have more expanded clones, more variations in
+cell differentiation, and class-switching. To simulate expanded
+repertoire, First set the class switching probability matrix to a
+desired value - e.g., we can skew the final repertoire to have mostly
+IgG+ cells and some fraction of other isotypes; Then set the phenotype
+switching matrix to make the final phenotype distribution has majority
+of plasma cells and some germinal center and memory B cells.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="va">class_switch_prob_mus</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0</span>
+<code class="sourceCode R">
+<span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="va">class_switch_prob_mus</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0</span>
 <span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.01</span>
 <span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">4</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.01</span>
 <span class="va">class_switch_prob_mus</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.01</span>
@@ -197,13 +200,40 @@
 <span class="va">trans_switch_prob_b</span><span class="op">[</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.8</span>
 <span class="va">trans_switch_prob_b</span><span class="op">[</span><span class="fl">3</span>,<span class="fl">4</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.001</span>
 <span class="va">trans_switch_prob_b</span><span class="op">[</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.01</span></code></pre></div>
-<p>In expanded B cell repertoires, the selected clones tend to expand more and have more IgG+ cells and plasma cells, while the non expanded clones are likely to be naive B cells of the IgM isotype.</p>
-<p>In the function, the parameter clonal.selection is for controlling the division rate according to their clonal frequency, and eventually control the final clonal size distribution. If set to be TURE, cells in clones with higher frequency have their division probability proportional to the clonal frequency. If FALSE, clones with higher frequency will have lower probability to expand. To use adjust the different cell division rates, here comes in another parameter cell.division.prob.</p>
-<p>The parameter cell.division.prob is the probability of cells to be duplicated in each time step. Default is 0.1. If uneven probability for different clones is needed, the input should be a vector of 2 numeric items, with the first item being the lower bound, the second item being the upper bound of the division rate. The most abundant clone will get the highest division rate, and division rate of other clones will follow arithmetic progression and keep decreasing until the last abundant clone with the lower limit of division rate. If a third value is given, the third value will be the division rate for cells with selected sequences. the selected sequences can have their special division probability. If a fourth number is given, the division probability of selected sequence will be sampled between the third number and the fourth number.</p>
-<p>Here we set cell.division.prob as 0.2,0.2,0.5, meaning selected clones will have higher probability (0.5) to undergo cell division than not selected clones, while other cells all have the same cell division rate (0.2). transcriptome.switch.selection.dependent is set to be TRUE to make sure selected cells switch to the next cell state than naive cell.</p>
-<p>class.switch.selection.dependent is set to be TRUE to make sure selected cells switch away from IgM to other isotype expressing cells.</p>
+<p>In expanded B cell repertoires, the selected clones tend to expand
+more and have more IgG+ cells and plasma cells, while the non expanded
+clones are likely to be naive B cells of the IgM isotype.</p>
+<p>In the function, the parameter clonal.selection is for controlling
+the division rate according to their clonal frequency, and eventually
+control the final clonal size distribution. If set to be TURE, cells in
+clones with higher frequency have their division probability
+proportional to the clonal frequency. If FALSE, clones with higher
+frequency will have lower probability to expand. To use adjust the
+different cell division rates, here comes in another parameter
+cell.division.prob.</p>
+<p>The parameter cell.division.prob is the probability of cells to be
+duplicated in each time step. Default is 0.1. If uneven probability for
+different clones is needed, the input should be a vector of 2 numeric
+items, with the first item being the lower bound, the second item being
+the upper bound of the division rate. The most abundant clone will get
+the highest division rate, and division rate of other clones will follow
+arithmetic progression and keep decreasing until the last abundant clone
+with the lower limit of division rate. If a third value is given, the
+third value will be the division rate for cells with selected sequences.
+the selected sequences can have their special division probability. If a
+fourth number is given, the division probability of selected sequence
+will be sampled between the third number and the fourth number.</p>
+<p>Here we set cell.division.prob as 0.2,0.2,0.5, meaning selected
+clones will have higher probability (0.5) to undergo cell division than
+not selected clones, while other cells all have the same cell division
+rate (0.2). transcriptome.switch.selection.dependent is set to be TRUE
+to make sure selected cells switch to the next cell state than naive
+cell.</p>
+<p>class.switch.selection.dependent is set to be TRUE to make sure
+selected cells switch away from IgM to other isotype expressing
+cells.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">expanded</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">50</span>,
+<code class="sourceCode R"><span class="va">expanded</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">50</span>,
                                duration.of.evolution <span class="op">=</span> <span class="fl">30</span>,
                                vdj.branch.prob <span class="op">=</span> <span class="fl">0.1</span>,
                                cell.division.prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span><span class="op">)</span>,
@@ -219,17 +249,21 @@
                                class.switch.selection.dependent <span class="op">=</span> <span class="cn">T</span>
 <span class="op">)</span>
 
-<span class="fu"><a href="../reference/clonofreq.isotype.plot.html">clonofreq.isotype.plot</a></span><span class="op">(</span><span class="va">expanded</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="fl">50</span>,y.limit <span class="op">=</span> <span class="fl">750</span><span class="op">)</span>
-<span class="co">#&gt; Warning: Removed 1 rows containing missing values (geom_bar).</span></code></pre></div>
+<span class="fu"><a href="../reference/clonofreq.isotype.plot.html">clonofreq.isotype.plot</a></span><span class="op">(</span><span class="va">expanded</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="fl">50</span>,y.limit <span class="op">=</span> <span class="fl">750</span><span class="op">)</span></code></pre></div>
 <p><img src="Echidna_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <p>##Simulate repertoires with different V gene usage distribution</p>
-<p>Originally, V/D/J genes are randomly selected from the gene pools stored in data lists. However, the lists can be modified according to need. To make genes easy to recognize, here we take the first 50 heavy chain V gene and 30 light chain V genes:</p>
+<p>Originally, V/D/J genes are randomly selected from the gene pools
+stored in data lists. However, the lists can be modified according to
+need. To make genes easy to recognize, here we take the first 50 heavy
+chain V gene and 30 light chain V genes:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">mus_b_h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;-</span><span class="va">mus_b_h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>,<span class="op">]</span>
 <span class="va">mus_b_l</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;-</span><span class="va">mus_b_l</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">30</span>,<span class="op">]</span></code></pre></div>
-<p>In the first case, we simulate a repertoire with all V gene randomly chosen, meaning the probability of V genes being selected are evenly distributed:</p>
+<p>In the first case, we simulate a repertoire with all V gene randomly
+chosen, meaning the probability of V genes being selected are evenly
+distributed:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">even</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">5000</span>,
+<code class="sourceCode R"><span class="va">even</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">5000</span>,
                                 duration.of.evolution <span class="op">=</span> <span class="fl">0</span>,
                                 vdj.branch.prob <span class="op">=</span> <span class="fl">0</span>,
                                 cell.division.prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>,
@@ -241,7 +275,15 @@
                                 transcriptome.on <span class="op">=</span> <span class="cn">F</span>,
                                 igraph.on <span class="op">=</span> <span class="cn">F</span>
 <span class="op">)</span></code></pre></div>
-<p>In the second case, we simulate a repertoire with the first 2 heavy chain V genes and the first light chain V gene more likely to be selected. mus_b_h is a list containing 3 dataframes storing the germline V, D, J gene sequences for mouse B cell heavy chains. The first item is for V genes, the second item is for D genes, the third item is for J genes. The corresponding list mus_b_l has 2 items, storing mouse B cell light chain germline V and J genes. We replicate the first 2 rows in the first item in mus_b_h, and the first row in mus_b_l, 30 times and 20 times respectively:</p>
+<p>In the second case, we simulate a repertoire with the first 2 heavy
+chain V genes and the first light chain V gene more likely to be
+selected. mus_b_h is a list containing 3 dataframes storing the germline
+V, D, J gene sequences for mouse B cell heavy chains. The first item is
+for V genes, the second item is for D genes, the third item is for J
+genes. The corresponding list mus_b_l has 2 items, storing mouse B cell
+light chain germline V and J genes. We replicate the first 2 rows in the
+first item in mus_b_h, and the first row in mus_b_l, 30 times and 20
+times respectively:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">reph</span><span class="op">&lt;-</span><span class="va">mus_b_h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,<span class="op">]</span>
 <span class="va">repl</span><span class="op">&lt;-</span><span class="va">mus_b_l</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,<span class="op">]</span>
@@ -250,7 +292,7 @@
 <span class="va">mus_b_l</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">mus_b_l</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">repl</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">repl</span><span class="op">)</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></code></pre></div>
 <p>And simulate based on the new gene pool after modification:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">uneven</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">5000</span>,
+<code class="sourceCode R"><span class="va">uneven</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">5000</span>,
                                               duration.of.evolution <span class="op">=</span> <span class="fl">0</span>,
                                               vdj.branch.prob <span class="op">=</span> <span class="fl">0</span>,
                                               cell.division.prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>,
@@ -262,90 +304,98 @@
                                               transcriptome.on <span class="op">=</span> <span class="cn">F</span>,
                                               igraph.on <span class="op">=</span> <span class="cn">F</span>
 <span class="op">)</span></code></pre></div>
-<p>Use get.vgu.matrix to get the heavy and light chain V gene usage data normalized on cell level or clone level.</p>
+<p>Use get.vgu.matrix to get the heavy and light chain V gene usage data
+normalized on cell level or clone level.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">even_vgu_cell</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/get.vgu.matrix.html">get.vgu.matrix</a></span><span class="op">(</span><span class="va">even</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="st">"cell"</span><span class="op">)</span>
 <span class="va">even_vgu_clone</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/get.vgu.matrix.html">get.vgu.matrix</a></span><span class="op">(</span><span class="va">even</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="st">"clone"</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">even_vgu_cell</span><span class="op">)</span>
 <span class="co">#&gt;          IGKV1-131 IGKV1-132 IGKV1-88 IGKV12-38 IGKV12-40 IGKV12-41 IGKV12-46</span>
-<span class="co">#&gt; IGHV1-11         4         1        3         8         2         4         1</span>
-<span class="co">#&gt; IGHV1-12         4         3        2         5         5         7         4</span>
-<span class="co">#&gt; IGHV1-13         3         5        4         4         2         6         4</span>
-<span class="co">#&gt; IGHV1-14         1         1        4         5         6         4         2</span>
-<span class="co">#&gt; IGHV1-15         6         3        4         5         1         3         6</span>
-<span class="co">#&gt; IGHV1-16         3         7        4         3         5         5         6</span>
+<span class="co">#&gt; IGHV1-11         1         2        0         2         4         7         3</span>
+<span class="co">#&gt; IGHV1-12         3         1        1         0         4         4         4</span>
+<span class="co">#&gt; IGHV1-13         4         2        5         2         1         2         4</span>
+<span class="co">#&gt; IGHV1-14         3         3        1         4         6         4         6</span>
+<span class="co">#&gt; IGHV1-15         2         3        5         2         3         1         3</span>
+<span class="co">#&gt; IGHV1-16         2         3        2         3         4         3         2</span>
 <span class="co">#&gt;          IGKV12-47 IGKV12-89 IGKV13-76 IGKV13-82 IGKV13-84 IGKV13-85 IGKV14-126</span>
-<span class="co">#&gt; IGHV1-11         4         2         3         5         1         4          6</span>
-<span class="co">#&gt; IGHV1-12         5         1         5         3         3         1          4</span>
-<span class="co">#&gt; IGHV1-13         4         5         2         6         3         4          3</span>
-<span class="co">#&gt; IGHV1-14         1         5         2         4         5         3          4</span>
-<span class="co">#&gt; IGHV1-15         4         5         8         7         3         2          2</span>
-<span class="co">#&gt; IGHV1-16         1         1         3         4         3         5          3</span>
+<span class="co">#&gt; IGHV1-11         3         3         3         6         7         2          1</span>
+<span class="co">#&gt; IGHV1-12         6         5         4         4         7         2          2</span>
+<span class="co">#&gt; IGHV1-13         5         3         3         2         3         2          2</span>
+<span class="co">#&gt; IGHV1-14         2         4         2         2         3         2          4</span>
+<span class="co">#&gt; IGHV1-15         1         5         4         2         4         4          6</span>
+<span class="co">#&gt; IGHV1-16         3         4         0         2         0         7          1</span>
 <span class="co">#&gt;          IGKV14-130 IGKV17-121 IGKV17-127 IGKV17/OR16-3 IGKV17/OR19-2 IGKV19-93</span>
-<span class="co">#&gt; IGHV1-11          4          4          2             4             4         4</span>
-<span class="co">#&gt; IGHV1-12          3          6          1             4             4         5</span>
-<span class="co">#&gt; IGHV1-13          6          2          2             7             5         6</span>
-<span class="co">#&gt; IGHV1-14          0          2          7             3             1         3</span>
-<span class="co">#&gt; IGHV1-15          3          3          4             1             3         3</span>
-<span class="co">#&gt; IGHV1-16          5          3          4             3             2         3</span>
+<span class="co">#&gt; IGHV1-11          3          6          0             2             1         3</span>
+<span class="co">#&gt; IGHV1-12          4          3          4             2             3         3</span>
+<span class="co">#&gt; IGHV1-13          2          1          1             2             2         8</span>
+<span class="co">#&gt; IGHV1-14          1          2          6             1             3         3</span>
+<span class="co">#&gt; IGHV1-15          3          6          2             3             2         1</span>
+<span class="co">#&gt; IGHV1-16          4          4          2             3             1         2</span>
 <span class="co">#&gt;          IGKV20-101-2 IGKV3-4 IGKV3-8 IGKV3-9 IGKV4-50 IGKV4-52 IGKV4-53</span>
-<span class="co">#&gt; IGHV1-11            1       4       4       2        4        2        3</span>
-<span class="co">#&gt; IGHV1-12            2       4       2       1        3        2        5</span>
-<span class="co">#&gt; IGHV1-13            6       3       4       4        5        2        2</span>
-<span class="co">#&gt; IGHV1-14            2       1       4       0        4        3        2</span>
-<span class="co">#&gt; IGHV1-15            4       2       3       4        2        1        3</span>
-<span class="co">#&gt; IGHV1-16            4       1       4       3        2        5        2</span>
+<span class="co">#&gt; IGHV1-11            5       3       3       4        2        3        4</span>
+<span class="co">#&gt; IGHV1-12            7       4       1       3        5        3        4</span>
+<span class="co">#&gt; IGHV1-13            3       5       3       0        5        3        2</span>
+<span class="co">#&gt; IGHV1-14            3       4       8       2        2        4        2</span>
+<span class="co">#&gt; IGHV1-15            2       1       3       0        2        0        0</span>
+<span class="co">#&gt; IGHV1-16            1       0       3       3        3        2        3</span>
 <span class="co">#&gt;          IGKV4-54 IGKV4-55 IGKV4-56</span>
-<span class="co">#&gt; IGHV1-11        4        8        2</span>
-<span class="co">#&gt; IGHV1-12        3        3        1</span>
-<span class="co">#&gt; IGHV1-13        4        1        6</span>
-<span class="co">#&gt; IGHV1-14        2        4        3</span>
-<span class="co">#&gt; IGHV1-15        3        2        5</span>
-<span class="co">#&gt; IGHV1-16        2        4        6</span>
+<span class="co">#&gt; IGHV1-11        2        1        0</span>
+<span class="co">#&gt; IGHV1-12        2        2        2</span>
+<span class="co">#&gt; IGHV1-13        3        3        3</span>
+<span class="co">#&gt; IGHV1-14        4        1        1</span>
+<span class="co">#&gt; IGHV1-15        7        2        1</span>
+<span class="co">#&gt; IGHV1-16        2        5        4</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">even_vgu_clone</span><span class="op">)</span>
 <span class="co">#&gt;          IGKV1-131 IGKV1-132 IGKV1-88 IGKV12-38 IGKV12-40 IGKV12-41 IGKV12-46</span>
-<span class="co">#&gt; IGHV1-11         4         1        3         8         2         4         1</span>
-<span class="co">#&gt; IGHV1-12         4         3        2         5         5         7         4</span>
-<span class="co">#&gt; IGHV1-13         3         5        4         4         2         6         4</span>
-<span class="co">#&gt; IGHV1-14         1         1        4         5         6         4         2</span>
-<span class="co">#&gt; IGHV1-15         6         3        4         5         1         3         6</span>
-<span class="co">#&gt; IGHV1-16         3         7        4         3         5         5         6</span>
+<span class="co">#&gt; IGHV1-11         1         2        0         2         4         7         3</span>
+<span class="co">#&gt; IGHV1-12         3         1        1         0         4         4         4</span>
+<span class="co">#&gt; IGHV1-13         4         2        5         2         1         2         4</span>
+<span class="co">#&gt; IGHV1-14         3         3        1         4         6         4         6</span>
+<span class="co">#&gt; IGHV1-15         2         3        5         2         3         1         3</span>
+<span class="co">#&gt; IGHV1-16         2         3        2         3         4         3         2</span>
 <span class="co">#&gt;          IGKV12-47 IGKV12-89 IGKV13-76 IGKV13-82 IGKV13-84 IGKV13-85 IGKV14-126</span>
-<span class="co">#&gt; IGHV1-11         4         2         3         5         1         4          6</span>
-<span class="co">#&gt; IGHV1-12         5         1         5         3         3         1          4</span>
-<span class="co">#&gt; IGHV1-13         4         5         2         6         3         4          3</span>
-<span class="co">#&gt; IGHV1-14         1         5         2         4         5         3          4</span>
-<span class="co">#&gt; IGHV1-15         4         5         8         7         3         2          2</span>
-<span class="co">#&gt; IGHV1-16         1         1         3         4         3         5          3</span>
+<span class="co">#&gt; IGHV1-11         3         3         3         6         7         2          1</span>
+<span class="co">#&gt; IGHV1-12         6         5         4         4         7         2          2</span>
+<span class="co">#&gt; IGHV1-13         5         3         3         2         3         2          2</span>
+<span class="co">#&gt; IGHV1-14         2         4         2         2         3         2          4</span>
+<span class="co">#&gt; IGHV1-15         1         5         4         2         4         4          6</span>
+<span class="co">#&gt; IGHV1-16         3         4         0         2         0         7          1</span>
 <span class="co">#&gt;          IGKV14-130 IGKV17-121 IGKV17-127 IGKV17/OR16-3 IGKV17/OR19-2 IGKV19-93</span>
-<span class="co">#&gt; IGHV1-11          4          4          2             4             4         4</span>
-<span class="co">#&gt; IGHV1-12          3          6          1             4             4         5</span>
-<span class="co">#&gt; IGHV1-13          6          2          2             7             5         6</span>
-<span class="co">#&gt; IGHV1-14          0          2          7             3             1         3</span>
-<span class="co">#&gt; IGHV1-15          3          3          4             1             3         3</span>
-<span class="co">#&gt; IGHV1-16          5          3          4             3             2         3</span>
+<span class="co">#&gt; IGHV1-11          3          6          0             2             1         3</span>
+<span class="co">#&gt; IGHV1-12          4          3          4             2             3         3</span>
+<span class="co">#&gt; IGHV1-13          2          1          1             2             2         8</span>
+<span class="co">#&gt; IGHV1-14          1          2          6             1             3         3</span>
+<span class="co">#&gt; IGHV1-15          3          6          2             3             2         1</span>
+<span class="co">#&gt; IGHV1-16          4          4          2             3             1         2</span>
 <span class="co">#&gt;          IGKV20-101-2 IGKV3-4 IGKV3-8 IGKV3-9 IGKV4-50 IGKV4-52 IGKV4-53</span>
-<span class="co">#&gt; IGHV1-11            1       4       4       2        4        2        3</span>
-<span class="co">#&gt; IGHV1-12            2       4       2       1        3        2        5</span>
-<span class="co">#&gt; IGHV1-13            6       3       4       4        5        2        2</span>
-<span class="co">#&gt; IGHV1-14            2       1       4       0        4        3        2</span>
-<span class="co">#&gt; IGHV1-15            4       2       3       4        2        1        3</span>
-<span class="co">#&gt; IGHV1-16            4       1       4       3        2        5        2</span>
+<span class="co">#&gt; IGHV1-11            5       3       3       4        2        3        4</span>
+<span class="co">#&gt; IGHV1-12            7       4       1       3        5        3        4</span>
+<span class="co">#&gt; IGHV1-13            3       5       3       0        5        3        2</span>
+<span class="co">#&gt; IGHV1-14            3       4       8       2        2        4        2</span>
+<span class="co">#&gt; IGHV1-15            2       1       3       0        2        0        0</span>
+<span class="co">#&gt; IGHV1-16            1       0       3       3        3        2        3</span>
 <span class="co">#&gt;          IGKV4-54 IGKV4-55 IGKV4-56</span>
-<span class="co">#&gt; IGHV1-11        4        8        2</span>
-<span class="co">#&gt; IGHV1-12        3        3        1</span>
-<span class="co">#&gt; IGHV1-13        4        1        6</span>
-<span class="co">#&gt; IGHV1-14        2        4        3</span>
-<span class="co">#&gt; IGHV1-15        3        2        5</span>
-<span class="co">#&gt; IGHV1-16        2        4        6</span></code></pre></div>
+<span class="co">#&gt; IGHV1-11        2        1        0</span>
+<span class="co">#&gt; IGHV1-12        2        2        2</span>
+<span class="co">#&gt; IGHV1-13        3        3        3</span>
+<span class="co">#&gt; IGHV1-14        4        1        1</span>
+<span class="co">#&gt; IGHV1-15        7        2        1</span>
+<span class="co">#&gt; IGHV1-16        2        5        4</span></code></pre></div>
 </div>
-<div id="make-clones-with-specific-v-gene-have-different-probability-to-be-chosen-in-clonal-selection" class="section level2">
-<h2 class="hasAnchor">
-<a href="#make-clones-with-specific-v-gene-have-different-probability-to-be-chosen-in-clonal-selection" class="anchor" aria-hidden="true"></a>Make clones with specific V gene have different probability to be chosen in clonal selection</h2>
-<p>The dataframe special_v is prepared for this propose. Set special.v.gene as TRUE, the simulator will execute the indicated probability to be chosen in clonal selection for clones with the specific V genes listed in the dataframe special_v. The parameter sequence.selection.prob is the probability for every sequence to be selected as expanding variant. Here we set it to be 0, to make only variants with special v gene get chance to be selected.</p>
+<div class="section level2">
+<h2 id="make-clones-with-specific-v-gene-have-different-probability-to-be-chosen-in-clonal-selection">Make clones with specific V gene have different probability to be
+chosen in clonal selection<a class="anchor" aria-label="anchor" href="#make-clones-with-specific-v-gene-have-different-probability-to-be-chosen-in-clonal-selection"></a>
+</h2>
+<p>The dataframe special_v is prepared for this propose. Set
+special.v.gene as TRUE, the simulator will execute the indicated
+probability to be chosen in clonal selection for clones with the
+specific V genes listed in the dataframe special_v. The parameter
+sequence.selection.prob is the probability for every sequence to be
+selected as expanding variant. Here we set it to be 0, to make only
+variants with special v gene get chance to be selected.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">specialv</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">100</span>,
+<code class="sourceCode R"><span class="va">specialv</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">100</span>,
                                         duration.of.evolution <span class="op">=</span> <span class="fl">30</span>,
                                         vdj.branch.prob <span class="op">=</span> <span class="fl">0.1</span>,
                                         cell.division.prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span><span class="op">)</span>,
@@ -361,73 +411,84 @@
                                         class.switch.selection.dependent <span class="op">=</span> <span class="cn">T</span>,
                                         special.v.gene <span class="op">=</span> <span class="cn">T</span>
 <span class="op">)</span></code></pre></div>
-<p>Use get.vgu.matrix to get the heavy and light chain V gene usage data normalized on cell level or clone level.</p>
+<p>Use get.vgu.matrix to get the heavy and light chain V gene usage data
+normalized on cell level or clone level.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">specialv_vgu_cell</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/get.vgu.matrix.html">get.vgu.matrix</a></span><span class="op">(</span><span class="va">specialv</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="st">"cell"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">specialv_vgu_cell</span><span class="op">)</span>
-<span class="co">#&gt;          IGKV1-131 IGKV1-132 IGKV12-38 IGKV12-40 IGKV12-41 IGKV12-46 IGKV12-47</span>
-<span class="co">#&gt; IGHV1-11      2701         0         0         0        24         0        11</span>
-<span class="co">#&gt; IGHV1-12       214         0        20        40         0         6         4</span>
-<span class="co">#&gt; IGHV1-13         0         0         0         0         0         0         0</span>
-<span class="co">#&gt; IGHV1-14        13         0         0         0         0         0         0</span>
-<span class="co">#&gt; IGHV1-16         0         0         0         0         0         0         0</span>
-<span class="co">#&gt; IGHV1-19         0         0         0         0         0         0         0</span>
-<span class="co">#&gt;          IGKV12-89 IGKV13-76 IGKV13-84 IGKV13-85 IGKV14-126 IGKV14-130</span>
-<span class="co">#&gt; IGHV1-11         0         0        32        10          0         26</span>
-<span class="co">#&gt; IGHV1-12        34        92        51         2         33          0</span>
-<span class="co">#&gt; IGHV1-13        27         0         0         0          0          0</span>
-<span class="co">#&gt; IGHV1-14         0         0         0         0          0          0</span>
-<span class="co">#&gt; IGHV1-16         0         0         0         0          0         21</span>
-<span class="co">#&gt; IGHV1-19         0         0         0         0          0          0</span>
-<span class="co">#&gt;          IGKV17-127 IGKV17/OR19-2 IGKV19-93 IGKV20-101-2 IGKV3-4 IGKV3-9</span>
-<span class="co">#&gt; IGHV1-11         63             0         0            0      25      20</span>
-<span class="co">#&gt; IGHV1-12         30            50        43            0       0      10</span>
-<span class="co">#&gt; IGHV1-13          0             0         0            0       0       0</span>
-<span class="co">#&gt; IGHV1-14          0             0         0            0       0       0</span>
-<span class="co">#&gt; IGHV1-16          0             0         0            0       0       0</span>
-<span class="co">#&gt; IGHV1-19          0             0        35            0       0       0</span>
-<span class="co">#&gt;          IGKV4-50 IGKV4-52 IGKV4-54 IGKV4-55 IGKV4-56</span>
-<span class="co">#&gt; IGHV1-11       31        0       48        0        0</span>
-<span class="co">#&gt; IGHV1-12        0        0        0       62        0</span>
-<span class="co">#&gt; IGHV1-13        0        0        0        0        0</span>
-<span class="co">#&gt; IGHV1-14        0        0        0        0        0</span>
-<span class="co">#&gt; IGHV1-16        0        0        0        0        0</span>
-<span class="co">#&gt; IGHV1-19        0        0        0        0        0</span>
+<span class="co">#&gt;            IGKV1-131 IGKV1-88 IGKV12-38 IGKV12-40 IGKV12-41 IGKV12-46 IGKV12-47</span>
+<span class="co">#&gt; IGHV1-11         857       42         6         0        11        22         0</span>
+<span class="co">#&gt; IGHV1-12         318       32       102        34        43         0         0</span>
+<span class="co">#&gt; IGHV1-13          11        0         0         0         0         0         0</span>
+<span class="co">#&gt; IGHV1-18          19        0         0         0        55         0         0</span>
+<span class="co">#&gt; IGHV1-19-1      1059        0         0         0         0         0         0</span>
+<span class="co">#&gt; IGHV1-20          30        0         2         0         0         0         0</span>
+<span class="co">#&gt;            IGKV12-89 IGKV13-76 IGKV13-82 IGKV13-84 IGKV13-85 IGKV14-126</span>
+<span class="co">#&gt; IGHV1-11          26         1         0         0        23          0</span>
+<span class="co">#&gt; IGHV1-12           0        17        58        76         0          0</span>
+<span class="co">#&gt; IGHV1-13           0         0         0         0         0          0</span>
+<span class="co">#&gt; IGHV1-18           0         0         0         0         0          0</span>
+<span class="co">#&gt; IGHV1-19-1         0         0         0         0         0          0</span>
+<span class="co">#&gt; IGHV1-20           0         0         0         0         0          0</span>
+<span class="co">#&gt;            IGKV17-127 IGKV17/OR19-2 IGKV19-93 IGKV20-101-2 IGKV3-8 IGKV3-9</span>
+<span class="co">#&gt; IGHV1-11            3            11         0           42      41       0</span>
+<span class="co">#&gt; IGHV1-12            0             0        48            0      20      44</span>
+<span class="co">#&gt; IGHV1-13            0             0         0            0       0       0</span>
+<span class="co">#&gt; IGHV1-18            0             0         0            0       0       0</span>
+<span class="co">#&gt; IGHV1-19-1          0             0         0            0       0       0</span>
+<span class="co">#&gt; IGHV1-20            0             0         0            0       0       0</span>
+<span class="co">#&gt;            IGKV4-50 IGKV4-52 IGKV4-53 IGKV4-54 IGKV4-55 IGKV4-56</span>
+<span class="co">#&gt; IGHV1-11         11      970       90       51       26        0</span>
+<span class="co">#&gt; IGHV1-12          0       39        0        0        0        1</span>
+<span class="co">#&gt; IGHV1-13          0        0        0        0        0        0</span>
+<span class="co">#&gt; IGHV1-18          0        0        0        0        0        0</span>
+<span class="co">#&gt; IGHV1-19-1        0        0        0        0        0        0</span>
+<span class="co">#&gt; IGHV1-20          0        0        0        0        0        0</span>
+
 <span class="va">specialv_vgu_clone</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/get.vgu.matrix.html">get.vgu.matrix</a></span><span class="op">(</span><span class="va">specialv</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="st">"clone"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">specialv_vgu_clone</span><span class="op">)</span>
-<span class="co">#&gt;          IGKV1-131 IGKV1-132 IGKV12-38 IGKV12-40 IGKV12-41 IGKV12-46 IGKV12-47</span>
-<span class="co">#&gt; IGHV1-11        13         0         0         0         2         0         1</span>
-<span class="co">#&gt; IGHV1-12        11         0         1         1         0         1         1</span>
-<span class="co">#&gt; IGHV1-13         0         0         0         0         0         0         0</span>
-<span class="co">#&gt; IGHV1-14         1         0         0         0         0         0         0</span>
-<span class="co">#&gt; IGHV1-16         0         0         0         0         0         0         0</span>
-<span class="co">#&gt; IGHV1-19         0         0         0         0         0         0         0</span>
-<span class="co">#&gt;          IGKV12-89 IGKV13-76 IGKV13-84 IGKV13-85 IGKV14-126 IGKV14-130</span>
-<span class="co">#&gt; IGHV1-11         0         0         1         1          0          1</span>
-<span class="co">#&gt; IGHV1-12         1         3         1         1          2          0</span>
-<span class="co">#&gt; IGHV1-13         1         0         0         0          0          0</span>
-<span class="co">#&gt; IGHV1-14         0         0         0         0          0          0</span>
-<span class="co">#&gt; IGHV1-16         0         0         0         0          0          1</span>
-<span class="co">#&gt; IGHV1-19         0         0         0         0          0          0</span>
-<span class="co">#&gt;          IGKV17-127 IGKV17/OR19-2 IGKV19-93 IGKV20-101-2 IGKV3-4 IGKV3-9</span>
-<span class="co">#&gt; IGHV1-11          1             0         0            0       1       1</span>
-<span class="co">#&gt; IGHV1-12          1             2         1            0       0       1</span>
-<span class="co">#&gt; IGHV1-13          0             0         0            0       0       0</span>
-<span class="co">#&gt; IGHV1-14          0             0         0            0       0       0</span>
-<span class="co">#&gt; IGHV1-16          0             0         0            0       0       0</span>
-<span class="co">#&gt; IGHV1-19          0             0         1            0       0       0</span>
-<span class="co">#&gt;          IGKV4-50 IGKV4-52 IGKV4-54 IGKV4-55 IGKV4-56</span>
-<span class="co">#&gt; IGHV1-11        1        0        1        0        0</span>
-<span class="co">#&gt; IGHV1-12        0        0        0        2        0</span>
-<span class="co">#&gt; IGHV1-13        0        0        0        0        0</span>
-<span class="co">#&gt; IGHV1-14        0        0        0        0        0</span>
-<span class="co">#&gt; IGHV1-16        0        0        0        0        0</span>
-<span class="co">#&gt; IGHV1-19        0        0        0        0        0</span></code></pre></div>
+<span class="co">#&gt;            IGKV1-131 IGKV1-88 IGKV12-38 IGKV12-40 IGKV12-41 IGKV12-46 IGKV12-47</span>
+<span class="co">#&gt; IGHV1-11          13        1         1         0         1         1         0</span>
+<span class="co">#&gt; IGHV1-12          13        2         2         1         2         0         0</span>
+<span class="co">#&gt; IGHV1-13           1        0         0         0         0         0         0</span>
+<span class="co">#&gt; IGHV1-18           1        0         0         0         1         0         0</span>
+<span class="co">#&gt; IGHV1-19-1         1        0         0         0         0         0         0</span>
+<span class="co">#&gt; IGHV1-20           1        0         1         0         0         0         0</span>
+<span class="co">#&gt;            IGKV12-89 IGKV13-76 IGKV13-82 IGKV13-84 IGKV13-85 IGKV14-126</span>
+<span class="co">#&gt; IGHV1-11           1         1         0         0         1          0</span>
+<span class="co">#&gt; IGHV1-12           0         1         1         2         0          0</span>
+<span class="co">#&gt; IGHV1-13           0         0         0         0         0          0</span>
+<span class="co">#&gt; IGHV1-18           0         0         0         0         0          0</span>
+<span class="co">#&gt; IGHV1-19-1         0         0         0         0         0          0</span>
+<span class="co">#&gt; IGHV1-20           0         0         0         0         0          0</span>
+<span class="co">#&gt;            IGKV17-127 IGKV17/OR19-2 IGKV19-93 IGKV20-101-2 IGKV3-8 IGKV3-9</span>
+<span class="co">#&gt; IGHV1-11            1             1         0            1       1       0</span>
+<span class="co">#&gt; IGHV1-12            0             0         1            0       3       2</span>
+<span class="co">#&gt; IGHV1-13            0             0         0            0       0       0</span>
+<span class="co">#&gt; IGHV1-18            0             0         0            0       0       0</span>
+<span class="co">#&gt; IGHV1-19-1          0             0         0            0       0       0</span>
+<span class="co">#&gt; IGHV1-20            0             0         0            0       0       0</span>
+<span class="co">#&gt;            IGKV4-50 IGKV4-52 IGKV4-53 IGKV4-54 IGKV4-55 IGKV4-56</span>
+<span class="co">#&gt; IGHV1-11          1        1        2        1        1        0</span>
+<span class="co">#&gt; IGHV1-12          0        2        0        0        0        1</span>
+<span class="co">#&gt; IGHV1-13          0        0        0        0        0        0</span>
+<span class="co">#&gt; IGHV1-18          0        0        0        0        0        0</span>
+<span class="co">#&gt; IGHV1-19-1        0        0        0        0        0        0</span>
+<span class="co">#&gt; IGHV1-20          0        0        0        0        0        0</span></code></pre></div>
 </div>
-<div id="simulate-repertoires-with-different-gene-expression-pattern" class="section level2">
-<h2 class="hasAnchor">
-<a href="#simulate-repertoires-with-different-gene-expression-pattern" class="anchor" aria-hidden="true"></a>Simulate repertoires with different gene expression pattern</h2>
-<p>Seurat (Stuart and Butler et al.) is a gene expression data processing tool kit. With the provided tools such as tSNE, Umap, we can see how cell populations are distributed. We can simulate immune cell gene expression data along with their immune repertoire sequences. The repertoire can contain different cell populations, and the gene expression data of these populations might be distinct or somewhat close to each other. trans_switch_prob_t is a matrix indicating the probability of switching between phenotypes. In the first case, we simulate a CD8+ T cell repertoire with distinct cell population distribution based on experimental gene expression data mean values:</p>
+<div class="section level2">
+<h2 id="simulate-repertoires-with-different-gene-expression-pattern">Simulate repertoires with different gene expression pattern<a class="anchor" aria-label="anchor" href="#simulate-repertoires-with-different-gene-expression-pattern"></a>
+</h2>
+<p>Seurat (Stuart and Butler et al.) is a gene expression data
+processing tool kit. With the provided tools such as tSNE, Umap, we can
+see how cell populations are distributed. We can simulate immune cell
+gene expression data along with their immune repertoire sequences. The
+repertoire can contain different cell populations, and the gene
+expression data of these populations might be distinct or somewhat close
+to each other. trans_switch_prob_t is a matrix indicating the
+probability of switching between phenotypes. In the first case, we
+simulate a CD8+ T cell repertoire with distinct cell population
+distribution based on experimental gene expression data mean values:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="va">trans_switch_prob_t</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0</span>
 <span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="fl">4</span>,<span class="fl">5</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.3</span>
@@ -435,7 +496,7 @@
 <span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="fl">6</span>,<span class="fl">7</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.3</span>
 <span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="fl">7</span>,<span class="fl">4</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.3</span>
 
-<span class="va">CD8_experimental</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>cell.type <span class="op">=</span> <span class="st">"T"</span>,
+<span class="va">CD8_experimental</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>cell.type <span class="op">=</span> <span class="st">"T"</span>,
                                   cd4.proportion <span class="op">=</span> <span class="fl">0</span>,
                                  initial.size.of.repertoire <span class="op">=</span> <span class="fl">50</span>,
                                  duration.of.evolution <span class="op">=</span> <span class="fl">20</span>,
@@ -450,10 +511,19 @@
                                  transcriptome.on <span class="op">=</span> <span class="cn">T</span>,
                                  igraph.on <span class="op">=</span> <span class="cn">F</span>,
                                  SHM.nuc.prob <span class="op">=</span> <span class="fl">0.00001</span><span class="op">)</span></code></pre></div>
-<p>In the second case, we simulate a repertoire with cell populations overlapping. The columns in mus_t_trans dataframe are vectors controlling gene expression level. The rownames are gene names, colnames are cell type names. In the default setting, column 4 to 7 are gene expression vectors for CD8+ T cells. First we make some gene expression vectors with close or remote distance from each other by editing mus_t_trans:</p>
-<p>While most reference data is contained within the package, due to size restrictions, additional neccessary tables are available as follows</p>
+<p>In the second case, we simulate a repertoire with cell populations
+overlapping. The columns in mus_t_trans dataframe are vectors
+controlling gene expression level. The rownames are gene names, colnames
+are cell type names. In the default setting, column 4 to 7 are gene
+expression vectors for CD8+ T cells. First we make some gene expression
+vectors with close or remote distance from each other by editing
+mus_t_trans:</p>
+<p>While most reference data is contained within the package, due to
+size restrictions, additional neccessary tables are available as
+follows</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">url</a></span><span class="op">(</span><span class="st">"https://polybox.ethz.ch/index.php/s/zETU3ruyfTjj8T8/download"</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R">
+<span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">url</a></span><span class="op">(</span><span class="st">"https://polybox.ethz.ch/index.php/s/zETU3ruyfTjj8T8/download"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">base1</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">mus_t_trans</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">1</span>, sd <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>
 <span class="va">base2</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">mus_t_trans</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">1</span>, sd <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>
@@ -466,7 +536,8 @@
 <span class="va">mus_t_trans</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">&lt;-</span><span class="va">mus_t_trans</span><span class="op">[</span>,<span class="fl">5</span><span class="op">]</span>
 <span class="va">mus_t_trans</span><span class="op">[</span><span class="fl">20000</span><span class="op">:</span><span class="fl">20200</span>,<span class="fl">6</span><span class="op">]</span><span class="op">&lt;-</span><span class="va">base3</span><span class="op">[</span><span class="fl">20000</span><span class="op">:</span><span class="fl">20200</span><span class="op">]</span>
 <span class="va">mus_t_trans</span><span class="op">[</span>,<span class="fl">7</span><span class="op">]</span><span class="op">&lt;-</span><span class="va">base4</span></code></pre></div>
-<p>And edit phenotype switching probability matrix trans_switch_prob_t, to ensure every phenotype have a mediate number of population.</p>
+<p>And edit phenotype switching probability matrix trans_switch_prob_t,
+to ensure every phenotype have a mediate number of population.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="fl">4</span>,<span class="fl">5</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.3</span>
 <span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="fl">5</span>,<span class="fl">6</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.3</span>
@@ -474,7 +545,7 @@
 <span class="va">trans_switch_prob_t</span><span class="op">[</span><span class="fl">7</span>,<span class="fl">4</span><span class="op">]</span><span class="op">&lt;-</span><span class="fl">0.3</span></code></pre></div>
 <p>Finally simulate based on the new parameters we just made.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">CD8_overlap</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>cell.type <span class="op">=</span> <span class="st">"T"</span>,
+<code class="sourceCode R"><span class="va">CD8_overlap</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>cell.type <span class="op">=</span> <span class="st">"T"</span>,
                                  initial.size.of.repertoire <span class="op">=</span> <span class="fl">50</span>,
                                  cd4.proportion <span class="op">=</span> <span class="fl">0</span>,
                                  duration.of.evolution <span class="op">=</span> <span class="fl">20</span>,
@@ -487,10 +558,14 @@
                                  death.rate <span class="op">=</span> <span class="fl">0</span>,
                                  transcriptome.on <span class="op">=</span> <span class="cn">T</span>,
                                  SHM.nuc.prob <span class="op">=</span> <span class="fl">0.00001</span><span class="op">)</span></code></pre></div>
-<p>Echidna provide functions that wrapped Seurat functions to visualize simulated gene expression data in few lines. Alternatively, the user can choose to run Seurat follow the instructions (<a href="https://satijalab.org/seurat/" class="external-link uri">https://satijalab.org/seurat/</a>) starting from “gex &lt;- Seurat::CreateSeuratObject(counts = CD8_overlap[[7]])” First plot elbow to select a proper dimension value for the next step of dimension reduction.</p>
+<p>Echidna provide functions that wrapped Seurat functions to visualize
+simulated gene expression data in few lines. Alternatively, the user can
+choose to run Seurat follow the instructions (<a href="https://satijalab.org/seurat/" class="external-link uri">https://satijalab.org/seurat/</a>) starting from “gex &lt;-
+Seurat::CreateSeuratObject(counts = CD8_overlap[[7]])” First plot elbow
+to select a proper dimension value for the next step of dimension
+reduction.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gex</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/get.elbow.html">get.elbow</a></span><span class="op">(</span><span class="va">CD8_overlap</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="co">#&gt; Warning: The following arguments are not used: row.names</span>
 <span class="co">#&gt; Centering and scaling data matrix</span>
 <span class="co">#&gt; PC_ 1 </span>
 <span class="co">#&gt; Positive:  Reep4, Aldh1b1, Pla2g7, Naaa, Gm26602, Gm9725, Tubgcp6, Pitpnm2, Abcf3, March5 </span>
@@ -546,23 +621,24 @@
 <span class="co">#&gt; Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric</span>
 <span class="co">#&gt; To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'</span>
 <span class="co">#&gt; This message will be shown once per session</span>
-<span class="co">#&gt; 20:41:48 UMAP embedding parameters a = 0.9922 b = 1.112</span>
-<span class="co">#&gt; 20:41:48 Read 5000 rows and found 4 numeric columns</span>
-<span class="co">#&gt; 20:41:48 Using Annoy for neighbor search, n_neighbors = 30</span>
-<span class="co">#&gt; 20:41:48 Building Annoy index with metric = cosine, n_trees = 50</span>
+<span class="co">#&gt; 10:47:45 UMAP embedding parameters a = 0.9922 b = 1.112</span>
+<span class="co">#&gt; 10:47:45 Read 5000 rows and found 4 numeric columns</span>
+<span class="co">#&gt; 10:47:45 Using Annoy for neighbor search, n_neighbors = 30</span>
+<span class="co">#&gt; 10:47:45 Building Annoy index with metric = cosine, n_trees = 50</span>
 <span class="co">#&gt; 0%   10   20   30   40   50   60   70   80   90   100%</span>
 <span class="co">#&gt; [----|----|----|----|----|----|----|----|----|----|</span>
 <span class="co">#&gt; **************************************************|</span>
-<span class="co">#&gt; 20:41:49 Writing NN index file to temp file C:\Users\vickr\AppData\Local\Temp\RtmpScZ5RU\file595c22d06ba2</span>
-<span class="co">#&gt; 20:41:49 Searching Annoy index using 1 thread, search_k = 3000</span>
-<span class="co">#&gt; 20:41:51 Annoy recall = 100%</span>
-<span class="co">#&gt; 20:41:52 Commencing smooth kNN distance calibration using 1 thread</span>
-<span class="co">#&gt; 20:41:54 Initializing from normalized Laplacian + noise</span>
-<span class="co">#&gt; 20:41:54 Commencing optimization for 500 epochs, with 161550 positive edges</span>
-<span class="co">#&gt; 20:42:04 Optimization finished</span>
+<span class="co">#&gt; 10:47:46 Writing NN index file to temp file C:\Users\vickr\AppData\Local\Temp\RtmpoptH2F\filec47479466125</span>
+<span class="co">#&gt; 10:47:46 Searching Annoy index using 1 thread, search_k = 3000</span>
+<span class="co">#&gt; 10:47:48 Annoy recall = 100%</span>
+<span class="co">#&gt; 10:47:49 Commencing smooth kNN distance calibration using 1 thread</span>
+<span class="co">#&gt; 10:47:51 Initializing from normalized Laplacian + noise</span>
+<span class="co">#&gt; 10:47:51 Commencing optimization for 500 epochs, with 161550 positive edges</span>
+<span class="co">#&gt; 10:48:01 Optimization finished</span>
 <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html" class="external-link">DimPlot</a></span><span class="op">(</span><span class="va">gex</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, label<span class="op">=</span><span class="cn">F</span>, pt.size<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span></code></pre></div>
 <p><img src="Echidna_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
-<p>When needed, we can use function umap.top.highlight to highlight the clones ranking top in clonal frequency:</p>
+<p>When needed, we can use function umap.top.highlight to highlight the
+clones ranking top in clonal frequency:</p>
 <p>First prepare a named vector as color list:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">col</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E41A1C"</span>, <span class="st">"#377EB8"</span>, <span class="st">"#4DAF4A"</span>, <span class="st">"#984EA3"</span>, <span class="st">"#FF7F00"</span><span class="op">)</span>
@@ -577,7 +653,7 @@
 <p>##Plot mutational networks with igraph</p>
 <p>Simulate B cell networks with moderate size</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">network</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">50</span>,
+<code class="sourceCode R"><span class="va">network</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>initial.size.of.repertoire <span class="op">=</span> <span class="fl">50</span>,
                            duration.of.evolution <span class="op">=</span> <span class="fl">10</span>,
                            vdj.branch.prob <span class="op">=</span> <span class="fl">0.1</span>,
                            cell.division.prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>,<span class="fl">0.5</span><span class="op">)</span> ,
@@ -590,7 +666,8 @@
                            igraph.on<span class="op">=</span><span class="cn">T</span>,
                            SHM.nuc.prob <span class="op">=</span> <span class="fl">0.0001</span>,
                            seq.name <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></code></pre></div>
-<p>Plot the mutational networks of the first clone colored with isotypes:</p>
+<p>Plot the mutational networks of the first clone colored with
+isotypes:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/plot.igraph.html" class="external-link">plot.igraph</a></span><span class="op">(</span><span class="va">network</span><span class="op">[[</span><span class="fl">8</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="Echidna_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
@@ -598,19 +675,22 @@
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/plot.igraph.html" class="external-link">plot.igraph</a></span><span class="op">(</span><span class="va">network</span><span class="op">[[</span><span class="fl">9</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="Echidna_files/figure-html/unnamed-chunk-25-1.png" width="700"></p>
-<p>Sometimes, we want to remove the empty node representing extincted variants in the network.</p>
-<p>First use no.empty.node remove all the empty node in the whole simulation.</p>
+<p>Sometimes, we want to remove the empty node representing extincted
+variants in the network.</p>
+<p>First use no.empty.node remove all the empty node in the whole
+simulation.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">noempty</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/no.empty.node.html">no.empty.node</a></span><span class="op">(</span>history <span class="op">=</span> <span class="va">network</span><span class="op">[[</span><span class="fl">12</span><span class="op">]</span><span class="op">]</span>,igraph.index <span class="op">=</span> <span class="va">network</span><span class="op">[[</span><span class="fl">13</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p>Then plot the new network with removed empty node.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#x is the mutation network that has empty nodes which we want to see them to be removed.</span>
 <span class="co">#igraph::plot.igraph(noempty[[8]][[x]])</span></code></pre></div>
-<p>We can also use cluster.id.igraph to color the igraph with Seurat cluster ID.</p>
-<p>First run Seurat work flow. The ElbowPlot is to determine the parameter d (dimension) value in the next function get.umap().</p>
+<p>We can also use cluster.id.igraph to color the igraph with Seurat
+cluster ID.</p>
+<p>First run Seurat work flow. The ElbowPlot is to determine the
+parameter d (dimension) value in the next function get.umap().</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gex</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/get.elbow.html">get.elbow</a></span><span class="op">(</span><span class="va">network</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="co">#&gt; Warning: The following arguments are not used: row.names</span>
 <span class="co">#&gt; Centering and scaling data matrix</span>
 <span class="co">#&gt; PC_ 1 </span>
 <span class="co">#&gt; Positive:  Hbb-bs, Hba-a2, Hba-a1, Hbb-bt, Zbtb32, Gzma, Ngp, Il9r, Slpi, Camp </span>
@@ -662,404 +742,417 @@
 <span class="co">#&gt; Maximum modularity in 10 random starts: 0.9257</span>
 <span class="co">#&gt; Number of communities: 2</span>
 <span class="co">#&gt; Elapsed time: 0 seconds</span>
-<span class="co">#&gt; 20:42:38 UMAP embedding parameters a = 0.9922 b = 1.112</span>
-<span class="co">#&gt; 20:42:38 Read 1105 rows and found 4 numeric columns</span>
-<span class="co">#&gt; 20:42:38 Using Annoy for neighbor search, n_neighbors = 30</span>
-<span class="co">#&gt; 20:42:38 Building Annoy index with metric = cosine, n_trees = 50</span>
+<span class="co">#&gt; 10:48:31 UMAP embedding parameters a = 0.9922 b = 1.112</span>
+<span class="co">#&gt; 10:48:31 Read 1105 rows and found 4 numeric columns</span>
+<span class="co">#&gt; 10:48:31 Using Annoy for neighbor search, n_neighbors = 30</span>
+<span class="co">#&gt; 10:48:31 Building Annoy index with metric = cosine, n_trees = 50</span>
 <span class="co">#&gt; 0%   10   20   30   40   50   60   70   80   90   100%</span>
 <span class="co">#&gt; [----|----|----|----|----|----|----|----|----|----|</span>
 <span class="co">#&gt; **************************************************|</span>
-<span class="co">#&gt; 20:42:38 Writing NN index file to temp file C:\Users\vickr\AppData\Local\Temp\RtmpScZ5RU\file595c2622414e</span>
-<span class="co">#&gt; 20:42:38 Searching Annoy index using 1 thread, search_k = 3000</span>
-<span class="co">#&gt; 20:42:39 Annoy recall = 100%</span>
-<span class="co">#&gt; 20:42:40 Commencing smooth kNN distance calibration using 1 thread</span>
-<span class="co">#&gt; 20:42:42 Found 3 connected components, falling back to 'spca' initialization with init_sdev = 1</span>
-<span class="co">#&gt; 20:42:42 Initializing from PCA</span>
-<span class="co">#&gt; 20:42:42 PCA: 2 components explained 99.7% variance</span>
-<span class="co">#&gt; 20:42:42 Commencing optimization for 500 epochs, with 38698 positive edges</span>
-<span class="co">#&gt; 20:42:45 Optimization finished</span></code></pre></div>
+<span class="co">#&gt; 10:48:31 Writing NN index file to temp file C:\Users\vickr\AppData\Local\Temp\RtmpoptH2F\filec4741aba30a2</span>
+<span class="co">#&gt; 10:48:31 Searching Annoy index using 1 thread, search_k = 3000</span>
+<span class="co">#&gt; 10:48:32 Annoy recall = 100%</span>
+<span class="co">#&gt; 10:48:33 Commencing smooth kNN distance calibration using 1 thread</span>
+<span class="co">#&gt; 10:48:34 Found 3 connected components, falling back to 'spca' initialization with init_sdev = 1</span>
+<span class="co">#&gt; 10:48:34 Initializing from PCA</span>
+<span class="co">#&gt; 10:48:34 PCA: 2 components explained 99.7% variance</span>
+<span class="co">#&gt; 10:48:34 Commencing optimization for 500 epochs, with 38698 positive edges</span>
+<span class="co">#&gt; 10:48:37 Optimization finished</span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/cluster.id.igraph.html">cluster.id.igraph</a></span><span class="op">(</span>meta.data <span class="op">=</span> <span class="va">gex</span><span class="op">@</span><span class="va">meta.data</span>,history <span class="op">=</span> <span class="va">network</span><span class="op">[[</span><span class="st">'history'</span><span class="op">]</span><span class="op">]</span>,igraph.index <span class="op">=</span> <span class="va">network</span><span class="op">[[</span><span class="st">"igraph.index"</span><span class="op">]</span><span class="op">]</span>,empty.node <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; IGRAPH e082d71 D--- 13 12 -- </span>
+<span class="co">#&gt; IGRAPH b04649b D--- 13 12 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e082d71:</span>
+<span class="co">#&gt; + edges from b04649b:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 3-&gt; 5 2-&gt; 6 4-&gt; 7 2-&gt; 8 2-&gt; 9 2-&gt;10 4-&gt;11 9-&gt;12 2-&gt;13</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; IGRAPH e082d71 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b046979 D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e082d71:</span>
+<span class="co">#&gt; + edges from b046979:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 3-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; IGRAPH e082d72 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b046bea D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e082d72:</span>
+<span class="co">#&gt; + edges from b046bea:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 3-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[4]]</span>
-<span class="co">#&gt; IGRAPH e0853ac D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b0470cc D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ac:</span>
+<span class="co">#&gt; + edges from b0470cc:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[5]]</span>
-<span class="co">#&gt; IGRAPH e0853ac D--- 6 5 -- </span>
+<span class="co">#&gt; IGRAPH b0475a5 D--- 6 5 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ac:</span>
+<span class="co">#&gt; + edges from b0475a5:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[6]]</span>
-<span class="co">#&gt; IGRAPH e0853ac D--- 12 11 -- </span>
+<span class="co">#&gt; IGRAPH b047a6b D--- 12 11 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ac:</span>
+<span class="co">#&gt; + edges from b047a6b:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 2-&gt; 5 2-&gt; 6 2-&gt; 7 2-&gt; 8 2-&gt; 9 3-&gt;10 2-&gt;11 2-&gt;12</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[7]]</span>
-<span class="co">#&gt; IGRAPH e0853ac D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b047f64 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ac:</span>
+<span class="co">#&gt; + edges from b047f64:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6 5-&gt;7 2-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[8]]</span>
-<span class="co">#&gt; IGRAPH e0853ad D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b0481d1 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ad:</span>
+<span class="co">#&gt; + edges from b0481d1:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5 2-&gt;6 5-&gt;7 2-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[9]]</span>
-<span class="co">#&gt; IGRAPH e0853ad D--- 7 6 -- </span>
+<span class="co">#&gt; IGRAPH b048907 D--- 7 6 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ad:</span>
+<span class="co">#&gt; + edges from b048907:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 4-&gt;6 4-&gt;7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[10]]</span>
-<span class="co">#&gt; IGRAPH e0853ad D--- 3 2 -- </span>
+<span class="co">#&gt; IGRAPH b048de7 D--- 3 2 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ad:</span>
+<span class="co">#&gt; + edges from b048de7:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[11]]</span>
-<span class="co">#&gt; IGRAPH e0853ad D--- 3 2 -- </span>
+<span class="co">#&gt; IGRAPH b0492c5 D--- 3 2 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ad:</span>
+<span class="co">#&gt; + edges from b0492c5:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[12]]</span>
-<span class="co">#&gt; IGRAPH e0853ad D--- 3 2 -- </span>
+<span class="co">#&gt; IGRAPH b049534 D--- 3 2 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0853ad:</span>
+<span class="co">#&gt; + edges from b049534:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[13]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b049a13 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b049a13:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5 3-&gt;6 6-&gt;7 2-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[14]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 6 5 -- </span>
+<span class="co">#&gt; IGRAPH b049ef2 D--- 6 5 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b049ef2:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5 2-&gt;6</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[15]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 4 3 -- </span>
+<span class="co">#&gt; IGRAPH b04a3d0 D--- 4 3 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b04a3d0:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[16]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 12 11 -- </span>
+<span class="co">#&gt; IGRAPH b04a8af D--- 12 11 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b04a8af:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 3-&gt; 5 3-&gt; 6 3-&gt; 7 5-&gt; 8 4-&gt; 9 8-&gt;10 3-&gt;11 9-&gt;12</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[17]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 10 9 -- </span>
+<span class="co">#&gt; IGRAPH b04affd D--- 10 9 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b04affd:</span>
 <span class="co">#&gt; [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 3-&gt; 5 4-&gt; 6 2-&gt; 7 3-&gt; 8 2-&gt; 9 2-&gt;10</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[18]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 10 9 -- </span>
+<span class="co">#&gt; IGRAPH b04b4dc D--- 10 9 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b04b4dc:</span>
 <span class="co">#&gt; [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 4-&gt; 5 2-&gt; 6 2-&gt; 7 2-&gt; 8 3-&gt; 9 2-&gt;10</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[19]]</span>
-<span class="co">#&gt; IGRAPH e0879d1 D--- 11 10 -- </span>
+<span class="co">#&gt; IGRAPH b04bc29 D--- 11 10 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e0879d1:</span>
+<span class="co">#&gt; + edges from b04bc29:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 2-&gt; 5 2-&gt; 6 2-&gt; 7 2-&gt; 8 2-&gt; 9 2-&gt;10 2-&gt;11</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[20]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 6 5 -- </span>
+<span class="co">#&gt; IGRAPH b04c109 D--- 6 5 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04c109:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[21]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 7 6 -- </span>
+<span class="co">#&gt; IGRAPH b04c5e8 D--- 7 6 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04c5e8:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5 2-&gt;6 3-&gt;7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[22]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b04cac5 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04cac5:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6 2-&gt;7 2-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[23]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b04d213 D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04d213:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[24]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 6 5 -- </span>
+<span class="co">#&gt; IGRAPH b04d6f1 D--- 6 5 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04d6f1:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 3-&gt;5 3-&gt;6</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[25]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 3 2 -- </span>
+<span class="co">#&gt; IGRAPH b04dbe1 D--- 3 2 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04dbe1:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[26]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 6 5 -- </span>
+<span class="co">#&gt; IGRAPH b04e0c2 D--- 6 5 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04e0c2:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 3-&gt;6</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[27]]</span>
-<span class="co">#&gt; IGRAPH e089ff2 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b04e59e D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e089ff2:</span>
+<span class="co">#&gt; + edges from b04e59e:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 4-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[28]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 9 8 -- </span>
+<span class="co">#&gt; IGRAPH b04ea6d D--- 9 8 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b04ea6d:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6 3-&gt;7 5-&gt;8 2-&gt;9</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[29]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 7 6 -- </span>
+<span class="co">#&gt; IGRAPH b04ef5f D--- 7 6 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b04ef5f:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 5-&gt;6 6-&gt;7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[30]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b04f42a D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b04f42a:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 3-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[31]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 4 3 -- </span>
+<span class="co">#&gt; IGRAPH b04f907 D--- 4 3 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b04f907:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[32]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 11 10 -- </span>
+<span class="co">#&gt; IGRAPH b04fdf8 D--- 11 10 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b04fdf8:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 3-&gt; 5 3-&gt; 6 2-&gt; 7 3-&gt; 8 2-&gt; 9 2-&gt;10 6-&gt;11</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[33]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 10 9 -- </span>
+<span class="co">#&gt; IGRAPH b0502c4 D--- 10 9 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b0502c4:</span>
 <span class="co">#&gt; [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 2-&gt; 5 2-&gt; 6 2-&gt; 7 2-&gt; 8 2-&gt; 9 2-&gt;10</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[34]]</span>
-<span class="co">#&gt; IGRAPH e08c615 D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b0507b9 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08c615:</span>
+<span class="co">#&gt; + edges from b0507b9:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 4-&gt;5 4-&gt;6 5-&gt;7 2-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[35]]</span>
-<span class="co">#&gt; IGRAPH e08ec34 D--- 10 9 -- </span>
+<span class="co">#&gt; IGRAPH b050c96 D--- 10 9 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec34:</span>
+<span class="co">#&gt; + edges from b050c96:</span>
 <span class="co">#&gt; [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 2-&gt; 5 3-&gt; 6 4-&gt; 7 2-&gt; 8 2-&gt; 9 2-&gt;10</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[36]]</span>
-<span class="co">#&gt; IGRAPH e08ec34 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b051175 D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec34:</span>
+<span class="co">#&gt; + edges from b051175:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[37]]</span>
-<span class="co">#&gt; IGRAPH e08ec35 D--- 11 10 -- </span>
+<span class="co">#&gt; IGRAPH b0513e4 D--- 11 10 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec35:</span>
+<span class="co">#&gt; + edges from b0513e4:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 2-&gt; 5 4-&gt; 6 2-&gt; 7 2-&gt; 8 2-&gt; 9 2-&gt;10 2-&gt;11</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[38]]</span>
-<span class="co">#&gt; IGRAPH e08ec35 D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b0518c4 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec35:</span>
+<span class="co">#&gt; + edges from b0518c4:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 3-&gt;5 3-&gt;6 2-&gt;7 5-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[39]]</span>
-<span class="co">#&gt; IGRAPH e08ec35 D--- 4 3 -- </span>
+<span class="co">#&gt; IGRAPH b051da2 D--- 4 3 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec35:</span>
+<span class="co">#&gt; + edges from b051da2:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[40]]</span>
-<span class="co">#&gt; IGRAPH e08ec35 D--- 4 3 -- </span>
+<span class="co">#&gt; IGRAPH b0524ee D--- 4 3 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec35:</span>
+<span class="co">#&gt; + edges from b0524ee:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[41]]</span>
-<span class="co">#&gt; IGRAPH e08ec35 D--- 3 2 -- </span>
+<span class="co">#&gt; IGRAPH b0529cb D--- 3 2 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec35:</span>
+<span class="co">#&gt; + edges from b0529cb:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[42]]</span>
-<span class="co">#&gt; IGRAPH e08ec35 D--- 13 12 -- </span>
+<span class="co">#&gt; IGRAPH b052e9a D--- 13 12 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e08ec35:</span>
+<span class="co">#&gt; + edges from b052e9a:</span>
 <span class="co">#&gt;  [1] 1-&gt; 2 2-&gt; 3 2-&gt; 4 2-&gt; 5 4-&gt; 6 3-&gt; 7 3-&gt; 8 6-&gt; 9 3-&gt;10 7-&gt;11 8-&gt;12 3-&gt;13</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[43]]</span>
-<span class="co">#&gt; IGRAPH e091250 D--- 7 6 -- </span>
+<span class="co">#&gt; IGRAPH b053866 D--- 7 6 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e091250:</span>
+<span class="co">#&gt; + edges from b053866:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6 2-&gt;7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[44]]</span>
-<span class="co">#&gt; IGRAPH e091250 D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b053d35 D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e091250:</span>
+<span class="co">#&gt; + edges from b053d35:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[45]]</span>
-<span class="co">#&gt; IGRAPH e09223e D--- 9 8 -- </span>
+<span class="co">#&gt; IGRAPH b054214 D--- 9 8 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e09223e:</span>
+<span class="co">#&gt; + edges from b054214:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 3-&gt;5 3-&gt;6 3-&gt;7 3-&gt;8 2-&gt;9</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[46]]</span>
-<span class="co">#&gt; IGRAPH e09223e D--- 7 6 -- </span>
+<span class="co">#&gt; IGRAPH b054963 D--- 7 6 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e09223e:</span>
+<span class="co">#&gt; + edges from b054963:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5 2-&gt;6 4-&gt;7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[47]]</span>
-<span class="co">#&gt; IGRAPH e09223e D--- 5 4 -- </span>
+<span class="co">#&gt; IGRAPH b054be1 D--- 5 4 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e09223e:</span>
+<span class="co">#&gt; + edges from b054be1:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 2-&gt;5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[48]]</span>
-<span class="co">#&gt; IGRAPH e09223e D--- 9 8 -- </span>
+<span class="co">#&gt; IGRAPH b055336 D--- 9 8 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e09223e:</span>
+<span class="co">#&gt; + edges from b055336:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 3-&gt;4 2-&gt;5 2-&gt;6 2-&gt;7 2-&gt;8 2-&gt;9</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[49]]</span>
-<span class="co">#&gt; IGRAPH e09223e D--- 8 7 -- </span>
+<span class="co">#&gt; IGRAPH b055ce0 D--- 8 7 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e09223e:</span>
+<span class="co">#&gt; + edges from b055ce0:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3 2-&gt;4 3-&gt;5 2-&gt;6 2-&gt;7 2-&gt;8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[50]]</span>
-<span class="co">#&gt; IGRAPH e09223e D--- 3 2 -- </span>
+<span class="co">#&gt; IGRAPH b05690a D--- 3 2 -- </span>
 <span class="co">#&gt; + attr: layout (g/x), label (v/n), size (v/n), label.dist (v/n), shape</span>
 <span class="co">#&gt; | (v/c), pie.color (v/x), color (v/c), pie (v/x)</span>
-<span class="co">#&gt; + edges from e09223e:</span>
+<span class="co">#&gt; + edges from b05690a:</span>
 <span class="co">#&gt; [1] 1-&gt;2 2-&gt;3</span></code></pre></div>
 <p>##Simulate with variantional autoencoders (VAEs)</p>
-<p>The simulate_repertoire function has an option vdj.productive parameter, which controls how the new sequence simulation will happen. It has 3 possible settings * “random”,V, (D) and J gene segments are randomly chosen and undergo V(D)J recombination process. * “naive”, each new sequence is sampled from a pool of experimental naive cell sequencing data (productive_seq). * “vae”, each new sequence is sample from a pool of sequences simulated by variantional autoencoders (VAEs) based on experimental data.</p>
-<p>Simulate strating repertoire by sampling sequence from a vae generated sequence pool:</p>
+<p>The simulate_repertoire function has an option vdj.productive
+parameter, which controls how the new sequence simulation will happen.
+It has 3 possible settings * “random”,V, (D) and J gene segments are
+randomly chosen and undergo V(D)J recombination process. * “naive”, each
+new sequence is sampled from a pool of experimental naive cell
+sequencing data (productive_seq). * “vae”, each new sequence is sample
+from a pool of sequences simulated by variantional autoencoders (VAEs)
+based on experimental data.</p>
+<p>Simulate strating repertoire by sampling sequence from a vae
+generated sequence pool:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">repertoire_vae</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/simulate_repertoire.html">simulate_repertoire</a></span><span class="op">(</span>vdj.productive <span class="op">=</span> <span class="st">"vae"</span><span class="op">)</span></code></pre></div>
-<p>The vae_generate function provides the possibility for the users to generate data following the same pattern as the input data.</p>
-<p>Before using functions with vae, we need to set up interface with python in R. This can be also found in README.md on <a href="https://github.com/alexyermanos/Echidna/blob/main/README.md" class="external-link uri">https://github.com/alexyermanos/Echidna/blob/main/README.md</a> :</p>
+<code class="sourceCode R"><span class="va">repertoire_vae</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/Echidna_simulate_repertoire.html">Echidna_simulate_repertoire</a></span><span class="op">(</span>vdj.productive <span class="op">=</span> <span class="st">"vae"</span><span class="op">)</span></code></pre></div>
+<p>The vae_generate function provides the possibility for the users to
+generate data following the same pattern as the input data.</p>
+<p>Before using functions with vae, we need to set up interface with
+python in R. This can be also found in README.md on <a href="https://github.com/alexyermanos/Echidna/blob/main/README.md" class="external-link uri">https://github.com/alexyermanos/Echidna/blob/main/README.md</a>
+:</p>
 <p>Remove the “#” when run it</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("reticulate")</span>
-<span class="co"># reticulate::install_miniconda()</span>
-<span class="co"># install.pakcages("keras")</span>
-<span class="co"># install.pakcages("tensorflow")</span>
-<span class="co"># tensorflow::install_tensorflow()</span>
-<span class="co"># keras::install_keras()</span></code></pre></div>
-<p>Here we use the repertoire we just simulated in the last step as input in function vae_generate, but you can use your own sequencing data as input as well.</p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reticulate"</span><span class="op">)</span>
+<span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reticulate/man/install_miniconda.html" class="external-link">install_miniconda</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"keras"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"tensorflow"</span><span class="op">)</span>
+<span class="fu">tensorflow</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tensorflow/man/install_tensorflow.html" class="external-link">install_tensorflow</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu">keras</span><span class="fu">::</span><span class="fu"><a href="https://keras.rstudio.com/reference/install_keras.html" class="external-link">install_keras</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<p>Here we use the repertoire we just simulated in the last step as
+input in function vae_generate, but you can use your own sequencing data
+as input as well.</p>
 <p>Remove the “#” when run it</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># sequence&lt;-repertoire_vae[['all_contig']]$seq</span>
-<span class="co"># vae_generated_sequences&lt;-vae_generate(sequence=sequence, n.train = 80, n.sample = 10, epochs = 30)</span>
-<span class="co"># vae_generated_sequences</span></code></pre></div>
-<p>Remove the “#” when run it</p>
+<code class="sourceCode R"> <span class="va">sequence</span><span class="op">&lt;-</span><span class="va">repertoire_vae</span><span class="op">[[</span><span class="st">'all_contig'</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">seq</span>
+ <span class="va">vae_generated_sequences</span><span class="op">&lt;-</span><span class="fu">vae_generate</span><span class="op">(</span>sequence<span class="op">=</span><span class="va">sequence</span>, n.train <span class="op">=</span> <span class="fl">80</span>, n.sample <span class="op">=</span> <span class="fl">10</span>, epochs <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>
+ <span class="va">vae_generated_sequences</span></code></pre></div>
+<p>Remove the “#” when runing</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># sequence&lt;-repertoire_vae[['all_contig']]$seq</span>
-<span class="co"># vae_generated_sequences&lt;-vae_generate(sequence=sequence, n.train = 80, n.sample = 10, epochs = 30)</span>
-<span class="co"># vae_generated_sequences</span></code></pre></div>
+<code class="sourceCode R"> <span class="va">sequence</span><span class="op">&lt;-</span><span class="va">repertoire_vae</span><span class="op">[[</span><span class="st">'all_contig'</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">seq</span>
+ <span class="va">vae_generated_sequences</span><span class="op">&lt;-</span><span class="fu">vae_generate</span><span class="op">(</span>sequence<span class="op">=</span><span class="va">sequence</span>, n.train <span class="op">=</span> <span class="fl">80</span>, n.sample <span class="op">=</span> <span class="fl">10</span>, epochs <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>
+ <span class="va">vae_generated_sequences</span></code></pre></div>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; R version 4.0.5 (2021-03-31)</span>
 <span class="co">#&gt; Platform: x86_64-w64-mingw32/x64 (64-bit)</span>
-<span class="co">#&gt; Running under: Windows 10 x64 (build 19042)</span>
+<span class="co">#&gt; Running under: Windows 10 x64 (build 19044)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Matrix products: default</span>
 <span class="co">#&gt; </span>
@@ -1072,52 +1165,51 @@
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] Platypus_3.1</span>
+<span class="co">#&gt; [1] Platypus_3.3.3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;   [1] Seurat_4.0.3          Rtsne_0.15            colorspace_2.0-2     </span>
+<span class="co">#&gt;   [1] Seurat_4.1.0          Rtsne_0.15            colorspace_2.0-2     </span>
 <span class="co">#&gt;   [4] deldir_0.2-10         ellipsis_0.3.2        ggridges_0.5.3       </span>
-<span class="co">#&gt;   [7] rprojroot_2.0.2       fs_1.5.0              spatstat.data_2.1-0  </span>
+<span class="co">#&gt;   [7] rprojroot_2.0.2       fs_1.5.2              spatstat.data_2.1-2  </span>
 <span class="co">#&gt;  [10] leiden_0.3.9          listenv_0.8.0         farver_2.1.0         </span>
 <span class="co">#&gt;  [13] ggrepel_0.9.1         RSpectra_0.16-0       fansi_0.5.0          </span>
-<span class="co">#&gt;  [16] xml2_1.3.2            codetools_0.2-18      splines_4.0.5        </span>
-<span class="co">#&gt;  [19] cachem_1.0.5          knitr_1.34            polyclip_1.10-0      </span>
-<span class="co">#&gt;  [22] jsonlite_1.7.2        ica_1.0-2             cluster_2.1.2        </span>
-<span class="co">#&gt;  [25] png_0.1-7             uwot_0.1.10           spatstat.sparse_2.0-0</span>
-<span class="co">#&gt;  [28] sctransform_0.3.2     shiny_1.6.0           compiler_4.0.5       </span>
-<span class="co">#&gt;  [31] httr_1.4.2            assertthat_0.2.1      SeuratObject_4.0.2   </span>
-<span class="co">#&gt;  [34] Matrix_1.3-4          fastmap_1.1.0         lazyeval_0.2.2       </span>
-<span class="co">#&gt;  [37] later_1.2.0           htmltools_0.5.2       tools_4.0.5          </span>
-<span class="co">#&gt;  [40] igraph_1.2.6          gtable_0.3.0          glue_1.4.2           </span>
-<span class="co">#&gt;  [43] RANN_2.6.1            reshape2_1.4.4        dplyr_1.0.7          </span>
-<span class="co">#&gt;  [46] Rcpp_1.0.7            scattermore_0.7       jquerylib_0.1.4      </span>
-<span class="co">#&gt;  [49] pkgdown_1.6.1.9001    vctrs_0.3.8           nlme_3.1-152         </span>
-<span class="co">#&gt;  [52] lmtest_0.9-38         xfun_0.24             stringr_1.4.0        </span>
-<span class="co">#&gt;  [55] globals_0.14.0        rvest_1.0.1           mime_0.11            </span>
-<span class="co">#&gt;  [58] miniUI_0.1.1.1        lifecycle_1.0.0       irlba_2.3.3          </span>
-<span class="co">#&gt;  [61] goftest_1.2-2         future_1.22.1         MASS_7.3-54          </span>
-<span class="co">#&gt;  [64] zoo_1.8-9             scales_1.1.1          spatstat.core_2.2-0  </span>
-<span class="co">#&gt;  [67] spatstat.utils_2.2-0  ragg_1.1.3            promises_1.2.0.1     </span>
-<span class="co">#&gt;  [70] parallel_4.0.5        RColorBrewer_1.1-2    yaml_2.2.1           </span>
-<span class="co">#&gt;  [73] gridExtra_2.3         memoise_2.0.0         reticulate_1.20      </span>
-<span class="co">#&gt;  [76] pbapply_1.5-0         ggplot2_3.3.5         sass_0.4.0           </span>
-<span class="co">#&gt;  [79] rpart_4.1-15          stringi_1.7.4         highr_0.9            </span>
-<span class="co">#&gt;  [82] desc_1.3.0            rlang_0.4.10          pkgconfig_2.0.3      </span>
-<span class="co">#&gt;  [85] systemfonts_1.0.2     matrixStats_0.59.0    evaluate_0.14        </span>
-<span class="co">#&gt;  [88] lattice_0.20-44       tensor_1.5            ROCR_1.0-11          </span>
-<span class="co">#&gt;  [91] purrr_0.3.4           do_1.8.0.0            patchwork_1.1.1      </span>
-<span class="co">#&gt;  [94] htmlwidgets_1.5.4     labeling_0.4.2        cowplot_1.1.1        </span>
-<span class="co">#&gt;  [97] tidyselect_1.1.1      parallelly_1.28.1     RcppAnnoy_0.0.18     </span>
-<span class="co">#&gt; [100] plyr_1.8.6            magrittr_2.0.1        R6_2.5.1             </span>
-<span class="co">#&gt; [103] generics_0.1.0        DBI_1.1.1             mgcv_1.8-36          </span>
-<span class="co">#&gt; [106] pillar_1.6.2          fitdistrplus_1.1-5    abind_1.4-5          </span>
-<span class="co">#&gt; [109] survival_3.2-11       tibble_3.1.2          future.apply_1.8.1   </span>
-<span class="co">#&gt; [112] crayon_1.4.1          KernSmooth_2.23-20    utf8_1.2.1           </span>
-<span class="co">#&gt; [115] spatstat.geom_2.2-0   plotly_4.9.4.1        rmarkdown_2.11       </span>
-<span class="co">#&gt; [118] usethis_2.0.1         grid_4.0.5            data.table_1.14.0    </span>
-<span class="co">#&gt; [121] digest_0.6.27         xtable_1.8-4          tidyr_1.1.3          </span>
-<span class="co">#&gt; [124] httpuv_1.6.1          textshaping_0.3.5     munsell_0.5.0        </span>
-<span class="co">#&gt; [127] viridisLite_0.4.0     bslib_0.3.0</span></code></pre></div>
+<span class="co">#&gt;  [16] codetools_0.2-18      splines_4.0.5         cachem_1.0.6         </span>
+<span class="co">#&gt;  [19] knitr_1.37            polyclip_1.10-0       jsonlite_1.7.2       </span>
+<span class="co">#&gt;  [22] ica_1.0-2             cluster_2.1.2         png_0.1-7            </span>
+<span class="co">#&gt;  [25] uwot_0.1.10           shiny_1.7.1           sctransform_0.3.3    </span>
+<span class="co">#&gt;  [28] spatstat.sparse_2.0-0 compiler_4.0.5        httr_1.4.2           </span>
+<span class="co">#&gt;  [31] assertthat_0.2.1      SeuratObject_4.0.4    Matrix_1.3-4         </span>
+<span class="co">#&gt;  [34] fastmap_1.1.0         lazyeval_0.2.2        later_1.2.0          </span>
+<span class="co">#&gt;  [37] htmltools_0.5.2       tools_4.0.5           igraph_1.2.6         </span>
+<span class="co">#&gt;  [40] gtable_0.3.0          glue_1.4.2            RANN_2.6.1           </span>
+<span class="co">#&gt;  [43] reshape2_1.4.4        dplyr_1.0.7           Rcpp_1.0.7           </span>
+<span class="co">#&gt;  [46] scattermore_0.7       jquerylib_0.1.4       pkgdown_2.0.2        </span>
+<span class="co">#&gt;  [49] vctrs_0.3.8           nlme_3.1-152          lmtest_0.9-38        </span>
+<span class="co">#&gt;  [52] xfun_0.27             stringr_1.4.0         globals_0.14.0       </span>
+<span class="co">#&gt;  [55] mime_0.11             miniUI_0.1.1.1        lifecycle_1.0.1      </span>
+<span class="co">#&gt;  [58] irlba_2.3.3           goftest_1.2-2         future_1.23.0        </span>
+<span class="co">#&gt;  [61] MASS_7.3-54           zoo_1.8-9             scales_1.1.1         </span>
+<span class="co">#&gt;  [64] spatstat.core_2.2-0   ragg_1.2.1            promises_1.2.0.1     </span>
+<span class="co">#&gt;  [67] spatstat.utils_2.2-0  parallel_4.0.5        RColorBrewer_1.1-2   </span>
+<span class="co">#&gt;  [70] yaml_2.2.1            memoise_2.0.1         reticulate_1.20      </span>
+<span class="co">#&gt;  [73] pbapply_1.5-0         gridExtra_2.3         ggplot2_3.3.5        </span>
+<span class="co">#&gt;  [76] sass_0.4.0            rpart_4.1-15          stringi_1.7.4        </span>
+<span class="co">#&gt;  [79] highr_0.9             desc_1.4.0            rlang_0.4.10         </span>
+<span class="co">#&gt;  [82] pkgconfig_2.0.3       systemfonts_1.0.4     matrixStats_0.59.0   </span>
+<span class="co">#&gt;  [85] evaluate_0.14         lattice_0.20-44       tensor_1.5           </span>
+<span class="co">#&gt;  [88] ROCR_1.0-11           purrr_0.3.4           patchwork_1.1.1      </span>
+<span class="co">#&gt;  [91] htmlwidgets_1.5.4     labeling_0.4.2        cowplot_1.1.1        </span>
+<span class="co">#&gt;  [94] tidyselect_1.1.1      parallelly_1.30.0     RcppAnnoy_0.0.18     </span>
+<span class="co">#&gt;  [97] plyr_1.8.6            magrittr_2.0.1        R6_2.5.1             </span>
+<span class="co">#&gt; [100] generics_0.1.2        DBI_1.1.2             mgcv_1.8-36          </span>
+<span class="co">#&gt; [103] pillar_1.7.0          fitdistrplus_1.1-6    abind_1.4-5          </span>
+<span class="co">#&gt; [106] survival_3.2-11       tibble_3.1.2          future.apply_1.8.1   </span>
+<span class="co">#&gt; [109] crayon_1.5.0          KernSmooth_2.23-20    utf8_1.2.1           </span>
+<span class="co">#&gt; [112] spatstat.geom_2.2-0   plotly_4.10.0         rmarkdown_2.11       </span>
+<span class="co">#&gt; [115] grid_4.0.5            data.table_1.14.0     digest_0.6.27        </span>
+<span class="co">#&gt; [118] xtable_1.8-4          tidyr_1.1.3           httpuv_1.6.1         </span>
+<span class="co">#&gt; [121] textshaping_0.3.6     munsell_0.5.0         viridisLite_0.4.0    </span>
+<span class="co">#&gt; [124] bslib_0.3.1</span></code></pre></div>
 </div>
   </div>
 
@@ -1138,7 +1230,8 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
       </footer>

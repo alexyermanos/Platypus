@@ -1,6 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^/vignettes/mixcr.jar
+^vignettes/mixcr.jar
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
@@ -8,3 +8,5 @@
 ^PlatypusDB_website_documentation$
 ^Admin_functions$
 ^\.github$
+^parked_vignettes$
+^Admin_folders

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_plot_SHM.R
 \name{VDJ_plot_SHM}
 \alias{VDJ_plot_SHM}
-\title{Plots for SHM based on MIXCR output generated using the VDJ_call_MIXCR function and appended to the VDJ.GEX.matrix.output}
+\title{Plotting of somatic hypermutation counts}
 \usage{
 VDJ_plot_SHM(
   VDJ.mixcr.matrix,

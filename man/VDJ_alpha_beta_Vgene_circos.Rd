@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_alpha_beta_Vgene_circos.R
 \name{VDJ_alpha_beta_Vgene_circos}
 \alias{VDJ_alpha_beta_Vgene_circos}
-\title{Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.}
+\title{Circos plot for VDJ and VJ pairings}
 \usage{
 VDJ_alpha_beta_Vgene_circos(
   VDJ,
@@ -18,7 +18,7 @@ VDJ_alpha_beta_Vgene_circos(
 )
 }
 \arguments{
-\item{VDJ}{The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied.}
+\item{VDJ}{For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied. For Platypus V2 the output of the VDJ_GEX_integrate function is necessary}
 
 \item{V.or.J}{Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".}
 
@@ -42,10 +42,11 @@ VDJ_alpha_beta_Vgene_circos(
 Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
 }
 \description{
-Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
+Produces a Circos plot from the VDJ_GEX_matrix[[1]] output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
 }
 \examples{
+\dontrun{
  plots <- VDJ_alpha_beta_Vgene_circos(Platypus::small_vgm[[1]]
  , platypus.version="v3")
-
+}
 }

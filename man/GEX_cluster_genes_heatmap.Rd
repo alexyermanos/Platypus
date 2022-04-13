@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_cluster_genes_heatmap.R
 \name{GEX_cluster_genes_heatmap}
 \alias{GEX_cluster_genes_heatmap}
-\title{Produces a heatmap displaying the expression of the top genes that define each cluster in the Seurat object. The output heatmap is derived from DoHeatmap from Seurat and thereby can be edited using typical ggplot interactions. The number of genes per cluster and the nunber of cells to display can be specified by the user. Either the log fold change or the p value can be used to select the top n genes.}
+\title{Heatmap of cluster defining genes}
 \usage{
 GEX_cluster_genes_heatmap(
   GEX,

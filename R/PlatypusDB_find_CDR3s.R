@@ -1,15 +1,21 @@
-#' Queries for the occurrence of CDR3 sequences in public datasets on PlatypusDB.
+#'CDR3 query function for PlatypusDB
+#'
+#'@description Queries for the occurrence of CDR3 sequences in public datasets on PlatypusDB.
 #' @param VDJ.cdr3s.aa Character A VDJ CDR3s amino acid sequence to search for
 #' @param VJ.cdr3s.aa Character A VJ CDR3s amino acid sequence to search for
 #' @param projects.to.search Optional character vector. Defaults to "ALL". Names of projects to search within.
-#' @return A list of subsets of VDJ matrices from projects containing the query VDJ CDR3 (out[[1]]), the VJ CDR3 (out[[2]]) and cells containing both the query VDJ and VJ CDR3s (out[[3]])
+#' @return A list of subsets of VDJ matrices from projects
+#' containing the query VDJ CDR3 (out[[1]]),
+#' the VJ CDR3 (out[[2]]) and cells containing both the query VDJ and VJ CDR3s (out[[3]])
 #' @export
 #' @examples
 #' \dontrun{
+#'
 #' public_clones <- PlatypusDB_find_CDR3s(VDJ.cdr3s.aa = "CMRYGNYWYFDVW"
 #' , VJ.cdr3s.aa = "CLQHGESPFTF", projects.to.search = "ALL")
-#' }
 #'
+#' }
+
 PlatypusDB_find_CDR3s <- function(VDJ.cdr3s.aa,
                                   VJ.cdr3s.aa,
                                   projects.to.search){

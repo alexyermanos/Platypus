@@ -1,4 +1,6 @@
-#' Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain
+#' Local VDJ dataframe to VDJ.GEX.matrix format utility
+#'
+#'@description Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain
 #' @param directory list containing paths to the "filtered_contig_annotations.csv" files from cell ranger.
 #' @param sample.names vector specifying sample names.
 #' @param platypus.version Function based on VGM object from V3, no need to set this parameter.

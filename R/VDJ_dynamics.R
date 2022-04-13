@@ -119,7 +119,7 @@ VDJ_dynamics <- function(VDJ,
   for(i in 1:length(unique_groups)) {
 
     if(!is.null(specific.elements.to.track)){
-      if(class(specific.elements.to.track)=='data.frame') {unique_elements_to_track <- unique(paste0(specific.elements.to.track[,1], ' ', specific.elements.to.track[,2]))}
+      if(inherits(specific.elements.to.track,'data.frame')) {unique_elements_to_track <- unique(paste0(specific.elements.to.track[,1], ' ', specific.elements.to.track[,2]))}
       else {unique_elements_to_track <- unique(specific.elements.to.track)}
     }
 
@@ -127,7 +127,7 @@ VDJ_dynamics <- function(VDJ,
       if(unique_groups[i]!='none'){ starting_rep <- VDJ.matrix[which(VDJ.matrix[additional.grouping.column]==unique_groups[i]), ]
       }else{ starting_rep <- VDJ.matrix }
 
-      if(class(starting.point.repertoire)=='numeric'){
+      if(inherits(starting.point.repertoire,'numeric')){
         starting_rep <- starting_rep[which(starting_rep[timepoints.column]==repertoire_numbers[starting.point.repertoire]),]
       }else{
         starting_rep <- starting_rep[which(starting_rep[timepoints.column]==starting.point.repertoire),]
@@ -205,7 +205,7 @@ VDJ_dynamics <- function(VDJ,
 
   output_plot <- ggplot2::ggplot(tracked_df, ggplot2::aes(x = sample, y = proportions,
     fill = unique_feature_values, stratum = unique_feature_values, alluvium = unique_feature_values, label = unique_feature_values)) +
-    ggalluvial::geom_alluvium() + ggalluvial::geom_stratum() + ggplot2::theme_bw() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
+    ggalluvial::geom_alluvium() + ggalluvial::geom_stratum() + cowplot::theme_cowplot() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
     ggplot2::labs(fill=paste0(columns.to.track, collapse='/'))
 
   if(additional.grouping.column!='none'){

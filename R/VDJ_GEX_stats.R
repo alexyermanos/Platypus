@@ -1,4 +1,6 @@
-#' Gives stats on number and quality of reads.
+#'Standalone VDJ and GEX statistics.
+#'
+#' @description Gives stats on number and quality of reads. This function is integrated into the VDJ_GEX_matrix. Before running, please check list element [[3]] of VDJ_GEX_matrix output for already generated statistics.
 #' @param VDJ.out.directory List of paths with each element containing the path to the output of cellranger VDJ runs. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
 #' @param GEX.out.directory OPTIONAL list of paths with each element containing the path to the output of cellranger GEX runs. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
 #' @param sample.names OPTIONAL: an array of the same length as the input VDJ.out.directory list with custom names for each sample. If not provided samples will be numbered by processing order

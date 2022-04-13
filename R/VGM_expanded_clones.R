@@ -1,4 +1,6 @@
-#' Adds discrete columns containing TRUE / FALSE on whether a given cell is part of a expanded or not-expanded clonotype. Threshold frequency can be set.
+#' VDJ utility for T/F column for clonal expansion
+#'
+#'@description Adds discrete columns containing TRUE / FALSE on whether a given cell is part of a expanded or not-expanded clonotype. Threshold frequency can be set.
 #' @param VGM Output object from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output)
 #' @param add.to.VDJ Boolean. Whether to add expanded columns to VDJ matrix. Defaults to TRUE
 #' @param add.to.GEX Boolean. Whether to add expanded columns to GEX matrix. Defaults to TRUE
@@ -9,7 +11,7 @@
 #'
 #' #Add info to whole VGM object
 #' VGM <- VGM_expanded_clones(
-#' VGM = Platypus::small_VGM, add.to.VDJ = TRUE, add.to.GEX = TRUE,
+#' VGM = Platypus::small_vgm, add.to.VDJ = TRUE, add.to.GEX = TRUE,
 #' expansion.threshold = 1)
 #'
 

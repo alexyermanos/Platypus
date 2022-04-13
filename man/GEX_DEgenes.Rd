@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_DEgenes.R
 \name{GEX_DEgenes}
 \alias{GEX_DEgenes}
-\title{Extracts the differentially expressed genes between two groups of cells. These groups are defined as cells having either of two entries (group1, group2) in the grouping.column of the input Seurat object metadata This function uses the FindMarkers function from the Seurat package.}
+\title{Wrapper for differential gene expression analysis and plotting}
 \usage{
 GEX_DEgenes(
   GEX,
@@ -21,7 +21,9 @@ GEX_DEgenes(
   down.genes,
   base,
   label.n.top.genes,
-  genes.to.label
+  genes.to.label,
+  platypus.version,
+  size.top.colorbar
 )
 }
 \arguments{
@@ -39,7 +41,7 @@ GEX_DEgenes(
 
 \item{filter}{Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.}
 
-\item{return.plot}{Character specifying if a "heatmap", or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none}
+\item{return.plot}{Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none}
 
 \item{logFC}{Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).}
 
@@ -58,9 +60,13 @@ GEX_DEgenes(
 \item{label.n.top.genes}{FOR VOLCANO Interger. How many top genes to label either by Fold change (if logFC == TRUE) or by p.value (if logFC == FALSE). More than 50 are not recommended. Also works in conjunction with genes.to.label}
 
 \item{genes.to.label}{FOR VOLCANO Character vector of genes to label irregardless of their p value.}
+
+\item{platypus.version}{Function works with V2 and V3, no need to set this parameter}
+
+\item{size.top.colorbar}{Integer. Size of the top colorbar for heatmap plot.}
 }
 \value{
-Returns a list with out[[1]] = a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups. out[[2]] = either a "heatmap" (set return.plot accordingly), or "volcano" plot
+Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
 }
 \description{
 Extracts the differentially expressed genes between two groups of cells. These groups are defined as cells having either of two entries (group1, group2) in the grouping.column of the input Seurat object metadata This function uses the FindMarkers function from the Seurat package.
@@ -68,7 +74,7 @@ Extracts the differentially expressed genes between two groups of cells. These g
 \examples{
 #Basic run between two samples
 GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
-group1 = "s1",group2 = "s2")
+group1 = "s1",group2 = "s2", return.plot = "volcano")
 
 #Getting DEGs between two seurat clusters
 #GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,

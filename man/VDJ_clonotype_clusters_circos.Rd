@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_clonotype_clusters_circos.R
 \name{VDJ_clonotype_clusters_circos}
 \alias{VDJ_clonotype_clusters_circos}
-\title{Makes a Circos plot from the VDJ_GEX_integrate output. Connects the clonotypes with the corresponding clusters.}
+\title{Circos plot for clonotype - GEX cluster pairings}
 \usage{
 VDJ_clonotype_clusters_circos(
   VDJ,

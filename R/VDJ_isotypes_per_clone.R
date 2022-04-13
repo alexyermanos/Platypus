@@ -1,4 +1,6 @@
-#' Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion
+#'Platypus V2 clonal utility
+#'
+#' @description Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion
 #' @param VDJ_clonotype_output list of dataframes based on the VDJ_clonotype function output.
 #' @param VDJ_per_clone_output list of dataframes based on the VDJ_per_clone function output.
 #' @param clones numeric value indicating the number of clones to be displayed on the clonal expansion plot. Can take values between 1-50. Default value is 50.
@@ -53,7 +55,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
 
   if(platypus.version=="v3"){ ####START v3
 
-      if(class(VDJ.GEX.matrix.out) == "data.frame"){ #converting a single dataframe intput into a list for compatibility
+      if(inherits(VDJ.GEX.matrix.out,"data.frame")){ #converting a single dataframe intput into a list for compatibility
         VDJ.GEX.matrix.out <- list(VDJ.GEX.matrix.out)
       }
     if(missing(sample.names)) sample.names <- c(1:length(VDJ.GEX.matrix.out))
@@ -237,11 +239,11 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
 
         }
         if (species == "Human"){
-          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "green","IGHG2" = "green3", "IGHG3"="green4", "IGHG4"="darkgreen", "IGHM" = "black", "IGHA1" = "red", "IGHA2"= "red4", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
+          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + cowplot::theme_cowplot() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "green","IGHG2" = "green3", "IGHG3"="green4", "IGHG4"="darkgreen", "IGHM" = "black", "IGHA1" = "red", "IGHA2"= "red4", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
         }
 
         if (species == "Mouse"){
-          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "lightgreen", "IGHG2a"="green", "IGHG2b" = "green3", "IGHG2c"="green4", "IGHG3"="darkgreen", "IGHM" = "black", "IGHA" = "red", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
+          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + cowplot::theme_cowplot() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "lightgreen", "IGHG2a"="green", "IGHG2b" = "green3", "IGHG2c"="green4", "IGHG3"="darkgreen", "IGHM" = "black", "IGHA" = "red", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray"))  + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
 
         }
       }
@@ -300,7 +302,7 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
 
         }
         clones_per_isotype_all[[i]] <- do.call("rbind",clones_per_isotype)
-        output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG" = "green4", "IGHM" = "black", "IGHA" = "red3", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
+        output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + cowplot::theme_cowplot() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG" = "green4", "IGHM" = "black", "IGHA" = "red3", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
 
       }
     }
@@ -359,11 +361,11 @@ VDJ_isotypes_per_clone <- function(VDJ_clonotype_output,
           clones_per_isotype_all[[i]] <- do.call("rbind",clones_per_isotype)
 
           if (species == "Human"){
-          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "green","IGHG2" = "green3", "IGHG3"="green4", "IGHG4"="darkgreen", "IGHM" = "black", "IGHA1" = "red", "IGHA2"= "red4", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
+          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + cowplot::theme_cowplot() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "green","IGHG2" = "green3", "IGHG3"="green4", "IGHG4"="darkgreen", "IGHM" = "black", "IGHA1" = "red", "IGHA2"= "red4", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
           }
 
           if (species == "Mouse"){
-          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + ggplot2::theme_bw() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "lightgreen", "IGHG2a"="green", "IGHG2b" = "green3", "IGHG2c"="green4", "IGHG3"="darkgreen", "IGHM" = "black", "IGHA" = "red", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::theme_classic() + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
+          output_plot[[i]] <- ggplot2::ggplot(clones_per_isotype_all[[i]], ggplot2::aes(fill = Isotype, y=Counts, x=ClonalRank)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black") + cowplot::theme_cowplot() + ggplot2::scale_fill_manual("Isotype", values = c("IGHG1" = "lightgreen", "IGHG2a"="green", "IGHG2b" = "green3", "IGHG2c"="green4", "IGHG3"="darkgreen", "IGHM" = "black", "IGHA" = "red", "IGHD"="blue", "IGHE"="purple", "Unknown"="gray")) + ggplot2::ggtitle(paste0(i)) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Number of cells") + ggplot2::xlab("Clonal rank") + ggplot2::scale_x_continuous(expand = c(0,0.5))
           }
         }
       }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_reclonotype_list_arrange.R
 \name{VDJ_reclonotype_list_arrange}
 \alias{VDJ_reclonotype_list_arrange}
-\title{Only Platypus v2 Organizes the top N genes that define each Seurat cluster and converts them into a single dataframe. This can be useful for obtaining insight into cluster-specific phenotypes.}
+\title{Platypus V2 dataframe utility}
 \usage{
 VDJ_reclonotype_list_arrange(
   VDJ_clonotype.output,

@@ -1,5 +1,5 @@
 #' Calculate abundances/counts of specific features for a VDJ dataframe
-
+#'
 #'@description Calculate the absolute counts or proportions of a specific cell-level feature (column in the VDJ/VDJ.GEX.matrix[[1]] object), per an optional specific grouping factor (e.g., clonotype via 'clonotype_id') and an optional sample factor(e.g., 'sample_id'). Outputs either a count dataframe of the specific feature or a ggplot2 barplot.
 #' @param VDJ VDJ or VDJ.GEX.matrix[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
 #' @param feature.columns vector of strings, denoting the columns of the VDJ/VDJ.GEX.matrix[[1]] object from which to extract the unique feature values (for which we will calculate the counts or proportions).
@@ -381,6 +381,6 @@ VDJ_abundances <- function(VDJ,
       plots[[i]] <- plots[[i]] + ggplot2::labs(y='Proportions')
     }
   }
-  return(plots)
+  return(plots + cowplot::theme_cowplot())
  }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_clonal_lineage_clusters.R
 \name{VDJ_GEX_clonal_lineage_clusters}
 \alias{VDJ_GEX_clonal_lineage_clusters}
-\title{only Platypus v2 Integrates the transcriptional cluster information into the clonal lineages. This requires that automate_GEX, VDJ_clonal_lineages, and VDJ_GEX_integrate have already been ran. The transcriptional cluster will be added to the end of the Name for each sequence.}
+\title{Platypus V2 lineage - GEX integration utility}
 \usage{
 VDJ_GEX_clonal_lineage_clusters(
   VDJ_GEX_integrate.output,

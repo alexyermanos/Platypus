@@ -14,7 +14,7 @@ PlatypusDB_fetch(
 )
 }
 \arguments{
-\item{PlatypusDB.links}{Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is gexVGM, vdjVGM or metadata, \%sample_id\% needs to be "ALL", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path}
+\item{PlatypusDB.links}{Character vector. One or more links to files in the PlatypusDB. Links are constructed as follows: "\%Project id\%/\%sample_id\%/\%filetype\%". Any of the three can be "ALL", to download all files fitting the other link elements. If \%filetype\% is gexVGM, vdjVGM or metadata, \%sample_id\% needs to be "ALL", as these are elements which are not divided by sample. See examples for clarification. See last example on how to download AIRR compliant data. Feature Barcode (FB) data will be downloaded both for GEX and VDJ if present and does not need to be specified in the path. For sample_id entries the the metadata table for a given project via the function PlatypusDB_list_projects()}
 
 \item{save.to.disk}{Boolean. Defaults to FALSE. Whether to save downloaded files individually to the directory specified in path.to.save}
 
@@ -33,7 +33,7 @@ A list of loaded project files as R objects if load.to.list = T or a name of the
 Loads and saves RData objects from the PlatypusDB
 }
 \examples{
-\donttest{
+\dontrun{
 
 #Get a list of available projects by name
 names(PlatypusDB_list_projects())

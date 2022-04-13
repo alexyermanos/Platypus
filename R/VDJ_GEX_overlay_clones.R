@@ -1,4 +1,6 @@
-#' Highlights the cells belonging to any number of top clonotypes or of specifically selected clonotypes from one or more samples or groups in a GEX dimensional reduction.
+#'Overlay clones on GEX projection
+#'
+#' @description Highlights the cells belonging to any number of top clonotypes or of specifically selected clonotypes from one or more samples or groups in a GEX dimensional reduction.
 #' @param GEX A single seurat object from VDJ_GEX_matrix, which also includes VDJ information in the metadata (set integrate.VDJ.to.GEX to TRUE in the VDJ_GEX_matrix function) (VDJ_GEX_matrix.output[[2]]) ! Clone ids and frequencies are drawn from the columns "clonotype_id" and "clonotype_frequency"
 #' @param reduction Character. Defaults to "umap". Name of the reduction to overlay clones on. Can be "pca", "umap", "tsne"
 #' @param n.clones Integer. Defaults to 5. To PLOT TOP N CLONES. Number of Top clones to plot. If either by.sample or by.group is TRUE, n.clones clones from each sample or group will be overlayed
@@ -91,6 +93,12 @@ VDJ_GEX_overlay_clones <- function(GEX,
   #make sure that the frequency column is numeric
   GEX@meta.data$clonotype_frequency <- as.numeric(as.character(GEX@meta.data$clonotype_frequency))
 
+  #security check: if clonotype_id is not present in dataframe use clonotype_id_10x
+  if(!"clonotype_id" %in% names(GEX@meta.data)){
+    GEX@meta.data$clonotype_id <- GEX@meta.data$clonotype_id_10x
+    message("Using clonotype_id_10x column")
+  }
+
   #make column sample + clonotype id
   GEX@meta.data$s_cl <- paste0(GEX@meta.data$sample_id, GEX@meta.data$clonotype_id)
 
@@ -143,8 +151,9 @@ VDJ_GEX_overlay_clones <- function(GEX,
     for(i in 1:length(track_cl_to_plot)){
       to_highlight_list[[i]] <- SeuratObject::WhichCells(GEX, ident =  track_cl_to_plot[i])
     }
+    to_highlight_list <- rev(to_highlight_list) #reversing it to keep plotting order as orders of selected clones
 
-    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
+    out.plot <- Seurat::DimPlot(GEX,reduction = reduction, cells.highlight = to_highlight_list, cols.highlight = clone.colors , cols = others.color, shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "" ) + ggplot2::scale_color_manual(values = c(others.color, clone.colors), labels = c("Not selected", track_cl_to_plot))
 
     #dimplot with cols + grey30 to color in the non selected clones
     #out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors, others.color), shuffle = F, order = c("Not selected","selected"), pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")

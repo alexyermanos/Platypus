@@ -1,5 +1,5 @@
 #' Wrapper function of VDJ_antigen_integrate function
-
+#'
 #'@description Wraps the VDJ_antigen_integrate function and uses it to annotate a VDJ dataframe with antigen information. Needs to VDJ_db_load to be executed first, with preprocess=T and vgm.names=T to obtain the same column names as in the VDJ (to allow for sequence matching).
 #' @param VDJ VDJ or VDJ.GEX.matrix[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
 #' @param db.list list of database dataframes or csv file paths, obtained from VDJ_db_load with .

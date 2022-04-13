@@ -1,4 +1,6 @@
-#' Platypus V2: Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
+#'Platypus V2 GEX and VDJ integration for clonotypes
+#'
+#'@description Platypus V2: Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
 #' @param GEX.object A single seurat object from automate_GEX function. This will likely be supplied as automate_GEX.output[[1]].
 #' @param VDJ.per.clone Output from the VDJ_per_clone function. Each element in the list should be found in the output from the automate_GEX function.
 #' @return Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate

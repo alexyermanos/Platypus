@@ -1,4 +1,6 @@
-#' Utility function for loading in local dataset as VDJ_GEX_matrix and PlatypusDB compatible R objects. Especially useful when wanting to integrate local and public datasets. This function only imports and does not make changes to format, row and column names. Exception: filtered_contig.fasta are appended to the filtered_contig_annotations.csv as a column for easy access
+#'PlatypusDB utility for import of local datasets
+#'
+#'@description Utility function for loading in local dataset as VDJ_GEX_matrix and PlatypusDB compatible R objects. Especially useful when wanting to integrate local and public datasets. This function only imports and does not make changes to format, row and column names. Exception: filtered_contig.fasta are appended to the filtered_contig_annotations.csv as a column for easy access
 #' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).
 #'@param GEX.out.directory.list List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ. This outs directory may also contain Feature Barcode (FB) information. Do not specify FB.out.directory in this case.
 #'@param FB.out.directory.list List of paths pointing at the outs/ directory of output of the Cellranger counts function which contain Feature barcode counts. Any input will overwrite potential FB data loaded from the GEX input directories. Length must match VDJ and GEX directory inputs. (in case of a single FB output directory for multiple samples, please specifiy this directory as many times as needed)
@@ -195,7 +197,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       FB.loaded <- F
       #dealing with possible mixed GEX FB inputs or multiple FB input matrices from the same directory
       for(i in 1:length(GEX.list)){ #iterating over main list
-        if(class(GEX.list[[i]]) == "list"){ #this returns true only if the GEX directory import contained more than one marices => i.e. there is a GEX and a FB matrix
+        if(inherits(GEX.list[[i]],"list")){ #this returns true only if the GEX directory import contained more than one marices => i.e. there is a GEX and a FB matrix
           GEX_ind <- c() #open indices for GEX and FB list elements
           FB_ind <- c()
           for(j in 1:length(GEX.list[[i]])){ #Now iterating over the elements of this particular FB directory input
@@ -246,7 +248,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
   #! Not checking if FB have already been loaded as part of GEX. If FB directory is supplied, any FB data loaded by GEX is therefore overwritten. This should allow for more flexibility of the user without having to realign the whole GEX data
   if(FB.out.directory.list[[1]] != "none"){
 
-    gex_load_error <- tryCatch({suppressWarnings({
+    gex_load_error <- tryCatch({
 
       #add the directory identifier
       if(stringr::str_detect(FB.out.directory.list[[1]], "filtered_feature_bc_matrix")){
@@ -257,8 +259,8 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         FB.out.directory.list.p <- FB.out.directory.list
         message("Loading feature barcodes from raw_feature_bc_matrix folder \n")
       } else{
-        FB.out.directory.list.p <- paste(FB.out.directory.list,"/raw_feature_bc_matrix",sep="")
-        message("Loading feature barcodes from raw_feature_bc_matrix folder \n")
+        FB.out.directory.list.p <- FB.out.directory.list
+        message("Loading feature barcodes from input path \n")
       }
       #Actually loading the data. Critical: if Cellranger 6.1.0 count was run with --libraries input containing both GEX and Feature Barcodes, reading it will result in a list of matrices instead of a single matrix. => the next section deals with this
       n_not_loaded <- 0
@@ -279,11 +281,26 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         }
       }
 
+      if(all(FB.list == "none")){
+        warning("None of FB data could be loaded. Retrying with gene.column = 1")
+        FB.list <- lapply(FB.out.directory.list.p, function(x) tryCatch({Seurat::Read10X(data.dir=x, gene.column = 1)},
+                                                                        error = function(e){
+                                                                          n_not_loaded <- n_not_loaded + 1
+                                                                          return(NULL)}))
 
+      }
+      #Replacing null values with "none" which will be picked up by the VGM function
+      for(i in 1:length(FB.list)){
+        if(is.null(FB.list[[i]])){
+          FB.list[[i]] <- "none"
+        }
+      }
+      if(all(FB.list == "none")){
+        warning("Loading FB data failed")}
 
       #dealing with possible mixed GEX FB inputs or multiple FB input matrices from the same directory
       for(i in 1:length(FB.list)){ #iterating over main list
-        if(class(FB.list[[i]]) == "list"){ #this returns true only if the FB directory import contained more than one marices
+        if(inherits(FB.list[[i]],"list")){ #this returns true only if the FB directory import contained more than one marices
           to_del <- c()
           for(j in 1:length(FB.list[[i]])){ #Now iterating over the elements of this particular FB directory input
             if(nrow(FB.list[[i]][[j]]) > 100){ #Checking whether this matrix may contain cite seq or feature barcodes. If the number of features is over 100, the matrix almost certainly contains GEX information. We will discard this matrix
@@ -304,7 +321,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       #Done => result should be a non-nested list of matrices only containing FB information. With this we can move forward
 
       FB.loaded <- T
-    })}, error = function(e){
+   }, error = function(e){
       message(paste0("Loading FB failed \n", e))})
 
   } else {

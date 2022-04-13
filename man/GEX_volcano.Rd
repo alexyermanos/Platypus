@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_volcano.R
 \name{GEX_volcano}
 \alias{GEX_volcano}
-\title{Plots a volcano plot from the output of the FindMarkers function from the Seurat package or the GEX_cluster_genes function alternatively.}
+\title{Flexible wrapper for GEX volcano plots}
 \usage{
 GEX_volcano(
   DEGs.input,

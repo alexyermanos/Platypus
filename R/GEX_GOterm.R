@@ -1,4 +1,6 @@
-#' Runs a GO term analysis on a submitted list of genes. Works with the output of GEX_topN_DE_genes_per_cluster or a custom list of genes to obtain GOterms.
+#'GEX GO-Term analysis and plotting
+#'
+#'@description Runs a GO term analysis on a submitted list of genes. Works with the output of GEX_topN_DE_genes_per_cluster or a custom list of genes to obtain GOterms.
 #' @param GEX.cluster.genes.output Either output of Platypus::GEX_cluster_genes or custom character vector containing gene symbols. A custom gene list will not be further filtered or ordered.
 #' @param topNgenes How many of the most significant up or down regulated genes should be considered for GO term analysis. All genes will be used if left empty.
 #' @param species The species the genes belong to. Default: "Mm" (requires the package "org.Mm.eg.db"). Set to "Hs" for Human (requires the package "org.Hs.eg.db")
@@ -69,7 +71,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   g4 <- list()
 
   #Check whether GEX_cluster_genes output was submitted or list as character vector
-  if (class(GEX.cluster.genes.output[[1]])=="data.frame"){
+  if (inherits(GEX.cluster.genes.output[[1]],"data.frame")){
 
     if(MT.Rb.filter==T){
       for (i in 1:length(GEX.cluster.genes.output)){
@@ -91,29 +93,29 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
       }
     }
 
-      for (i in 1:length(GEX.cluster.genes.output)){
-        #Add entrez-ID
-        if(species == "Mm"){
-          rownames(GEX.cluster.genes.output[[i]])<- stringr::str_to_title(rownames( GEX.cluster.genes.output[[i]])) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
-          GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Mm.eg.db::org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
-        } else if (species == "Hs"){
-          GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Hs.eg.db::org.Hs.eg.db,keys=rownames(GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
-        }
-
-        #filter for positive logfoldchanges and arrange for increasing logfoldchanges
-        if(up.or.down=="down"){
-          GEX.cluster.genes.output[[i]] %>% dplyr::filter(GEX.cluster.genes.output[[i]]$avg_logFC < 0) %>% dplyr::arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
-        }else{
-          GEX.cluster.genes.output[[i]] %>% dplyr::filter(GEX.cluster.genes.output[[i]]$avg_logFC > 0) %>% dplyr::arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
-        }
-
-        if(missing(topNgenes)){
-          message("missing topNgenes argument: all genes will be used")
-          gene.list[[i]] <- GEX.cluster.genes.output[[i]]$symbol$ENTREZID
-        }else{
-          gene.list[[i]] <- utils::head(GEX.cluster.genes.output[[i]]$symbol$ENTREZID, topNgenes)
-        }
+    for (i in 1:length(GEX.cluster.genes.output)){
+      #Add entrez-ID
+      if(species == "Mm"){
+        rownames(GEX.cluster.genes.output[[i]])<- stringr::str_to_title(rownames( GEX.cluster.genes.output[[i]])) #convert Symbol from all uppercase to mixed (eg. GZMK to Gzmk)
+        GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Mm.eg.db::org.Mm.eg.db,keys=rownames( GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
+      } else if (species == "Hs"){
+        GEX.cluster.genes.output[[i]]$symbol <- AnnotationDbi::select(org.Hs.eg.db::org.Hs.eg.db,keys=rownames(GEX.cluster.genes.output[[i]]), keytype="SYMBOL" ,columns=c("ENTREZID", "GENENAME"))  #rownames(DE_gene_list_filtered)
       }
+
+      #filter for positive logfoldchanges and arrange for increasing logfoldchanges
+      if(up.or.down=="down"){
+        GEX.cluster.genes.output[[i]] %>% dplyr::filter(GEX.cluster.genes.output[[i]]$avg_logFC < 0) %>% dplyr::arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
+      }else{
+        GEX.cluster.genes.output[[i]] %>% dplyr::filter(GEX.cluster.genes.output[[i]]$avg_logFC > 0) %>% dplyr::arrange(p_val_adj)-> GEX.cluster.genes.output[[i]]
+      }
+
+      if(missing(topNgenes)){
+        message("missing topNgenes argument: all genes will be used")
+        gene.list[[i]] <- GEX.cluster.genes.output[[i]]$symbol$ENTREZID
+      }else{
+        gene.list[[i]] <- utils::head(GEX.cluster.genes.output[[i]]$symbol$ENTREZID, topNgenes)
+      }
+    }
   }else{
 
     GEX.cluster.genes.output <- data.frame(symbol=GEX.cluster.genes.output, dummy=NA) #add dummy, otherwise filter does not recognize df
@@ -121,21 +123,21 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
     rownames(GEX.cluster.genes.output) <- stringr::str_to_upper((GEX.cluster.genes.output$symbol))
 
     if(MT.Rb.filter==T){
-        #Filter Genes
-        GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output
-        if (nrow(GEX.cluster.genes.output[grep('^RPS', rownames(GEX.cluster.genes.output)),])) #Only filter if there is at least one occurence, otherwise there is error
-        {
-          GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output[-grep('^RPS', rownames(GEX.cluster.genes.output)),] #remove all genen startign with RPS
-        }
-        if (nrow(GEX.cluster.genes.output[grep('^RPL', rownames(GEX.cluster.genes.output)),]))
-        {
-          GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output_filtered[-grep('^RPL', rownames(GEX.cluster.genes.output_filtered)),] #remove all genen startign with RPL
-        }
-        if (nrow(GEX.cluster.genes.output[grep('^MT', rownames(GEX.cluster.genes.output)),]))
-        {
-          GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output_filtered[-grep('^MT', rownames(GEX.cluster.genes.output_filtered)),] #remove all genen startign with MT
-        }
-        GEX.cluster.genes.output <- GEX.cluster.genes.output_filtered
+      #Filter Genes
+      GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output
+      if (nrow(GEX.cluster.genes.output[grep('^RPS', rownames(GEX.cluster.genes.output)),])) #Only filter if there is at least one occurence, otherwise there is error
+      {
+        GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output[-grep('^RPS', rownames(GEX.cluster.genes.output)),] #remove all genen startign with RPS
+      }
+      if (nrow(GEX.cluster.genes.output[grep('^RPL', rownames(GEX.cluster.genes.output)),]))
+      {
+        GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output_filtered[-grep('^RPL', rownames(GEX.cluster.genes.output_filtered)),] #remove all genen startign with RPL
+      }
+      if (nrow(GEX.cluster.genes.output[grep('^MT', rownames(GEX.cluster.genes.output)),]))
+      {
+        GEX.cluster.genes.output_filtered <- GEX.cluster.genes.output_filtered[-grep('^MT', rownames(GEX.cluster.genes.output_filtered)),] #remove all genen startign with MT
+      }
+      GEX.cluster.genes.output <- GEX.cluster.genes.output_filtered
     }
 
     if(species == "Mm"){
@@ -163,57 +165,57 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   list[[1]]<-list_topGO
 
   if (kegg==T){
-  list[[2]]<-list_topKEGG
+    list[[2]]<-list_topKEGG
   }
 
   if (go.plots==T){
-      top_pathways=top.N.go.terms.plots
-      for (i in 1:length(list[[1]])){
-        dummy_list <- list[[1]][[i]]
-        plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i-1)
-        if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(dummy_list)
-        dummy_list$ratio<-dummy_list$DE/dummy_list$N
-        dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
-        names(dummy_list)<-c("GO_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
-        dummy_list<-dummy_list[1:top_pathways,]
-        dummy_list$GO_term <- factor(dummy_list$GO_term, levels = dummy_list$GO_term[order(dummy_list$p_adj, decreasing = TRUE)])
+    top_pathways=top.N.go.terms.plots
+    for (i in 1:length(list[[1]])){
+      dummy_list <- list[[1]][[i]]
+      plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i-1)
+      if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(dummy_list)
+      dummy_list$ratio<-dummy_list$DE/dummy_list$N
+      dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
+      names(dummy_list)<-c("GO_term", "ont", "nb_tot_genes", "DE_genes", "p_adj","ratio")
+      dummy_list<-dummy_list[1:top_pathways,]
+      dummy_list$GO_term <- factor(dummy_list$GO_term, levels = dummy_list$GO_term[order(dummy_list$p_adj, decreasing = TRUE)])
 
 
-        g1[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
-          ggplot2::geom_point()+
-          ggplot2::theme_bw()+
-          ggplot2::scale_color_gradient(low="blue", high="red")+
+      g1[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(ratio, GO_term, colour=-log(p_adj), size=DE_genes))+
+        ggplot2::geom_point()+
+        cowplot::theme_cowplot() +
+        ggplot2::scale_color_gradient(low="blue", high="red")+
 
-          ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+        ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
-          ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
-                panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
-          ggplot2::ggtitle(plot_title)
+        ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+                       panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+        ggplot2::ggtitle(plot_title)
 
-        grDevices::pdf(paste(plot_title,".pdf",sep=""))
-        print(g1[[i]])
-        grDevices::dev.off()
+      grDevices::pdf(paste(plot_title,".pdf",sep=""))
+      print(g1[[i]])
+      grDevices::dev.off()
 
-        g2[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(-log(p_adj), GO_term, colour=DE_genes))+
-          ggplot2::geom_point(size=5)+
-          ggplot2::theme_bw()+
-          ggplot2::scale_color_gradient(low="blue", high="red")+
+      g2[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(-log(p_adj), GO_term, colour=DE_genes))+
+        ggplot2::geom_point(size=5)+
+        ggplot2::theme_bw()+
+        ggplot2::scale_color_gradient(low="blue", high="red")+
 
-          ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
+        ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
-          ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
-                panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
-          ggplot2::ggtitle(plot_title)
+        ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+                       panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+        ggplot2::ggtitle(plot_title)
 
 
-        grDevices::pdf(paste(plot_title,"_2.pdf",sep=""))
-        print(g2[[i]])
-        grDevices::dev.off()
+      grDevices::pdf(paste(plot_title,"_2.pdf",sep=""))
+      print(g2[[i]])
+      grDevices::dev.off()
 
-      }
-      list[[3]] <- g1
-      list[[4]] <- g2
     }
+    list[[3]] <- g1
+    list[[4]] <- g2
+  }
 
   if (kegg.plots==T&kegg==T){
     top_pathways=top.N.kegg.terms.plots
@@ -235,7 +237,7 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
         ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
         ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
-              panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+                       panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
         ggplot2::ggtitle(plot_title)
 
       grDevices::pdf(paste(plot_title,".pdf",sep=""))
@@ -244,13 +246,13 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
 
       g4[[i]]<-ggplot2::ggplot(dummy_list, ggplot2::aes(-log(p_adj), KEGG_term, colour=DE_genes))+
         ggplot2::geom_point(size=5)+
-        ggplot2::theme_bw()+
+        cowplot::theme_cowplot() +
         ggplot2::scale_color_gradient(low="blue", high="red")+
 
         ggplot2::scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 30, simplify = FALSE), paste, collapse="\n"))+
 
         ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
-              panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
+                       panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black"))+
         ggplot2::ggtitle(plot_title)
 
 

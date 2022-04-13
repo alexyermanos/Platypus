@@ -1,4 +1,6 @@
-#' Extracts information on the VDJRegion level using MiXCR. This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurances.
+#'Calls MiXCR VDJ object of Platypus V2
+#'
+#'@description Extracts information on the VDJRegion level using MiXCR. This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurances.
 #' @param VDJ.per.clone The output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell.
 #' @param mixcr.directory The directory containing an executable version of MiXCR. This must be downloaded separately and is under a separate license.
 #' @param species Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR.

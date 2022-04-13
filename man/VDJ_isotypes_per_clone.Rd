@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_isotypes_per_clone.R
 \name{VDJ_isotypes_per_clone}
 \alias{VDJ_isotypes_per_clone}
-\title{Only for Platypus v2 Clonal frequency plot displaying the isotype usage of each clone. ! For platypus v3 use VDJ_clonal_expansion}
+\title{Platypus V2 clonal utility}
 \usage{
 VDJ_isotypes_per_clone(
   VDJ_clonotype_output,

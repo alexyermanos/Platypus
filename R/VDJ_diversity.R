@@ -1,4 +1,6 @@
-#' Calculates and plots common diversity and overlap measures for repertoires and alike. Require the vegan package
+#' Diversity metrics for VDJ
+#'
+#'@description Calculates and plots common diversity and overlap measures for repertoires and alike. Require the vegan package
 #' @param VDJ VDJ dataframe output from either the VDJ_analyse (platypus.version = "v2") or from the VDJ_GEX_matrix function (platypus.version = "v3")(VDJ_GEX_matrix.output[[1]])
 #' @param feature.columns Character vector. One or more column names from the VDJ of which diversity or overlap metrics are calculated. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation. Defaults to "CDRH3_aa" if platypus.version == "v2" and "VDJ_cdr3s_aa" if platypus.version == "v3".
 #' @param grouping.column Character. Column name of a column to group metrics by. This could be "sample_id" to calculate the metric for each sample. This column is required if metric = "simpson". If so, the simpson overlap index will be calculated pairwise for all combinations of elements in the grouping.column. Defaults to "none".
@@ -64,8 +66,9 @@ VDJ_diversity <- function(VDJ,
     if("" %in% VDJ[n,c(feature.columns)]){
       to_remove <- c(to_remove, n)}
   }
+  if(length(to_remove) > 0){
   VDJ <- VDJ[-to_remove,]
-
+  }
 
   #get basic dataframe with pasted features and group
   if(grouping.column == "none"){
@@ -143,7 +146,7 @@ VDJ_diversity <- function(VDJ,
   out_df <- data.frame("index" = title_out,"groups" = group.names, "metric" = out, colors = grDevices::rainbow(length(group.names)))
 
   #plot
-  plot_out <- ggplot2::ggplot(out_df, ggplot2::aes(x = groups, y = metric, fill = colors)) + ggplot2::geom_bar(show.legend = F, stat = "identity") + ggplot2::labs(title = title_out, x = "", y = title_out) + ggplot2::theme(panel.background = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank(), legend.position = "none") + ggplot2::scale_y_continuous(expand = c(0,0))
+  plot_out <- ggplot2::ggplot(out_df, ggplot2::aes(x = groups, y = metric, fill = colors)) + ggplot2::geom_bar(show.legend = F, stat = "identity") + ggplot2::labs(title = title_out, x = "", y = title_out) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank(), legend.position = "none") + ggplot2::scale_y_continuous(expand = c(0,0))
 
   return(plot_out)
 
@@ -173,7 +176,7 @@ VDJ_diversity <- function(VDJ,
     title_out <- "Jaccard index"
   }
 
-    plot_out <- ggplot2::ggplot(combs, ggplot2::aes(x = combs[,2], y = combs[,1],fill=metric)) + ggplot2::geom_tile() + ggplot2::geom_text(ggplot2::aes(label=metric), size = pvalues.label.size)+ ggplot2::scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$metric)) + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line.x = ggplot2::element_blank(),axis.line.y = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank(), text = ggplot2::element_text(size=30), legend.key = ggplot2::element_rect(colour = "white"), legend.position = "none", plot.title = ggplot2::element_text(hjust = 0.5, size = 25), plot.subtitle = ggplot2::element_text(size = 15),axis.text.x = ggplot2::element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = ggplot2::element_text(size = axis.label.size)) + ggplot2::labs(title = title_out, x = "", y = "", fill = "")
+    plot_out <- ggplot2::ggplot(combs, ggplot2::aes(x = combs[,2], y = combs[,1],fill=metric)) + ggplot2::geom_tile() + ggplot2::geom_text(ggplot2::aes(label=metric), size = pvalues.label.size)+ cowplot::theme_cowplot()+ ggplot2::scale_fill_gradient2(low="navy", mid="white", high="red", limits=range(combs$metric)) + ggplot2::theme(legend.position = "none",axis.text.x = ggplot2::element_text(angle = 60,vjust = 1, hjust=1, size = axis.label.size),axis.text.y = ggplot2::element_text(size = axis.label.size)) + ggplot2::labs(title = title_out, x = "", y = "", fill = "")
 
     return(plot_out)
   } else {stop("Please input a metric from the available selection listed in the doc")}

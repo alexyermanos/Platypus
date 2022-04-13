@@ -1,4 +1,6 @@
-#' Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.
+#' MiXCR wrapper for Platypus V3 VDJ object
+#'
+#'@description Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.
 #' @param VDJ For platypus.version = "v2" the output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell. For platypus.version = "v3" the VDJ dataframe output of the VDJ_GEX_matrix function (VDJ.GEX.matri.output[[1]])
 #' @param operating.system Can be either "Windows", "Darwin" (for MAC) or "Linux". If left empty this is detected automatically
 #' @param mixcr.directory The directory containing an executable version of MiXCR. FOR WINDOWS USERS THIS IS SET TO THE CURRENT WORKING DIRECTORY (please paste the content of the MIXCR folder after unzipping into your working directory. Make sure, that mixcr.jar is not within any subfolders.)
@@ -28,6 +30,7 @@ VDJ_call_MIXCR <- function(VDJ,
                            platypus.version){
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
+  descrsR1 <- NULL
 
     if(missing(simplify)) simplify <- T
     if(missing(species)) species <- "hsa"
@@ -62,14 +65,28 @@ VDJ_call_MIXCR <- function(VDJ,
     system("cmd.exe", input = paste("del tempmixcrhc.out.txt"))
     system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
 
+    #Deal with aberrant cells first
+    aberrants <- subset(VDJ, Nr_of_VDJ_chains == 2 | Nr_of_VJ_chains == 2)
+    bcs_VDJ <- c()
+    bcs_VJ <- c()
+    VDJ_raw <- c()
+    VJ_raw <- c()
+    if(nrow(aberrants)>0){
+    for(i in 1:nrow(aberrants)){
+        bcs_VDJ <- c(bcs_VDJ, rep(aberrants$barcode[i],aberrants$Nr_of_VDJ_chains[i]))
+        VDJ_raw <- c(VDJ_raw, unlist(stringr::str_split(aberrants$VDJ_sequence_nt_raw[i], ";", simplify = T)[1,]))
+        bcs_VJ <- c(bcs_VJ, rep(aberrants$barcode[i],aberrants$Nr_of_VJ_chains[i]))
+        VJ_raw <- c(VJ_raw, unlist(stringr::str_split(aberrants$VJ_sequence_nt_raw[i], ";", simplify = T)[1,]))
+    }
+    }
 
-    VDJ <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
+    normals <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
 
   ### need to also read in the fastas
-    temp.seq.hc_unlist <- unlist(VDJ$VDJ_sequence_nt_raw)
-    temp.seq.lc_unlist <- unlist(VDJ$VJ_sequence_nt_raw)
-    temp.name.hc_unlist <- unlist(VDJ$barcode)
-    temp.name.lc_unlist <- unlist(VDJ$barcode)
+    temp.seq.hc_unlist <- c(unlist(normals$VDJ_sequence_nt_raw),VDJ_raw)
+    temp.seq.lc_unlist <- c(unlist(normals$VJ_sequence_nt_raw),VJ_raw)
+    temp.name.hc_unlist <- c(unlist(normals$barcode),bcs_VDJ)
+    temp.name.lc_unlist <- c(unlist(normals$barcode),bcs_VJ)
 
     seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
 
@@ -77,7 +94,6 @@ VDJ_call_MIXCR <- function(VDJ,
 
 
     system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
-
 
     system("cmd.exe",input =  paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"'),sep=""))
 
@@ -97,44 +113,59 @@ VDJ_call_MIXCR <- function(VDJ,
     system("cmd.exe", input = paste("del tempmixcrhc.out.txt"))
     system("cmd.exe", input = paste("del tempmixcrlc.out.txt"))
 
-
     ## now need to fill VDJ
-
     if(simplify == F){
-      to_merge_hc <- temp.mixcr.hc
+
+      aberrants_mixcr <- subset(temp.mixcr.hc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+      to_merge_hc <- rbind(subset(temp.mixcr.hc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)
       #add SHM measures
-      to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
+      to_merge_hc$SHM <- stringr::str_count(to_merge_hc$bestVAlignment,"S") + stringr::str_count(to_merge_hc$bestJAlignment,"S") + stringr::str_count(to_merge_hc$bestDAlignment,"S")
       #append prefix to names
       names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
       #add barcode for merge
-      to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
+      to_merge_hc$barcode <- to_merge_hc$VDJ_descrsR1
 
-      to_merge_lc <- temp.mixcr.lc
+
+      aberrants_mixcr <- subset(temp.mixcr.lc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+      to_merge_lc <- rbind(subset(temp.mixcr.lc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)
       #add SHM measures
-      to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
+      to_merge_lc$SHM <- stringr::str_count(to_merge_lc$bestVAlignment,"S") + stringr::str_count(to_merge_lc$bestJAlignment,"S")
       #append prefix to names
       names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
       #add barcode for merge
-      to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
+      to_merge_lc$barcode <- to_merge_lc$VJ_descrsR1
 
     } else {
-      #add selected columns
-      to_merge_hc <- temp.mixcr.hc[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
+      aberrants_mixcr <- subset(temp.mixcr.hc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+      to_merge_hc <- rbind(subset(temp.mixcr.hc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4","bestVAlignment","bestJAlignment","bestDAlignment","descrsR1")]
       #add SHM measures
-      to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
+      to_merge_hc$SHM <- stringr::str_count(to_merge_hc$bestVAlignment,"S") + stringr::str_count(to_merge_hc$bestJAlignment,"S") + stringr::str_count(to_merge_hc$bestDAlignment,"S")
       #append prefix to names
       names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
       #add barcode for merge
-      to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
+      to_merge_hc$barcode <- to_merge_hc$VDJ_descrsR1
 
-      to_merge_lc <- temp.mixcr.lc[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
+      aberrants_mixcr <- subset(temp.mixcr.lc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+      aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+      to_merge_lc <- rbind(subset(temp.mixcr.lc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4","bestVAlignment","bestJAlignment","descrsR1")]
       #add SHM measures
-      to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
+      to_merge_lc$SHM <- stringr::str_count(to_merge_lc$bestVAlignment,"S") + stringr::str_count(to_merge_lc$bestJAlignment,"S")
+
       #append prefix to names
       names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
       #add barcode for merge
-      to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
-
+      to_merge_lc$barcode <- to_merge_lc$VJ_descrsR1
     }
 
     ncol_raw <- ncol(VDJ)
@@ -151,6 +182,7 @@ VDJ_call_MIXCR <- function(VDJ,
       }
     }
     return(VDJ)
+
 
     } else if (platypus.version == "v2" & operating.system == "Windows") {
 
@@ -325,15 +357,31 @@ VDJ_call_MIXCR <- function(VDJ,
 
 
 
-    } else if (platypus.version == "v3" & operating.system %in% c("Darwin", "Linux")) {
 
-      VDJ <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
+      } else if (platypus.version == "v3" & operating.system %in% c("Darwin", "Linux")) {
+
+      #Deal with aberrant cells first
+      aberrants <- subset(VDJ, Nr_of_VDJ_chains == 2 | Nr_of_VJ_chains == 2)
+      bcs_VDJ <- c()
+      bcs_VJ <- c()
+      VDJ_raw <- c()
+      VJ_raw <- c()
+      if(nrow(aberrants)>0){
+        for(i in 1:nrow(aberrants)){
+          bcs_VDJ <- c(bcs_VDJ, rep(aberrants$barcode[i],aberrants$Nr_of_VDJ_chains[i]))
+          VDJ_raw <- c(VDJ_raw, unlist(stringr::str_split(aberrants$VDJ_sequence_nt_raw[i], ";", simplify = T)[1,]))
+          bcs_VJ <- c(bcs_VJ, rep(aberrants$barcode[i],aberrants$Nr_of_VJ_chains[i]))
+          VJ_raw <- c(VJ_raw, unlist(stringr::str_split(aberrants$VJ_sequence_nt_raw[i], ";", simplify = T)[1,]))
+        }
+      }
+
+      normals <- subset(VDJ, Nr_of_VDJ_chains < 2 & Nr_of_VJ_chains < 2)
 
       ### need to also read in the fastas
-      temp.seq.hc_unlist <- unlist(VDJ$VDJ_sequence_nt_raw)
-      temp.seq.lc_unlist <- unlist(VDJ$VJ_sequence_nt_raw)
-      temp.name.hc_unlist <- unlist(VDJ$barcode)
-      temp.name.lc_unlist <- unlist(VDJ$barcode)
+      temp.seq.hc_unlist <- c(unlist(normals$VDJ_sequence_nt_raw),VDJ_raw)
+      temp.seq.lc_unlist <- c(unlist(normals$VJ_sequence_nt_raw),VJ_raw)
+      temp.name.hc_unlist <- c(unlist(normals$barcode),bcs_VDJ)
+      temp.name.lc_unlist <- c(unlist(normals$barcode),bcs_VJ)
 
       seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = paste0("temphc.fasta"))
       system(paste("java -jar ", mixcr.directory,"/mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta tempmixcrhc.out.vdjca",sep=""))
@@ -352,42 +400,59 @@ VDJ_call_MIXCR <- function(VDJ,
       system("rm tempmixcrlc.out.txt")
 
       ## now need to fill VDJ
-
+      ## now need to fill VDJ
       if(simplify == F){
-        to_merge_hc <- temp.mixcr.hc
+
+        aberrants_mixcr <- subset(temp.mixcr.hc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+        to_merge_hc <- rbind(subset(temp.mixcr.hc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)
         #add SHM measures
-        to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
+        to_merge_hc$SHM <- stringr::str_count(to_merge_hc$bestVAlignment,"S") + stringr::str_count(to_merge_hc$bestJAlignment,"S") + stringr::str_count(to_merge_hc$bestDAlignment,"S")
         #append prefix to names
         names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
         #add barcode for merge
-        to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
+        to_merge_hc$barcode <- to_merge_hc$VDJ_descrsR1
 
-        to_merge_lc <- temp.mixcr.lc
+
+        aberrants_mixcr <- subset(temp.mixcr.lc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+        to_merge_lc <- rbind(subset(temp.mixcr.lc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)
         #add SHM measures
-        to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
+        to_merge_lc$SHM <- stringr::str_count(to_merge_lc$bestVAlignment,"S") + stringr::str_count(to_merge_lc$bestJAlignment,"S")
         #append prefix to names
         names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
         #add barcode for merge
-        to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
+        to_merge_lc$barcode <- to_merge_lc$VJ_descrsR1
 
       } else {
-        #add selected columns
-        to_merge_hc <- temp.mixcr.hc[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
+        aberrants_mixcr <- subset(temp.mixcr.hc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+        to_merge_hc <- rbind(subset(temp.mixcr.hc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4","bestVAlignment","bestJAlignment","bestDAlignment","descrsR1")]
         #add SHM measures
-        to_merge_hc$SHM <- stringr::str_count(temp.mixcr.hc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestJAlignment,"S") + stringr::str_count(temp.mixcr.hc$bestDAlignment,"S")
+        to_merge_hc$SHM <- stringr::str_count(to_merge_hc$bestVAlignment,"S") + stringr::str_count(to_merge_hc$bestJAlignment,"S") + stringr::str_count(to_merge_hc$bestDAlignment,"S")
         #append prefix to names
         names(to_merge_hc) <- paste0("VDJ_",names(to_merge_hc))
         #add barcode for merge
-        to_merge_hc$barcode <- temp.mixcr.hc$descrsR1
+        to_merge_hc$barcode <- to_merge_hc$VDJ_descrsR1
 
-        to_merge_lc <- temp.mixcr.lc[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4")]
+        aberrants_mixcr <- subset(temp.mixcr.lc, descrsR1 %in% descrsR1[duplicated(descrsR1)])
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::group_by(descrsR1) %>% dplyr::summarise(dplyr::across(.cols = dplyr::everything(), .fns = ~paste0(.x, collapse = ";")))
+        aberrants_mixcr <- aberrants_mixcr %>% dplyr::mutate(dplyr::across(.cols = dplyr::everything(), .fns = ~gsub("(^;)|(;$)","",.x)))
+
+        to_merge_lc <- rbind(subset(temp.mixcr.lc, !descrsR1 %in% descrsR1[duplicated(descrsR1)]), aberrants_mixcr)[,c("nSeqFR1","nSeqCDR1", "nSeqFR2","nSeqCDR2", "nSeqFR3","nSeqCDR3", "nSeqFR4", "aaSeqFR1","aaSeqCDR1", "aaSeqFR2","aaSeqCDR2", "aaSeqFR3","aaSeqCDR3", "aaSeqFR4","bestVAlignment","bestJAlignment","descrsR1")]
         #add SHM measures
-        to_merge_lc$SHM <- stringr::str_count(temp.mixcr.lc$bestVAlignment,"S") + stringr::str_count(temp.mixcr.lc$bestJAlignment,"S")
+        to_merge_lc$SHM <- stringr::str_count(to_merge_lc$bestVAlignment,"S") + stringr::str_count(to_merge_lc$bestJAlignment,"S")
+
         #append prefix to names
         names(to_merge_lc) <- paste0("VJ_",names(to_merge_lc))
         #add barcode for merge
-        to_merge_lc$barcode <- temp.mixcr.lc$descrsR1
-
+        to_merge_lc$barcode <- to_merge_lc$VJ_descrsR1
       }
 
       ncol_raw <- ncol(VDJ)
@@ -403,7 +468,6 @@ VDJ_call_MIXCR <- function(VDJ,
           VDJ[is.na(VDJ[,i]),i] <- ""
         }
       }
-
       return(VDJ)
 
     } else if (platypus.version == "v2" & operating.system %in% c("Darwin", "Linux")) {

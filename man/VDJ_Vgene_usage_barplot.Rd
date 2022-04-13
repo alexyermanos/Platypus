@@ -2,18 +2,22 @@
 % Please edit documentation in R/VDJ_Vgene_usage_barplot.R
 \name{VDJ_Vgene_usage_barplot}
 \alias{VDJ_Vgene_usage_barplot}
-\title{Produces a barplot with the most frequently used IgH and IgK/L Vgenes.}
+\title{V(D)J gene usage barplots}
 \usage{
 VDJ_Vgene_usage_barplot(
   VDJ,
+  group.by,
   HC.gene.number,
   LC.Vgene,
   LC.gene.number,
-  platypus.version
+  platypus.version,
+  is.bulk
 )
 }
 \arguments{
 \item{VDJ}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (VDJ.GEX.matrix.output[[1]])}
+
+\item{group.by}{Character. Defaults to "sample_id". Column name of VDJ to group plot by.}
 
 \item{HC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.}
 
@@ -22,6 +26,8 @@ VDJ_Vgene_usage_barplot(
 \item{LC.gene.number}{Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.}
 
 \item{platypus.version}{Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format}
+
+\item{is.bulk}{logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_Vgene_usage_barplot function is compatible for use with bulk data. Defaults to False (F).}
 }
 \value{
 Returns a list of ggplot objects which show the distribution of IgH and IgK/L V genes for the most used V genes.
@@ -30,7 +36,8 @@ Returns a list of ggplot objects which show the distribution of IgH and IgK/L V 
 Produces a barplot with the most frequently used IgH and IgK/L Vgenes.
 }
 \examples{
+\dontrun{
 VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vgm[[1]],
 HC.gene.number = 2, platypus.version = "v3")
-
+}
 }

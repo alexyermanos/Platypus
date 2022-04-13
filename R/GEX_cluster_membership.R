@@ -1,4 +1,6 @@
-#' Plots the cluster membership for each of the distinct samples in the Seurat object from the automate_GEX function. The distinct samples are determined by "sample_id" field in the Seurat object.
+#'Cluster membership plots by sample
+#'
+#'@description Plots the cluster membership for each of the distinct samples in the Seurat object from the automate_GEX function. The distinct samples are determined by "sample_id" field in the Seurat object.
 #' @param GEX Output Seurat object containing gene expression data from automate_GEX (platypus.version = "v2") or VDJ_GEX_matrix (platypus.version = "v3", usually VDJ_GEX_matrix.output[[2]])function that contained at least two distinct biological samples. The different biological samples correspond to integer values (v2) or factor values (v3) in the order of the working directories initially supplied to the automate_GEX function.
 #' @param by.group Logical indicating whether to look at the cluster distribution per group (using the group_id column). Default is set to FALSE.
 #' @param platypus.version Version of platypus to use. Defaults to "v2". If an output of the GEX_automate function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"
@@ -39,7 +41,7 @@ GEX_cluster_membership <- function(GEX,
   melting$L1 <- as.character(melting$L1)
   melting$L2 <- melting$L2 - 1
   colnames(melting) <- c("value", "L2", "Sample")
-  output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
+  output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1)) + cowplot::theme_cowplot()
   }
 
   if(by.group == TRUE){
@@ -56,7 +58,7 @@ GEX_cluster_membership <- function(GEX,
     melting$L1 <- as.character(melting$L1)
     melting$L2 <- melting$L2 - 1
     colnames(melting) <- c("value", "L2", "Group")
-    output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Group, y=value, x=L2,group=Group)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
+    output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Group, y=value, x=L2,group=Group)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1)) + cowplot::theme_cowplot()
   }
 
   return(output.plot)
@@ -94,7 +96,7 @@ GEX_cluster_membership <- function(GEX,
       }
       melting$Sample <- ordered(as.factor(melting$Sample), levels = unique_samples)
 
-      output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
+      output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1)) + cowplot::theme_cowplot()
     }
 
     if(by.group == TRUE){
@@ -119,7 +121,7 @@ GEX_cluster_membership <- function(GEX,
       }
       melting$Group <- ordered(as.factor(melting$Group), levels = unique_groups)
 
-      output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Group, y=value, x=L2,group=Group)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1))
+      output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Group, y=value, x=L2,group=Group)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1)) + cowplot::theme_cowplot()
     }
 
     return(output.plot)

@@ -249,7 +249,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
   }
 
 
-  if(class(VDJ)=='data.frame'){
+  if(inherits(VDJ,'data.frame')){
     VDJ.GEX.matrix <- list()
     VDJ.GEX.matrix[[1]] <- VDJ
     VDJ <- NULL
@@ -300,7 +300,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
       }
     }
 
-  }else if(class(VDJ)=='list'){
+  }else if(inherits(VDJ,'list')){
     clonotype_dfs <- VDJ
     VDJ <- NULL
     for(i in 1:length(clonotype_dfs)){

@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_clonotype.R
 \name{GEX_clonotype}
 \alias{GEX_clonotype}
-\title{Platypus V2: Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
+\title{Platypus V2 GEX and VDJ integration for clonotypes}
 \usage{
 GEX_clonotype(GEX.object, VDJ.per.clone)
 }

@@ -42,7 +42,8 @@ Returns list of plots. The first n elements contain the circos plot of the n dat
 Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
 }
 \examples{
+\dontrun{
  plots <- VDJ_VJ_usage_circos(VDJ = Platypus::small_vgm[[1]], platypus.version = "v3",
  cell.level = TRUE)
-
+}
 }

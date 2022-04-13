@@ -11,7 +11,7 @@ get.avr.mut.data(igraph.index.attr, history, clonotype.select, level)
 
 \item{history}{A dataframe "history" from the simulation output.}
 
-\item{clonotype.select}{The selected clonotype index, can be the output of the function "select.top".}
+\item{clonotype.select}{The selected clonotype index, can be the output of the function "select.top.clone.clone".}
 
 \item{level}{Can be "clone" or "cell". If "clone", the function will return average mutation on unique variant level. Otherwise it will return on cell level.}
 }

@@ -1,4 +1,6 @@
-#' Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input.
+#'Scatter plot for coexpression of two selected genes
+#'
+#'@description Plots a composite figure showing single marker expression as histograms and coexpression as a scatterplot.
 #' @param GEX GEX seurat object generated with VDJ_GEX_matrix
 #' @param gene.1 Character. Name of a gene in rownames(VDJ.matrix)
 #' @param gene.2 Character. Name of a gene in rownames(VDJ.matrix)

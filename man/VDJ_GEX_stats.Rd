@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_GEX_stats.R
 \name{VDJ_GEX_stats}
 \alias{VDJ_GEX_stats}
-\title{Gives stats on number and quality of reads.}
+\title{Standalone VDJ and GEX statistics.}
 \usage{
 VDJ_GEX_stats(
   VDJ.out.directory,
@@ -30,7 +30,7 @@ VDJ_GEX_stats(
 returns a single matrix where the rows are individual cells and the columns are repertoire features.
 }
 \description{
-Gives stats on number and quality of reads.
+Gives stats on number and quality of reads. This function is integrated into the VDJ_GEX_matrix. Before running, please check list element [[3]] of VDJ_GEX_matrix output for already generated statistics.
 }
 \examples{
 \dontrun{

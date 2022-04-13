@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_cluster_genes.R
 \name{GEX_cluster_genes}
 \alias{GEX_cluster_genes}
-\title{Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX or VDJ_GEX_matrix}
+\title{Differentially expressed genes between clusters or data subsets}
 \usage{
 GEX_cluster_genes(GEX, min.pct, filter, base, platypus.version)
 }
@@ -21,7 +21,7 @@ GEX_cluster_genes(GEX, min.pct, filter, base, platypus.version)
 Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene. Ech element in the list corresponds to the clusters in numerical order. For example, the first element in the list output[[1]] corresponds to the genes deferentially expressed in cluster 0 in GEX
 }
 \description{
-Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX or VDJ_GEX_matrix
+For more flexibility consider GEX_DEgenes(). Extracts the differentially expressed genes between two samples. This function uses the FindMarkers function from the Seurat package. Further parameter control can be accomplished by calling the function directly on the output of automate_GEX or VDJ_GEX_matrix.
 }
 \examples{
 #Platypus version v2

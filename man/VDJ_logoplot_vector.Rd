@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_logoplot_vector.R
 \name{VDJ_logoplot_vector}
 \alias{VDJ_logoplot_vector}
-\title{Plots a logoplot of the CDR3 aminoacid region}
+\title{Flexible logoplot wrapper}
 \usage{
 VDJ_logoplot_vector(cdr3.vector, length_cdr3, seq_type)
 }

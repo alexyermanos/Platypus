@@ -2,26 +2,27 @@
 % Please edit documentation in R/GEX_phenotype.R
 \name{GEX_phenotype}
 \alias{GEX_phenotype}
-\title{Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.}
+\title{Assignment of cells to phenotypes based on selected markers}
 \usage{
 GEX_phenotype(seurat.object, cell.state.names, cell.state.markers, default)
 }
 \arguments{
-\item{seurat.object}{A single seurat object from automate_GEX function}
+\item{seurat.object}{A single seurat object / VDJ_GEX_matrix.output[[2]] object}
 
-\item{cell.state.names}{Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containng the c("CD4+;CD44-","CD4+;IL7R+;CD44+").}
+\item{cell.state.names}{Character vector containing the cell state labels defined by the markers in cell.state.markers parameter. Example is c("NaiveCd4","MemoryCd4").}
 
-\item{cell.state.markers}{Character vector containing the cell state labels defined by the markers in cell.state.markers parameter. Example is c("NaiveCd4","MemoryCd4").}
+\item{cell.state.markers}{Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Order must match cell.state.names containing the c("CD4+;CD44-","CD4+;IL7R+;CD44+").}
 
-\item{default}{Default is TRUE - will use premade gene sets and cell states.}
+\item{default}{Default is TRUE - will use predefined gene sets and cell states.}
 }
 \value{
-Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.
+Returns the input Seurat object with an additional column
 }
 \description{
-Integrates VDJ and gene expression libraries by providing cluster membership seq_per_vdj object and the index of the cell in the Seurat RNA-seq object.
+Adds a column to a VGM[[2]] Seurat object containing cell phenotype assignments. Defaults for T and B cells are available. Marker sets are customizable as below
 }
 \examples{
-GEX_phenotype.test <- GEX_phenotype(seurat.object = Platypus::small_vgm[[2]])
+vgm.phenotyped <- GEX_phenotype(seurat.object = Platypus::small_vgm[[2]]
+, default = TRUE)
 
 }

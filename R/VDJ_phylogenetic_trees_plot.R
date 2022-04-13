@@ -1,4 +1,6 @@
-#' Function to plot phylogenetic trees obtained from VDJ_phylogenetic_trees
+#' Phylogenetic tree plotting
+#'
+#' @description Function to plot phylogenetic trees obtained from VDJ_phylogenetic_trees
 
 #'@description !Requires the ggtree package to be loaded! Plots trees from function VDJ_phylogenetic_trees
 #' @param tree.dfs nested list of tidytree dataframes obtained from VDJ_phylogenetic_trees with output.format='tree.df.list'. tree.dfs[[1]][[2]] represent a tree dataframe for the first sample, second clonotype.

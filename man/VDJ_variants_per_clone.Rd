@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_variants_per_clone.R
 \name{VDJ_variants_per_clone}
 \alias{VDJ_variants_per_clone}
-\title{Returns statistics and plots to examine diversity of any sequence or metadata item within clones on a by sample level or global level}
+\title{Wrapper for variant analysis by clone}
 \usage{
 VDJ_variants_per_clone(
   VDJ,

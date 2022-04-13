@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_GOterm.R
 \name{GEX_GOterm}
 \alias{GEX_GOterm}
-\title{Runs a GO term analysis on a submitted list of genes. Works with the output of GEX_topN_DE_genes_per_cluster or a custom list of genes to obtain GOterms.}
+\title{GEX GO-Term analysis and plotting}
 \usage{
 GEX_GOterm(
   GEX.cluster.genes.output,
@@ -25,7 +25,7 @@ GEX_GOterm(
 
 \item{ontology}{Ontology used for the GO terms. "MF", "BP" or "CC" possible. Default: "BP"}
 
-\item{species}{The species the genes belong to. Default: "Mm".}
+\item{species}{The species the genes belong to. Default: "Mm" (requires the package "org.Mm.eg.db"). Set to "Hs" for Human (requires the package "org.Hs.eg.db")}
 
 \item{up.or.down}{Whether up or downregulated genes should be used for GO term analysis if GEX_cluster_genes output is used. Default: "up"}
 
@@ -50,7 +50,7 @@ Runs a GO term analysis on a submitted list of genes. Works with the output of G
 \examples{
 \dontrun{
 
-GEX_GOterm(DE_genes_cluster,MT.Rb.filter = TRUE, species= "Mm", ontology = "MF")
+GEX_GOterm(DE_genes_cluster,MT.Rb.filter = TRUE, ontology = "MF")
 GEX_GOterm(rownames(DE_genes_cluster[[1]]),MT.Rb.filter = TRUE, species= "Mm",
 ontology = "BP", go.plots = TRUE)
 
@@ -58,5 +58,6 @@ ontology = "BP", go.plots = TRUE)
 #if (!requireNamespace("BiocManager", quietly = TRUE))
 #install.packages("BiocManager")
 #BiocManager::install("org.Mm.eg.db")
+#BiocManager::install("org.Hs.eg.db")
 }
 }

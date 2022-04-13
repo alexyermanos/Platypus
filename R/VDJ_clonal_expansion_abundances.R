@@ -80,12 +80,12 @@ VDJ_clonal_expansion_abundances <- function(VDJ,
 
     if(rank.clonotypes){
       clonotype_plots[[i]] <-  ggplot2::ggplot(sample_dfs[[i]], ggplot2::aes(fill=unique_feature_values, y=feature_value_counts, x=Ranks)) +
-                        ggplot2::geom_bar(stat="identity") + ggplot2::theme_bw() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
+                        ggplot2::geom_bar(stat="identity") + cowplot::theme_cowplot() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
                         ggplot2::labs(fill=paste0(features, collapse='/'), y='Cells') + ggplot2::ggtitle(paste0(sample_ids[i]))
 
     }else{
       clonotype_plots[[i]] <-  ggplot2::ggplot(sample_dfs[[i]], ggplot2::aes(fill=unique_feature_values, y=feature_value_counts, x=group_frequency)) +
-                        ggplot2::geom_bar(stat="identity") + ggplot2::theme_bw() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
+                        ggplot2::geom_bar(stat="identity") + cowplot::theme_cowplot() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
                         ggplot2::labs(fill=paste0(features, collapse='/'), y='Cells') + ggplot2::ggtitle(paste0(sample_ids[i]))
 
     }

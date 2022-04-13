@@ -2,7 +2,7 @@
 % Please edit documentation in R/VDJ_network.R
 \name{VDJ_network}
 \alias{VDJ_network}
-\title{Creates a similarity network where clones with similar CDR3s are connected.}
+\title{Similarity networks based on CDR3 regions}
 \usage{
 VDJ_network(
   VDJ,
@@ -10,7 +10,8 @@ VDJ_network(
   per.sample,
   platypus.version,
   known.binders,
-  hcdr3.only
+  hcdr3.only,
+  is.bulk
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ VDJ_network(
 \item{known.binders}{Either a character vector with cdr3s of known binders or a data frame with cdr3s in the first and the corresponding specificity in the second column. If this parameter is defined, the output will be a network with only edges between known binders and the repertoire nodes and edges between the known binders that have at least one edge to a repertoire node}
 
 \item{hcdr3.only}{logical value indicating if the network is based on heavy chain cdr3s (hcdr3.only = T) or pasted heavy and light chain cdr3s (hcdr3.only = F), works for platypus.version 3 only}
+
+\item{is.bulk}{logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_network function is compatible for use with bulk data. Defaults to False (F).}
 }
 \value{
 returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.

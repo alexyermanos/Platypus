@@ -2,12 +2,14 @@
 % Please edit documentation in R/VDJ_Vgene_usage.R
 \name{VDJ_Vgene_usage}
 \alias{VDJ_Vgene_usage}
-\title{Produces a matrix counting the number of occurences for each VDJ and VJ Vgene combinations for each list enty in VDJ.clonotype.output or for each sample_id in VDJ.matrix}
+\title{V(D)J gene usage stacked barplots}
 \usage{
-VDJ_Vgene_usage(VDJ, platypus.version)
+VDJ_Vgene_usage(VDJ, group.by, platypus.version)
 }
 \arguments{
 \item{VDJ}{For platypus.version = "v2" output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus.version = "v3" output VDJ dataframe from VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
+
+\item{group.by}{Character. Defaults to "sample_id". Column name of VDJ to group plot by.}
 
 \item{platypus.version}{Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format}
 }

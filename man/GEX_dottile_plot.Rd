@@ -2,7 +2,7 @@
 % Please edit documentation in R/GEX_dottile_plot.R
 \name{GEX_dottile_plot}
 \alias{GEX_dottile_plot}
-\title{Outputs a dotplot for gene expression, where the color of each dot is scaled by the gene expression level and the size is scaled by the \% of cells positive for the gene}
+\title{GEX Dottile plots}
 \usage{
 GEX_dottile_plot(GEX, genes, group.by, threshold.to.plot, platypus.version)
 }

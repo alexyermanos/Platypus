@@ -1,7 +1,3 @@
-authors:
-  Victor Kreiner:
-    href: https://twitter.com/KreineVic
-
 development:
   mode: release
 
@@ -10,21 +6,10 @@ navbar:
   left:
     - icon: fa-home fa-lg
       href: index.html
+    - text: "Get started"
+      href: articles/quickstart.html
     - text: "Vignettes"
-      menu:
-        - text: "Platypus V3 aged CNS"
-          href: articles/PlatypusV3_agedCNS.html
-        - text: "Platypus V3 EAE"
-          href: articles/PlatypusV3_EAE.html
-        - text: "PlatypusDB"
-          href: articles/PlatypusDB.html
-        - text: "Platypus V3 Feature barcodes"
-          href: "articles/Platypus_feature_barcodes.html"
-        - text: "ABForests"
-          href: articles/ABForests.html
-        - text: "Echidna"
-          href: articles/Echidna.html
-      href: articles/index.html
+      href: vignette_index.html
     - text: "PlatypusDB"
       href: PlatypusDB_index.html
     - text: "Functions"
@@ -65,3 +50,10 @@ home:
   - text: "Cite Platypus DB"
     href: superhighimpactjournal.com
 
+authors:
+  sidebar:
+    roles: [aut]
+    after: "...and the [Platypus Team](authors.html)"
+  before: "Platypus and PlatypusDB are ongoing team efforts by:"
+  after: "<strong>Damiano Robbiani <br> Josephine Yates <br> Chrysa Papadopoulou <br> Cèdric Weber <br> Raphael Dizerens <br> Daniel Neumeier <br> Kai-Lin Hong <br> Keywan Khodaverdi <br> Lena Erlach <br> Marcos Manero Carranza <br> Samuel Kilchenmann <br> Vittoria Martinolli D'Arcy </strong>"
+    
