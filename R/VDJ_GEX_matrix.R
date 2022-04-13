@@ -1514,7 +1514,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             }
           }
           else {
-            stop("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Please revise GEX input paths")
+            message("The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Trying to load GEX from raw input path")
+            GEX.out.directory.list.p <- GEX.out.directory.list
           }
         }
         if (!GEX.read.h5) {
