@@ -35,7 +35,7 @@ Stay tuned for updates <https://twitter.com/AlexYermanos>
 
 ## Architecture
 
-![](images/PlatypusV3_abstract.png)
+![](https://github.com/alexyermanos/Platypus/blob/master/docs/images/PlatypusV3_abstract.png?raw=true)
 
 # System requirements
 
