@@ -63,7 +63,7 @@ Please scroll down for instructions on how to install the necessary dependencies
 install.packages("~/Downloads/Platypus_3.3.6.tar.gz", repos = NULL, type="source")
 # For windows it will likely look something like this. 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
-install.packages("C:/Users/YourPCName/Downloads/Platypus_3.3.6tar.gz", repos = NULL, type="source")
+install.packages("C:/Users/YourPCName/Downloads/Platypus_3.3.6.tar.gz", repos = NULL, type="source")
 
 ### Downloading and installing Platypus from CRAN
 
