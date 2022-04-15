@@ -35,7 +35,7 @@ Stay tuned for updates <https://twitter.com/AlexYermanos>
 
 ## Architecture
 
-![](https://github.com/alexyermanos/Platypus/blob/master/docs/images/PlatypusV3_abstract.png?raw=true)
+![](images/PlatypusV3_abstract.png)
 
 # System requirements
 
@@ -48,7 +48,7 @@ Platypus can easily be installed from CRAN or Github. As changes and bugfixes ar
 
 Please scroll down for instructions on how to install the necessary dependencies. 
 
-```{r, eval = FALSE}
+``` r
 
 ### Removing any previous versions of the package
 # First we will ensure that there is no previous version installed locally
@@ -63,7 +63,7 @@ Please scroll down for instructions on how to install the necessary dependencies
 install.packages("~/Downloads/Platypus_3.3.6.tar.gz", repos = NULL, type="source")
 # For windows it will likely look something like this. 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
-install.packages("C:/Users/YourPCName/Downloads/Platypus_3.3.6.tar.gz", repos = NULL, type="source")
+install.packages("C:/Users/YourPCName/Downloads/Platypus_3.3.6tar.gz", repos = NULL, type="source")
 
 ### Downloading and installing Platypus from CRAN
 

@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.6</span>
       </span>
     </div>
 
@@ -164,20 +164,30 @@ Windows 10 Pro (v1909), and used on R versions 4.0.0 and 3.6.1</p>
 <div class="section level1">
 <h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h1>
-<p>The package can be installed directly from the tar.gz file on this
-GitHub. Please see the vignette for examples of how the package can be
-used.</p>
+<p>Platypus can easily be installed from CRAN or Github. As changes and
+bugfixes are made regularly, the Github version may be more recent.</p>
 <p>Please scroll down for instructions on how to install the necessary
 dependencies.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">### Removing any previous versions of the package</span>
+<code class="sourceCode R">
+<span class="co">### Removing any previous versions of the package</span>
 <span class="co"># First we will ensure that there is no previous version installed locally</span>
 <span class="co">#detach("package:Platypus", unload=TRUE)</span>
 <span class="co">#remove.packages("Platypus")</span>
 
-<span class="co">### Downloading and installing Platypus</span>
+<span class="co">### Downloading and installing Platypus from Github</span>
 
-<span class="co">#install.packages("Platypus")</span>
+<span class="co"># First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. </span>
+<span class="co"># WARNING: This needs to be replaced with your own directory where the downloaded package is found</span>
+<span class="co"># For MacOS users it may look like this</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"~/Downloads/Platypus_3.3.6.tar.gz"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span>
+<span class="co"># For windows it will likely look something like this. </span>
+<span class="co"># WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. </span>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"C:/Users/YourPCName/Downloads/Platypus_3.3.6tar.gz"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span>
+
+<span class="co">### Downloading and installing Platypus from CRAN</span>
+
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Platypus"</span><span class="op">)</span>
 
 <span class="co"># The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in current CRAN version. </span></code></pre></div>
 <p>Platypus uses a number of different R packages, some of which need
