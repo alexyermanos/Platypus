@@ -98,18 +98,20 @@ GEX_DEgenes <- function(GEX,
 
   if (missing(filter)) filter <- c("MT-", "RPL", "RPS")
 
-  if(inherits(FindMarkers.out, "data.frame")){
+  if(!inherits(FindMarkers.out, "data.frame")){
 
     if(missing(grouping.column)) grouping.column <- "sample_id"
+
     if(grouping.column %in% names(GEX@meta.data)){
       Seurat::Idents(GEX) <- GEX@meta.data[,c(grouping.column)]
     } else {
       stop("Please provide a valid GEX@meta.data column name as grouping.column")
     }
 
+
     cluster_markers <- Seurat::FindMarkers(GEX, min.pct = min.pct, ident.1 = as.character(group1), ident.2 = as.character(group2), base=base)
 
-  } else if (class(FindMarkers.out) == "data.frame"){
+  } else if (inherits(FindMarkers.out, "data.frame")){
     cluster_markers <- FindMarkers.out
     group1 <- "1"
     group2 <- "2"

@@ -17,6 +17,7 @@
 #'@param filter.overlapping.barcodes.GEX Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.
 #'@param filter.overlapping.barcodes.VDJ Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.
 #'@param exclude.on.cell.state.markers Character vector. If no input is provided or input is "none", no cells are excluded. Input format should follow: Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Example: c("CD4+;CD44-","CD4+;IL7R+;CD44+"). All cells which match any of the given states (in the example case any of the 2) are excluded. This is useful in case different and non lymphocyte cells were co-sequenced. It should give the option to e.g. exclude B cells in the analysis of T cells in a dataset.
+#'@param exclude.on.barcodes Character vector. Provide a list of 10x barcodes WITHOUT the terminal id (-1 , -2 etc.) to exclude from GEX and VDJ prior to processing.
 #'@param get.VDJ.stats Boolean. defaults to TRUE. Whether to generate general statistics table for VDJ repertoires. This is appended as element [[3]] of the output list.
 #'@param parallel.processing Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required
 #'@param numcores Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)
@@ -137,6 +138,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            filter.overlapping.barcodes.GEX,
                            filter.overlapping.barcodes.VDJ,
                            exclude.on.cell.state.markers,
+                           exclude.on.barcodes,
                            get.VDJ.stats,
                            numcores,
                            trim.and.align,
@@ -342,6 +344,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(gap.extension.cost)) gap.extension.cost <- 4
 
   if(missing(exclude.on.cell.state.markers)) exclude.on.cell.state.markers <- "none"
+  if(missing(exclude.on.barcodes)) exclude.on.barcodes <- "none"
 
   if(parallel.processing == "parlapply" | parallel.processing == "mclapply"){
     if(missing(numcores)) numcores <- parallel::detectCores()
@@ -382,6 +385,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
               "filter.overlapping.barcodes.GEX" = filter.overlapping.barcodes.GEX,
               "filter.overlapping.barcodes.VDJ" = filter.overlapping.barcodes.VDJ,
               "exclude.on.cell.state.markers" = paste0(exclude.on.cell.state.markers,collapse = ";"),
+              "exclude.on.barcodes (TRUE if barcodes provided)" = (exclude.on.barcodes[1] == "none"),
               "get.VDJ.stats" =  get.VDJ.stats,
               "numcores" = numcores,
               "trim.and.align" = trim.and.align,
@@ -1913,6 +1917,27 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(verbose) message(paste0("Removed a total of ", length(non_unique_barcodes), " cells with non unique barcodes in VDJ \n"))
     }
   }
+
+  ############################################ remove by barcode in GEX ####
+  if(exclude.on.barcodes[1] != "none" & gex.loaded == T){
+      barcodes_GEX_c <- do.call("c", lapply(gex.list, function(x) x$orig_barcode))
+      to_keep <- barcodes_GEX_c[!barcodes_GEX_c %in% exclude.on.barcodes]
+      for(i in 1:length(gex.list)){
+        n_cells <- length(gex.list[[i]]$orig_barcode)
+        gex.list[[i]] <- subset(gex.list[[i]], subset = orig_barcode %in% to_keep)
+        if(verbose) message(paste0("In GEX sample ", i ," removed a total of ", n_cells - length(gex.list[[i]]$orig_barcode), " cells with barcodes provided as exclude.on.barcodes \n"))
+      }
+    }
+
+
+  ############################################ remove by barcode in VDJ ####
+  if(exclude.on.barcodes[1] != "none" & vdj.loaded == T){
+      for(i in 1:length(barcodes_VDJ)){
+        n_cells <- length(barcodes_VDJ[[i]])
+        barcodes_VDJ[[i]] <- barcodes_VDJ[[i]][which(!gsub("-\\d$","",barcodes_VDJ[[i]]) %in% exclude.on.barcodes)]
+        if(verbose) message(paste0("In VDJ sample ", i ," removed a total of ", n_cells - length(barcodes_VDJ[[i]]), " cells with barcodes provided as exclude.on.barcodes \n"))
+      }
+    }
 
   ############################################ Exclude cells based on marker expression ####
   #handlers copied from GEX_phenotype, Thanks Alex!

@@ -80,7 +80,7 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pat
         exclude <- c(exclude, stringr::str_which(GEX.cluster.genes.output$symbol, j))
       }
       if(length(exclude) > 0){
-        print(paste0("Filtering ", length(exclude), "genes"))
+        if(verbose) print(paste0("Filtering ", length(exclude), "genes"))
         df <- GEX.cluster.genes.output[-exclude,]
       }else{
         warning("No genes matching filter found")
@@ -108,13 +108,13 @@ GEX_GSEA <- function(GEX.cluster.genes.output, MT.Rb.filter, filter, path.to.pat
 
     #Run GSEA %>% safe as df
     fgsea_res <- fgsea::fgseaMultilevel(pathways=pathway_MSig, stats=df_ranked, minSize=2, maxSize=500, eps = eps)
-    print(fgsea_res)
+    if(verbose) print(fgsea_res)
     fgsea_res_Tidy <- fgsea_res %>%
       tidyr::as_tibble() %>%
       dplyr::arrange(IRanges::desc(NES))
-    print(fgsea_res_Tidy)
-    topPathwaysUp <- fgsea_res[ES > 0][utils::head(order(pval), n=10), pathway]
-    topPathwaysDown <- fgsea_res[ES < 0][utils::head(order(pval), n=10), pathway]
+    if(verbose) print(fgsea_res_Tidy)
+    topPathwaysUp <- fgsea_res[ES > 0][utils::head(order(fgsea_res$pval), n=10), pathway]
+    topPathwaysDown <- fgsea_res[ES < 0][utils::head(order(fgsea_res$pval), n=10), pathway]
     topPathways<- c(topPathwaysUp, rev(topPathwaysDown))
 
     plotsUp <- list()
