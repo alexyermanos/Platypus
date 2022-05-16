@@ -82,23 +82,13 @@ VDJ_contigs_to_vgm <- function(directory,
       
       if(FB == F){
         unique_barcodes <- unique(paired_df$barcode)
-        colnames <- c("barcode","sample_id", "group_id",  "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains", "Nr_of_VJ_chains",
-                      "VDJ_cdr3s_aa","VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig", "VJ_chain_contig","VDJ_chain",
-                      "VJ_chain", "VDJ_vgene", "VJ_vgene", "VDJ_dgene", "VDJ_jgene", "VJ_jgene", "VDJ_cgene", "VJ_cgene",
-                      "VDJ_sequence_nt_raw", "VJ_sequence_nt_raw", "VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed", "VDJ_sequence_aa", "VJ_sequence_aa",
-                      "VDJ_trimmed_ref","VJ_trimmed_ref", "VDJ_raw_consensus_id","VJ_raw_consensus_id", "orig_barcode", "clonotype_frequency", "specifity", "affinity", "GEX_available", "orig.ident","orig_barcode_GEX",
-                      "seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2", "batches", "clonotype_id")
+        colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
         colnames(formatted_df) <- colnames
       }
       if(FB == T){
         unique_barcodes <- unique(paired_df$barcode)
-        colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment", "group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains", "Nr_of_VJ_chains",
-                      "VDJ_cdr3s_aa","VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain",
-                      "VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw",
-                      "VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed", "VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref", "VDJ_raw_consensus_id",
-                      "VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX",
-                      "seurat_clusters","PC_1","PC_2","UMAP_1","UMAP_2","tSNE_1", "tSNE_2","batches","clonotype_id")
+        colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
         colnames(formatted_df) <- colnames
         
@@ -144,24 +134,14 @@ VDJ_contigs_to_vgm <- function(directory,
       if(FB == F){
         #start making data frame that resembles vgm
         unique_barcodes <- unique(paired_df$barcode)
-        colnames <- c("barcode","sample_id", "group_id",  "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains", "Nr_of_VJ_chains",
-                      "VDJ_cdr3s_aa","VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig", "VJ_chain_contig","VDJ_chain",
-                      "VJ_chain", "VDJ_vgene", "VJ_vgene", "VDJ_dgene", "VDJ_jgene", "VJ_jgene", "VDJ_cgene", "VJ_cgene",
-                      "VDJ_sequence_nt_raw", "VJ_sequence_nt_raw", "VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed", "VDJ_sequence_aa", "VJ_sequence_aa",
-                      "VDJ_trimmed_ref","VJ_trimmed_ref", "VDJ_raw_consensus_id","VJ_raw_consensus_id", "orig_barcode", "clonotype_frequency", "specifity", "affinity", "GEX_available", "orig.ident","orig_barcode_GEX",
-                      "seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2", "batches", "clonotype_id")
+        colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
         colnames(formatted_df) <- colnames
       }
       if(FB == T){
         #start making data frame that resembles vgm
         unique_barcodes <- unique(paired_df$barcode)
-        colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment", "group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains", "Nr_of_VJ_chains",
-                      "VDJ_cdr3s_aa","VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain",
-                      "VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw",
-                      "VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed", "VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref", "VDJ_raw_consensus_id",
-                      "VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX",
-                      "seurat_clusters","PC_1","PC_2","UMAP_1","UMAP_2","tSNE_1", "tSNE_2","batches","clonotype_id")
+        colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
         colnames(formatted_df) <- colnames
         
