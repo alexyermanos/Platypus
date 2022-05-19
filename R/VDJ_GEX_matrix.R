@@ -1091,7 +1091,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(HC_count == 1){
 
       if(append.raw.reference == T){
-        if(inherits(reference_HC,"list")){curr.barcode$VDJ_raw_ref <- as.character(reference_HC)
+        if(length(as.character(reference_HC)) > 0){curr.barcode$VDJ_raw_ref <- as.character(reference_HC)
         } else{curr.barcode$VDJ_raw_ref <- ""}
       } else {
         curr.barcode$VDJ_raw_ref <- ""
@@ -1140,7 +1140,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #from the annotations extract sequence and paste
 
       if(append.raw.reference == T){
-        if(inherits(reference_HC,"list")){
+        if(length(as.character(reference_HC)) > 0){
           curr.barcode$VDJ_raw_ref <- paste0(lapply(reference_HC, function(x) return(as.character(unlist(x)))), collapse = ";")
         } else{curr.barcode$VDJ_raw_ref <- ""}
       } else {
@@ -1197,7 +1197,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(LC_count == 1){
 
       if(append.raw.reference == T){
-        if(inherits(reference_LC,"list")){curr.barcode$VJ_raw_ref <- as.character(reference_LC)
+        if(length(as.character(reference_LC)) > 0){curr.barcode$VJ_raw_ref <- as.character(reference_LC)
         } else{curr.barcode$VJ_raw_ref <- ""}
       } else {
         curr.barcode$VJ_raw_ref <- ""
@@ -1242,7 +1242,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else if(LC_count > 1){ #MORE THAN ONE LC
 
       if(append.raw.reference == T){
-        if(inherits(reference_LC,"list")){
+        if(length(as.character(reference_LC)) > 0){
           curr.barcode$VJ_raw_ref <- paste0(lapply(reference_LC, function(x) return(as.character(unlist(x)))), collapse = ";")
         } else{curr.barcode$VJ_raw_ref <- ""}
       } else {
@@ -1664,7 +1664,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       gex.list <- Seurat.in
       for(i in 1:length(gex.list)){
         gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
-        gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
+        gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-\\d+",replacement = "")
       }
       gex.loaded <- T #here the pipelines for Seurat and GEX input are merged for the next steps of processing
     }
