@@ -159,6 +159,14 @@
 
 <script>
 
+  function format_link(link){
+    if (link){
+       return "<a href='" + link + "' target='_blank'>" + "Link" + "</a>";
+      } else {
+      return "";
+    }
+  }
+
   function format_doi(link){
     if (link){
       var clean_link = link.replace("doi.org/","");
@@ -177,12 +185,6 @@
     }
   }
 
-    function format_link(link){
-    if (link)
-      return "<a href='" + link + "' target='_blank'>Link</a>";
-      else
-      return "";
-  }
 
 
   //string split to get the authors right
@@ -192,14 +194,14 @@
     allow_download: true,
     csv_options: {separator: ',', delimiter: '"'},
     datatables_options: {"paging": false}, //{"aoColumns": [{ sWidth: '7%' }, { sWidth: '28%' }, { sWidth: '9%'},{ sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '7%' }, { sWidth: '8%' }]},
-    custom_formatting: [[5, format_authors],[6, format_doi],[9, format_link],[10, format_link]]
+    custom_formatting: [[9, format_link],[10, format_link],[5, format_authors],[6, format_doi]]
   });
 </script>
 
 </div>
 </div>
 
-   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar" style="height:100%">
+   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar" style="position: absolute; Right: 0; top: 100;">
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
