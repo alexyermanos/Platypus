@@ -452,7 +452,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #Open dataframe for results
     bc_match <- data.frame("orig_barcode" = rownames(bc_df), "FB_assignment" = bc_out)
-    bc_match[,1] <- gsub("-\\d", "", bc_match[,1]) #remove the -1 at the end of the barcode to allow for merging into GEX and VDJ later
+    bc_match[,1] <- gsub("-\\d+.*$", "", bc_match[,1]) #remove the -1 at the end of the barcode to allow for merging into GEX and VDJ later
     bc_match[,1] <- gsub(".*_","",bc_match[,1]) #remove any symbols before the actual barcode
     rownames(bc_match) <- rownames(bc_df)
     return(bc_match)
@@ -775,7 +775,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     for(i in 1:length(GEX.list)){
       #Adding column for original barcodes that are not changed upon integration (these are not the colnames, but a metadata column to keep track of original barcodes)
       GEX.list[[i]][["orig_barcode"]] <- as.character(gsub(".*_","",colnames(GEX.list[[i]])))
-      GEX.list[[i]][["orig_barcode"]] <- gsub(GEX.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
+      GEX.list[[i]][["orig_barcode"]] <- gsub(GEX.list[[i]]$orig_barcode,pattern = "-\\d+.*$",replacement = "")
     }
 
     if(GEX.integrate == T & length(GEX.list) > 1 & integration.method != "anchors"){ #combine all GEX into one seurat object and add s%number%_ to the FRONT of the barcode
@@ -1644,7 +1644,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       for(i in 1:length(gex.list)){
         #Adding column for original barcodes that are not changed upon integration (these are not the colnames, but a metadata column to keep track of original barcodes)
         gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
-        gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-1",replacement = "")
+        gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-\\d+.*$",replacement = "")
       }
 
       gex.loaded <- T
@@ -1662,10 +1662,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #check if there is direct seurat input
   if(gex.loaded == F & seurat.loaded == T){
       gex.list <- Seurat.in
-      for(i in 1:length(gex.list)){
-        gex.list[[i]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[i]])))
-        gex.list[[i]]$orig_barcode <- gsub(gex.list[[i]]$orig_barcode,pattern = "-\\d+",replacement = "")
-      }
+
+      gex.list[[1]]$orig_barcode <- as.character(gsub(".*_","",colnames(gex.list[[1]])))
+      gex.list[[1]]$orig_barcode <- gsub(gex.list[[1]]$orig_barcode,pattern = "-\\d+.*$",replacement = "")
+
       gex.loaded <- T #here the pipelines for Seurat and GEX input are merged for the next steps of processing
     }
 
@@ -1827,23 +1827,32 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(gex.loaded == T & vdj.loaded == T & seurat.loaded == F){ #If both VDJ and GEX are available
     barcodes_GEX <- list()
     barcodes_VDJ <- list()
+    barcodes_GEX_raw <- list()
+    barcodes_VDJ_raw <- list()
     for(i in 1:length(gex.list)){
       #GEX do not need to be filtered
       barcodes_GEX[[i]] <- colnames(gex.list[[i]])
+      #raw barcodes GEX
+      barcodes_GEX_raw[[i]] <- as.character(gsub(".*_","",barcodes_GEX[[i]]))
+      barcodes_GEX_raw[[i]] <- gsub(barcodes_GEX_raw[[i]],pattern = "-\\d+.*$",replacement = "")
+
       #VDJ filtering to make sure => with the new input strategy post Cellranger 6.1. this should not have any effect because of prefiltering by cellranger
       barcodes_VDJ[[i]] <- unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")])
+      #raw barcodes VDJ
+      barcodes_VDJ_raw[[i]] <- as.character(gsub(".*_","",barcodes_VDJ[[i]]))
+      barcodes_VDJ_raw[[i]] <- gsub(barcodes_VDJ_raw[[i]],pattern = "-\\d+.*$",replacement = "")
 
-      if(verbose) message(paste0("For sample ", i, ": ", length(barcodes_GEX[[i]])," cell assigned barcodes in GEX, ", length(barcodes_VDJ[[i]]), " cell assigned high confidence barcodes in VDJ. Overlap: ", sum(barcodes_GEX[[i]] %in% barcodes_VDJ[[i]]), " \n"))
+      if(verbose) message(paste0("For sample ", i, ": ", length(barcodes_GEX_raw[[i]])," cell assigned barcodes in GEX, ", length(barcodes_VDJ_raw[[i]]), " cell assigned high confidence barcodes in VDJ. Overlap: ", sum(barcodes_GEX_raw[[i]] %in% barcodes_VDJ_raw[[i]]), " \n"))
 
-      vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
+      vdj.gex.available <- barcodes_GEX_raw[[i]] %in% barcodes_VDJ_raw[[i]]
       gex.list[[i]] <- SeuratObject::AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ_available")
 
       #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
       if(exclude.GEX.not.in.VDJ == T){
         if(verbose) message("Removing all barcodes from GEX, which are not present in VDJ \n")
 
-        vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
-        gex.list[[i]]@meta.data$VDJ_available <- vdj.gex.available
+        #vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
+        #gex.list[[i]]@meta.data$VDJ_available <- vdj.gex.available
         gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ_available == T)])
 
         if(verbose) message(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries \n"))
@@ -1852,29 +1861,42 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   if(gex.loaded == T & vdj.loaded == T & seurat.loaded == T){ #If VDJ is available and GEX is loaded from Seurat.in
-    barcodes_GEX <- list()
     barcodes_VDJ <- list()
+    barcodes_VDJ_raw <- list()
     for(i in 1:length(contig.table)){##barcodes_VDJ holds the unique barcodes
       barcodes_VDJ[[i]] <- unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true" & tolower(contig.table[[i]]$high_confidence) == "true" & tolower(contig.table[[i]]$productive) == "true" & tolower(contig.table[[i]]$full_length) == "true")])
       if(verbose) message(paste0("For sample ", i, ": ", length(barcodes_VDJ[[i]]), " cells assigned with high confidence barcodes in VDJ \n"))
+      #raw barcodes VDJ
+      barcodes_VDJ_raw[[i]] <- as.character(gsub(".*_","",barcodes_VDJ[[i]]))
+      barcodes_VDJ_raw[[i]] <- gsub(barcodes_VDJ_raw[[i]],pattern = "-\\d+.*$",replacement = "")
     }
+    barcodes_VDJ_raw <- unlist(barcodes_VDJ_raw)
 
     barcodes_GEX <- list()
-    for(i in 1:length(gex.list)){
-      barcodes_GEX[[i]] <- colnames(gex.list[[i]])
-      if(verbose) message(paste0("For sample ", i, ": ", length(barcodes_GEX[[i]])," cell assigned barcodes in GEX \n"))
-      vdj.gex.available <- colnames(gex.list[[i]]) %in% barcodes_VDJ[[i]]
-      gex.list[[i]] <- SeuratObject::AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ_available")
+    barcodes_GEX_raw <- list()
+    barcodes_GEX <- colnames(gex.list[[1]])
+    barcodes_GEX_raw <- as.character(gsub(".*_","",barcodes_GEX))
+    barcodes_GEX_raw <- gsub(barcodes_GEX_raw,pattern = "-\\d+.*$",replacement = "")
 
-      #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
-      if(exclude.GEX.not.in.VDJ == T){
-        if(verbose) message("Removing all barcodes from GEX, which are not present in VDJ \n")
+    print(colnames(gex.list[[1]]))
+    print(barcodes_GEX_raw[1:10])
+    print(barcodes_VDJ_raw[1:10])
 
-        gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ_available == T)])
-        if(verbose) message(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries \n"))
+      if(verbose) message(paste0("For input Seurat object: ", length(barcodes_GEX)," cells assigned barcodes in GEX \n"))
+
+      vdj.gex.available <- barcodes_GEX_raw %in% barcodes_VDJ_raw
+      if(verbose) message(paste0("For input Seurat object GEX and VDJ barcode overlap is: ", sum(vdj.gex.available) ," \n"))
+
+      gex.list[[1]] <- SeuratObject::AddMetaData(gex.list[[1]], vdj.gex.available, col.name = "VDJ_available")
+
+    #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
+    if(exclude.GEX.not.in.VDJ == T){
+      if(verbose) message("Removing all barcodes from GEX, which are not present in VDJ \n")
+
+      gex.list[[1]] <- subset(gex.list[[1]], cells = colnames(gex.list[[1]])[which(gex.list[[1]]$VDJ_available == T)])
+      if(verbose) message(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX entries \n"))
       }
     }
-  }
 
   #If only GEX is processed
   if(gex.loaded == T & vdj.loaded == F){
@@ -1899,6 +1921,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       barcodes_GEX_c <- do.call("c", lapply(gex.list, function(x) x$orig_barcode))
       unique_barcodes <- names(table(barcodes_GEX_c)[table(barcodes_GEX_c) == 1])
       for(i in 1:length(gex.list)){
+        if(sum(gex.list[[i]]$orig_barcode %in% unique_barcodes) == 0){stop("Removal of non-unique barcodes in GEX has resulted in 0 cells in at least one GEX sample. Please check that no GEX input paths are duplicated")}
         gex.list[[i]] <- subset(gex.list[[i]], subset = orig_barcode %in% unique_barcodes)
       }
       if(verbose) message(paste0("Removed a total of ", length(unique(barcodes_GEX_c)) - length(unique_barcodes), " cells with non unique barcodes in GEX \n"))
@@ -1913,6 +1936,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       non_unique_barcodes <- names(table(barcodes_VDJ_c)[table(barcodes_VDJ_c) > 1])
       for(i in 1:length(barcodes_VDJ)){
         barcodes_VDJ[[i]] <- barcodes_VDJ[[i]][which(!barcodes_VDJ[[i]] %in% non_unique_barcodes)]
+        if(length(barcodes_VDJ[[i]]) == 0){stop("Removal of non-unique barcodes in VDJ has resulted in 0 cells in at least one VDJ sample. Please check that no VDJ input paths are duplicated")}
       }
       if(verbose) message(paste0("Removed a total of ", length(non_unique_barcodes), " cells with non unique barcodes in VDJ \n"))
     }
@@ -1929,12 +1953,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
     }
 
-
   ############################################ remove by barcode in VDJ ####
   if(exclude.on.barcodes[1] != "none" & vdj.loaded == T){
       for(i in 1:length(barcodes_VDJ)){
         n_cells <- length(barcodes_VDJ[[i]])
-        barcodes_VDJ[[i]] <- barcodes_VDJ[[i]][which(!gsub("-\\d$","",barcodes_VDJ[[i]]) %in% exclude.on.barcodes)]
+        barcodes_VDJ[[i]] <- barcodes_VDJ[[i]][which(!gsub("-\\d+.*$","",barcodes_VDJ[[i]]) %in% exclude.on.barcodes)]
         if(verbose) message(paste0("In VDJ sample ", i ," removed a total of ", n_cells - length(barcodes_VDJ[[i]]), " cells with barcodes provided as exclude.on.barcodes \n"))
       }
     }
@@ -2051,7 +2074,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #update barcodes
       VDJ.proc$orig_barcode <- VDJ.proc$barcode
-      VDJ.proc$orig_barcode <- gsub("-\\d", "", VDJ.proc$orig_barcode)
+      VDJ.proc$orig_barcode <- gsub("-\\d+.*$", "", VDJ.proc$orig_barcode)
       VDJ.proc$barcode <- paste0("s",i,"_",VDJ.proc$barcode)
       VDJ.proc$sample_id <- paste0("s",i)
       VDJ.proc$group_id <- group.id[i]
@@ -2109,18 +2132,19 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #remove possible extra underscores before barcode
       GEX.proc[[i]] <- SeuratObject::RenameCells(GEX.proc[[i]], new.names = gsub("^_+","",colnames(GEX.proc[[i]])))
       GEX.proc[[i]]@meta.data$orig_barcode <- as.character(gsub(".*_","",rownames(GEX.proc[[i]]@meta.data)))
-      GEX.proc[[i]]@meta.data$orig_barcode <- gsub(GEX.proc[[i]]@meta.data$orig_barcode ,pattern = "-1",replacement = "")
+      GEX.proc[[i]]@meta.data$orig_barcode <- gsub(GEX.proc[[i]]@meta.data$orig_barcode ,pattern = "-\\d+.*$",replacement = "")
     }
   } else if (gex.loaded == F & seurat.loaded == F){
     GEX.proc <- "none"
   } else if (gex.loaded == T & seurat.loaded == T){
-    GEX.proc <- Seurat.in
+    GEX.proc <- gex.list
 
-    for(i in 1:length(GEX.proc)){
-      #remove possible extra underscores before barcode
-      GEX.proc[[i]] <- SeuratObject::RenameCells(GEX.proc[[i]], new.names = gsub("^_+","",colnames(GEX.proc[[i]])))
-      GEX.proc[[i]]@meta.data$orig_barcode <- as.character(gsub(".*_","",rownames(GEX.proc[[i]]@meta.data)))
-      GEX.proc[[i]]@meta.data$orig_barcode <- gsub(GEX.proc[[i]]@meta.data$orig_barcode ,pattern = "-1",replacement = "")
+    #going through samples and renaming cells by that
+    if(stringr::str_detect(colnames(GEX.proc[[1]])[1], "^s\\d_")){
+      #input seurat object was already processed via platypus. not renaming
+    } else {
+    GEX.proc[[1]] <- SeuratObject::RenameCells(GEX.proc[[1]], new.names = gsub("^_+","",colnames(GEX.proc[[1]])))
+    GEX.proc[[1]] <- SeuratObject::RenameCells(GEX.proc[[1]], new.names = paste0(GEX.proc[[1]]$sample_id, "_",colnames(GEX.proc[[1]])))
     }
   }
   if(verbose) message("Done with GEX pipeline \n")
@@ -2292,10 +2316,16 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Because a lot of cells are present in only one of the two datasets, we do not add the VDJ table as a metadata item to the Seurat object. This would throw out a lot high confidence VDJ entries. Instead we add metadata columns to both datasets indicating the presence of the cell in the opposing dataset. This should make filtering and joining later easy.
     #Multiple cases:
     if(inherits(VDJ.proc,"list") & length(GEX.proc) == 1){ #Multiple VDJ, one GEX
-      GEX.proc[[1]] <- SeuratObject::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% do.call(c ,lapply(VDJ.proc, function(x) x$barcode)), col.name = "VDJ_available")
+      #! Removing -1,-2 etc. at the end of barcodes as this has shown issues when processed seurat object is loaded in
+      GEX.proc[[1]] <- SeuratObject::RenameCells(GEX.proc[[1]], new.names = gsub("-\\d+.*$","",colnames(GEX.proc[[1]])))
+
       for(i in 1:length(VDJ.proc)){
-        VDJ.proc[[i]]$GEX_available <- VDJ.proc[[i]]$barcode %in% colnames(GEX.proc[[1]])
+        VDJ.proc[[i]]$barcode <- gsub("-\\d+.*$","",VDJ.proc[[i]]$barcode)
+        VDJ.proc[[i]]$GEX_available <- VDJ.proc[[i]] %in% colnames(GEX.proc[[1]])
       }
+
+      GEX.proc[[1]] <- SeuratObject::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% do.call(c ,lapply(VDJ.proc, function(x) x$barcode)), col.name = "VDJ_available")
+
 
       #add some GEX columns to VDJ table
       if(integrate.GEX.to.VDJ == T){
@@ -2332,11 +2362,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #add metadata
         GEX.proc[[1]] <- SeuratObject::AddMetaData(GEX.proc[[1]], seur_meta[,c(10:ncol(seur_meta))], col.name = names(seur_meta)[c(10:ncol(seur_meta))])
       }
-
       #Reduce GEX.proc to a seurat object
       GEX.proc <- GEX.proc[[1]]
 
     } else if (inherits(VDJ.proc, "data.frame") & length(GEX.proc) == 1){ #one VDJ one GEX
+
+      #! Removing -1,-2 etc. at the end of barcodes as this has shown issues when processed seurat object is loaded in
+      GEX.proc[[1]] <- SeuratObject::RenameCells(GEX.proc[[1]], new.names = gsub("-\\d+.*$","",colnames(GEX.proc[[1]])))
+      VDJ.proc$barcode <- gsub("-\\d+.*$","",VDJ.proc$barcode)
+
       GEX.proc[[1]] <- SeuratObject::AddMetaData(GEX.proc[[1]], colnames(GEX.proc[[1]]) %in% VDJ.proc$barcode, col.name = "VDJ_available")
       VDJ.proc$GEX_available <- VDJ.proc$barcode %in% colnames(GEX.proc[[1]])
       #Reduce GEX.proc to a seurat object
