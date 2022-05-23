@@ -713,7 +713,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(!inherits(VDJ.metrics.all,"character") & !inherits(GEX.metrics.all, "character")){
         #bind the two
         VDJ.metrics.all <- cbind(VDJ.metrics.all, GEX.metrics.all)
-      } else if (inherits(VDJ.metrics.all,"character") & inherits(!GEX.metrics.all,"character")){ #got only GEX metrics
+      } else if (inherits(VDJ.metrics.all,"character") & !inherits(GEX.metrics.all,"character")){ #got only GEX metrics
         VDJ.metrics.all <- GEX.metrics.all
       } else if (!inherits(VDJ.metrics.all,"character") & inherits(GEX.metrics.all,"character")){ #got only VDJ metrics
         #VDJ.metrics.all <- VDJ.metrics.all no reassignment neccessary
