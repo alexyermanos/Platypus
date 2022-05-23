@@ -2,14 +2,18 @@
 % Please edit documentation in R/VDJ_contigs_to_vgm.R
 \name{VDJ_contigs_to_vgm}
 \alias{VDJ_contigs_to_vgm}
-\title{Local VDJ dataframe to VDJ.GEX.matrix format utility}
+\title{Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain}
 \usage{
-VDJ_contigs_to_vgm(directory, sample.names, platypus.version)
+VDJ_contigs_to_vgm(directory, sample.names, celltype, FB, platypus.version)
 }
 \arguments{
 \item{directory}{list containing paths to the "filtered_contig_annotations.csv" files from cell ranger.}
 
 \item{sample.names}{vector specifying sample names.}
+
+\item{celltype}{Character. Either "Tcells" or "Bcells".}
+
+\item{FB}{Integer specifying whether VGM should contain Feature Barcode columns or not. Default set to FALSE.}
 
 \item{platypus.version}{Function based on VGM object from V3, no need to set this parameter.}
 }
@@ -24,6 +28,6 @@ Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GE
 directory.list <- list()
 directory.list[[1]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
 directory.list[[2]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
-filtered_contig_vgm <- VDJ_contigs_to_vgm(directory = directory.list, sample.names = c(s3,s4))
+filtered_contig_vgm <- VDJ_contigs_to_vgm(directory = directory.list, sample.names = c(s3,s4), celltype = "Tcells")
 }
 }

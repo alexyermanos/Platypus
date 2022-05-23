@@ -2,29 +2,37 @@
 % Please edit documentation in R/VDJ_alpha_beta_Vgene_circos.R
 \name{VDJ_alpha_beta_Vgene_circos}
 \alias{VDJ_alpha_beta_Vgene_circos}
-\title{Circos plot for VDJ and VJ pairings}
+\title{Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.}
 \usage{
 VDJ_alpha_beta_Vgene_circos(
-  VDJ,
+  VGM,
   V.or.J,
   B.or.Tcells,
   label.threshold,
   c.threshold,
   cell.level,
   clonotype.per.gene.threshold,
-  c.count,
+  c.count.label,
+  c.count.label.size,
   platypus.version,
-  filter1H1L
+  filter1H1L,
+  gene.label,
+  gene.label.size,
+  arr.col,
+  arr.direction,
+  topX,
+  platy.theme,
+  clonotype.column
 )
 }
 \arguments{
-\item{VDJ}{For Platypus platypus.version v3, VDJ_GEX_matrix.output[[1]] has to be supplied. For Platypus V2 the output of the VDJ_GEX_integrate function is necessary}
+\item{VGM}{The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.}
 
 \item{V.or.J}{Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".}
 
 \item{B.or.Tcells}{Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.}
 
-\item{label.threshold}{Minimal amount of clonotypes per gene neccessary to add a gene label to the sector. Default: 0.}
+\item{label.threshold}{Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).}
 
 \item{c.threshold}{Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.}
 
@@ -32,21 +40,38 @@ VDJ_alpha_beta_Vgene_circos(
 
 \item{clonotype.per.gene.threshold}{How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.}
 
-\item{c.count}{Show clonotype or cell count on Circos plot. Default = T.}
+\item{c.count.label}{Boolean, lets the user decide if the gene and count labels should be plotted or not. Default = T.}
 
-\item{platypus.version}{Which platypus.version of platypus is being used. Default = "v3".}
+\item{c.count.label.size}{Determines the font size of the gene labels. By default the font size for count labels is 0.6.}
 
-\item{filter1H1L}{Whether to filter the input VDJ.matrix in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
+\item{platypus.version}{Which platypus.version of platypus is being used. Default = v3. Set to v3 if VDJ_GEX_matrix.output[[1]] is used}
+
+\item{filter1H1L}{Whether to filter the input VGM in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
+
+\item{gene.label}{Boolean, lets the user decide if the gene labels should be plotted or not.}
+
+\item{gene.label.size}{Determines the font size of the gene labels. By default the labelsize is automatically adjusted to 0.7 for labels with two or less digits, 0.6 for labels between 2 and 6 digits, and 0.4 for all longer labels. A manually defined font size will be the same for all labels!}
+
+\item{arr.col}{Data.frame with three columns where the first two indicate the names of genes, clonotypes or clusters to be connected, and the third corresponds to the color of the arrow. Default set to data.frame(c("dummy.clonotype"), c("dummy.cluster"), c("dummy.color")), so no arrow is drawn.}
+
+\item{arr.direction}{Either 1 or -1 and determines the direction of the arrow. Default=1.}
+
+\item{topX}{Filters for the top X clonotypes and only plots the respective gene combinations or cluster memberships.}
+
+\item{platy.theme}{Allows plotting in the new "pretty" theme or the older "spiky" theme without group labels and radial arrangement of gene.labels. Default = "pretty".}
+
+\item{clonotype.colum}{Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".}
 }
 \value{
-Returns list of plots. The first n elements contain the circos plot of the n datasets from the VDJ.analyze function. The n+1 element contains a list of the n adjancey matrices for each dataset.
+Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.
 }
 \description{
-Produces a Circos plot from the VDJ_GEX_matrix[[1]] output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
+Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
 }
 \examples{
 \dontrun{
- plots <- VDJ_alpha_beta_Vgene_circos(Platypus::small_vgm[[1]]
- , platypus.version="v3")
+ alpha_beta_VJgene <- VDJ_alpha_beta_Vgene_circos(vgm[[1]])
+ # print circos plot:
+ alpha_beta_VJgene[[1]]
 }
 }

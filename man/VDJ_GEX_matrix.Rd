@@ -19,6 +19,7 @@ VDJ_GEX_matrix(
   filter.overlapping.barcodes.GEX,
   filter.overlapping.barcodes.VDJ,
   exclude.on.cell.state.markers,
+  exclude.on.barcodes,
   get.VDJ.stats,
   numcores,
   trim.and.align,
@@ -75,6 +76,8 @@ VDJ_GEX_matrix(
 \item{filter.overlapping.barcodes.VDJ}{Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.}
 
 \item{exclude.on.cell.state.markers}{Character vector. If no input is provided or input is "none", no cells are excluded. Input format should follow: Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Example: c("CD4+;CD44-","CD4+;IL7R+;CD44+"). All cells which match any of the given states (in the example case any of the 2) are excluded. This is useful in case different and non lymphocyte cells were co-sequenced. It should give the option to e.g. exclude B cells in the analysis of T cells in a dataset.}
+
+\item{exclude.on.barcodes}{Character vector. Provide a list of 10x barcodes WITHOUT the terminal id (-1 , -2 etc.) to exclude from GEX and VDJ prior to processing.}
 
 \item{get.VDJ.stats}{Boolean. defaults to TRUE. Whether to generate general statistics table for VDJ repertoires. This is appended as element [[3]] of the output list.}
 
