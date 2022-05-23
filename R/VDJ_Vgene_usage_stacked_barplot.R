@@ -304,7 +304,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
     Vgene_usage_plot[[1]] <- ggplot2::ggplot(plotting_df, ggplot2::aes(fill = Vgene, y=Frequency, x=Sample)) +
       ggplot2::geom_bar(position="fill", stat="identity", color="black", width = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
-      ggplot2::ylab("% of unique clones") + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ggtitle(paste0("IgH V gene stacked"))
+      ggplot2::ylab("% of unique clones") + ggplot2::scale_y_continuous(expand = c(0,0)) #+ ggplot2::ggtitle(paste0("IgH V gene stacked"))
 
 
     }else if(LC.Vgene ==TRUE){
@@ -376,7 +376,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
       Vgene_usage_plot[[1]] <- ggplot2::ggplot(plotting_df, ggplot2::aes(fill = Vgene, y=Frequency, x=Sample)) +
         ggplot2::geom_bar(position="fill", stat="identity", color="black", width = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
-        ggplot2::ylab("% of unique clones") + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ggtitle(paste0("IgK/L V gene stacked"))
+        ggplot2::ylab("% of unique clones") + ggplot2::scale_y_continuous(expand = c(0,0)) #+ ggplot2::ggtitle(paste0("IgK/L V gene stacked"))
 
     }
 
