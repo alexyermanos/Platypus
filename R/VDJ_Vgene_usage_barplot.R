@@ -60,7 +60,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
       ranks <- order(-HC_Vgene_usage[[i]]$Frequency)
       HC_Vgene_usage[[i]] <- HC_Vgene_usage[[i]][ranks,]
 
-      HC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(HC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("IgH V gene usage - sample ",i)) + ggplot2::theme(text = ggplot2::element_text(size = 12))
+      HC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(HC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("sample ",i)) + ggplot2::theme(text = ggplot2::element_text(size = 12))
 
     }
 
@@ -83,7 +83,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
         ranks <- order(-LC_Vgene_usage[[i]]$Frequency)
         LC_Vgene_usage[[i]] <- LC_Vgene_usage[[i]][ranks,]
 
-        LC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(LC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("IgK/L V gene usage - sample ",i)) + ggplot2::theme(text = ggplot2::element_text(size = 12))
+        LC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(LC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("sample ",i)) + ggplot2::theme(text = ggplot2::element_text(size = 12))
 
       }
 
@@ -139,7 +139,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
       ranks <- order(-HC_Vgene_usage[[i]]$Frequency)
       HC_Vgene_usage[[i]] <- HC_Vgene_usage[[i]][ranks,]
 
-      HC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(HC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("IgH V gene usage - sample ",names(clonotype.list)[i])) + ggplot2::theme(text = ggplot2::element_text(size = 12))
+      HC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(HC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("sample ",names(clonotype.list)[i])) + ggplot2::theme(text = ggplot2::element_text(size = 12))
 
     }
 
@@ -162,7 +162,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
         ranks <- order(-LC_Vgene_usage[[i]]$Frequency)
         LC_Vgene_usage[[i]] <- LC_Vgene_usage[[i]][ranks,]
 
-        LC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(LC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("IgK/L V gene usage - sample ", names(clonotype.list)[i])) + ggplot2::theme(text = ggplot2::element_text(size = 12))
+        LC_Vgene_usage_plot[[i]] <- ggplot2::ggplot(LC_Vgene_usage[[i]][1:actual.gene.number,], ggplot2::aes(x=Vgene, y=Percentage, fill=Vgene)) + ggplot2::geom_bar(stat="identity", size=0.5, width=0.6, color="black", show.legend = FALSE) + cowplot::theme_cowplot() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) + ggplot2::ylab("% of unique clones") + ggplot2::xlab("") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::scale_color_gradient(low="blue", high="red") + ggplot2::ggtitle(paste0("sample ", names(clonotype.list)[i])) + ggplot2::theme(text = ggplot2::element_text(size = 12))
 
       }
 
