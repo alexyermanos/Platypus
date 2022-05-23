@@ -1878,10 +1878,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     barcodes_GEX_raw <- as.character(gsub(".*_","",barcodes_GEX))
     barcodes_GEX_raw <- gsub(barcodes_GEX_raw,pattern = "-\\d+.*$",replacement = "")
 
-    print(colnames(gex.list[[1]]))
-    print(barcodes_GEX_raw[1:10])
-    print(barcodes_VDJ_raw[1:10])
-
       if(verbose) message(paste0("For input Seurat object: ", length(barcodes_GEX)," cells assigned barcodes in GEX \n"))
 
       vdj.gex.available <- barcodes_GEX_raw %in% barcodes_VDJ_raw
