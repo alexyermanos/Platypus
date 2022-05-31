@@ -194,7 +194,7 @@ VDJ_GEX_clonotyme <- function(method,
       for (k in 1:number.of.samples){
         for (i in 1:top.N.clonotypes){
 
-          temp_barcodes <- vdj.gex.matrix.output[[1]][which(vdj.gex.matrix.output[[1]]$sample_id == paste0("s", k)),][which(vdj.gex.matrix.output[[1]]$clonotype_id_10x == paste0("clonotype", k)),]$barcode
+          temp_barcodes <- vdj.gex.matrix.output[[1]][which(vdj.gex.matrix.output[[1]]$sample_id == paste0("s", k)),][which(vdj.gex.matrix.output[[1]]$clonotype_id_10x == paste0("clonotype", i)),]$barcode
           #temp_barcodes <- gsub(temp_barcodes, pattern = "-1",replacement = "")
           temp_barcodes <- temp_barcodes[which(temp_barcodes!="NA")]
           #print(paste0("Sample ", k))
@@ -320,14 +320,16 @@ VDJ_GEX_clonotyme <- function(method,
     df <- df[which(df$pseudotime!=Inf),]
     df2 <- df
     df2[[ridgeline.separator]] <- "all"
-    df <- df[which(df[[ridgeline.separator]]!="other"),]
-    df[[ridgeline.separator]] <- as.factor(df[[ridgeline.separator]])
-    df[[ridgeline.separator]] <- ordered(df[[ridgeline.separator]], levels = c(unique(level.list), "all"))
+    #df <- df[which(df[[ridgeline.separator]]!="other"),]
+    #df[[ridgeline.separator]] <- as.factor(df[[ridgeline.separator]])
+    #df[[ridgeline.separator]] <- ordered(df[[ridgeline.separator]], levels = c(unique(level.list), "all"))
     df <- rbind(df, df2)
     df$p.size <- 0.2
     df$p.size[which(df[[ridgeline.separator]]=="all")] <- 0
     df$p.shape <- "circle"
     df$p.shape[which(df[[ridgeline.separator]]=="all")] <- "square"
+    
+    df$fuddi <- df[[ridgeline.separator]]
 
     if(missing(colors)){
       colors <- grDevices::rainbow(top.N.clonotypes*number.of.samples)
@@ -340,9 +342,9 @@ VDJ_GEX_clonotyme <- function(method,
     print("Plotting Ridgeline Plots...")
     ridgeline.separator
     if(show.cells){
-      ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =as.factor(ridgeline.separator),fill=as.factor(ridgeline.separator), alpha=0.5))+ ggridges::geom_density_ridges(ggplot2::aes(point_size=p.size, point_shape=p.shape),scale=2, jittered_points = TRUE, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)+ggridges::scale_point_size_continuous(range = c(0, 2), guide = "none")+ggplot2::scale_discrete_manual(aesthetics = "point_shape", values = c(21, NA))
+      ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =fuddi ,fill=fuddi, alpha=0.5))+ ggridges::geom_density_ridges(ggplot2::aes(point_size=p.size, point_shape=p.shape),scale=2, jittered_points = TRUE, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)+ggridges::scale_point_size_continuous(range = c(0, 2), guide = "none")+ggplot2::scale_discrete_manual(aesthetics = "point_shape", values = c(21, NA))
     }else{
-      ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =as.factor(ridgeline.separator),fill=as.factor(ridgeline.separator)))+ ggridges::geom_density_ridges(scale=2, jittered_points = F, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)
+      ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =fuddi ,fill=fuddi ))+ ggridges::geom_density_ridges(scale=2, jittered_points = F, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)
     }
     print(ridgeline.plot)
     # #nolegend
