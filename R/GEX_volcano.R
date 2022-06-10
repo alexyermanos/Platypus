@@ -192,23 +192,9 @@ GEX_volcano <- function(DEGs.input,
   }
 
   if(cluster.genes.output == T){
-    
     output.plot <- list()
-    
-    if(is.list(DEGs.input)){
-      DEGs.input.length <- length(DEGs.input)
-    }else{
-      DEGs.input.length <- 1
-    }
-    
-    for (i in 1:DEGs.input.length) {
-      
-      if(is.list(DEGs.input)){
-        findmarkers.output <- DEGs.input[[i]]
-      }else{
-        findmarkers.output <- DEGs.input
-      }
-      
+    for (i in 1:1) {
+
       if(RP.MT.filter ==T){
         exclude <- c()
         for (j in c("MT-", "RPL", "RPS")) {
