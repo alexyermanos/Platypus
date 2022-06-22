@@ -5,7 +5,7 @@
 #' @param feature.columns vector of strings, denoting the columns of the VDJ/VDJ.GEX.matrix[[1]] object from which to extract the unique feature values (for which we will calculate the counts or proportions).
 #' @param proportions string, 'absolute' will return the absolute counts, 'group.level.proportions' will return the counts divided by the total number or elements/values in the specific groups (group level proportions), 'sample.level.proportions' will return the counts divided by the total number of elements in the sample.
 #' @param specific.features vector of specific feature values (or NULL) for which to calculate counts/proportions, from the specified feature.columns parameter (only works if a single feature column is specified in feature.columns).
-#' @param grouping.column string or 'none', represents the column from the VDJ/VDJ.GEX.matrix[[1]] object by which to group counting process. This is usually the 'clonotype_id' column to calculate frequencies at the clonotype level. If 'none', no grouping will be done.
+#' @param grouping.column string, vector of strings, or 'none' - represents the column from the VDJ/VDJ.GEX.matrix[[1]] object by which to group counting process. This is usually the 'clonotype_id' column to calculate frequencies at the clonotype level. If 'none', no grouping will be done. To group by multiple columns, input the specific columns as a vector of strings.
 #' For example, if feature.columns='VDJ_cgene' and grouping.column='clonotype_id', we will obtain a count dataframe of the frequencies of each isotype per unique clonotype (per sample if sample.column='sample_id').
 #' @param max.groups integer or NULL, the maximum number of groups for which to count features. If NULL, it will count for all groups.
 #' @param specific.groups vector of strings (or 'none'), if the counting should be done only for specific groups (e.g., count the frequency of isotype only for clonotypes 1 and 2 if feature.columns='VDJ_cgene', grouping.column='clonotype_id' and specific.groups=c('clonotype1', 'clonotype2'))
@@ -15,6 +15,7 @@
 #' @param treat.incomplete.features string, method of dealing with missing feature values (e.g., a clonotype has several NA values for the 'VDJ_cgene' feature.column - cells with NA values). 'unknown' - counted as unknown, 'exclude' - excludes completely, 'max.global' - replaces value by max value of that feature across the repertoire, 'max.group' - replaced by the max feature value inside that group, 'proportional' - iteratively assigns the missing values to the known groups, keeping the same proportions.
 #' @param combine.features boolean - if T and we have two columns in feature.columns, will combine the feature values for each cell in the VDJ object, counting them as a single feature when calculating proportions.
 #' @param treat.combined.features string, method of dealing with combined features with missing values. 'exclude' will be treated similarly to excluding incomplete feature values (excluding them completely if a single value is missing from the combination), or 'include' and will be treated as a new feature value.
+#' @param treat.combined.groups string, method of dealing with combined groups with missing values, in case the grouping.column parameter is a vector of strings. 'exclude' will exclude the combined group altogether if a group value is missing/NA. 'include' will include such groups in the analysis.
 #' @param specific.feature.colors named list of specific colors to be used in the final barplots, for each unique feature value in the VDJ object's feature.columns values.
 #' For example, if we have a feature column of binders with unique values=c('yes', 'no'), specific.feature.colors=list('yes'='blue', 'no'='red') will color them accordingly.
 #' @param output.format string, either 'plots' to obtain barplots, 'abundance.df' to obtain the count dataframe, or 'abundance.df.list' to obtain a list of count dataframes, for each sample.
@@ -23,10 +24,11 @@
 #' @export
 #' @examples
 #' VDJ_abundances(VDJ = small_vgm[[1]],
-#' feature.columns='VDJ_cgene',proportions='absolute',
-#' grouping.column='clonotype_id',specific.groups='none',
-#' output.format='abundance.df')
+#' feature.columns='VDJ_cgene', proportions='absolute',
+#' grouping.column='clonotype_id', specific.groups='none',
+#' output.format='plot')
 #'
+
 
 VDJ_abundances <- function(VDJ,
                            feature.columns,
@@ -41,6 +43,7 @@ VDJ_abundances <- function(VDJ,
                            treat.incomplete.features,
                            combine.features,
                            treat.combined.features,
+                           treat.combined.groups,
                            specific.feature.colors,
                            output.format){
 
@@ -48,15 +51,16 @@ VDJ_abundances <- function(VDJ,
   if(missing(feature.columns)) feature.columns <- c('VDJ_cgene')
   if(missing(proportions)) proportions <- 'absolute'
   if(missing(specific.features)) specific.features <- NULL
-  if(missing(grouping.column)) grouping.column <- 'clonotype_id'
+  if(missing(grouping.column)) grouping.column <- 'none'
   if(missing(max.groups)) max.groups <- NULL
   if(missing(specific.groups)) specific.groups <- 'none'
   if(missing(sample.column)) sample.column <- 'sample_id'
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- F
   if(missing(treat.incomplete.groups)) treat.incomplete.groups <- 'exclude' #exclude - excludes groups with no cells for the specific features, #unknown - sets them as unknown
   if(missing(treat.incomplete.features)) treat.incomplete.features <- 'exclude'
   if(missing(combine.features)) combine.features <- F
   if(missing(treat.combined.features) & combine.features==T) treat.combined.features <- 'exclude' #will be treated similarly to incomplete features, or include and will be treated as a new feature
+  if(missing(treat.combined.groups) & length(grouping.column) > 1) treat.combined.groups <- 'exclude'
   if(missing(specific.feature.colors)) specific.feature.colors <- NULL
   if(missing(output.format)) output.format <- 'plots' #or abundance.df
 
@@ -83,7 +87,6 @@ VDJ_abundances <- function(VDJ,
 
    return(ccombs)
   }
-
 
 
   get_count_df_for_group <- function(df, group, feature){
@@ -262,40 +265,56 @@ VDJ_abundances <- function(VDJ,
   ###############################UTILITY FUNCTIONS FOR LAPPLY###########################################
 
 
-  VDJ.matrix <- VDJ
-  VDJ <- NULL
+
   sample_dfs <- list()
 
-  if(('CDR3aa' %in% feature.columns) & !('CDR3aa' %in% colnames(VDJ.matrix))){
-    VDJ.matrix$CDR3aa <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T, combine.sequences=T), VDJ.matrix$VDJ_cdr3s_aa, VDJ.matrix$VJ_cdr3s_aa)
+  if(('CDR3aa' %in% feature.columns) & !('CDR3aa' %in% colnames(VDJ))){
+    VDJ$CDR3aa <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T, combine.sequences=T), VDJ$VDJ_cdr3s_aa, VDJ$VJ_cdr3s_aa)
   }
 
   for(i in 1:length(feature.columns)){
-   if(!feature.columns[i] %in% names(VDJ.matrix)){
+   if(!feature.columns[i] %in% names(VDJ)){
      stop("Please provide valid feature column name(s) contained within VDJ")
    }
   }
 
-  if(grouping.column != "none" & !(grouping.column %in% names(VDJ.matrix))){
+  if(length(grouping.column) > 1){
+    new_name <- paste0(grouping.column, collapse = '; ')
+
+    if(treat.combined.groups == 'exclude'){
+
+      for(col in grouping.column){
+        VDJ <- VDJ[which(!is.na(VDJ[col]) & !is.null(VDJ[col]) & VDJ[col] != ''), ]
+      }
+
+    }
+
+    VDJ[[new_name]] <- do.call(paste, c(VDJ[, c(grouping.column)], sep=" / "))
+    grouping.column <- new_name
+  }
+
+  if(grouping.column != "none" & !(grouping.column %in% names(VDJ))){
    stop("The provided grouping.column was not found in VDJ. Please provide a valid name or 'none' to avoid grouping")
   }
 
   if(VDJ.VJ.1chain==T){
-    VDJ.matrix <- VDJ.matrix[which(VDJ.matrix$Nr_of_VDJ_chains==1 & VDJ.matrix$Nr_of_VDJ_chains==1),]
+    VDJ <- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VDJ_chains==1),]
   }
 
+
+
   if(grouping.column=='none'){
-    VDJ.matrix$none <- rep('none', nrow(VDJ.matrix))
+    VDJ$none <- rep('none', nrow(VDJ))
   }
 
   if(sample.column!='none'){
-   sample_id <- unique(VDJ.matrix[,sample.column])
+   sample_id <- unique(VDJ[,sample.column])
    for(i in 1:length(sample_id)){
-     sample_dfs[[i]] <- VDJ.matrix[which(VDJ.matrix[,sample.column]==sample_id[i]),]
+     sample_dfs[[i]] <- VDJ[which(VDJ[,sample.column]==sample_id[i]),]
    }
   }else{
    sample_id <- 'global'
-   sample_dfs[[1]] <- VDJ.matrix
+   sample_dfs[[1]] <- VDJ
   }
 
 
@@ -315,7 +334,8 @@ VDJ_abundances <- function(VDJ,
 
   abundance_df_per_sample <- list()
   for(i in 1:length(sample_dfs)){
-     if(specific.groups!='none'){
+
+     if(specific.groups[1]!='none'){
        unique_groups <- specific.groups
      }else{
        unique_groups <- unique(sample_dfs[[i]][,grouping.column])
@@ -337,7 +357,9 @@ VDJ_abundances <- function(VDJ,
        single_feature_dfs <- lapply(unique_groups, function(x) get_count_df_for_group(df=sample_dfs[[i]], group=x, feature=feature.columns[[j]]))
        single_feature_dfs <- single_feature_dfs[!sapply(single_feature_dfs,is.null)]
        all_feature_dfs[[j]] <- do.call('rbind', single_feature_dfs)
-       #all_feature_dfs[[j]] <- single_feature_dfs
+
+       all_feature_dfs[[j]] <- all_feature_dfs[[j]][order(nchar(all_feature_dfs[[j]]$group), all_feature_dfs[[j]]$group),]
+       rownames(all_feature_dfs[[j]]) <- NULL
      }
 
      abundance_df_per_sample[[i]] <- do.call('rbind', all_feature_dfs)
@@ -350,7 +372,7 @@ VDJ_abundances <- function(VDJ,
    return(abundance_df)
   }else if(output.format=='abundance.df.list'){
    return(abundance_df_per_sample)
- }else if(output.format=='plots'){
+ }else if(output.format=='barplot' | output.format == 'density' | output.format == 'density.ridges'){
    sample_ids <- unique(abundance_df$sample)
    sample_dfs <- list()
    plots <- list()
@@ -366,21 +388,60 @@ VDJ_abundances <- function(VDJ,
      #}
      #sample_dfs[[i]]$Ranks <- as.factor(sample_dfs[[i]]$Ranks)
 
-     plots[[i]] <-  ggplot2::ggplot(sample_dfs[[i]], ggplot2::aes(fill=unique_feature_values, y=feature_value_counts, x=group)) +
-                       ggplot2::geom_bar(stat="identity") + ggplot2::theme_bw() + ggplot2::theme(panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank()) +
-                       ggplot2::labs(fill=paste0(feature.columns, collapse='/'), y='Cells', x='Group') + ggplot2::ggtitle(paste0(sample_ids[i]))
-    if(length(feature.columns)!=1){
-      plots[[i]] <- plots[[i]] + ggplot2::facet_wrap(~feature_name, scales = "free_x")
-    }
 
-    if(!is.null(specific.feature.colors)){
-      plots[[i]] <- plots[[i]] + ggplot2::scale_fill_manual(values=specific.feature.colors)
-    }
+     if(output.format == 'barplot'){
+       plots[[i]] <-  ggplot2::ggplot(sample_dfs[[i]], ggplot2::aes(fill=unique_feature_values, y=feature_value_counts, x=reorder(group, nchar(group)))) +
+                         ggplot2::geom_bar(stat="identity", width=0.6, color="black") +
+                         ggplot2::theme_bw() +
+                         ggplot2::theme_classic() +
+                         ggplot2::labs(fill=paste0(feature.columns, collapse='/'), y='Cells', x='Group') +
+                         ggplot2::ggtitle(paste0(sample_ids[i])) +
+                         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5), axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
+                         ggplot2::scale_y_continuous(expand = c(0,0))
 
-    if(proportions!='absolute'){
-      plots[[i]] <- plots[[i]] + ggplot2::labs(y='Proportions')
+      if(length(feature.columns)!=1){
+        plots[[i]] <- plots[[i]] + ggplot2::facet_wrap(~feature_name, scales = "free_x")
+      }
+
+      if(!is.null(specific.feature.colors)){
+        plots[[i]] <- plots[[i]] + ggplot2::scale_fill_manual(values=specific.feature.colors)
+      }
+
+      if(proportions!='absolute'){
+        plots[[i]] <- plots[[i]] + ggplot2::labs(y='Proportions')
+      }
+   }else if(output.format == 'density' | output.format == 'density.ridges'){
+     sample_dfs[[i]]$feature_ids <- 1:nrow(sample_dfs[[i]])
+     out_dfs <- list()
+     unique_groups <- unique(sample_dfs[[i]]$group)
+
+     for(j in 1:length(unique_groups)){
+       subset_df <- sample_dfs[[i]][sample_dfs[[i]]$group == unique_groups[j],]
+       feature_ids <- rep(1:length(subset_df$unique_feature_values), subset_df$feature_value_counts)
+       features <- rep(subset_df$unique_feature_values, subset_df$feature_value_counts)
+       out_dfs[[j]] <- data.frame(group = unique_groups[j], feature_ids = feature_ids, features = features)
+     }
+     out_dfs <- do.call('rbind', out_dfs)
+
+     if(output.format == 'density.ridges'){
+       plots[[i]] <- ggplot2::ggplot(out_dfs, ggplot2::aes(x = feature_ids, y = group, fill = group)) +
+                     ggridges::geom_density_ridges(alpha = 1) +
+                     ggplot2::theme_bw() +
+                     ggplot2::theme_classic() +
+                     ggplot2::labs(title = paste0('Density plot of ', feature.columns, ' species richness', ' per ', grouping.column), x = paste0(feature.columns, ' richness'), y = paste0(grouping.column), fill = paste0(grouping.column))
+    }else{
+      integer_breaks <- function(x){
+        seq(floor(min(x)), ceiling(max(x)))}
+
+       plots[[i]] <- ggplot2::ggplot(out_dfs, ggplot2::aes(x = feature_ids, y = ..count.., fill = group)) +
+                      ggplot2::geom_density(alpha = 0.75) +
+                      ggplot2::theme_bw() +
+                      ggplot2::theme_classic() +
+                      ggplot2::scale_y_continuous(breaks = integer_breaks) +
+                      ggplot2::labs(title = paste0('Density plot of ', feature.columns, ' species richness', ' per ', grouping.column), x = paste0(feature.columns, ' richness'), y = paste0('Cell counts'), fill = paste0(grouping.column))
     }
+   }
   }
-  return(plots + cowplot::theme_cowplot())
+  return(plots)
  }
 }

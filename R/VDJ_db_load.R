@@ -36,6 +36,18 @@ VDJ_db_load <- function(databases,
                         ){
 
 
+  if(missing(databases)) databases <- list('vdjdb')
+  if(missing(file.paths)) file.paths <- NULL
+  if(missing(preprocess)) preprocess <- T
+  if(missing(species)) species <- 'Mouse'
+  if(missing(filter.sequences)) filter.sequences <- 'VDJ.VJ'
+  if(missing(remove.na)) remove.na <- 'common'
+  if(missing(vgm.names)) vgm.names <- T
+  if(missing(keep.only.common)) keep.only.common <- T
+  if(missing(output.format)) output.format <- 'df.list'
+  if(missing(saving.path)) saving.path <- './data'
+
+
   #### Internal function definition ####
 
   .single_db_preprocess <- function(database.df,
@@ -140,17 +152,6 @@ VDJ_db_load <- function(databases,
 
   #### Main function body ####
 
-
-  if(missing(databases)) databases <- list('vdjdb')
-  if(missing(file.paths)) file.paths <- NULL
-  if(missing(preprocess)) preprocess <- T
-  if(missing(species)) species <- 'Mouse'
-  if(missing(filter.sequences)) filter.sequences <- 'VDJ.VJ'
-  if(missing(remove.na)) remove.na <- 'common'
-  if(missing(vgm.names)) vgm.names <- T
-  if(missing(keep.only.common)) keep.only.common <- T
-  if(missing(output.format)) output.format <- 'df.list'
-  if(missing(saving.path)) saving.path <- './data'
 
 
   db_list <- list('vdjdb', 'mcpas', 'tbadb_tcr', 'tbadb_bcr')
@@ -258,4 +259,3 @@ VDJ_db_load <- function(databases,
     }
   }
 }
-

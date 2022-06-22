@@ -18,7 +18,7 @@
 
 #' @examples
 #' \dontrun{
-#' VDJ_antigen_integrate_v2(VDJ,antigen.directory.list=antigen.directory.list,
+#' VDJ_antigen_integrate(VDJ,antigen.directory.list=antigen.directory.list,
 #' antigen.feature=c('elisa', 'affinity'),VDJ.VJ.1chain=T,
 #' match.by='clonotype',sample.id=T, output.format='vgm')
 #'}
@@ -148,12 +148,16 @@ VDJ_antigen_integrate <- function(VDJ,
     sample_sequences <- unique(sample_sequences)
     antigen_sequences <- antigen_df[,sequence_column]
 
-    distance_matrix <- stringdist::stringdistmatrix(sample_sequences, antigen_sequences, method='lv')
 
     if(matching_type=='exact'){
-      matched_indices_from_distance_matrix <- lapply(1:nrow(distance_matrix), function(x) if(min(distance_matrix[x, ]) == 0) which(distance_matrix[x, ]==min(distance_matrix[x, ])) else NA)
-      }else if(matching_type=='homology'){
-      matched_indices_from_distance_matrix <- lapply(1:nrow(distance_matrix), function(x) if(min(distance_matrix[x, ]) <= distance_threshold) which(distance_matrix[x, ]==min(distance_matrix[x, ])) else NA)
+      requireNamespace('parallel')
+      cores <- parallel::detectCores()
+      matched_indices <- parallel::mclapply(sample_sequences, mc.cores = cores, FUN = function(x) {if(any(antigen_sequences==x)) which(antigen_sequences==x) else NA})
+      distance_matrix <- stringdist::stringdistmatrix(sample_sequences, antigen_sequences, method='lv')
+
+    }else if(matching_type=='homology'){
+      distance_matrix <- stringdist::stringdistmatrix(sample_sequences, antigen_sequences, method='lv')
+      matched_indices <- lapply(1:nrow(distance_matrix), function(x) if(min(distance_matrix[x, ]) <= distance_threshold) which(distance_matrix[x, ]==min(distance_matrix[x, ])) else NA)
     }
 
 
@@ -162,7 +166,7 @@ VDJ_antigen_integrate <- function(VDJ,
         sample_df$aberrant_chosen_sequences <- rep(NA, nrow(sample_df))
       }
       aberrant_indices <- which(sample_df$Nr_of_VDJ_chains==2 | sample_df$Nr_of_VJ_chains==2)
-      matched_feature_values <- lapply(matched_indices_from_distance_matrix, function(x) if(!is.na(x[1])) unlist(antigen_df[,features[[i]]][x]) else NA)
+      matched_feature_values <- lapply(matched_indices, function(x) if(!is.na(x[1])) unlist(antigen_df[,features[[i]]][x]) else NA)
 
       #matched_max_indices <- mapply(function(x,y) if(inherits(y[1])=='numeric') {if(!is.na(x[1])) x[which.max(y)] else NA} else if(inherits(y)!='numeric{'){ x[1]}, matched_indices_from_distance_matrix, matched_feature_values)
       matched_values <- sapply(matched_feature_values, function(x) if(inherits(x[1],'numeric')) {if(!is.na(x[1])) x[which.max(x)] else NA} else if(!inherits(x,'numeric')){if(!is.na(x[1])) paste0(x, collapse=';') else NA})
@@ -196,7 +200,7 @@ VDJ_antigen_integrate <- function(VDJ,
           if(aberrant_chosen_sequences){
             sample_df$aberrant_chosen_sequences[intersect(pre_matched_indices, aberrant_indices)] <- paste(sample_df$aberrant_chosen_sequences[intersect(pre_matched_indices, aberrant_indices)],'/', sequence)
           }
-          sample_df$new_feature[intersect(pre_matched_indices, aberrant_indices)] <- paste(sample_df$new_feature[intersect(pre_matched_indices, aberrant_indices)], '/', matched_values[j])
+          sample_df$new_feature[intersect(pre_matched_indices, aberrant_indices)] <- unique(c(sample_df$new_feature[intersect(pre_matched_indices, aberrant_indices)], matched_values[j]))
 
         }
       }
@@ -222,9 +226,6 @@ VDJ_antigen_integrate <- function(VDJ,
   }
 
 
-  VDJ.matrix <- VDJ
-  VDJ <- NULL
-
   antigen_dfs <- list()
   if(inherits(antigen.data.list[[1]],'data.frame')){
     antigen_dfs <- antigen.data.list
@@ -236,20 +237,20 @@ VDJ_antigen_integrate <- function(VDJ,
   }
 
   if(VDJ.VJ.1chain==T){
-    VDJ.matrix <- VDJ.matrix[which(VDJ.matrix$Nr_of_VDJ_chains==1 & VDJ.matrix$Nr_of_VJ_chains==1),]
+    VDJ <- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VJ_chains==1),]
   }
 
   sample_dfs <- list()
 
   if(sample.id==T){
-    repertoire.number <- unique(VDJ.matrix$sample_id)
+    repertoire.number <- unique(VDJ$sample_id)
 
     for(i in 1:length(repertoire.number)){
-      sample_dfs[[i]] <- VDJ.matrix[which(VDJ.matrix$sample_id==repertoire.number[i]),]
+      sample_dfs[[i]] <- VDJ[which(VDJ$sample_id==repertoire.number[i]),]
     }
 
   }else{
-    sample_dfs[[1]] <- VDJ.matrix
+    sample_dfs[[1]] <- VDJ
   }
 
 
@@ -340,9 +341,9 @@ VDJ_antigen_integrate <- function(VDJ,
     return(sample_dfs)
 
   }else if(output.format=='vgm'){
-    if(sample.id) VDJ.matrix <- do.call('rbind',sample_dfs)
-    if(!sample.id) VDJ.matrix <- sample_dfs[[1]]
+    if(sample.id) VDJ <- do.call('rbind',sample_dfs)
+    if(!sample.id) VDJ <- sample_dfs[[1]]
 
-    return(VDJ.matrix)
+    return(VDJ)
   }
 }

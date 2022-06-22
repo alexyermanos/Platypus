@@ -45,20 +45,23 @@ VDJ_dynamics <- function(VDJ,
   unique_feature_values <- NULL
 
   if(missing(VDJ)) stop('Please input your data as a VDJ object')
-  if(missing(columns.to.track)) columns.to.track <- 'clonotype_id'
+  if(missing(columns.to.track)) columns.to.track <- 'VDJ_cdr3s_aa'
   if(missing(starting.point.repertoire)) starting.point.repertoire <- 1 #look for the n most abundant max elements to track from the first repertoire
   if(missing(track.all.elements)) track.all.elements <- F
   if(missing(track.only.common)) track.only.common <- F
-  if(missing(max.elements.to.track)) max.elements.to.track <- 10
+  if(missing(max.elements.to.track)) max.elements.to.track <- 20
   if(missing(specific.elements.to.track)) specific.elements.to.track <- NULL
   if(missing(additional.grouping.column)) additional.grouping.column <- NULL
   if(missing(max.additional.groups)) max.additional.groups <- NULL
   if(missing(specific.additional.groups)) specific.additional.groups <- NULL
   if(missing(timepoints.column)) timepoints.column <- 'sample_id'
-  if(missing(proportions.level)) proportions.level <- 'absolute.counts' # or absolute.counts or proportions.group (if additional.grouping.column)
+  if(missing(proportions.level)) proportions.level <- 'repertoire' # or absolute.counts or proportions.group (if additional.grouping.column)
   if(missing(output.format)) output.format <- 'plot'
   if(missing(ignore.legend)) ignore.legend <- F
-
+  
+  if(track.only.common){
+    starting.point.repertoire <- NULL
+  }
 
   get_feature_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';', combine.sequences=F){
    if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
@@ -76,29 +79,26 @@ VDJ_dynamics <- function(VDJ,
    return(ccombs)
   }
 
-  VDJ.matrix <- VDJ
-  VDJ <- NULL
-
-  if(('CDR3aa' %in% columns.to.track) & !('CDR3aa' %in% colnames(VDJ.matrix))){
-    VDJ.matrix$CDR3aa <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T, combine.sequences=T), VDJ.matrix$VDJ_cdr3s_aa, VDJ.matrix$VJ_cdr3s_aa)
+  if(('CDR3aa' %in% columns.to.track) & !('CDR3aa' %in% colnames(VDJ))){
+    VDJ$CDR3aa <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T, combine.sequences=T), VDJ$VDJ_cdr3s_aa, VDJ$VJ_cdr3s_aa)
   }
 
   for(i in 1:length(columns.to.track)){
-   if(!columns.to.track[i] %in% names(VDJ.matrix)){
+   if(!columns.to.track[i] %in% names(VDJ)){
      stop("Please provide valid feature column name(s) contained within VDJ")
    }
   }
 
 
-  repertoire_numbers <- unique(VDJ.matrix[,timepoints.column])
+  repertoire_numbers <- unique(VDJ[,timepoints.column])
 
   unique_groups <- list()
   if(!is.null(additional.grouping.column)){
     if(!is.null(specific.additional.groups)){
       unique_groups <- specific.additional.groups
     }else{
-      unique_groups <- unlist(unique(VDJ.matrix[,additional.grouping.column]))
-      unique_group_frequencies <- unlist(lapply(unique_groups, function(x) length(which(VDJ.matrix[,additional.grouping.column]==x))))
+      unique_groups <- unlist(unique(VDJ[,additional.grouping.column]))
+      unique_group_frequencies <- unlist(lapply(unique_groups, function(x) length(which(VDJ[,additional.grouping.column]==x))))
       unique_groups <- unique_groups[order(unique_group_frequencies, decreasing=T)]
     }
     if(!is.null(max.additional.groups)){
@@ -124,8 +124,8 @@ VDJ_dynamics <- function(VDJ,
     }
 
     if(!is.null(starting.point.repertoire)){
-      if(unique_groups[i]!='none'){ starting_rep <- VDJ.matrix[which(VDJ.matrix[additional.grouping.column]==unique_groups[i]), ]
-      }else{ starting_rep <- VDJ.matrix }
+      if(unique_groups[i]!='none'){ starting_rep <- VDJ[which(VDJ[additional.grouping.column]==unique_groups[i]), ]
+      }else{ starting_rep <- VDJ }
 
       if(inherits(starting.point.repertoire,'numeric')){
         starting_rep <- starting_rep[which(starting_rep[timepoints.column]==repertoire_numbers[starting.point.repertoire]),]
@@ -147,21 +147,21 @@ VDJ_dynamics <- function(VDJ,
    }else if(track.all.elements==T){
 
      if(length(columns.to.track)==2){
-      combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=T,split.y=T)} else '', VDJ.matrix[,columns.to.track[[1]]], VDJ.matrix[,columns.to.track[[2]]])
+      combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=T,split.y=T)} else '', VDJ[,columns.to.track[[1]]], VDJ[,columns.to.track[[2]]])
       unique_elements_to_track <- unlist(unique(combined_features))
       unique_elements_frequencies <- unlist(lapply(unique_elements_to_track, function(x) length(which(combined_features==x))))
       unique_elements_to_track <- unique_elements_to_track[order(unique_elements_frequencies, decreasing=T)]
 
     }else{
-      unique_elements_to_track <- unlist(unique(VDJ.matrix[,columns.to.track]))
-      unique_elements_frequencies <- unlist(lapply(unique_elements_to_track, function(x) length(which(VDJ.matrix[, columns.to.track]==x))))
+      unique_elements_to_track <- unlist(unique(VDJ[,columns.to.track]))
+      unique_elements_frequencies <- unlist(lapply(unique_elements_to_track, function(x) length(which(VDJ[, columns.to.track]==x))))
       unique_elements_to_track <- unique_elements_to_track[order(unique_elements_frequencies, decreasing=T)]
     }
 
    }else if(track.only.common==T){
      unique_per_rep <- list()
      for(j in 1:length(repertoire_numbers)) {
-       VDJ_subset <- VDJ.matrix[which(VDJ.matrix[timepoints.column]==repertoire_numbers[j]),]
+       VDJ_subset <- VDJ[which(VDJ[timepoints.column]==repertoire_numbers[j]),]
 
        if(length(columns.to.track)==2){
         combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=T,split.y=T)} else '', VDJ_subset[,columns.to.track[[1]]], VDJ_subset[,columns.to.track[[2]]])
@@ -177,18 +177,18 @@ VDJ_dynamics <- function(VDJ,
 
    if(!is.null(max.elements.to.track)){
      if(max.elements.to.track<length(unique_elements_to_track)){
-       unique_elements_to_track <- unique_elements_to_track[1:max.elements.to.track]
+       unique_elements_to_track <- unique_elements_to_track[1:(max.elements.to.track+1)]
      }
    }
 
    unique_elements_to_track <- unlist(unique_elements_to_track)
    if(length(columns.to.track)!=2){
-     tracked_dfs[[i]] <- VDJ_abundances(VDJ.matrix, feature.columns=as.list(columns.to.track), proportions='absolute', specific.features=unique_elements_to_track,
-                                        grouping.column = additional.grouping.column, max.groups=NULL, specific.groups=unique_groups[i], sample.column=timepoints.column, treat.incomplete.groups='exclude', treat.incomplete.features='exclude', output.format='abundance.df')
+     tracked_dfs[[i]] <- VDJ_abundances(VDJ, feature.columns=as.list(columns.to.track), proportions='absolute', specific.features=unique_elements_to_track,
+                                        grouping.column = additional.grouping.column, max.groups=NULL, specific.groups=unique_groups[i], sample.column=timepoints.column, treat.incomplete.groups='exclude', treat.incomplete.features='exclude', treat.combined.groups = 'exclude', output.format='abundance.df')
 
    }else{
-     tracked_dfs[[i]] <- VDJ_abundances(VDJ.matrix, feature.columns=as.list(columns.to.track), proportions='absolute', specific.features=unique_elements_to_track, combine.features=T,
-                                        grouping.column = additional.grouping.column, max.groups=NULL, specific.groups=unique_groups[i], sample.column=timepoints.column, treat.incomplete.groups='exclude', treat.incomplete.features='exclude', treat.combined.features='exclude', output.format='abundance.df')
+     tracked_dfs[[i]] <- VDJ_abundances(VDJ, feature.columns=as.list(columns.to.track), proportions='absolute', specific.features=unique_elements_to_track, combine.features=T,
+                                        grouping.column = additional.grouping.column, max.groups=NULL, specific.groups=unique_groups[i], sample.column=timepoints.column, treat.incomplete.groups='exclude', treat.incomplete.features='exclude', treat.combined.features='exclude', treat.combined.groups = 'exclude', output.format='abundance.df')
 
    }
 

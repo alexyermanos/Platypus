@@ -16,7 +16,7 @@
 #' @param maximum.sequences integer - upper bound of sequences for a tree. Additional sequences will be removed, after being ordered by their total frequency.
 #' @param tree.algorithm string - the algorithm used when constructing the phylogenetic trees. 'nj' for Neighbour-Joining, 'bionj', 'fastme.bal', and 'fastme.ols'
 #' @param tree.level string - level at which to build phylogenetic trees. 'intraclonal' - tree per clonotype, per sample, 'global.clonotype' - global clonotype trees (include.germline must be F), irrespective of sample, 'combine.first.trees' will combine the trees for the most expanded clonotypes, per sample (include.germline must be F).
-#' @param no.trees.combined integer - number of trees to combine if tree.level='combine.first.trees'.
+#' @param n.trees.combined integer - number of trees to combine if tree.level='combine.first.trees'.
 #' @param germline.scale.factor numeric - as germlines are incredibly distant from their closest neighbours (in the tree), this controls the scale factor for the germline tree branch length for more intelligible downstream plotting.
 #' @param output.format string - 'tree.df.list' returns a nested list of tidytree dataframes, per clonotype and per sample; 'lineage.df.list' returns a list of lineage dataframes - unique sequences per clonotype,
 #' @param parallel string - parallelization method to be used to accelerate computations, 'none', 'mclapply', or 'parlapply'.
@@ -46,7 +46,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
                                    maximum.sequences,
                                    tree.algorithm,
                                    tree.level,
-                                   no.trees.combined,
+                                   n.trees.combined,
                                    germline.scale.factor,
                                    output.format,
                                    parallel){
@@ -62,12 +62,12 @@ VDJ_phylogenetic_trees <- function(VDJ,
  if(missing(additional.feature.columns)) additional.feature.columns <- NULL
  if(missing(filter.na.columns)) filter.na.columns <- NULL
  if(missing(maximum.lineages)) maximum.lineages <- 50
- if(missing(minimum.sequences)) minimum.sequences <- 4
+ if(missing(minimum.sequences)) minimum.sequences <- 3
  if(missing(maximum.sequences)) maximum.sequences <- 20
  if(missing(tree.algorithm) & output.format=='tree.df.list') tree.algorithm <- 'nj'
  if(missing(tree.level)) tree.level <- 'intraclonal'
  if(missing(germline.scale.factor)) germline.scale.factor <- 0.0001
- if(missing(no.trees.combined)) no.trees.combined <- 5
+ if(missing(n.trees.combined)) n.trees.combined <- 5
  if(missing(parallel)) parallel <- 'none'
 
  options(warn=-1)
@@ -140,24 +140,27 @@ VDJ_phylogenetic_trees <- function(VDJ,
       }
     }
 
-
     all_sequences <- unlist(lapply(clonotype_df$lineage_sequences, function(x) unlist(stringr::str_split(x, ';'))))
-    unique_sequences <- unlist(unique(all_sequences))
-    sequence_frequency <- unlist(lapply(unique_sequences, function(x) length(all_sequences[all_sequences==x])))
+    sequence_table <- c(table(all_sequences))
+    sequence_frequency <- unname(sequence_table)
+    unique_sequences <- names(sequence_table)
     unique_sequences <- unique_sequences[order(sequence_frequency, decreasing=T)]
     sequence_frequency <- sequence_frequency[order(sequence_frequency, decreasing=T)]
+
     cell_barcodes <- lapply(unique_sequences, function(x) clonotype_df$barcode[which(stringr::str_detect(clonotype_df$lineage_sequences, x))])
 
-    lineage_df <- data.frame(lineage_sequences=unique_sequences, sequence_frequency=sequence_frequency, barcodes=matrix(cell_barcodes))
-
-
+    lineage_df <- data.frame(lineage_sequences = unlist(unique_sequences), sequence_frequency = unlist(sequence_frequency), barcodes = matrix(cell_barcodes))
     features_to_select <- c('clonotype_id', 'clonotype_frequency', 'sample_id', unlist(additional.feature.columns))
+
     for(feature in features_to_select){
       feature_list <- list()
-      for(i in 1:length(cell_barcodes)){
-        feature_list[[i]] <- unique(unlist(lapply(cell_barcodes[[i]], function(x)clonotype_df[feature][which(clonotype_df$barcode==x),])))[1]
+
+      for(i in 1:length(lineage_df$lineage_sequences)){
+        seq <- lineage_df$lineage_sequences[i]
+        feature_list[[i]] <- list(unique(clonotype_df[feature][which(stringr::str_detect(clonotype_df$lineage_sequences, seq[i])),]))
       }
-      lineage_df[feature] <- list(feature_list)
+
+      lineage_df[feature] <- feature_list
     }
 
     if(nrow(lineage_df)<minimum.sequences) {
@@ -175,6 +178,8 @@ VDJ_phylogenetic_trees <- function(VDJ,
       if(nrow(lineage_df)>maximum.sequences) lineage_df <- lineage_df[1:maximum.sequences,]
     }
 
+    lineage_df$germline <- rep('no', nrow(lineage_df))
+
     if(include.germline==T){
       if(sequence.type=='VJ' & as.nucleotide==T & trimmed==T){
         if(!('VJ_trimmed_ref' %in% colnames(clonotype_df))) stop('Please run VDJ.GEX.matrix with trim.and.align=T first.')
@@ -191,10 +196,15 @@ VDJ_phylogenetic_trees <- function(VDJ,
         germline_seq <- 'Not found'
       }
 
-      lineage_df$germline <- rep('no', nrow(lineage_df))
       lineage_df <- rbind(lineage_df, NA)
       lineage_df$lineage_sequences[nrow(lineage_df)] <- germline_seq
       lineage_df$germline[which(lineage_df$lineage_sequences==germline_seq)] <- 'yes'
+      lineage_df$sample_id[which(lineage_df$germline == 'yes')] <- unique(clonotype_df$sample_id)
+      lineage_df$clonotype_id[which(lineage_df$germline == 'yes')] <-unique(clonotype_df$clonotype_id)
+
+      for(feature in features_to_select){
+        lineage_df[[feature]][which(lineage_df$germline == 'yes')] <- 'germline'
+      }
     }
 
     lineage_df$sequence_id <- as.character(c(1:nrow(lineage_df)))
@@ -211,31 +221,81 @@ VDJ_phylogenetic_trees <- function(VDJ,
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
-    }
-
-    if(tree.algorithm == 'bionj'){
+    }else if(tree.algorithm == 'bionj'){
       output_tree <- tidytree::as_tibble(ape::bionj(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
       if(include.germline==T){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
-    }
-
-    if(tree.algorithm == 'fastme.bal'){
+    }else if(tree.algorithm == 'fastme.bal'){
       output_tree <- tidytree::as_tibble(ape::fastme.bal(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
       if(include.germline==T){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
 
       }
-    }
-
-    if(tree.algorithm == 'fastme.ols'){
-      output_tree <- tidytree::as_tibble(ape::fastme.ols(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
+    }else if(tree.algorithm == 'fastme.os'){
+      output_tree <- tidytree::as_tibble(ape::fastme.os(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
       if(include.germline==T){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
+    }else if(tree.algorithm == 'ml' | tree.algorithm == 'mp'){
+      requireNamespace('phangorn')
+      requireNamespace('seqinr')
+      sequences <- lineage_df$lineage_sequences
+      output_tree <- ape::nj(stringdist::stringdistmatrix(sequences, sequences))
+
+      if(Sys.which('mafft')!=''){
+
+       dir <- './tempdir'
+       if(!dir.exists(dir)) dir.create(dir)
+
+       #Unique network id to avoid clashes during parallel computation
+
+       sample_id <- unique(lineage_df$sample_id)
+       sample_id <- sample_id[!is.na(sample_id)]
+
+       clonotype_id <- unique(lineage_df$clonotype_id)
+       clonotype_id <- clonotype_id[!is.na(clonotype_id)]
+
+       network_id <- paste0(sample_id, '-', clonotype_id)
+       fasta_file <- paste0(dir, '/', network_id, '_', 'tempseq.fasta')
+       fasta_aligned <- paste0(dir, '/', network_id, '_', 'tempseq_aligned.fasta')
+       seqinr::write.fasta(as.list(sequences), names = 1:nrow(lineage_df), file.out = fasta_file)
+
+       system(paste0('mafft ', fasta_file, ' > ', fasta_aligned))
+
+       phylo_data <- phangorn::read.phyDat(fasta_aligned, format='fasta')
+
+       system(paste0('rm -r ', fasta_file))
+       system(paste0('rm -r ', fasta_aligned))
+
+
+     }else{
+       alignment <- sequences %>%
+                    matrix() %>%
+                    ape::as.dnabin() %>%
+                    ape::clustal()
+
+       phylo_data <- phangorn::read.phyDat(alignment, format='fasta')
+
+     }
+
+     if(tree.algorithm == 'mp'){
+       output_tree <- phangorn::optim.parsimony(output_tree, phylo_data)
+
+     }else if(tree.algorithm == 'ml'){
+       fit <- phangorn::pml(output_tree, data=phylo_data)
+       fit <- phangorn::optim.pml(fit, TRUE)
+       output_tree <- fit$tree
+     }
+
+     output_tree <- tidytree::as_tibble(output_tree)
+
+
+    }else{
+      stop('Tree inference algorithm not recognized/implemented!')
     }
 
     output_tree <- dplyr::full_join(output_tree, lineage_df, by=c('label'='sequence_id'))
@@ -285,6 +345,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
         cores <- parallel::detectCores() - 1
         lineage_dfs[[i]] <- parallel::mclapply(clonotype_dfs, transform_clonotype_to_lineage_df, mc.cores=cores)
 
+
       }else if(parallel=='parlapply'){
 
         #require(doParallel)
@@ -294,9 +355,11 @@ VDJ_phylogenetic_trees <- function(VDJ,
         lineage_dfs[[i]] <- parallel::parLapply(cl, clonotype_dfs, transform_clonotype_to_lineage_df)
         parallel::stopCluster(cl)
 
+
       }else{
 
         lineage_dfs[[i]] <- lapply(clonotype_dfs, function(x) transform_clonotype_to_lineage_df(x))
+
       }
     }
 
@@ -314,6 +377,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
         cores <- parallel::detectCores() - 1
         lineage_dfs[[i]] <- parallel::mclapply(clonotype_dfs[[i]], transform_clonotype_to_lineage_df, mc.cores=cores)
 
+
       }else if(parallel=='parlapply'){
 
         #require(doParallel)
@@ -323,13 +387,16 @@ VDJ_phylogenetic_trees <- function(VDJ,
         lineage_dfs[[i]] <- parallel::parLapply(cl, clonotype_dfs[[i]], transform_clonotype_to_lineage_df)
         parallel::stopCluster(cl)
 
+
       }else{
 
         lineage_dfs[[i]] <- lapply(clonotype_dfs[[i]], function(x) transform_clonotype_to_lineage_df(x))
+
+
       }
     }
 
-  }else stop('Incompatible input data')
+  }else{ stop('Incompatible input data')}
 
 
   lineage_dfs <- lapply(lineage_dfs, function(x) x[!sapply(x,is.null)])
@@ -412,8 +479,8 @@ VDJ_phylogenetic_trees <- function(VDJ,
 
       for (i in 1:length(lineage_dfs)){
         output_trees[[i]] <- list()
-        if(!is.null(no.trees.combined)){
-          combined_lineage <- do.call('rbind', lineage_dfs[[i]][1:no.trees.combined])
+        if(!is.null(n.trees.combined)){
+          combined_lineage <- do.call('rbind', lineage_dfs[[i]][1:n.trees.combined])
         }else{
           combined_lineage <- do.call('rbind', lineage_dfs[[i]])
         }
