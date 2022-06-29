@@ -21,7 +21,7 @@ VDJ_db_annotate <- function(VDJ, db.list, database.features, match, homology, lv
   if(missing(database.features)) stop('Please input the feature columns you want your VDJ to be annotated with. Make sure the names are present in all databases - use vgm.names=T or keep.only.common=T in VDJ_db_load')
   if(missing(match)) match <- 'cdr3.aa'
   if(missing(homology)) homology <- T
-  if(missing(lv.distance) & homology==T) lv.distance <- 3
+  if(missing(lv.distance) & homology==T) lv.distance <- 16
 
   if(homology){
     matching_type <- 'homology'
@@ -30,15 +30,15 @@ VDJ_db_annotate <- function(VDJ, db.list, database.features, match, homology, lv
   }
 
   output_VDJ <- VDJ_antigen_integrate(VDJ,
-                                         db.list,
-                                         antigen.features=database.features,
-                                         match.by=match,
-                                         matching.type=matching_type,
-                                         distance.threshold=lv.distance,
-                                         sample.id=F,
-                                         VDJ.VJ.1chain=T,
-                                         aberrant.chosen.sequences=F,
-                                         output.format='vgm')
+                                       db.list,
+                                       antigen.features=database.features,
+                                       match.by=match,
+                                       matching.type=matching_type,
+                                       distance.threshold=lv.distance,
+                                       sample.id=F,
+                                       VDJ.VJ.1chain=T,
+                                       aberrant.chosen.sequences=F,
+                                       output.format='vgm')
 
   return(output_VDJ)
 }
