@@ -706,8 +706,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #only getting references if clonotype id is present for that cell
     if(HC_count > 0) {raw_clonotype_id <- curr.contigs.HC$raw_clonotype_id[1]
-    } else {raw_clonotype_id <- curr.contigs.LC$raw_clonotype_id[1]
-    }
+    } else if(LC_count > 0){raw_clonotype_id <- curr.contigs.LC$raw_clonotype_id[1]
+    } else {raw_clonotype_id <- ""}
     if(raw_clonotype_id != ''){
       curr.references <- references[which(stringr::str_detect(names(references), raw_clonotype_id))]
     } else {curr.references <- ""}
@@ -733,7 +733,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$barcode <- curr.contigs.HC$barcode[1]
       curr.barcode$clonotype_id_10x <- curr.contigs.HC$raw_clonotype_id[1]
       cl_freq <- clonotypes[(clonotypes[,1] == curr.barcode$clonotype_id_10x),2]
-      if(length(cl_freq) > 0){curr.barcode$clonotype_frequency <- clonotypes[(clonotypes[,1] == curr.barcode$clonotype_id_10x),2]} else{curr.barcode$clonotype_frequency <- 0}
+      if(length(cl_freq) == 1){curr.barcode$clonotype_frequency <- clonotypes[(clonotypes[,1] == curr.barcode$clonotype_id_10x),2]} else{curr.barcode$clonotype_frequency <- 0}
       curr.barcode$Nr_of_VDJ_chains <- HC_count
       curr.barcode$Nr_of_VJ_chains <- LC_count
       curr.barcode$VDJ_cdr3s_aa <- curr.contigs.HC$cdr3
@@ -793,7 +793,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         curr.barcode$clonotype_id_10x <- curr.contigs.LC$raw_clonotype_id[1]
       }
       cl_freq <- clonotypes[(clonotypes[,1] == curr.barcode$clonotype_id_10x),2]
-      if(length(cl_freq) > 0){curr.barcode$clonotype_frequency <- clonotypes[(clonotypes[,1] == curr.barcode$clonotype_id_10x),2]} else{curr.barcode$clonotype_frequency <- 0}
+      if(length(cl_freq) == 1){curr.barcode$clonotype_frequency <- clonotypes[(clonotypes[,1] == curr.barcode$clonotype_id_10x),2]} else{curr.barcode$clonotype_frequency <- 0}
       curr.barcode$Nr_of_VDJ_chains <- HC_count
       curr.barcode$Nr_of_VJ_chains <- LC_count
       curr.barcode$VDJ_cdr3s_aa <- contigs_pasted.HC$cdr3
@@ -1865,6 +1865,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       VDJ.proc <- dplyr::bind_rows(out.VDJ)
       VDJ.proc[VDJ.proc == ";"] <- "" #fix bug, where if two emtpy strings are concatenated, a ";" is left behind.
       VDJ.proc[is.na(VDJ.proc)] <- "" #Replace NA (empty values) with an empty string for format compatibility
+      VDJ.proc <- VDJ.proc[VDJ.proc$barcode != "",] #Bug where an empty line is generated from a missing previous annotation
+      VDJ.proc <- VDJ.proc[!(VDJ.proc$Nr_of_VJ_chains == 0 && VDJ.proc$Nr_of_VDJ_chains == 0),] #Bug where an empty line is generated from a missing previous annotation
 
       #update barcodes
       VDJ.proc$orig_barcode <- gsub("(^_)|(-\\d+.*$)","",VDJ.proc$barcode)
