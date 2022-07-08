@@ -47,7 +47,6 @@ VDJ_diversity <- function(VDJ,
   if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
   if(missing(subsample.to.same.n)) subsample.to.same.n <- T
 
-
   ############## UTILITY 1: internal wrapper for VDJ_abundances (get cell counts of unique features per grouping column) ##############
   get_abundances <- function(VDJ, feature.columns, grouping.column, VDJ.VJ.1chain){
 
@@ -138,6 +137,11 @@ VDJ_diversity <- function(VDJ,
 
   ############## ALPHA DIVERSITY - computes the following alpha diversity metrics: richness, bergerparker, simpson, ginisimpson, inversesimpson, shannon, chao1, ace ##############
   compute_alpha_diversity <- function(vdj, feature.columns, grouping.column, VDJ.VJ.1chain){
+
+    #missing variable definitions
+    group <- NULL
+    unique_feature_values <- NULL
+    feature_value_counts <- NULL
 
     abundance_df <- vdj %>%
                     get_abundances(feature.columns, grouping.column, VDJ.VJ.1chain) %>%
@@ -230,6 +234,11 @@ VDJ_diversity <- function(VDJ,
 
   ############## SPECIES EVENNESS - computes the following evenness metrics: shannonevenness, simpsonevenness, bulla, camargo, smithwilson, heip  ##############
   compute_evenness <- function(vdj, feature.columns, grouping.column, VDJ.VJ.1chain){
+
+    #missing variable definitions
+    group <- NULL
+    unique_feature_values <- NULL
+    feature_value_counts <- NULL
 
     abundance_df <- vdj %>%
                     get_abundances(feature.columns, grouping.column, VDJ.VJ.1chain) %>%
@@ -337,6 +346,9 @@ VDJ_diversity <- function(VDJ,
 
   smithwilson_evenness <- function(abundance_vector, ignore.zeros = T){
 
+    #missing variable definitions
+    x <- NULL
+
     #Modified from https://rdrr.io/github/microbiome/microbiome/src/R/evenness.R
     if(ignore.zeros){
       abundance_vector <- abundance_vector[abundance_vector > 0]
@@ -349,7 +361,7 @@ VDJ_diversity <- function(VDJ,
     S <- sum(abundance_vector > 0)
 
     a <- log_abundance / S
-    b <- sum(x)
+    b <- sum(x) #!!!
     c <- (log_abundance - b) ^ 2 / S
     c[abundance_vector == 0 ] <- 0
     d <- sum(c)
@@ -362,6 +374,11 @@ VDJ_diversity <- function(VDJ,
 
   ############## PLOTTING FUNCTION FOR ALPHA DIVERSITY AND EVENNESS METRICS - barplots for the specified alpha diversity/evenness metric ##############
   plot_alpha_diversity <- function(metric_df){
+
+    #missing variable definitions
+    group <- NULL
+    colors <- NULL
+    se <- NULL
 
     title <- unique(metric_df$metric_name)
     plot_out <- ggplot2::ggplot(metric_df, ggplot2::aes(x = group, y = metric, fill = colors)) +

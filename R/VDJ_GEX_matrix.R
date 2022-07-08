@@ -178,6 +178,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   affinity <- NULL
   VDJ_raw_ref <- NULL
   VJ_raw_ref <- NULL
+  Seurat.loaded <- NULL
   gex.metrics.table <- "none" #error avoidance in case only VDJ is provided and stats are requested
   #Concerning input types
   gex.loaded <- F
@@ -185,6 +186,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   vdj.loaded <- F
   seurat.loaded <- F
   data.in.loaded <- F
+
+
   #### Function def: pick_max_feature_barcode ####
 
   #Assignment of Feature Barcodes to cells (returns a dataframe: rownames= barcodes, column 1 = barcodes, column 2 = feature barcode assignments.) Works identically for VDJ and GEX
