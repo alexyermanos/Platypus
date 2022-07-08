@@ -718,7 +718,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
 
     #set up data structure
-    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","clonotype_id","clonotype_frequency","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_raw_ref","VJ_raw_ref","VDJ_trimmed_ref","VJ_trimmed_ref")
+    cols <- c("barcode","sample_id","group_id","clonotype_id_10x","clonotype_id","clonotype_frequency","celltype","Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt", "VJ_cdr3s_nt","VDJ_umis","VJ_umis","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain","VDJ_vgene","VJ_vgene","VDJ_dgene","VDJ_jgene","VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_raw_ref","VJ_raw_ref","VDJ_trimmed_ref","VJ_trimmed_ref")
     curr.barcode <- stats::setNames(data.frame(matrix(ncol = length(cols), nrow = 1)), cols)
 
     #fill in information that do not need processing
@@ -740,6 +740,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VJ_cdr3s_aa <- curr.contigs.LC$cdr3
       curr.barcode$VDJ_cdr3s_nt <- curr.contigs.HC$cdr3_nt
       curr.barcode$VJ_cdr3s_nt <- curr.contigs.LC$cdr3_nt
+      curr.barcode$VDJ_umis <- curr.contigs.HC$umis #Adding UMI number
+      curr.barcode$VJ_umis <- curr.contigs.LC$umis
       curr.barcode$VDJ_chain_contig <- curr.contigs.HC$contig_id
       curr.barcode$VJ_chain_contig <- curr.contigs.LC$contig_id
       curr.barcode$VDJ_chain <- curr.contigs.HC$chain
@@ -800,6 +802,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VJ_cdr3s_aa <- contigs_pasted.LC$cdr3
       curr.barcode$VDJ_cdr3s_nt <- contigs_pasted.HC$cdr3_nt
       curr.barcode$VJ_cdr3s_nt <- contigs_pasted.LC$cdr3_nt
+      curr.barcode$VDJ_umis <- contigs_pasted.HC$umis #Adding UMI number
+      curr.barcode$VJ_umis <- contigs_pasted.LC$umis
       curr.barcode$VDJ_chain_contig <- contigs_pasted.HC$contig_id
       curr.barcode$VJ_chain_contig <- contigs_pasted.LC$contig_id
       curr.barcode$VDJ_chain <- contigs_pasted.HC$chain
@@ -1294,24 +1298,28 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     GEX.out.directory.list <- lapply(GEX.out.directory.list, function(x) return(gsub("/$", "", x)))
 
       if(GEX.read.h5 == F){
-        if((stringr::str_detect(GEX.out.directory.list[[1]],"filtered_feature_bc_matrix") | #checking only for first path assuming that all sample inputs are processed with the same cellranger function
+        if(stringr::str_detect(GEX.out.directory.list[[1]],"filtered_feature_bc_matrix") | #checking only for first path assuming that all sample inputs are processed with the same cellranger function
            stringr::str_detect(GEX.out.directory.list[[1]],"raw_feature_bc_matrix") |
-           stringr::str_detect(GEX.out.directory.list[[1]],"sample_feature_bc_matrix"))) {
+           stringr::str_detect(GEX.out.directory.list[[1]],"sample_feature_bc_matrix") |
+           stringr::str_detect(GEX.out.directory.list[[1]],"sample_filtered_feature_bc_matrix")) {
           #Nothing to append
         } else {
           if(dir.exists(paste(GEX.out.directory.list[[1]],"/filtered_feature_bc_matrix", sep = ""))) { #appending folder name of cellranger count output
                 GEX.out.directory.list <- paste(GEX.out.directory.list, "/filtered_feature_bc_matrix", sep = "")
                 if(verbose) message("\n Setting GEX directory to provided path/filtered_feature_bc_matrix")
-          } else if (dir.exists(paste(GEX.out.directory.list[[1]], "/sample_feature_bc_matrix", sep = ""))) { #appending folder name of cellranger aggr or multi output
+          } else if (dir.exists(paste(GEX.out.directory.list[[1]], "/sample_feature_bc_matrix", sep = ""))) { #appending folder name of cellranger aggr output
             GEX.out.directory.list <- paste(GEX.out.directory.list, "/sample_feature_bc_matrix", sep = "")
                 if(verbose) message("\n Setting GEX directory to provided path/sample_feature_bc_matrix")
+          } else if (dir.exists(paste(GEX.out.directory.list[[1]], "/sample_filtered_feature_bc_matrix", sep = ""))) { #appending folder name of cellranger multi output
+              GEX.out.directory.list <- paste(GEX.out.directory.list, "/sample_filtered_feature_bc_matrix", sep = "")
+              if(verbose) message("\n Setting GEX directory to provided path/sample_filtered_feature_bc_matrix")
           } else {
-            message("\n The GEX directory filtered_feature_bc_matrix or sample_feature_bc_matrix was not found at the given path. Trying to load GEX from raw input path")
+            message("\n The GEX directory filtered_feature_bc_matrix, sample_feature_bc_matrix or sample_filtered_feature_bc_matrix was not found at the given path. Trying to load GEX from raw input path")
             GEX.out.directory.list <- GEX.out.directory.list
           }
         }
       } else if (GEX.read.h5) {
-            GEX.out.directory.list <- gsub("(/filtered_feature_bc_matrix$)|(/raw_feature_bc_matrix$)|(/sample_feature_bc_matrix$)", "", GEX.out.directory.list) #removing last path element if pointing to subfolders of sample output directory
+            GEX.out.directory.list <- gsub("(/filtered_feature_bc_matrix$)|(/raw_feature_bc_matrix$)|(/sample_feature_bc_matrix$)|(/sample_filtered_feature_bc_matrix$)", "", GEX.out.directory.list) #removing last path element if pointing to subfolders of sample output directory
             if(stringr::str_detect(GEX.out.directory.list[[1]],"\\.h5")){
               if(verbose) message("\n Setting GEX directory to provided .h5 file")
               #Nothing to do here
