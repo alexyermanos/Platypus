@@ -102,7 +102,7 @@ VDJ_bulk_to_vgm <- function(VDJ.bulk.out.directory.list,
     # on the user-defined order in the VDJ.bulk.out.directory.list.
     # group ids & batches are assigned based on user-defined vector input to the function (defaults to NA).
     for(i in 1:length(VDJ.bulk.out.directory.list)) {
-      VDJ.dataframe.list[[i]] <- read.table(VDJ.bulk.out.directory.list[[i]], sep="\t", header = TRUE)
+      VDJ.dataframe.list[[i]] <- utils::read.table(VDJ.bulk.out.directory.list[[i]], sep="\t", header = TRUE)
       VDJ.dataframe.list[[i]]$sample_id <- paste0("s", i)
       VDJ.dataframe.list[[i]]$group_id <- group.id[i]
       VDJ.dataframe.list[[i]]$batches <- batches[i] 
@@ -592,7 +592,7 @@ VDJ_bulk_to_vgm <- function(VDJ.bulk.out.directory.list,
     VDJ.dataframe.list <- list()
     data.df <- data.frame()
     for(i in 1:length(VDJ.bulk.out.directory.list)) {
-      VDJ.dataframe.list[[i]] <-  read.delim(VDJ.bulk.out.directory.list[[i]])
+      VDJ.dataframe.list[[i]] <-  utils::read.delim(VDJ.bulk.out.directory.list[[i]])
       VDJ.dataframe.list[[i]]$sample_id <- paste0("s", i)
       VDJ.dataframe.list[[i]]$group_id <- group.id[i]
       VDJ.dataframe.list[[i]]$batches <- batches[i] 
@@ -966,7 +966,7 @@ VDJ_bulk_to_vgm <- function(VDJ.bulk.out.directory.list,
         VDJ.dataframe.list[[i]] <- VDJ.bulk.out.directory.list[[i]]
       else
         message("ERROR, TRUST4 only supports .RDS as input.type!")
-        # VDJ.dataframe.list[[i]] <-  read.delim(VDJ.bulk.out.directory.list[[i]])
+        # VDJ.dataframe.list[[i]] <-  utils::read.delim(VDJ.bulk.out.directory.list[[i]])
       VDJ.dataframe.list[[i]]$sample_id <- paste0("s", i)
       VDJ.dataframe.list[[i]]$group_id <- group.id[i]
       VDJ.dataframe.list[[i]]$batches <- batches[i] 
