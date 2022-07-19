@@ -1,3 +1,35 @@
+#' Node metrics for the AntibodyForests sequence similarity networks and minimum spanning trees.
+
+#'@description Calculates several node metrics for the resulting AntibodyForests networks, adding these as a per-node dataframe in the new metrics slot. Must be called before AntibodyForests_plot_metrics.
+
+#' @param trees nested list of AntibodyForests objects or single object, as obtained from the AntibodyForests function.
+#' @param metrics vector of strings - node metric to be calculated. Currently supported metrics include:
+#' 1. Betweenness centrality - 'betweenness'
+#' 2. Closeness centrality - 'closeness'
+#' 3. Eigenvector centrality - 'eigenvector'
+#' 4. Authority score - 'authority'
+#' 5. Local and average clustering coefficients - 'local_cluster_coefficient', 'average_cluster_coefficient'
+#' 6. Strength or weighted vertex degree - 'strength'
+#' 7. Degree - 'degree'
+#' 8. Daughter nodes for directed graphs - 'daughters'
+#' 9. Vertex eccentricity (shortest path distance from the farthest other node in the graph) - 'eccentricity'
+#' 10. Pagerank algorithm values - 'pagerank'
+#' 11. Shortest (weighted) paths from germline - 'path_from_germline', 'weighted_path_from_germline'
+#' 12. Shortest(weighted) paths from the most expanded node - 'path_from_most_expanded', 'weighted_path_from_most_expanded',
+#' 13. Shortest(weighted) paths from the hub node (highest degree) - 'path_from_hub', 'weighted_path_from_hub'
+#' @param graph.type string - the graph type available in the AntibodyForests object which will be used as the function input.
+#' Currently supported network/analysis types: 'tree' (for the minimum spanning trees or sequence similarity networks obtained from the main AntibodyForests function), 'heterogeneous' for the bipartite graphs obtained via AntibodyForests_heterogeneous, 'dynamic' for the dynamic networks obtained from AntibodyForests_dynamics.
+#' @param features vector of strings - features to be considered when calculating whole-graph metrics (e.g., dominant/most abundant feature per graph).
+#' @param exclude.intermediates boolean - if T, will not calculate the node-level metrics for the intermediate nodes obtained from AntibodyForests_expand_intermediates().
+#' @param exclude.germline boolean - if T, will exclude the germline nodes from the node metric calculations.
+#' @param separate.bipartite boolean - if T and graph.type = 'heterogeneous', will separate the cell and sequence graph and calculate the node metrics independently, then recombine them in the same final graph.
+#' @param parallel boolean - whether to execute the main subroutine in parallel or not. Requires the 'parallel' R package to be installed.
+
+#' @return nested list of AntibodyForests objects or single AntibodyForests object, with a new class slot added (metrics) = a per-node dataframe of metric values.
+#' @examples
+#' \dontrun{
+#' AntibodyForests_metrics(trees, graph.type = 'tree', metrics = c('degree', 'pagerank'))
+#'}
 
 #Further analysis for bipartite - metacells on the cell graph, overlaps/all that in the resulting incidence matrix (now we ensure some overlap btw sequences and their corresponding cells)
 #add incidence matrix analyses for metacell bipartite graphs
@@ -247,13 +279,15 @@ AntibodyForests_metrics <- function(trees,
 
     #Postprocessing the node_df dataframe - remove node attributes that are lists (e.g., two diff cell transcriptomic cluster per same sequence) and replace them by the max feature values specified by feature_counts, subsequently remove the feature_counts or replace by cell_numbers
     for(col in feature_names){
-      max_indices <- node_df[paste0(col, '_counts')][which(node_df$node_type=='sequence'),]
-      max_indices <- unlist(lapply(max_indices, function(x) which.max(x)))
-      max_values <- unlist(mapply(function(x,y) x[y], node_df[col][which(node_df$node_type=='sequence'),], max_indices))
-      node_df[col][which(node_df$node_type=='sequence'),] <- max_values
-      node_df[col] <- unlist(node_df[col]) #to also change the column class from list into numeric/character
+      if(paste0(col, '_counts') %in% colnames(node_df)){
+        max_indices <- node_df[paste0(col, '_counts')][which(node_df$node_type=='sequence'),]
+        max_indices <- unlist(lapply(max_indices, function(x) which.max(x)))
+        max_values <- unlist(mapply(function(x,y) x[y], node_df[col][which(node_df$node_type=='sequence'),], max_indices))
+        node_df[col][which(node_df$node_type=='sequence'),] <- max_values
+        node_df[col] <- unlist(node_df[col]) #to also change the column class from list into numeric/character
 
-      node_df <- node_df[,!(names(node_df) %in% paste0(col, '_counts'))]
+        node_df <- node_df[,!(names(node_df) %in% paste0(col, '_counts'))]
+      }
     }
 
     if(exclude.germline){

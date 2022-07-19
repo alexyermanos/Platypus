@@ -1,7 +1,6 @@
-#' Selection in a data frame of the most expanded clonotypes data obtained by a simulation of the VDJ by Echidna.
-#' @param nb_clonotype Number that describes how many clonotypes we want to select.
-#' @param vgm_VDJ Data frame containing all the data on the cell. It must contain the column clonotype_id which describes the number of the clonotype to which the cell belongs. This data frame can be obtained by the assignment functions (VDJ_assignment_random_based, VDJ_assignment_density_based and VDJ_assignment_germline_based).
-#' @param clonotype Data frame containing the simulation of the cells wanted by Echidna. It must contain the clonotype_id column. It can be found in the output named "clonotypes" of Echidna's simulate_repertoire function.
+#' @description Selection of VGM[[1]]/VDJ data of the x more expanded clonotypes.
+#' @param nb_clonotype Number that describes how many clonotypes we want to extract from the VGM[[1]].
+#' @param vgm_VDJ Data frame containing VDJ information, found in the vgm made by platypus. It must have x and y coordinates column and the column containing the factor to plot.
 #' @return Returns a data frame with only the data belonging to the number of selected clonotypes. The clonotypes being the most expanded ones.
 #' @export
 #' @examples
@@ -29,5 +28,6 @@ Spatial_selection_expanded_clonotypes<-function(nb_clonotype,
     a<-filter(vgm_VDJ, vgm_VDJ$clonotype_id==clonotype$clonotype_id[[i]])
     b<-rbind(b,a)
   }
+  b<-as.data.frame(b)
   return(b)
 }

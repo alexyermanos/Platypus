@@ -1,3 +1,30 @@
+#' Calculates the longest/shortest paths from a node to a given node for the AntibodyForests minimum spanning trees / sequence similarity networks
+
+#'@description Calculates the longest or shortest paths in a given AntibodyForests graph from a node to another given node. Nodes can be specified as integers (e.g., path.from = 5, picking the fifth node in the igraph vertex list) or by predetermined attributes (e.g., path.from = 'germline' and path.to = 'hub' will calculate the paths between all germlines and hubs in a set of networks.
+#' Moreover, there is an option to select paths for nodes given specific node features (e.g., path.from = list('seurat_clusters', '1') and path.to = 'hub' will infer the paths from the nodes with a majority of Seurat clusters = 1, and to the hub nodes).
+
+#' @param trees nested list of AntibodyForests objects or single object, as obtained from the AntibodyForests function.
+#' @param graph.type string - the graph type available in the AntibodyForests object which will be used as the function input.
+#' Currently supported network/analysis types: 'tree' (for the minimum spanning trees or sequence similarity networks obtained from the main AntibodyForests function), 'heterogeneous' for the bipartite graphs obtained via AntibodyForests_heterogeneous, 'dynamic' for the dynamic networks obtained from AntibodyForests_dynamics.
+#' @param path.from string/list of strings/integer - starting nodes for a path. Options are either an integer, selecting the nth most abundant node, 'hub' to select the hub nodes, 'most_expanded' for the nodes with most cells, 'leaf' for leaf nodes, 'germline' for the germline node, or a list of the form list(feature, feature_value) to select nodes with a specific feature value.
+#' @param path.to string/list of strings/integer - end nodes for a path. Options are either an integer, selecting the nth most abundant node, 'hub' to select the hub nodes, 'most_expanded' for the nodes with most cells, 'leaf' for leaf nodes, 'germline' for the germline node, or a list of the form list(feature, feature_value) to select nodes with a specific feature value.
+#' @param paths string - whether to calculate the longest path ('longest'), shortest path ('shortest'), or both (c('longest', 'shortest'))
+#' @param interlevel.from  string/list of strings/integer - starting nodes for an interlevel path for the bipartite/heterogeneous networks (if graph.type = 'heterogeneous'). Options are either an integer, selecting the nth most abundant node, 'hub' to select the hub nodes, 'most_expanded' for the nodes with most cells, 'leaf' for leaf nodes, 'germline' for the germline node, or a list of the form list(feature, feature_value) to select nodes with a specific feature value.
+#' @param weighted boolean - whether to calculate the weighted or unweighted shortest/longest paths.
+#' @param plot.results boolean - if T, will output a bar plot of node feature counts per path (of all nodes in a given path). Features are determined by the color.by parameter.
+#' @param color.by string - features for the feature count per path bar plots if plot.results is set to T.
+#' @param cell.frequency boolean - whether to consider the node or cell frequency for the feature counts in the resulting bar plot if plot.results is T.
+#' @param parallel boolean - whether to execute the main subroutine in parallel or not. Requires the 'parallel' R package to be installed.
+
+
+#' @return nested list of AntibodyForests objects or a single object with a new slot - paths. If plot.results is T, will also output a bar plot of feature counts per path (considering all node in a given path).
+#' @export
+#' @examples
+#' \dontrun{
+#' AntibodyForests_paths(trees, graph.type = 'tree', path.from = 'germline', path.to = 'leaf', plot.results = T, color.by = 'seurat_clusters')
+#'}
+
+
 AntibodyForests_paths <- function(trees,
                                   graph.type,
                                   path.from,
@@ -278,10 +305,10 @@ AntibodyForests_paths <- function(trees,
       path_types <- unique(plot_df[[i]]$path_type)
 
       if(cell.frequency){
-        plot <-  ggplot2::ggplot(plot_df[[i]], ggplot2::aes(fill = features, y = counts, x = reorder(clonotype_id, -total_cells)))
+        plot <-  ggplot2::ggplot(plot_df[[i]], ggplot2::aes(fill = features, y = counts, x = stats::reorder(clonotype_id, -total_cells)))
         plot <- plot + ggplot2::labs(title = unique(plot_df[[i]]$sample_id), x = "Path per clonotype", y = "Total cell counts per path")
       }else{
-        plot <-  ggplot2::ggplot(plot_df[[i]], ggplot2::aes(fill = features, y = counts, x = reorder(clonotype_id, -total_nodes)))
+        plot <-  ggplot2::ggplot(plot_df[[i]], ggplot2::aes(fill = features, y = counts, x = stats::reorder(clonotype_id, -total_nodes)))
         plot <-  plot + ggplot2::labs(title = unique(plot_df[[i]]$sample_id), x = "Path per clonotype", y = "Total node counts per path")
       }
 
@@ -305,11 +332,11 @@ AntibodyForests_paths <- function(trees,
 
     if(length(unique(plot_df$sample_id)) > 1){
       if(cell.frequency){
-        violin_plot <- ggplot2::ggplot(plot_df, aes(x = sample_id, fill = sample_id, y = total_cells)) +
+        violin_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(x = sample_id, fill = sample_id, y = total_cells)) +
                        ggplot2::labs(x = "Sample id", y = "Cell counts per path")
 
       }else{
-        violin_plot <- ggplot2::ggplot(plot_df, aes(x = sample_id, fill = sample_id, y = total_nodes)) +
+        violin_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(x = sample_id, fill = sample_id, y = total_nodes)) +
                        ggplot2::labs(x = "Sample id", y = "Node counts per path")
 
       }

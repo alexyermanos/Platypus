@@ -1,4 +1,4 @@
-#' Plotting clusters of cells by choosing between 10X Genomics clustering or reclustering the cells.
+#' @description Plotting clusters of cells by choosing between 10X Genomics clustering or reclustering the cells.
 #' @param cluster Character vector to describe the clustering, "GEX_cluster" is for plotting 10X Genomics clustering and "reclustering" is for reclustering the cells according to the given subset.
 #' @param GEX.out.directory.list Character vector that give the path to filtered_feature_bc_matrix data.
 #' @param vgm_VDJ Data frame containing cell of interest and x and y coordinates and GEX_barcode.
@@ -55,20 +55,20 @@ Spatial_cluster<-function(cluster=c("GEX_cluster","reclustering"),GEX.out.direct
   } else if (cluster == "reclustering"){
     vgm_cluster = NULL
     #Create a Seurat object
-    seurat_object<-CreateSeuratObject(Read10X(GEX.out.directory.list[[1]]))
+    seurat_object<-Seurat::CreateSeuratObject(Seurat::Read10X(GEX.out.directory.list[[1]]))
     #Subset of Seurat object according to the GEX barcode of the cells of interest
     vgm_VDJ_barcode<-vgm_VDJ$barcode
     vgm_VDJ_barcode<-gsub("-1","",as.character( vgm_VDJ_barcode))
     vgm_VDJ_barcode<-paste0(vgm_VDJ_barcode,"-1")
     #New clustering
     subset_seurat_object<-subset(seurat_object,cells=vgm_VDJ_barcode)
-    subset_seurat_object <- NormalizeData(subset_seurat_object)
-    subset_seurat_object<- FindVariableFeatures(subset_seurat_object, selection.method = "vst", nfeatures = 2000)
+    subset_seurat_object <- Seurat::NormalizeData(subset_seurat_object)
+    subset_seurat_object<- Seurat::FindVariableFeatures(subset_seurat_object, selection.method = "vst", nfeatures = 2000)
     all.genes <- rownames(subset_seurat_object)
-    subset_seurat_object <- ScaleData(subset_seurat_object, features = all.genes)
-    subset_seurat_object <- RunPCA(subset_seurat_object, npcs = 50, features = VariableFeatures(object = subset_seurat_object))
-    subset_seurat_object <- FindNeighbors(subset_seurat_object, dims = 1:10)
-    subset_seurat_object <- FindClusters(subset_seurat_object, resolution = 1)
+    subset_seurat_object <- Seurat::ScaleData(subset_seurat_object, features = all.genes)
+    subset_seurat_object <- Seurat::RunPCA(subset_seurat_object, npcs = 50, features = Seurat::VariableFeatures(object = subset_seurat_object))
+    subset_seurat_object <- Seurat::FindNeighbors(subset_seurat_object, dims = 1:10)
+    subset_seurat_object <- Seurat::FindClusters(subset_seurat_object, resolution = 1)
     #Add new clustering to VDJ
     subset_seurat_object <- as.data.frame(subset_seurat_object@active.ident)
     subset_seurat_object$barcode <- row.names(subset_seurat_object)
@@ -81,32 +81,32 @@ Spatial_cluster<-function(cluster=c("GEX_cluster","reclustering"),GEX.out.direct
   }
   
   #Plotting
-  p<-ggplot(data = vgm_VDJ_seurat_cluster, aes(x=x,y=y, fill = as.factor(Cluster)))+
-    geom_spatial(data=images_tibble[1,], aes(grob=grob), x=0.5, y=0.5)+
-    geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
-    coord_cartesian(expand=FALSE)+
-    scale_fill_discrete(guide = guide_legend(reverse=TRUE))+
-    xlim(0,max(bcs_merge %>% 
+  p<-ggplot2::ggplot(data = vgm_VDJ_seurat_cluster, ggplot2::aes(x=x,y=y, fill = as.factor(Cluster)))+
+    geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
+    ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
+    ggplot2::coord_cartesian(expand=FALSE)+
+    ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
+    ggplot2::xlim(0,max(bcs_merge %>% 
                  filter(sample ==sample_names[1]) %>% 
                  select(width)))+
-    ylim(max(bcs_merge %>% 
+    ggplot2::ylim(max(bcs_merge %>% 
                filter(sample ==sample_names[1]) %>% 
                select(height)),0)+
-    xlab("") +
-    ylab("") +
-    ggtitle(sample_names[1], title)+
-    theme(axis.text=element_text(size=size),
-          axis.title=element_text(size=size))+
-    labs(fill = legend_title)+
-    guides(fill = guide_legend(override.aes = list(size=3)))+
-    theme_set(theme_bw(base_size = size))+
-    theme(legend.key = element_rect(fill = "white"))+
-    theme(panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank(),
-          panel.background = element_blank(), 
-          axis.line = element_line(colour = "black"),
-          axis.text = element_blank(),
-          axis.ticks = element_blank())
+    ggplot2::xlab("") +
+    ggplot2::ylab("") +
+    ggplot2::ggtitle(sample_names[1], title)+
+    ggplot2::theme(axis.text=ggplot2::element_text(size=size),
+          axis.title=ggplot2::element_text(size=size))+
+    ggplot2::labs(fill = legend_title)+
+    ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
+    ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
+    ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+          panel.grid.minor = ggplot2::element_blank(),
+          panel.background = ggplot2::element_blank(), 
+          axis.line = ggplot2::element_line(colour = "black"),
+          axis.text = ggplot2::element_blank(),
+          axis.ticks = ggplot2::element_blank())
   
   return(list(p,vgm_VDJ_seurat_cluster))
 }

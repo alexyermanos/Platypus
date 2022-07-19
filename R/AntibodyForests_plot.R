@@ -393,7 +393,7 @@ AntibodyForests_plot <- function(network.list,
 
       }else{
         breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-        pal <- colorRampPalette(c('cornflowerblue','darkblue'))
+        pal <- dichromat::colorRampPalette(c('cornflowerblue','darkblue'))
         unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
       }
 
@@ -422,7 +422,7 @@ AntibodyForests_plot <- function(network.list,
           }
 
           breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-          pal <- colorRampPalette(c(c1, c2))
+          pal <- dichromat::colorRampPalette(c(c1, c2))
           unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
           names(unique_feature_colors) <- unique_features
           specific.node.colors <- unique_feature_colors
@@ -520,7 +520,7 @@ AntibodyForests_plot <- function(network.list,
 
           }else{
             breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-            pal <- colorRampPalette(c('darkolivegreen1','darkolivegreen4'))
+            pal <- dichromat::colorRampPalette(c('darkolivegreen1','darkolivegreen4'))
             unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
           }
 
@@ -548,7 +548,7 @@ AntibodyForests_plot <- function(network.list,
             }
 
             breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-            pal <- colorRampPalette(c(c1, c2))
+            pal <- dichromat::colorRampPalette(c(c1, c2))
             unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
             names(unique_feature_colors) <- unique_features
             specific.cell.colors <- unique_feature_colors
@@ -595,8 +595,8 @@ AntibodyForests_plot <- function(network.list,
 
           grDevices::pdf(paste0(save.dir, '/', file_name))
             plot(network.list[[i]][[j]]@plot_ready)
-            title(title_name)
-            legend(
+            graphics::title(title_name)
+            graphics::legend(
               "left",
               legend = unlist(names(specific.node.colors)),
               pt.bg  = unlist(specific.node.colors),
@@ -607,7 +607,7 @@ AntibodyForests_plot <- function(network.list,
              )
 
             if(!is.null(specific.cell.colors)){
-              legend(
+              graphics::legend(
                 "right",
                 legend = unlist(names(specific.cell.colors)),
                 pt.bg  = unlist(specific.cell.colors),
@@ -617,13 +617,13 @@ AntibodyForests_plot <- function(network.list,
                 title  = cell.color
                )
              }
-          dev.off()
+          grDevices::dev.off()
         }else{
 
           plot(network.list[[i]][[j]]@plot_ready)
-          title(title_name)
+          graphics::title(title_name)
             if(show.legend){
-              legend(
+              graphics::legend(
                 "left",
                 legend = unlist(names(specific.node.colors)),
                 pt.bg  = unlist(specific.node.colors),
@@ -634,7 +634,7 @@ AntibodyForests_plot <- function(network.list,
                )
 
               if(!is.null(specific.cell.colors)) {
-                legend(
+                graphics::legend(
                   "right",
                   legend = unlist(names(specific.cell.colors)),
                   pt.bg  = unlist(specific.cell.colors),
@@ -677,12 +677,12 @@ AntibodyForests_plot <- function(network.list,
       if(!dir.exists(save.dir)) dir.create(save.dir)
       file_name <- paste0(title_name, '.pdf')
 
-      pdf(paste0(save.dir, '/', file_name))
+      grDevices::pdf(paste0(save.dir, '/', file_name))
 
         plot(network.list@plot_ready)
         #title(title_name)
         if(show.legend){
-          legend(
+          graphics::legend(
             "left",
             legend = unlist(names(specific.node.colors)),
             pt.bg  = unlist(specific.node.colors),
@@ -694,7 +694,7 @@ AntibodyForests_plot <- function(network.list,
 
 
           if(!is.null(specific.cell.colors)){
-            legend(
+            graphics::legend(
               "right",
               legend = unlist(names(specific.cell.colors)),
               pt.bg  = unlist(specific.cell.colors),
@@ -706,14 +706,14 @@ AntibodyForests_plot <- function(network.list,
           }
         }
 
-      dev.off()
+      grDevices::dev.off()
     }else{
 
       plot(network.list@plot_ready)
       #title(title_name)
 
       if(show.legend){
-        legend(
+        graphics::legend(
           "left",
           legend = unlist(names(specific.node.colors)),
           pt.bg  = unlist(specific.node.colors),
@@ -725,7 +725,7 @@ AntibodyForests_plot <- function(network.list,
 
 
         if(!is.null(specific.cell.colors)){
-          legend(
+          graphics::legend(
             "right",
             legend = unlist(names(specific.cell.colors)),
             pt.bg  = unlist(specific.cell.colors),

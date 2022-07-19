@@ -140,7 +140,7 @@ AntibodyForests <- function(VDJ,
   features_to_select <- c('sample_id', 'clonotype_id')
   features_to_select <- unique(c(features_to_select, node.features))
 
-  setClass('AntibodyForests',
+  methods::setClass('AntibodyForests',
     slots = c(
       tree = 'ANY', #in
       sample_id = 'ANY', #in
@@ -167,7 +167,7 @@ AntibodyForests <- function(VDJ,
     )
   )
 
-  setMethod(f='show', signature='AntibodyForests',
+  methods::setMethod(f='show', signature='AntibodyForests',
    definition=function(object) {
     cat('AntibodyForests object', '\n')
 
@@ -1358,7 +1358,7 @@ AntibodyForests <- function(VDJ,
      g <- tidygraph::as_tbl_graph(g)
    }
 
-   final_object <- new('AntibodyForests',
+   final_object <- methods::new('AntibodyForests',
                        tree = g,
                        sample_id = sample_id,
                        clonotype_id = clonotype_id,

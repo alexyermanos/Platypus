@@ -1,3 +1,28 @@
+#' Calculates the node transitions frequencies for a given feature and an AntibodyForests object
+
+#'@description Node transitions represent the number of (un)directed edges between two feature values of a given feature type in a single sequence similarity network or minimum spanning trees (e.g., between VDJ_cgene = 'IGHA' and VDJ_cgene = 'IGHM'). The resulting AntibodyForests objects will contain a new slot - node_transitions. Will also output bar plots of the transition frequencies.
+
+#' @param trees nested list of AntibodyForests objects or single object, as obtained from the AntibodyForests function.
+#' @param features vector of strings - features for the node transition counting. Each node will be assigned the dominant feature if its constituent cells have different feature values (e.g., for features = c('seurat_clusters')). These features need to be first added as vertex attributes when creating the AntibodyForests networks, specified in the node.features parameter of AntibodyForests.
+#' @param combined boolean - if T, will assign a new feature by combining the feature values as specified in the features parameter (e.g., if node 1 has VDJ_cgene = 'IGHM' and seurat_clusters = 1, will create a new feature = 'IGHM 1' for that node, for joint node transitions).
+#' @param graph.type string - the graph type available in the AntibodyForests object which will be used as the function input.
+#' Currently supported network/analysis types: 'tree' (for the minimum spanning trees or sequence similarity networks obtained from the main AntibodyForests function), 'heterogeneous' for the bipartite graphs obtained via AntibodyForests_heterogeneous, 'dynamic' for the dynamic networks obtained from AntibodyForests_dynamics.
+#' @param permutation.test boolean - if T, will perform a permutation statistical test on the node feature transition values.
+#' @param exclude.germline boolean - if T, will exclude the germline from the node feature transitions counting.
+#' @param exclude.intermediates boolean - if T, will exclude the intermediate nodes expanded using AntibodyForests_expand_intermediates() from the node transitions counting.
+#' @param n.permutations integer - number of node feature permutations for the permutation test.
+#' @param plot.results boolean - if T, will display the node transitions counts as bar plots, per feature specified in the features parameter.
+#' @param parallel boolean - whether to execute the main subroutine in parallel or not. Requires the 'parallel' R package to be installed.
+
+#' @return nested list of AntibodyForests objects for each clonotype and each sample or single object, with an additional node_transitions slot of transition/edge counts.
+#' @export
+#' @examples
+#' \dontrun{
+#' AntibodyForests_node_transitions(trees, graph.type = 'tree', features = 'VDJ_cgene', plot.results = T)
+#'}
+
+
+
 AntibodyForests_node_transitions <- function(trees,
                                              features,
                                              combined,
@@ -193,7 +218,7 @@ AntibodyForests_node_transitions <- function(trees,
 
         if(length(counts)== 0) {counts <- 0}
         out_dfs[[j]]$expected_counts[i] <- mean(counts)
-        f <- ecdf(counts)
+        f <- stats::ecdf(counts)
         out_dfs[[j]]$p_value[i] <- 1 - f(out_dfs[[j]]$counts[i])
       }
     }
@@ -245,7 +270,7 @@ AntibodyForests_node_transitions <- function(trees,
         permuted_transitions_subset <- permuted_transitions[permuted_transitions$feature_name == features[i],]
 
 
-        permutation_histogram[[i]] <- ggplot2::ggplot(permuted_transitions_subset,  ggplot2::aes(fill = feature_name, x = counts)) +
+        permutation_histogram[[i]] <- ggplot2::ggplot(permuted_transitions_subset, ggplot2::aes(fill = feature_name, x = counts)) +
                                      ggplot2::geom_histogram(bins = 30) +
                                      ggplot2::geom_vline(data = node_transitions_subset, ggplot2::aes(xintercept = counts),
                                                  color="black", linetype=3, size=0.75) +

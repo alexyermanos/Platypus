@@ -1,3 +1,20 @@
+#' Creates phylogenetic trees, infers ancestral sequences, and converts the resulting trees into igraph objects.
+
+#'@description Phylogenetic trees and ancestral sequence reconstruction is performed using the IQ-TREE software. The IQ-TREE directory is required beforehand.
+#' @param trees AntibodyForests object/list of AntibodyForests objects - the resulting sequence similarity or minimum spanning tree networks from the AntibodyForests function.
+#' @param alignment.method string - method/software to perform multiple sequence alignment before the ancestral sequence reconstruction step. Options include: 'mafft' (requires the MAFFT software to be locally installed beforehand), 'clustal', 'clustalomega', 'tcoffee', 'muscle', which all require the 'ape' R package.
+#' @param iqtree.directory string - path to the IQ-TREE software directory.
+#' @param collapse.trees boolean - if T, will collapse the resulting phylogenetic trees if an intermediate daughter sequence/node is the same as its parent.
+#' @param parallel boolean - whether to execute the main subroutine in parallel or not. Requires the 'parallel' R package to be installed.
+#' @return nested list of AntibodyForests objects or single AntibodyForests object, with a modified tree slot including the phylogenetic tree converted into igraph objects and the reconstructed intermediate/ancestral sequences.
+#' @export
+#' @examples
+#' \dontrun{
+#' AntibodyForests_infer_ancestral(trees, alignment.method = 'mafft', igtree.directoty = '/Users/tudorcotet/Desktop/iqtree-1.6.12-MacOSX')
+#'}
+
+
+
 
 AntibodyForests_infer_ancestral <- function(trees,
                                             alignment.method,
@@ -70,7 +87,7 @@ AntibodyForests_infer_ancestral <- function(trees,
       system(paste0('sh -c \'cd ', temp_dir, '; ', iqtree.directory, '/bin/iqtree -s infile.phy -m JC+G -asr\''))
       phylo_tree <- ape::read.tree(file.path(temp_dir, "infile.phy.treefile"))
 
-      inferred_sequences <- read.table(file.path(temp_dir, 'infile.phy.state'),header=TRUE)
+      inferred_sequences <- utils::read.table(file.path(temp_dir, 'infile.phy.state'),header=TRUE)
       node_ids <- unlist(unique(inferred_sequences$Node))
       node_ids <- node_ids[order(nchar(node_ids), node_ids)]
       inferred_sequences <- lapply(node_ids, function(x) paste0(inferred_sequences$State[inferred_sequences$Node == x], collapse = '' ))

@@ -1,4 +1,4 @@
-#' Plotting the expression of a gene module.
+#' @description Plotting the expression of a gene module on the spatial image with or without a threshold.
 #' @param sample_names Character vector containing the name of the sample.
 #' @param gene.set Charcter vector containing the markers name.
 #' @param GEX.out.directory.list Character vector that give the path to filtered_feature_bc_matrix data.
@@ -8,7 +8,7 @@
 #' @param size Number, to define the size of the text, default = 15.
 #' @param threshold Number, to define the threshold. If threshold = No, plot of the module and if threshold is a number, plot show the cells above the threshold.
 #' @param legend_title Character vector to name the legend scale.
-#' @return Returns a plot gene module expression.
+#' @return Returns a ggplot of gene module expression.
 #' @export
 #' @examples
 #' \dontrun{
@@ -50,13 +50,17 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
   if(missing(bcs_merge)) stop("Please provide bcs_merge input for this function")
   if(missing(gene.set)) stop("Please provide gene.set input for this function")
   if(missing(GEX.out.directory.list)) stop("Please provide GEX.out.directory.list input for this function")
+  if (!require("dplyr", character.only = TRUE)) {
+    install.packages("dplyr")
+    library(dplyr)
+  }
   
   platypus.version <- "v3" 
   
   #Seurat object
-  seurat_object<-CreateSeuratObject(Read10X(GEX.out.directory.list))
+  seurat_object<-Seurat::CreateSeuratObject(Seurat::Read10X(GEX.out.directory.list))
   #this Adds the module score to your object as a Feature 
-  seurat_object <- AddModuleScore(object = seurat_object,features = list(gene.set[[1]]))
+  seurat_object <- Seurat::AddModuleScore(object = seurat_object,features = list(gene.set[[1]]))
   seurat_data_frame<-seurat_object@meta.data
   seurat_data_frame$barcode <- row.names(seurat_data_frame)
   names(seurat_data_frame)[4]<-"module"
@@ -67,32 +71,32 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
   
   if (threshold == "No"){
     #Colors
-    myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")))
+    myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))
     #Plotting
-    p<-ggplot(data = module_data_frame, aes(x=imagecol,y=imagerow, fill = module))+
-      geom_spatial(data=images_tibble[1,], aes(grob=grob), x=0.5, y=0.5)+
-      geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
-      coord_cartesian(expand=FALSE)+
-      scale_fill_gradientn(colours = myPalette(100))+
-      xlim(0,max(bcs_merge %>% 
+    p<-ggplot2::ggplot(data = module_data_frame, ggplot2::aes(x=imagecol,y=imagerow, fill = module))+
+      geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
+      ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
+      ggplot2::coord_cartesian(expand=FALSE)+
+      ggplot2::scale_fill_gradientn(colours = myPalette(100))+
+      ggplot2::xlim(0,max(bcs_merge %>% 
                    filter(sample ==sample_names[1]) %>% 
                    select(width)))+
-      ylim(max(bcs_merge %>% 
+      ggplot2::ylim(max(bcs_merge %>% 
                  filter(sample ==sample_names[1]) %>% 
                  select(height)),0)+
-      xlab("") +
-      ylab("") +
-      ggtitle(sample_names[1],title)+
-      theme(axis.text=element_text(size=size),
-            axis.title=element_text(size=size))+
-      labs(fill = legend_title)+
-      theme_set(theme_bw(base_size = size))+
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(), 
-            axis.line = element_line(colour = "black"),
-            axis.text = element_blank(),
-            axis.ticks = element_blank())
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      ggplot2::ggtitle(sample_names[1],title)+
+      ggplot2::theme(axis.text=ggplot2::element_text(size=size),
+            axis.title=ggplot2::element_text(size=size))+
+      ggplot2::labs(fill = legend_title)+
+      ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(), 
+            axis.line = ggplot2::element_line(colour = "black"),
+            axis.text = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank())
   } else {
     for (i in 1:length(module_data_frame$barcode)){
       if (module_data_frame$module[[i]]>=threshold){
@@ -103,32 +107,32 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
     }
     module_data_frame$module<-as.numeric(module_data_frame$threshold)
     module_data_frame<-filter(module_data_frame,module==1)
-    p<-ggplot(data = module_data_frame, aes(x=imagecol,y=imagerow, fill = as.factor(module)))+
-      geom_spatial(data=images_tibble[1,], aes(grob=grob), x=0.5, y=0.5)+
-      geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
-      coord_cartesian(expand=FALSE)+
-      scale_fill_discrete(guide = guide_legend(reverse=TRUE))+
-      xlim(0,max(bcs_merge %>% 
+    p<-ggplot2::ggplot(data = module_data_frame, ggplot2::aes(x=imagecol,y=imagerow, fill = as.factor(module)))+
+      geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
+      ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
+      ggplot2::coord_cartesian(expand=FALSE)+
+      ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
+      ggplot2::xlim(0,max(bcs_merge %>% 
                    filter(sample ==sample_names[1]) %>% 
                    select(width)))+
-      ylim(max(bcs_merge %>% 
+      ggplot2::ylim(max(bcs_merge %>% 
                  filter(sample ==sample_names[1]) %>% 
                  select(height)),0)+
-      xlab("") +
-      ylab("") +
-      ggtitle(sample_names[1], title)+
-      theme(axis.text=element_text(size=size),
-            axis.title=element_text(size=size))+
-      labs(fill = legend_title)+
-      guides(fill = guide_legend(override.aes = list(size=3)))+
-      theme_set(theme_bw(base_size = size))+
-      theme(legend.key = element_rect(fill = "white"))+
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(), 
-            axis.line = element_line(colour = "black"),
-            axis.text = element_blank(),
-            axis.ticks = element_blank())
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      ggplot2::ggtitle(sample_names[1], title)+
+      ggplot2::theme(axis.text=ggplot2::element_text(size=size),
+            axis.title=ggplot2::element_text(size=size))+
+      ggplot2::labs(fill = legend_title)+
+      ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
+      ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
+      ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(), 
+            axis.line = ggplot2::element_line(colour = "black"),
+            axis.text = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank())
   }
   return(p)
 }

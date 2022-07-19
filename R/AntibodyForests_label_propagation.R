@@ -1,3 +1,20 @@
+#' Propagate label annotations/values on sparsely labeled networks as AntibodyForests objects.
+
+#'@description Performs label diffusion/propagation, using two different algorithms: if propagation.algorithm = 'diffusion', will perform label propagation using the graph heat diffusion method (http://mlg.eng.cam.ac.uk/zoubin/papers/CMU-CALD-02-107.pdf), 'neighbours' for neihbour majority voting propagation (https://arxiv.org/abs/0709.2938).
+#' @param trees nested list of AntibodyForests objects or single object, as obtained from the AntibodyForests function.
+#' @param features vector of strings - features to be propagated in the graph. Must be performed on sparsely-labeled graphs (with NA node attribute values).
+#' @param propagation.algorithm string - label propagation/diffusion algorithm to be used. If propagation.algorithm = 'diffusion', will perform label propagation using the graph heat diffusion method (http://mlg.eng.cam.ac.uk/zoubin/papers/CMU-CALD-02-107.pdf), 'neighbours' for neihbour majority voting propagation (https://arxiv.org/abs/0709.2938).
+#' @param diffusion.n.iter integer - number of diffusion iteration if propagation.algorithm = 'diffusion'.
+#' @param diffusion.threshold numeric - probability min. threshold for the diffusion algorithm.
+#' @param parallel boolean - whether to execute the main subroutine in parallel or not. Requires the 'parallel' R package to be installed.
+
+#' @return Nested list of AntibodyForests objects or single object with new propagated labels added as vertex attributes (e.g., feature_label_propagation will be a new vertex attribute in the resulting AntibodyForests objects).
+#' @export
+#' @examples
+#' \dontrun{
+#' AntibodyForests_label_propagation(ova_trees, features = 'OVA_binder', propagation.algorithm = 'diffusion', parallel = T)
+#'}
+
 
 AntibodyForests_label_propagation <- function(trees,
                                               features,

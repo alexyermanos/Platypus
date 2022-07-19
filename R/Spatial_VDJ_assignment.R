@@ -1,4 +1,4 @@
-#' Assign simulated immune repertoire sequences (BCR or TCR) simulated by Echidna to transcriptome and location in a spatial image in function of cell type. 
+#' @description Assign simulated immune repertoire sequences (BCR or TCR) simulated by Echidna to transcriptome and location in a spatial image in function of cell type. 
 #' @param GEX_matrix Dataframe containing barcode, imagecol and imagerow from bcs_merge. 
 #' @param vgm Output of VDJ_GEX_matrix function with already the simulated VDJ data.
 #' @param vgm_VDJ Dataframe from VDJ_GEX_matrix output (vgm[[1]]).
@@ -34,7 +34,10 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
   if(missing(celltype)) stop("Please provide celltype input for this function")
   if(missing(simulated_VDJ)) stop("Please provide simulated_VDJ input for this function")
   if(missing(method)) stop("Please provide method input for this function: random, density or germline")
-  
+  if (!require("dplyr", character.only = TRUE)) {
+    install.packages("dplyr")
+    library(dplyr)
+  }
   platypus.version <- "v3" 
   
   filtered_contig_annotation<-simulated_VDJ$all_contig_annotations
@@ -52,7 +55,7 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
   names(GEX_matrix)[2]<-"x"
   names(GEX_matrix)[3]<-"y"
   #Germline assignment, the first cell of each clonotype in the VDJ simulation is determined as the germline cell
-  germline<-select(filtered_contig_annotation,raw_clonotype_id, barcode)
+  germline<-dplyr::select(filtered_contig_annotation,raw_clonotype_id, barcode)
   nb_clonotypes<-2*length(clonotype$clonotype_id)
   germline_or_clone<-list()
   for(i in 1:length(germline$raw_clonotype_id)){
@@ -73,7 +76,7 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
   VDJ_simulated<-merge(VDJ_simulated,germline_or_clone, by = "orig_barcode")
   VDJ_simulated<-VDJ_simulated[!duplicated(VDJ_simulated$orig_barcode),]
   names(VDJ_simulated)[50]<-"germline_or_clone"
-  VDJ_matrix<-select(VDJ_simulated, clonotype_id_10x, clonotype_frequency, barcode, germline_or_clone)
+  VDJ_matrix<-dplyr::select(VDJ_simulated, clonotype_id_10x, clonotype_frequency, barcode, germline_or_clone)
   names(VDJ_matrix)[1]<-"clonotype"
   names(VDJ_matrix)[2]<-"frequency"
   clonotype<-clonotype[order(clonotype$frequency, decreasing = T), ]
@@ -83,7 +86,7 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
     available_cells<-GEX_matrix
     available_VDJ<-VDJ_matrix
     assignment_matrix<-bind_cols(GEX_matrix,VDJ_matrix)
-    assignment_matrix<-select(assignment_matrix,GEX_barcode,x,y, frequency, barcode)
+    assignment_matrix<-dplyr::select(assignment_matrix,GEX_barcode,x,y, frequency, barcode)
     VDJ_simulated<-merge(VDJ_simulated, assignment_matrix,by="barcode")
     results<-VDJ_simulated
   }
@@ -128,7 +131,7 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
       }
     }
     #assignment_T_matrix 
-    assignment_matrix<-select(assignment_matrix,GEX_barcode,x,y, frequency, barcode)
+    assignment_matrix<-dplyr::select(assignment_matrix,GEX_barcode,x,y, frequency, barcode)
     row.names(assignment_matrix)<-c(1:length(assignment_matrix$x))
     #merge with VDJ_simulated
     VDJ_simulated<-merge(VDJ_simulated,assignment_matrix,by="barcode")
@@ -188,7 +191,7 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
       }
     }
     #assignment_T_matrix 
-    assignment_matrix<-select(assignment_matrix,GEX_barcode,x,y, frequency, barcode)
+    assignment_matrix<-dplyr::select(assignment_matrix,GEX_barcode,x,y, frequency, barcode)
     row.names(assignment_matrix)<-c(1:length(assignment_matrix$x))
     #merge with VDJ_simulated
     VDJ_simulated<-merge(VDJ_simulated,assignment_matrix,by="barcode")

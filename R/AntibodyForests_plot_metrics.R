@@ -1,3 +1,26 @@
+#' Plots the resulting node metrics from the AntibodyForests_metrics function
+
+#'@description Will plot the resulting node metrics from the AntibodyForests_metrics function either as violin plots (plot.format = 'violin' or as a scatter plot of the principal components of the metrics dataframe - as long as multiple node metrics are calculated per node).
+#' Requires the AntibodyForests_plot_metrics to be called before (as this function uses the resulting node_metrics dataframes).
+
+#' @param trees nested list of AntibodyForests objects or single object, as obtained from the AntibodyForests function.
+#' @param plot.format string - 'violin' for violin plots of node metrics per feature (as determined by the feature parameter), or 'pca' for performing PCA on the node metrics dataframe.
+#' @param metrics.to.plot vector of strings - the metrics to be plotted from the metrics dataframe (must be already calculated using the AntibodyForests_metrics function)
+#' @param group.by string - whether to group the violin/scatter plots by additional features (e.g., group.by = 'sample_id' to get violin plots per feature, per each unique sample).
+#' @param max.groups integer - maximum number of groups to be considered in the resulting plots if group.by is not NULL.
+#' @param specific.groups vector of strings - specific groups to plot if group.by is not NULL.
+#' @param sample.by string - additional grouping factor (e.g., group.by can be set to 'clonotype_id' and sample.by to 'sample_id' for plots grouped by both clonotypes and samples)
+#' @param features string - will determine the point colors in the PCA scatterplot.
+
+#' @return either a violin plot or a scatter plot of the node metrics, as specified in the plot.format parameter
+#' @export
+#' @examples
+#' \dontrun{
+#' AntibodyForests_plot_metrics(trees, plot.format = 'violin', metrics.to.plot = 'degree', group.by = 'sample_id', sample.by = NULL)
+#'}
+
+
+
 AntibodyForests_plot_metrics <- function(trees,
                                          plot.format,
                                          metrics.to.plot,
@@ -188,7 +211,7 @@ AntibodyForests_plot_metrics <- function(trees,
     pca_matrix[is.na(pca_matrix)] <- 0
     pca_matrix[is.nan(pca_matrix)] <- 0
 
-    pca <- prcomp(t(pca_matrix), scale = F)
+    pca <- stats::prcomp(t(pca_matrix), scale = F)
     df <- data.frame(PC1 = unname(pca$rotation[,1]), PC2 = unname(pca$rotation[,2]))
 
     final_plots <- vector(mode = 'list', length = length(features))
@@ -199,7 +222,7 @@ AntibodyForests_plot_metrics <- function(trees,
       plot_df$feature[is.na(plot_df$feature) | plot_df$feature==''] <- 'unknown'
       plot_df$feature_name <- features[i]
 
-      final_plots[[i]] <- ggplot2::ggplot(data = plot_df, ggplot2::aes(x = PC1, y = PC2, color = reorder(feature, nchar(feature)))) + #optional: size = cell_number
+      final_plots[[i]] <- ggplot2::ggplot(data = plot_df, ggplot2::aes(x = PC1, y = PC2, color = stats::reorder(feature, nchar(feature)))) + #optional: size = cell_number
               ggplot2::geom_point(size = 0.75) +
               ggplot2::theme_bw() +
               ggplot2::theme_classic() +
@@ -222,7 +245,7 @@ AntibodyForests_plot_metrics <- function(trees,
 
         final_plots[[i]] <- ggplot2::ggplot(data = metrics_df, ggplot2::aes_string(x = group.by, y = metrics.to.plot[i])) +
                             ggplot2::geom_violin(ggplot2::aes_string(fill = group.by), trim = F) +
-                            ggplot2::geom_boxplot(width=0.15, fill = 'white') +
+                            ggplot2::geom_boxplot(width=0.1, fill = 'white') +
                             ggplot2::theme_bw() +
                             ggplot2::theme_classic() +
                             ggplot2::labs(title = metrics.to.plot[i]) +

@@ -1,4 +1,4 @@
-#' Scaling of the spatial parameter to be able to express the gene expression on the spatial image.
+#' @description Scaling of the spatial parameters to be able to express the gene expression on the spatial image.
 #' @param vgm_spatial List containing the output of VDJ_GEX_matrix function from Platypus with at least the gene expression data and the addition of spatial parameters: image, scalefacor, tissue, cluster and matrix.
 #' @param GEX.out.directory.list Path to the filtered feature bc matrix data.
 #' @param sample_names Character vector containing the name of the sample.
@@ -16,7 +16,14 @@ Spatial_scaling_parameters <- function(vgm_spatial,
   if(missing(vgm_spatial)) stop("Please provide vgm_spatial input for this function")
   if(missing(GEX.out.directory.list)) stop("Please provide GEX.out.directory.list input for this function")
   if(missing(sample_names)) stop("Please provide sample_names input for this function")
-  
+  if (!require("hdf5r", character.only = TRUE)) {
+    install.packages("hdf5r")
+    library(hdf5r)
+  }
+  if (!require("Matrix", character.only = TRUE)) {
+    install.packages("Matrix")
+    library(Matrix)
+  }
   platypus.version <- "v3"
   
   images_cl <- list()
@@ -27,17 +34,17 @@ Spatial_scaling_parameters <- function(vgm_spatial,
   for (i in 1:length(sample_names)) {
     height[[i]] <-  data.frame(height = nrow(images_cl[[i]]))
   }
-  height <- bind_rows(height)
+  height <- dplyr::bind_rows(height)
   width <- list()
   for (i in 1:length(sample_names)) {
     width[[i]] <- data.frame(width = ncol(images_cl[[i]]))
   }
-  width <- bind_rows(width)
+  width <- dplyr::bind_rows(width)
   grobs <- list()
   for (i in 1:length(sample_names)) {
-    grobs[[i]] <- rasterGrob(images_cl[[i]], width=unit(1,"npc"), height=unit(1,"npc"))
+    grobs[[i]] <- grid::rasterGrob(images_cl[[i]], width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
   }
-  images_tibble <- tibble(sample=factor(sample_names), grob=grobs)
+  images_tibble <- tibble::tibble(sample=factor(sample_names), grob=grobs)
   images_tibble$height <- height$height
   images_tibble$width <- width$width
   
@@ -62,7 +69,7 @@ Spatial_scaling_parameters <- function(vgm_spatial,
   names(bcs) <- sample_names
   matrix <- list()
   for (i in 1:length(sample_names)) {
-    matrix[[i]] <- as.data.frame(t(Read10X(GEX.out.directory.list[[i]])))   
+    matrix[[i]] <- as.data.frame(t(Seurat::Read10X(GEX.out.directory.list[[i]])))   
   }
   umi_sum <- list() 
   for (i in 1:length(sample_names)) {
@@ -70,22 +77,19 @@ Spatial_scaling_parameters <- function(vgm_spatial,
                                sum_umi = Matrix::rowSums(matrix[[i]]))
   }
   names(umi_sum) <- sample_names
-  umi_sum <- bind_rows(umi_sum, .id = "sample")
+  umi_sum <- dplyr::bind_rows(umi_sum, .id = "sample")
   gene_sum <- list() 
   for (i in 1:length(sample_names)) {
     gene_sum[[i]] <- data.frame(barcode =  row.names(matrix[[i]]),
                                 sum_gene = Matrix::rowSums(matrix[[i]] != 0))
   }
   names(gene_sum) <- sample_names
-  gene_sum <- bind_rows(gene_sum, .id = "sample")
-  bcs_merge <- bind_rows(bcs, .id = "sample")
+  gene_sum <- dplyr::bind_rows(gene_sum, .id = "sample")
+  bcs_merge <- dplyr::bind_rows(bcs, .id = "sample")
   bcs_merge <- merge(bcs_merge,umi_sum, by = c("barcode", "sample"))
   bcs_merge <- merge(bcs_merge,gene_sum, by = c("barcode", "sample"))
   data<-list()
   data$bcs_merge<-bcs_merge
   data$images_tibble<-images_tibble
   return(list(images_cl,height,width,grobs,images_tibble,scales,clusters,bcs,matrix,bcs_merge))
-  xlim(0,max(bcs_merge %>% 
-               filter(sample == sample_names[i]) %>% 
-               select(width)))
 }

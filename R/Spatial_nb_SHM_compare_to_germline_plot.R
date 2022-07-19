@@ -1,4 +1,4 @@
-#' Plotting number of somatic hypermutation of clones compare to the germline sequence of the clonotype.
+#' @description Plotting number of somatic hypermutation of clones compare to the germline sequence of the clonotype.
 #' @param simulation Logical operator, to describe which type of data we want to plot, TRUE if the data are output of Echidna simulation and FALSE if the we use real dataset.
 #' @param vgm_VDJ Data frame containing cell of interest and x and y coordinates and GEX_barcode.
 #' @param AbForest_output Igraph of phylogenetic tree of a clonotype of interest found in the large list output from AntibodyForest function, only needed if we use real dataset.
@@ -10,7 +10,7 @@
 #' @param title Character vector to name the plot.
 #' @param size Number, to define the size of the text, default = 15.
 #' @param legend_title Character vector to name the legend scale.
-#' @return Spatial plot with cell colored by number of somatic hypermutation
+#' @return Spatial plot with cells colored by number of somatic hypermutation
 #' @export
 #' @examples
 #' \dontrun{
@@ -36,7 +36,10 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
   if(missing(simulation)){
     simulation = FALSE
   }
-  
+  if (!require("dplyr", character.only = TRUE)) {
+    install.packages("dplyr")
+    library(dplyr)
+  }
   platypus.version <- "v3" 
   
   #Simulated Data with Echidna------------------------------------------------------------------------------------------------------------------
@@ -136,32 +139,32 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       available_cells$distance_from_germline[[i]]<-get.seq.distance(germline=germline_seq, sequence=available_cells$network_sequences[[i]])
     }
     #Plotting
-    plot<-ggplot(data = available_cells, aes(x=x,y=y, fill = as.factor(distance_from_germline)))+
-      geom_spatial(data=images_tibble[1,], aes(grob=grob), x=0.5, y=0.5)+
-      geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
-      coord_cartesian(expand=FALSE)+
-      scale_fill_discrete(guide = guide_legend(reverse=TRUE))+
-      xlim(0,max(bcs_merge %>% 
+    plot<-ggplot2::ggplot(data = available_cells, ggplot2::aes(x=x,y=y, fill = as.factor(distance_from_germline)))+
+      geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
+      ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
+      ggplot2::coord_cartesian(expand=FALSE)+
+      ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
+      ggplot2::xlim(0,max(bcs_merge %>% 
                    filter(sample ==sample_names[1]) %>% 
                    select(width)))+
-      ylim(max(bcs_merge %>% 
+      ggplot2::ylim(max(bcs_merge %>% 
                  filter(sample ==sample_names[1]) %>% 
                  select(height)),0)+
-      xlab("") +
-      ylab("") +
-      ggtitle(sample_names[1], title)+
-      theme(axis.text=element_text(size=size),
-            axis.title=element_text(size=size))+
-      labs(fill = legend_title)+
-      guides(fill = guide_legend(override.aes = list(size=3)))+
-      theme_set(theme_bw(base_size = size))+
-      theme(legend.key = element_rect(fill = "white"))+
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(), 
-            axis.line = element_line(colour = "black"),
-            axis.text = element_blank(),
-            axis.ticks = element_blank())
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      ggplot2::ggtitle(sample_names[1], title)+
+      ggplot2::theme(axis.text=ggplot2::element_text(size=size),
+            axis.title=ggplot2::element_text(size=size))+
+      ggplot2::labs(fill = legend_title)+
+      ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
+      ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
+      ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(), 
+            axis.line = ggplot2::element_line(colour = "black"),
+            axis.text = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank())
   }
   #Real data----------------------------------------------------------------------------------------------------------------------------------------------
   if(simulation == FALSE){
@@ -187,32 +190,32 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
     }
     new_VDJ<-merge(vgm_VDJ, tree_dataframe, by = "barcode")
     #Plotting
-    plot<-ggplot(data = new_VDJ, aes(x=x,y=y, fill = as.factor(distance_from_germline)))+
-      geom_spatial(data=images_tibble[1,], aes(grob=grob), x=0.5, y=0.5)+
-      geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
-      coord_cartesian(expand=FALSE)+
-      scale_fill_discrete(guide = guide_legend(reverse=TRUE))+
-      xlim(0,max(bcs_merge %>% 
+    plot<-ggplot2::ggplot(data = new_VDJ, ggplot2::aes(x=x,y=y, fill = as.factor(distance_from_germline)))+
+      geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
+      ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
+      ggplot2::coord_cartesian(expand=FALSE)+
+      ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
+      ggplot2::xlim(0,max(bcs_merge %>% 
                    filter(sample ==sample_names[1]) %>% 
                    select(width)))+
-      ylim(max(bcs_merge %>% 
+      ggplot2::ylim(max(bcs_merge %>% 
                  filter(sample ==sample_names[1]) %>% 
                  select(height)),0)+
-      xlab("") +
-      ylab("") +
-      ggtitle(sample_names[1], title)+
-      theme(axis.text=element_text(size=size),
-            axis.title=element_text(size=size))+
-      labs(fill = legend_title)+
-      guides(fill = guide_legend(override.aes = list(size=3)))+
-      theme_set(theme_bw(base_size = size))+
-      theme(legend.key = element_rect(fill = "white"))+
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(), 
-            axis.line = element_line(colour = "black"),
-            axis.text = element_blank(),
-            axis.ticks = element_blank())
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      ggplot2::ggtitle(sample_names[1], title)+
+      ggplot2::theme(axis.text=ggplot2::element_text(size=size),
+            axis.title=ggplot2::element_text(size=size))+
+      ggplot2::labs(fill = legend_title)+
+      ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
+      ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
+      ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.background = ggplot2::element_blank(), 
+            axis.line = ggplot2::element_line(colour = "black"),
+            axis.text = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank())
   }
   return(plot)
 }

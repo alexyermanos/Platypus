@@ -1,3 +1,25 @@
+#' Network clustering/community detection for the AntibodyForests similarity networks
+
+#'@description Performs community detection/clustering on the AntibodyForests sequence similarity networks. Annotates the resulting networks with a new igraph vertex attribute ('community') for downstream analysis or plotting. Can also add these annotations back to the VGM.
+
+#' @param trees AntibodyForests object/list of AntibodyForests objects - the resulting sequence similarity or minimum spanning tree networks from the AntibodyForests function
+#' @param VGM VGM object - for annotating the VGM object with the resulting clusters/communities.
+#' @param community.algorithm string - denotes the community/clustering algorithm to be used. Several options are available: 'louvain', 'walktrap', 'edge_betweenness', 'fast_greedy', 'label_prop', 'leading_eigen', 'optimal', 'spinglass'.
+#' @param graph.type string - the graph type available in the AntibodyForests object which will be used as the function input.
+#' Currently supported network/analysis types: 'tree' (for the minimum spanning trees or sequence similarity networks obtained from the main AntibodyForests function), 'heterogeneous' for the bipartite graphs obtained via AntibodyForests_heterogeneous, 'dynamic' for the dynamic networks obtained from AntibodyForests_dynamics.
+#' @param which.bipartite string - whether to perform clustering on the cell layer of the bipartite/heterogeneous graph ('cells'), sequence layer ('sequences') or on both ('both').
+#' @param features vector of strings - features to be considered in the output bar plots (of feature counts per cluster). These features must be integrated when creating the initial AntibodyForests objects by using the node.features parameter.
+#' @param count.level string - whether to consider cells ('cells') or sequences ('sequences') when counting the unique feature values in the output bar plots. When counting by sequences/nodes, each unique node is assigned the feature value of the majority of its consituent cells.
+#' @param additional.parameters named list - additional parameters to be considered in the clustering algorithm, as mentioned in the igraph documentation for the respective algorithms (e.g., additional.parameters = list(resolution = 0.25)).
+#' @return a single AntibodyForests object or a nested list of AntibodyForests objects (depending on the input type) with community/cluster annotations as a vertex attribute. Additional bar plots of feature counts per resulting cluster are also displayed.
+#' @export
+#' @seealso AntibodyForests, AntibodyForests_plot
+#' @examples
+#' \dontrun{
+#' AntibodyForests_communities(trees = AntibodyForests_object, VGM = NULL, community.algorithm = 'louvain', graph.type = 'tree', features = 'seurat_clusters', count.level = 'cells', additional.parameters = list(resolution = 0.25))
+#'}
+
+
 AntibodyForests_communities <- function(trees,
                                         VGM,
                                         community.algorithm,
@@ -16,6 +38,8 @@ AntibodyForests_communities <- function(trees,
   if(missing(count.level)) count.level <- 'cells'
   if(missing(additional.parameters)) additional.parameters <- list()
 
+
+  #SUBROUTINE 1: get feature names from the AntibodyForests object/ list of objects (determined by the node.features parameter when first creating the networks)
   get_feature_names <- function(trees, features){
 
     if(is.null(features)){
@@ -33,6 +57,7 @@ AntibodyForests_communities <- function(trees,
     return(features)
   }
 
+  #SUBROUTINE 2: gets the igraph objects from the AntibodyForests ones
   get_graph <- function(tree){
 
     if(graph.type == 'tree'){
@@ -73,6 +98,7 @@ AntibodyForests_communities <- function(trees,
     return(g)
   }
 
+  #SUBROUTINE 3: assembles the split bipartite graphs after clustering (currently heterogeneous graphs are clustered separately - cells and sequences; there is no option to cluster both cells and sequences together)
   assemble_bipartite <- function(graphs, original_graph){
 
     sequence_g <- graphs[[1]]
@@ -88,6 +114,7 @@ AntibodyForests_communities <- function(trees,
 
   }
 
+  #SUBROUTINE 4: the igraph clustering function calls on the igraph objects/networks.
   community_detection <- function(g, original_graph){
     bipartite_type <- names(g)
     communities <- vector(mode = 'list', length = length(g))
@@ -151,6 +178,7 @@ AntibodyForests_communities <- function(trees,
   }
 
 
+  #SUBROUTINE 5: plotting function for the features-by-cluster bar plots.
   community_barplot <- function(g){
 
     vertex_df <- igraph::as_data_frame(g, what = 'vertices')
@@ -207,7 +235,7 @@ AntibodyForests_communities <- function(trees,
     for(i in 1:length(features)){
       df_subset <- final_dfs[final_dfs$feature_name == features[i],]
 
-      out_plots <- ggplot2::ggplot(df_subset, ggplot2::aes(fill = features, y = counts, x = reorder(cluster, nchar(cluster)))) +
+      out_plots <- ggplot2::ggplot(df_subset, ggplot2::aes(fill = features, y = counts, x = stats::reorder(cluster, nchar(cluster)))) +
                    ggplot2::geom_bar(stat="identity", width=0.6, color="black") +
                    ggplot2::scale_y_continuous(expand = c(0,0)) +
                    ggplot2::theme_bw() +
@@ -226,6 +254,7 @@ AntibodyForests_communities <- function(trees,
     return(out_plots)
   }
 
+  #SUBROUTINE 6: adds the cluster annotations to the VGM object if such object is specified in the main function call
   append_community <- function(g, VGM){
     barcodes <- igraph::V(g)$cell_barcodes
     clusters <- igraph::V(g)$community
@@ -249,6 +278,8 @@ AntibodyForests_communities <- function(trees,
     return(VGM)
   }
 
+
+  #MAIN LOOPS - calling subroutines on the AntibodyForests objects
   features <- get_feature_names(trees, features)
 
   if(inherits(trees, 'list')){

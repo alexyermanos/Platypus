@@ -1,3 +1,20 @@
+#'Converts the igraph networks of a given AntibodyForests object into a given (useful to convert the minimum spanning trees into a phylogenetic tree)
+
+#'@description Will automatically convert the minimum spanning trees in a given AntibodyForests object into a phylogenetic tree as a phylo object. This new object will be added into the phylo slot of the AntibodyForests object.
+
+#' @param trees nested list of AntibodyForests objects or single object, as obtained from the AntibodyForests function.
+#' @param output.format string - 'treedata' will output the phylogenetic tree as a tidytree treedata object, 'phylo' as an ape::phylo object.
+#' @param solve.multichotomies boolean - whether to remove multichotomies in the resulting phylogenetic tree using ape::multi2di
+#' @param parallel boolean - whether to execute the main subroutine in parallel or not. Requires the 'parallel' R package to be installed.
+
+#' @return nested list of AntibodyForests objects for each clonotype and each sample/timepoint or a single object, with a new phylo slot for the phylogenetic tree.
+#' @export
+#' @examples
+#' \dontrun{
+#' AntibodyForests_phylo(trees, output.format = 'phylo')
+#'}
+
+
 AntibodyForests_phylo <- function(trees,
                                   output.format,
                                   solve.multichotomies,

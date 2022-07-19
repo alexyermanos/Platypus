@@ -1,25 +1,37 @@
-#'Structural node embeddings for the AntibodyForests networks
+#'Structural node embeddings for the AntibodyForests minimum spanning trees/ sequence similarity networks
 
-#'@description Adds the dynamic slots to a nested list of AntibodyForests objects outputted from AntibodyForests function. Also inverts the nested list (per clonotype per sample instead of per sample per clonotype) - for tracking the evolution of a specific clonotype across multiple timepoints (samples).
-#' The timepoints order can be specified in the timepoint.order parameter.
-#' The new dynamic graphs  contain all the unique nodes across the timepoints, but with edges created only for a single tree of a given timepoint.
-#' The new dynamic slots will be used for downstream analyses - AntibodyForests_metrics(graph.type = 'dynamic') and AntibodyForests_track_nodes.
-#' Before running this function, ensure your clonotypes are defined the same way across each timepoint before creating your networks using AntibodyForests (e.g., use the VDJ_call_enclone function or VDJ_clonotype with global.clonotype set to TRUE to ensure clonotype 1 is defined the same across each timepoint, otherwise clonotype1 in timepoint/sample 1 might not correspond to the same clonal definition as clonotype1 in timepoint/sample2).
+#'@description Structural node embeddings algorithms of the AntibodyForests networks. Supported algorithms include: node2vec (https://arxiv.org/abs/1607.00653) and spectral graph embedding on either the adjacency or the Laplacian matrix.  Currently the node2vec model is supported as long as Rkeras is installed.
 
-#' @param trees nested list of AntibodyForests objects, as obtained from the AntibodyForests function. Ensure the clonotype definition is consistent across each timepoint before running this function (and before running AntibodyForests to obtain your trees). Also ensure the timepoint ids are present in the sample_id column of your VDJ/VGM[[1]] object.
-#' @param graph.type string - 'tree' will use the usual output of the AntibodyForests function (tree graphs), 'heterogeneous' will use the output of the AntibodyForests_heterogeneous function (bipartite networks for both cells and sequences).
-#' @param timepoint.order vector of strings - order of the timepoints in the resulting nested list. For example, output[[1]][[1]] denotes the first clonotype, first timepoint/sample, output[[1]][[2]] denotes the first clonotype, second timepoint/sample,
+#' @param trees AntibodyForests object/list of AntibodyForests objects - the resulting sequence similarity or minimum spanning tree networks from the AntibodyForests function
+#' @param graph.type string - the graph type available in the AntibodyForests object which will be used as the function input.
+#' Currently supported network/analysis types: 'tree' (for the minimum spanning trees or sequence similarity networks obtained from the main AntibodyForests function), 'heterogeneous' for the bipartite graphs obtained via AntibodyForests_heterogeneous, 'dynamic' for the dynamic networks obtained from AntibodyForests_dynamics.
+#' @param embedding.method string - the embeddings model/algorithm. 'node2vec' for an implementation of graph random walk and node2vec using R-keras (might be slow depending on graph size), 'spectral_adjacency' for spectral graph embeddings of the adjacency matrix (using igraph's embed_adjacency_matrix() function), 'spectral_laplacian' for embedding the Laplacian matrix (using igraph's embed_laplacian_matrix() function).
+#' @param dim.reduction string - dimensionality reduction algorithm for the resulting node2vec embeddings. Currently implemented methods include: 'umap', 'tsne' and 'pca'.
+#' @param color.by vector of strings - features to color the resulting scatter plots by. These features must be included as igraph vertex attributes when creating the AntibodyForests objects, by including them in the node.features parameter.
+#' @param num.walks integer - number of biased random walks to be performed for the node2vec training dataset.
+#' @param num.step integer - number of steps per biased random walk.
+#' @param p numeric - probability of revisiting the same node already vistied in a random walk step (= return parameter).
+#' @param q numeric - probability of 'jumping' to a node closer or farther away from the node visited at step x (e.g., q > 1, random walk is biased to closer nodes, q < 1, random walk will 'jump' to farher nodes more frequently).
+#' @param window.size integer - size of sampling window in the skipgram model.
+#' @param num.negative.samples integer - number of negative samples to be considered in the skipgram model.
+#' @param embedding.dim integer - latent/embedding dimension of the node2vec output vectors.
+#' @param batch.size integer - training batch size of the node2vec model.
+#' @param epochs integer - number of training epochs for the node2vec model.
+#' @param tsne.perplexity numeric - T-SNE reduction perplexity.
+#' @param seed integer - random seed for the random walk steps of the node2vec model.
+#' @param parallel boolean - whether to execute the random walks in parallel or not.
 
 
-#' @return nested list of AntibodyForests objects for each clonotype and each sample/timepoint. For example, output[[1]][[2]] denotes the AntibodyForests object of the first clonotype, second timepoint.
+#' @return A scatterplot of reduced vector embeddings for each node in the graphs, colored by the features specified in color.by.
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_dynamics(trees, graph.type = 'tree', timepoint.order = c('s1', 's2', 's3')
+#' AntibodyForests_embeddings(output_networks, graph.type = 'tree', embedding.method = 'node2vec', dim.reduction = 'pca', num.walks = 10, num.steps = 10, embedding.dim = 64, batch.size = 32, epochs = 50)
 #'}
 
 
-#TO DO: ADD OPTION TO SAVE THE EMBEDDING NETWORK
+#TO DO: ADD OPTION TO SAVE THE EMBEDDING NETWORK FOR NODE2VEC
+
 
 AntibodyForests_embeddings <- function(trees,
                                        graph.type,
@@ -227,7 +239,7 @@ AntibodyForests_embeddings <- function(trees,
    project_embeddings <- function(embeddings){
 
      if(dim.reduction == 'pca'){
-       out <- prcomp(t(embeddings))$rotation[,1:2]
+       out <- stats::prcomp(t(embeddings))$rotation[,1:2]
 
      }else if(dim.reduction == 'tsne'){
        requireNamespace('Rtsne')
