@@ -10,6 +10,9 @@
 #' @param colors Vector containing custom colors to be used for highlighting the clonotypes. If left empty, default colors will be assigned.
 #' @param show.cells Logical, should cells be shown in the Ridgeline plots. True by default.
 #' @param highlight.genes Vector containing gene names. The expressionlevels of these genes along pseudotime will be plotted.
+#' @param root.nodes Labeled node from trajectory plot to specify root nodes root nodes for pseudotime trajectory.
+#' @param genes.for.module.score List of vectors of genes. With module scores inferred via Seurat::AddModuleScore(). Default is set to NULL. 
+#' @param color.cells For the module score plot decide how the cells should be coloured (based on e.g. group_id, seurat_clusters etc.). Default = 'seurat_clusters'
 #' @param dropest.output.list List containing the cell.counts.matrices.rds from the Dropest alignment for Velocyto analysis.
 #' @param velocyto.gex.merged Logical whether samples should be shown in combined UMAP or sepeartely.
 #' @param velocyto.file.name String used as file name when saving the output pdf
@@ -127,13 +130,20 @@ VDJ_GEX_clonotyme <- function(method,
                               velocyto.kGenes,
                               root.selection,
                               root.marker,
-                              ridgeline.separator){
+                              ridgeline.separator,
+                              genes.for.module.score,
+                              root.nodes,
+                              color.cells){
 
   if(missing(method)){method <- "monocle3"}
   if(missing(version)){version <- "v3"}
   if(missing(top.N.clonotypes)){top.N.clonotypes <- 2}
   if(missing(root.selection)){root.selection <- "manual"}
   if(missing(root.marker)){root.marker <- "SELL"}
+  
+  if(missing(genes.for.module.score)){genes.for.module.score <- NULL}
+  if (missing(root.nodes)){root.nodes <- NULL}
+  if (missing(color.cells)){ color.cells <- 'seurat_clusters'}
 
   #adding for variable CRAN consistency
   pseudotime_var <- NULL
@@ -143,6 +153,9 @@ VDJ_GEX_clonotyme <- function(method,
   gene_short_name_toupper <- NULL
   expectation <- NULL
   percent.mt <- NULL
+  
+  plot.output <- NULL
+  
   
   #####################
   # Monocle3 Pipeline #
@@ -235,7 +248,7 @@ VDJ_GEX_clonotyme <- function(method,
 
       print("Reading Input...")
       Cell.Data.Set <- suppressWarnings(SeuratWrappers::as.cell_data_set(gex.automate.output[[1]]))
-      print(suppressMessages(monocle3::plot_cells(Cell.Data.Set)))
+      
 
       print("Setting UMAP Partitions...")
       Cell.Data.Set@clusters[["UMAP"]]$partitions <- factor(Cell.Data.Set@clusters[["UMAP"]]$partitions, levels = c(levels(Cell.Data.Set@clusters[["UMAP"]]$partitions), "2"))
@@ -244,8 +257,8 @@ VDJ_GEX_clonotyme <- function(method,
       }
       SummarizedExperiment::colData(Cell.Data.Set)$partitions <- Cell.Data.Set@clusters$UMAP$partitions
       names(Cell.Data.Set@clusters[["UMAP"]]$partitions) <- names(Cell.Data.Set@clusters[["UMAP"]]$clusters)
-      partition.plot <- monocle3::plot_cells(Cell.Data.Set, color_cells_by = "partitions")
-      print(partition.plot)
+      partition.plot <- invisible(monocle3::plot_cells(Cell.Data.Set, color_cells_by = "partitions"))
+    
 
       #create clonotype column
       print("Integrating Clonotypes...")
@@ -278,11 +291,15 @@ VDJ_GEX_clonotyme <- function(method,
     Cell.Data.Set <- monocle3::learn_graph(Cell.Data.Set)
     
     print("Selecting Root node...")
+    if (!is.null(root.nodes)){
+      Cell.Data.Set <- monocle3::order_cells(Cell.Data.Set, root_pr_nodes = root.nodes)
+    }
     
-    if(root.selection == "manual"){
+    else if(root.selection == "manual"){
       
       print("Setting Trajectory Root...")
       Cell.Data.Set <- monocle3::order_cells(Cell.Data.Set)
+      
       
     }else if(root.selection == "marker"){
       
@@ -303,12 +320,12 @@ VDJ_GEX_clonotyme <- function(method,
 
     
     print("Calculating Pseudotime...")
-    pseudotime.plot <- monocle3::plot_cells(Cell.Data.Set,
+    pseudotime.plot <- invisible(monocle3::plot_cells(Cell.Data.Set,
                                             color_cells_by = "pseudotime",
                                             label_cell_groups=FALSE,
                                             label_leaves=FALSE,
                                             label_branch_points=FALSE,
-                                            graph_label_size=1.5)
+                                            graph_label_size=1.5))
     SummarizedExperiment::colData(Cell.Data.Set)$pseudotime <- monocle3::pseudotime(Cell.Data.Set, reduction_method = "UMAP")
 
     #return(Cell.Data.Set)
@@ -342,10 +359,11 @@ VDJ_GEX_clonotyme <- function(method,
     print("Plotting Ridgeline Plots...")
     ridgeline.separator
     if(show.cells){
-      ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =fuddi ,fill=fuddi, alpha=0.5))+ ggridges::geom_density_ridges(ggplot2::aes(point_size=p.size, point_shape=p.shape),scale=2, jittered_points = TRUE, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)+ggridges::scale_point_size_continuous(range = c(0, 2), guide = "none")+ggplot2::scale_discrete_manual(aesthetics = "point_shape", values = c(21, NA))
+      ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =fuddi ,fill=fuddi, alpha=0.5))+ ggridges::geom_density_ridges(ggplot2::aes(point_size=p.size, point_shape=p.shape),scale=2, jittered_points = TRUE, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)+ggridges::scale_point_size_continuous(range = c(0, 2), guide = "none")+ggplot2::scale_discrete_manual(aesthetics = "point_shape", values = c(21, NA))+ggplot2::ylab(ridgeline.separator)+ggplot2::labs(fill = ridgeline.separator)+ggplot2::guides(alpha = FALSE, point_shape = FALSE, fill = FALSE)
     }else{
       ridgeline.plot <- ggplot2::ggplot(df, ggplot2::aes(x = pseudotime, y =fuddi ,fill=fuddi ))+ ggridges::geom_density_ridges(scale=2, jittered_points = F, point_alpha=1)+ggplot2::theme_classic()+ggplot2::scale_fill_manual(values=cols)
     }
+    
     print(ridgeline.plot)
     # #nolegend
     # ggplot(df, aes(x = pseudotime, y =clonotype,fill=clonotype, alpha=0.5))+ geom_density_ridges(aes(point_size=p.size, point_shape=p.shape),scale=2, jittered_points = TRUE, point_alpha=1)+theme_classic()+scale_fill_manual(values=cols)+scale_point_size_continuous(range = c(0, 2), guide = "none")+scale_discrete_manual(aesthetics = "point_shape", values = c(21, NA))+theme(legend.position = "none")
@@ -353,44 +371,100 @@ VDJ_GEX_clonotyme <- function(method,
     print("---DONE---")
 
     # Do Gene-plots
-    print("Preparing Gene Plots...")
-    SummarizedExperiment::rowData(Cell.Data.Set)$gene_short_name <- rownames(SummarizedExperiment::rowData(Cell.Data.Set))
-    Cell.Data.Set <- monocle3::estimate_size_factors(Cell.Data.Set)
+    # if-else statement for module score option. If only highlight.genes is added then it plots the single genes over pseudotime.
+    #Otherwise if genes.for.module.score is added it will plot the module score over pseudotime (in the else statement)
+    if (is.null(genes.for.module.score)){
+      print("Preparing Gene Plots...")
+      SummarizedExperiment::rowData(Cell.Data.Set)$gene_short_name <- rownames(SummarizedExperiment::rowData(Cell.Data.Set))
+      Cell.Data.Set <- monocle3::estimate_size_factors(Cell.Data.Set)
+      
+      print(paste0("Selecting genes: ", unlist(highlight.genes)))
+      SummarizedExperiment::rowData(Cell.Data.Set)$gene_short_name_toupper <- toupper(rownames(SummarizedExperiment::rowData(Cell.Data.Set)))
+      #fda.usc::fdata(Cell.Data.Set)$gene_short_name_toupper <- toupper(fda.usc::fdata(Cell.Data.Set)$gene_short_name)
+      genes <- row.names(subset(Cell.Data.Set, gene_short_name_toupper %in% toupper(highlight.genes)))
+      Cell.Data.Set_subset <- Cell.Data.Set[genes,]
+      
+      print("Plotting Genes in Pseudotime...")
+      gene.plot.cluster <- suppressWarnings(monocle3::plot_genes_in_pseudotime(Cell.Data.Set_subset, trend_formula = "~ splines::ns(pseudotime, df=3)", min_expr = NULL, vertical_jitter = 0.2, color_cells_by = "seurat_clusters"))
+      
+      suppressWarnings(print(gene.plot.cluster))
+      
+      print("Coloring Cells by Clonotypes...")
+      gene.plot.cluster$data <- gene.plot.cluster$data[order(gene.plot.cluster$data$clonotype, decreasing=F),]
+      gene.plot.clonotype <- ggplot2::ggplot(ggplot2::aes(pseudotime, expression), data = gene.plot.cluster$data) + ggplot2::geom_point(ggplot2::aes(color = clonotype, size=clonotype, alpha=clonotype))#, position = position_jitter(horizontal_jitter, vertical_jitter)
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::geom_line(ggplot2::aes(x = pseudotime, y = expectation),
+                                                                      data = gene.plot.cluster$data)
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::scale_y_log10() + ggplot2::facet_wrap(~feature_label, nrow = length(highlight.genes),
+                                                                                                  ncol = 1, scales = "free_y")
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::expand_limits(y = c(0, 1))
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::ylab("Expression")
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::xlab("Pseudotime")
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::theme_minimal()
+      gene.plot.clonotype <- gene.plot.clonotype + ggplot2::scale_color_manual(breaks = c(level.list, "other"), values=cols) + ggplot2::scale_size_manual(breaks = c(level.list, "other"), values=c(rep(2, length(level.list)),1.5)) + ggplot2::scale_alpha_manual(breaks = c(level.list, "other"), values=c(rep(0.7, length(level.list)),0.4))#+theme(legend.position = "bottom", legend.box="vertical", legend.margin=margin())
+      suppressWarnings(print(gene.plot.clonotype))
+      
+      
+    }else{
+      #if genes.for.module.score has been added do module score plots 
+      print("Preparing Module Score Plots...")
+      SummarizedExperiment::rowData(Cell.Data.Set)$gene_short_name <- rownames(SummarizedExperiment::rowData(Cell.Data.Set))
+      Cell.Data.Set <- monocle3::estimate_size_factors(Cell.Data.Set)
+      
+      plot.output <- list()
+      for (i in 1:length(genes.for.module.score)) #plot for every module score 
+        { 
+        SummarizedExperiment::rowData(Cell.Data.Set)$gene_short_name_toupper <- toupper(rownames(SummarizedExperiment::rowData(Cell.Data.Set)))
 
-    print(paste0("Selecting genes: ", unlist(highlight.genes)))
-    SummarizedExperiment::rowData(Cell.Data.Set)$gene_short_name_toupper <- toupper(rownames(SummarizedExperiment::rowData(Cell.Data.Set)))
-    #fda.usc::fdata(Cell.Data.Set)$gene_short_name_toupper <- toupper(fda.usc::fdata(Cell.Data.Set)$gene_short_name)
-    genes <- row.names(subset(Cell.Data.Set, gene_short_name_toupper %in% toupper(highlight.genes)))
-    Cell.Data.Set_subset <- Cell.Data.Set[genes,]
-
-    print("Plotting Genes in Pseudotime...")
-    gene.plot.cluster <- suppressWarnings(monocle3::plot_genes_in_pseudotime(Cell.Data.Set_subset, trend_formula = "~ splines::ns(pseudotime, df=3)", min_expr = NULL, vertical_jitter = 0.2, color_cells_by = "seurat_clusters"))
-    
-    suppressWarnings(print(gene.plot.cluster))
-    
-    print("Coloring Cells by Clonotypes...")
-    gene.plot.cluster$data <- gene.plot.cluster$data[order(gene.plot.cluster$data$clonotype, decreasing=F),]
-    gene.plot.clonotype <- ggplot2::ggplot(ggplot2::aes(pseudotime, expression), data = gene.plot.cluster$data) + ggplot2::geom_point(ggplot2::aes(color = clonotype, size=clonotype, alpha=clonotype))#, position = position_jitter(horizontal_jitter, vertical_jitter)
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::geom_line(ggplot2::aes(x = pseudotime, y = expectation),
-                                                           data = gene.plot.cluster$data)
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::scale_y_log10() + ggplot2::facet_wrap(~feature_label, nrow = length(highlight.genes),
-                                                                              ncol = 1, scales = "free_y")
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::expand_limits(y = c(0, 1))
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::ylab("Expression")
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::xlab("Pseudotime")
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::theme_minimal()
-    gene.plot.clonotype <- gene.plot.clonotype + ggplot2::scale_color_manual(breaks = c(level.list, "other"), values=cols) + ggplot2::scale_size_manual(breaks = c(level.list, "other"), values=c(rep(2, length(level.list)),1.5)) + ggplot2::scale_alpha_manual(breaks = c(level.list, "other"), values=c(rep(0.7, length(level.list)),0.4))#+theme(legend.position = "bottom", legend.box="vertical", legend.margin=margin())
-    suppressWarnings(print(gene.plot.clonotype))
+        genes <- row.names(subset(Cell.Data.Set, gene_short_name_toupper %in% toupper(genes.for.module.score[[i]])))
+        
+        Cell.Data.Set_subset <- Cell.Data.Set[genes,]
+        
+        print("Plotting Genes in Pseudotime...")
+        gene.plot.cluster <- invisible(suppressWarnings(monocle3::plot_genes_in_pseudotime(Cell.Data.Set_subset, trend_formula = "~ splines::ns(pseudotime, df=3)", min_expr = NULL, vertical_jitter = 0.2, color_cells_by = "seurat_clusters")))
+        
+        
+        print("Coloring Cells...")
+        
+        
+        gene.plot.clonotype <- ggplot2::ggplot(ggplot2::aes(pseudotime,
+                                                            eval(parse(text=paste0(names(genes.for.module.score)[i],'_module',i)))),
+                                               data = gene.plot.cluster$data) +
+          ggplot2::geom_point(ggplot2::aes(color = eval(parse(text= color.cells)), alpha= eval(parse(text = color.cells))))#, position = position_jitter(horizontal_jitter, vertical_jitter)
+        gene.plot.clonotype <- gene.plot.clonotype +
+          ggplot2::geom_smooth(ggplot2::aes(x = pseudotime, y = expectation),
+                               data = gene.plot.cluster$data)
+        gene.plot.clonotype <- gene.plot.clonotype + ggplot2::expand_limits(y = c(0, 1))
+        gene.plot.clonotype <- gene.plot.clonotype + ggplot2::ylab("Module Score")
+        gene.plot.clonotype <- gene.plot.clonotype + ggplot2::xlab("Pseudotime")
+        gene.plot.clonotype <- gene.plot.clonotype + ggplot2::theme_minimal()
+        plot.output[[i]] <- print(gene.plot.clonotype)
+        
+      }
+      
+      print("---DONE---")
+      
+      output <- list()
+      output[[1]] <- suppressWarnings(pseudotime.plot)
+      output[[2]] <- suppressWarnings(ridgeline.plot)
+      output[[3]] <- suppressWarnings(gene.plot.cluster)
+      output[[4]] <- suppressWarnings(plot.output)
+      output[[5]] <- Cell.Data.Set
+     
+      
+      return(output)
+        
+      
+    }
 
     print("---DONE---")
     # gene.plot.clonotype + theme(legend.position = "none",strip.text.x = element_text(size = 14))
 
 
     output <- list()
-    output[[1]] <- suppressWarnings(print(pseudotime.plot))
-    output[[2]] <- suppressWarnings(print(ridgeline.plot))
-    output[[3]] <- suppressWarnings(print(gene.plot.cluster))
-    output[[4]] <- suppressWarnings(print(gene.plot.clonotype))
+    output[[1]] <- suppressWarnings(pseudotime.plot)
+    output[[2]] <- suppressWarnings(ridgeline.plot)
+    output[[3]] <- suppressWarnings(gene.plot.cluster)
+    output[[4]] <- suppressWarnings(gene.plot.clonotype)
     output[[5]] <- Cell.Data.Set
     
     return(output)
