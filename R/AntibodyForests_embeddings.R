@@ -55,7 +55,7 @@ AntibodyForests_embeddings <- function(trees,
    if(missing(trees)) stop('Please input a nested list of AntibodyForests objects or a single AntibodyForests object')
    if(missing(graph.type)) graph.type <- 'tree'
    if(missing(embedding.method)) embedding.method <- 'node2vec'
-   if(missing(dim.reduction)) dim.reduction <- 'umap'
+   if(missing(dim.reduction)) dim.reduction <- 'pca'
    if(missing(color.by)) color.by <- 'node_type'
    if(missing(num.walks)) num.walks <- 10
    if(missing(num.steps)) num.steps <- 10
@@ -103,6 +103,7 @@ AntibodyForests_embeddings <- function(trees,
      final_walks <- c()
      vocabulary_size <- length(igraph::V(g))
      nodes <- as.vector(igraph::V(g))
+
 
      for(walk_iter in 1:num.walks){
        #message(paste0('Walk number ', walk_iter, ' out of ', num_walks))
@@ -190,7 +191,7 @@ AntibodyForests_embeddings <- function(trees,
      target <- keras::layer_input(name = 'target', shape = c(1))
      context <- keras::layer_input(name = 'context', shape = c(1))
 
-     embed_item <- keras::layer_embedding(input_dim = vocabulary_size,
+     embed_item <- keras::layer_embedding(input_dim = vocabulary_size + 1,
                                           output_dim = embedding.dim,
                                           embeddings_initializer = 'he_normal',
                                           embeddings_regularizer = keras::regularizer_l2(1e-6),
@@ -208,7 +209,6 @@ AntibodyForests_embeddings <- function(trees,
                               metrics = list('accuracy'))
 
      embedding_model <- keras::keras_model(inputs = target, outputs = keras::get_layer(model, 'embeddings')$output)
-
 
      model %>% keras::fit(x = list(target = dataset$target, context = dataset$context),
                           y = dataset$label,
