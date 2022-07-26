@@ -56,11 +56,17 @@ VGM_integrate <- function(VGM,
 
   if(missing(genes.to.VDJ) == T){ #if no genes to be extracted to VDJ
 
+  #Keeping original GEX names.
+  #As we add VDJ -> GEX first, we need to keep track of original columns in GEX so no "backintegration" happens
+  ori_GEX_names <- names(VGM[[2]]@meta.data)
+  ori_VDJ_names <- names(VGM[[1]])
+
   #now find columns to integrate
   #starting with VDJ to GEX
-  if(columns.to.transfer != "all"){
-    if(any(columns.to.transfer %in% names(VGM[[1]]))){
-     cl_VDJ_to_GEX <- columns.to.transfer[columns.to.transfer %in% names(VGM[[1]])]
+  if(columns.to.transfer[1] != "all"){
+    if(any(columns.to.transfer %in% ori_VDJ_names)){
+     cl_VDJ_to_GEX <- columns.to.transfer[columns.to.transfer %in% ori_VDJ_names]
+     cl_VDJ_to_GEX <- cl_VDJ_to_GEX[!cl_VDJ_to_GEX %in% ori_GEX_names] #no need to transfer columns already in VDJ
     } else {
       cl_VDJ_to_GEX <- c()
       }
@@ -68,8 +74,10 @@ VGM_integrate <- function(VGM,
 
       VGM[[2]]@meta.data <- VGM[[2]]@meta.data[-c(which(names(VGM[[2]]@meta.data) %in% c("clonotype_id", "clonotype_frequency")))]#remove columns to allow updating these in case a new clonotyping strategy has been added
 
-    cl_VDJ_to_GEX <- names(VGM[[1]])[!names(VGM[[1]]) %in% names(VGM[[2]]@meta.data)]
+    cl_VDJ_to_GEX <- ori_VDJ_names[!ori_VDJ_names %in% ori_GEX_names]
     cl_VDJ_to_GEX <- cl_VDJ_to_GEX[!cl_VDJ_to_GEX %in% c("barcode", "GEX_available")]
+    cl_VDJ_to_GEX <- c(cl_VDJ_to_GEX, "clonotype_id", "clonotype_frequency") #append columns to allow updating these in case a new clonotyping strategy has been added
+    VGM[[2]]@meta.data <- VGM[[2]]@meta.data[-c(which(names(VGM[[2]]@meta.data) %in% c("clonotype_id", "clonotype_frequency")))]#remove columns to allow updating these in case a new clonotyping strategy has been added
     if(length(cl_VDJ_to_GEX)>0)message("Integrating all VDJ columns which are not in GEX to GEX")
     }
 
@@ -87,21 +95,22 @@ VGM_integrate <- function(VGM,
   }
 
   #now GEX to VDJ
-  if(columns.to.transfer != "all"){
-    if(any(columns.to.transfer %in% names(VGM[[2]]@meta.data))){
-      cl_GEX_to_VDJ <- columns.to.transfer[columns.to.transfer %in% names(VGM[[2]]@meta.data)]
+  if(columns.to.transfer[1] != "all"){
+
+    if(any(columns.to.transfer %in% ori_GEX_names)){
+      cl_GEX_to_VDJ <- columns.to.transfer[columns.to.transfer %in% ori_GEX_names]
+      cl_GEX_to_VDJ <- cl_GEX_to_VDJ[!cl_GEX_to_VDJ %in% names(VGM[[1]])] #no need to transfer columns already in VDJ
     } else {
       cl_GEX_to_VDJ <- c()
     }
   } else {
-    cl_GEX_to_VDJ <- names(VGM[[2]]@meta.data)[!names(VGM[[2]]@meta.data) %in% names(VGM[[1]])]
+    cl_GEX_to_VDJ <- ori_GEX_names[!ori_GEX_names %in% ori_VDJ_names]
     cl_GEX_to_VDJ <- cl_GEX_to_VDJ[!cl_GEX_to_VDJ %in% c("nCount_RNA", "nFeature_RNA", "VDJ_available", "percent.mt", "RNA_snn_res.0.5", "FB_assignment.y")]
     if(length(cl_GEX_to_VDJ)>0) message("Integrating all GEX columns which are not in VDJ to VDJ")
   }
   if(length(cl_GEX_to_VDJ) > 0){
     VGM[[2]]@meta.data[,"int_merge_bc"] <- colnames(VGM[[2]])
     VGM[[1]][,"int_merge_bc"] <- VGM[[1]]$barcode
-
     to_merge <- VGM[[2]]@meta.data[,c("int_merge_bc",cl_GEX_to_VDJ)]
     new_VDJ <- merge(VGM[[1]], to_merge, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
     VGM[[2]]@meta.data <- VGM[[2]]@meta.data[,names(VGM[[2]]@meta.data) != "int_merge_bc"]
