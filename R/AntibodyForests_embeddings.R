@@ -352,7 +352,8 @@ AntibodyForests_embeddings <- function(trees,
      return(plot)
    }
 
-
+   set.seed(seed)
+   
    if(inherits(trees, 'list')){
 
      plots <- vector(mode = 'list', length = length(trees))
