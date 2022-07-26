@@ -1,16 +1,16 @@
-#' Infer B cell evolutionary networks
+#' Infer B cell evolutionary networks and/or sequence similarity networks
 
 
-#'@description Function to infer immune receptor evolutionary networks (trees) or complex/similarity networks from a Platypus VDJ object/VGM[[1]] - AntibodyForests objects will be created for each sample and each unique clonotype, if the default parameters are used.
+#'@description Function to infer immune receptor evolutionary networks (trees) or complex/sequence-similarity networks from a Platypus VDJ object/VGM[[1]] - AntibodyForests objects will be created for each sample and each unique clonotype, if the default parameters are used.
 #' Networks can be created in a tree-building manner (minimum spanning tree algorithm with custom tie solving methods), by linking sequences with a minimal string distance between them iteratively (and solving distance ties in a hierarchical way, with multiple resolve.ties parameters/configurations). Nodes in the network represent unique sequences per clonotype, edges are determined by the string distance between the nodes/sequences. Sequence types are dictated by the sequence.tyoe parameter, allowing networks to be built for most of the sequence types available in a Platypus VDJ object.
 #' Networks can also be created by pruning edges from a fully connected network obtained from all sequences from a specific clonotype - complex similarity networks. Pruning can either be done via a distance threshold (prunes nodes too far apart), a node degree threshold (to prune nodes with a smaller degree/not well connected), or an expansion threshold (to prune nodes for sequences with low expansion/frequency).
 #' Lastly, networks can be created by converting a phylogenetic tree inferred via different methods (neighbour-joining, maximum likelihood, maximum parsimony) into an igraph object,
 
 
 #' @param VDJ VDJ or vgm[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
-#' @param sequence.type string denoting the sequence types to create the networks for. 'cdr3.aa' - networks for amino-acid CDR3 sequences, 'cdr3.nt' - networks for nucleotide CDR3 sequences, 'VDJ.VJ.nt.trimmed' - full, trimmed VDJ-VJ sequences, as obtained from calling VDJ_call_MIXCR on the VDJ object, 'VDJ.VJ.nt.raw' - full, raw VDJ-VJ sequences, as obtained from calling VDJ_call_MIXCR on the VDJ object, 'mixcr.VDJ.VJ' for the VDJ and VJ chains as inferred by MIXCR, 'mixcr.VDJ' for the VDJ chain inferred by MIXCR, 'mixcr.VJ' for the VJ chain inferred by MIXCR, 'VDJ.nt.trimmed' for the trimmed VDJ chain as nucleotides, 'VDJ.nt.raw' for the untrimmed VDJ chain as nucleotides, similarly for the VJ chain ('VJ.nt.trimmed' and 'VJ.nt.raw'), 'VDJ.cdr3s.aa' for the CDRH3 region as amino-acids, VDJ.cdr3s.nt' for the CDRH3 region as nucleotides, similarly for the CDRL3 regions ('VJ.cdr3s.aa', 'VJ.cdr3s.nt'), 'VDJ.aa' and 'VJ.aa' for the full VDJ/VJ sequence as amino-acids.
+#' @param sequence.type string denoting the sequence types to create the networks for. 'cdr3.aa' - networks for amino-acid CDR3 sequences, 'cdr3.nt' - networks for nucleotide CDR3 sequences, 'VDJ.VJ.nt.trimmed' - full, trimmed VDJ-VJ sequences, as obtained when setting trin.and.align = T for VDJ_GEX_matrix(), 'VDJ.VJ.nt.raw' - full, raw VDJ-VJ sequences, 'VDJ.VJ.aa.mixcr' and 'VDJ.VJ.nt.mixcr' for the VDJ and VJ chains (nt or aa) as inferred by MIXCR, 'VDJ.aa.mixcr' and 'VDJ.nt.mixcr' for the VDJ chain inferred by MIXCR, 'VJ.aa.mixcr' and 'VJ.nt.mixcr' for the VJ chain inferred by MIXCR, 'VDJ.nt.trimmed' for the trimmed VDJ chain as nucleotides, 'VDJ.nt.raw' for the untrimmed VDJ chain as nucleotides, similarly for the VJ chain ('VJ.nt.trimmed' and 'VJ.nt.raw'), 'VDJ.cdr3s.aa' for the CDRH3 region as amino-acids, VDJ.cdr3s.nt' for the CDRH3 region as nucleotides, similarly for the CDRL3 regions ('VJ.cdr3s.aa', 'VJ.cdr3s.nt'), 'VDJ.aa' and 'VJ.aa' for the full VDJ/VJ sequence as amino-acids.
 #' Defaults to 'VDJ.VJ.nt.trimmed'.
-#' @param include.germline string. 'trimmed.ref' - the networks will include a germline node, obtained by pasting the VDJ_trimmed_ref and VJ_trimmed_ref sequences for each clonotype, obtained by calling VDJ_call_MIXCR on VDJ. As reconstructed germlines as usually available for full VDJ.VJ.nt sequences, use this with sequence.type=VDJ.VJ.nt.trimmed. NULL will not include a germline.
+#' @param include.germline string or vector of strings, denoting the germline column(s) to be used (in the c('VDJ_germline', 'VJ_germline') order). 'trimmed.ref' - the networks will include a germline node, obtained by pasting the VDJ_trimmed_ref and VJ_trimmed_ref sequences for each clonotype, obtained by calling VDJ_call_MIXCR on VDJ. As reconstructed germlines as usually available for full VDJ.VJ.nt sequences, use this with sequence.type=VDJ.VJ.nt.trimmed. NULL will not include a germline.
 #' @param network.algorithm string denoting the algorithm used in constructing the networks. 'tree' - will use a tree evolutionary inference algorithm: nodes denoting unique sequences per clonotype will be linked iteratively, as long as their string distance is the minimum. Use the resolve.ties parameter to further dictate the tree topology (when there are multiple ties in the minimum links).
 #' 'prune' will create networks by pruning nodes from a fully connected networks. It must always be followed by a pruning method.
 #' For example, 'prune.distance' will prune nodes with a larger string distance than the threshold specified in the pruning.threshold parameter.
@@ -322,16 +322,28 @@ AntibodyForests <- function(VDJ,
      combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_raw, clonotype_df$VJ_sequence_nt_raw)
      clonotype_df$network_sequences <- combined_sequences
 
-   }else if(sequence.type=='mixcr.VDJ.VJ'){
+   }else if(sequence.type=='VDJ.VJ.nt.mixcr'){
      clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ.VJ')
      clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
 
-   }else if(sequence.type=='mixcr.VDJ'){
+   }else if(sequence.type=='VDJ.nt.mixcr'){
      clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ')
      clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
 
-   }else if(sequence.type=='mixcr.VJ'){
+   }else if(sequence.type=='VJ.nt.mixcr'){
      clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VJ')
+     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
+
+   }else if(sequence.type=='VDJ.VJ.aa.mixcr'){
+     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ.VJ', as.nucleotide = F)
+     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
+
+   }else if(sequence.type=='VDJ.aa.mixcr'){
+     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ', as.nucleotide = F)
+     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
+
+   }else if(sequence.type=='VJ.aa.mixcr'){
+     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VJ', as.nucleotide = F)
      clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
 
    }else if(sequence.type=='VDJ.nt.trimmed'){
@@ -452,6 +464,8 @@ AntibodyForests <- function(VDJ,
         counts <- 1
       }
 
+      feats[is.na(feats) | is.null(feats) | feats == ''] <- 'unknown'
+
 
       feature_list[[i]] <- feats
       feature_counts[[i]] <- unname(counts)
@@ -486,14 +500,21 @@ AntibodyForests <- function(VDJ,
   network_df$sequence_id <- 1:nrow(network_df)
 
   if(!is.null(include.germline)){
-    if(include.germline == 'trimmed.ref'){
-      if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))){
-        stop('Please use trim.and.align=T when creating your VGM object')
+    if(any(include.germline != 'trimmed.ref') & any(include.germline != 'cdr3.nt')){
+      if(length(include.germline) == 2){
+        VDJ <- clonotype_df[[include.germline[1]]]
+        VJ <- clonotype_df[[include.germline[2]]]
+        if(VDJ=='' | is.na(VDJ) | is.null(VDJ)){
+          return(NULL)
+        }
+
+        if(VJ=='' | is.na(VJ) | is.null(VJ)){
+          return(NULL)
+        }
+        germline_seq <- paste0(VDJ, VJ)
+      }else{
+        germline_seq <- clonotype_df[[include.germline]]
       }
-      VDJ <- clonotype_df$VDJ_trimmed_ref
-      VJ <- clonotype_df$VJ_trimmed_ref
-      germline_seq <- paste0(VDJ,VJ)
-      germline_seq <- gsub('-', '', germline_seq)  #see how this affects the networks strcuture (previously was not included)
       unique_germline_seq <- unlist(unique(germline_seq))
       germline_seq_frequencies <- unlist(lapply(unique_germline_seq, function(x) length(which(germline_seq==x))))
       germline_seq <- unique_germline_seq[which.max(germline_seq_frequencies)]
@@ -501,11 +522,43 @@ AntibodyForests <- function(VDJ,
       if(germline_seq=='' | is.na(germline_seq) | is.null(germline_seq)){
         return(NULL)
       }
+
+    }else if(include.germline == 'trimmed.ref'){
+      if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))){
+        stop('Please use trim.and.align=T when creating your VGM object')
+      }
+
+      if(stringr::str_detect(sequence.type, 'VDJ.VJ')){
+        VDJ <- clonotype_df$VDJ_trimmed_ref
+        VJ <- clonotype_df$VJ_trimmed_ref
+        if(VDJ=='' | is.na(VDJ) | is.null(VDJ)){
+          return(NULL)
+        }
+
+        if(VJ=='' | is.na(VJ) | is.null(VJ)){
+          return(NULL)
+        }
+        germline_seq <- paste0(VDJ,VJ)
+      }else if(stringr::str_detect(sequence.type, 'VDJ')){
+        germline_seq <- clonotype_df$VDJ_trimmed_ref
+      }else{
+        germline_seq <- clonotype_df$VJ_trimmed_ref
+      }
+
+      #germline_seq <- gsub('-', '', germline_seq)  #see how this affects the networks strcuture (previously was not included)
+      unique_germline_seq <- unlist(unique(germline_seq))
+      germline_seq_frequencies <- unlist(lapply(unique_germline_seq, function(x) length(which(germline_seq==x))))
+      germline_seq <- unique_germline_seq[which.max(germline_seq_frequencies)]
+
+      if(germline_seq=='' | is.na(germline_seq) | is.null(germline_seq)){
+        return(NULL)
+      }
+
     }else if(include.germline == 'cdr3.nt'){
       VDJ <- clonotype_df$VDJ_cdr3s_nt
       VJ <- clonotype_df$VJ_cdr3s_nt
       germline_seq <- paste0(VDJ,VJ)
-      germline_seq <- gsub('-', '', germline_seq)  #see how this affects the networks strcuture (previously was not included)
+      #germline_seq <- gsub('-', '', germline_seq)  #see how this affects the networks strcuture (previously was not included)
       unique_germline_seq <- unlist(unique(germline_seq))
       germline_seq_frequencies <- unlist(lapply(unique_germline_seq, function(x) length(which(germline_seq==x))))
       germline_seq <- unique_germline_seq[which.max(germline_seq_frequencies)]
