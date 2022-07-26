@@ -896,13 +896,3 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
   return(VDJ.GEX.matrix)
 }
-
-
-#library(tidyverse)
-
-#vgm <- read.csv('./data/OVA_vgm_annotated.csv')
-#VDJ.directory <- './data/DBmanuscript_OVA_v5/VDJ'
-#test1 <- VDJ_clonotype_v3_w_enclone(vdj, VDJ.directory = VDJ.directory, clone.strategy = "Hvj.Lvj.CDR3length.CDR3.homology", samples.to.combine = c('s1', 's2', 's3', 's4'), global.clonotype = T)
-#test2 <- VDJ_clonotype_v3_w_enclone(vdj, VDJ.directory = VDJ.directory, clone.strategy = "enclone", samples.to.combine = c('s1', 's2', 's3', 's4'), global.clonotype = T)
-#test3 <- VDJ_clonotype_v3_w_enclone(vdj, VDJ.directory = VDJ.directory, clone.strategy = "enclone", samples.to.clonotype = c('s1', 's2', 's3'), global.clonotype = F)
-#test4 <- VDJ_clonotype_v3_w_enclone(vdj, VDJ.directory = VDJ.directory, clone.strategy = "Hvj.Lvj.CDR3length.CDR3.homology", samples.to.clonotype = c('s1', 's2', 's3'), samples.to.combine = c('s1', 's2'), global.clonotype = T)

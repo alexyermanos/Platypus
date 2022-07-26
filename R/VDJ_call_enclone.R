@@ -251,11 +251,3 @@ VDJ_call_enclone <- function(VDJ,
 
   return(vdj)
 }
-
-
-
-
-
-#vdj <- read.csv('./data/OVA_vgm_annotated.csv')
-#VDJ.directory <- './data/DBmanuscript_OVA_v5/VDJ'
-#out <- VDJ_call_enclone(vdj, VDJ.directory, samples.to.combine = c('s1', 's2', 's3'), global.clonotype = F)
