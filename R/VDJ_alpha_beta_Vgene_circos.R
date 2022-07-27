@@ -1,5 +1,5 @@
 #'Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
-#' @param VGM The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. 
+#' @param VGM The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.
 #' @param V.or.J Determines whether to plot the alpha beta gene pairing of the V or J genes. "V", "J" or "both" as possible inputs. Default: "both".
 #' @param B.or.Tcells Specify whether B or T cells are being analyzed ("B" or "T"). If not specified, function attempts to decide based on gene names.
 #' @param label.threshold Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).
@@ -36,12 +36,12 @@ VDJ_alpha_beta_Vgene_circos <- function(VGM,
                                         c.count.label,
                                         c.count.label.size,
                                         platypus.version,
-                                        filter1H1L, 
+                                        filter1H1L,
                                         gene.label,
                                         gene.label.size,
                                         arr.col,
                                         arr.direction,
-                                        topX, 
+                                        topX,
                                         platy.theme,
                                         clonotype.column){
 
@@ -61,7 +61,7 @@ VDJ_alpha_beta_Vgene_circos <- function(VGM,
   if(missing(topX)){topX <- "all"}
   if(missing(platy.theme)){platy.theme <- "pretty"}
   if(missing(clonotype.column)){clonotype.column <- "clonotype_id_10x"}
-  
+
 
 #define Variables
 
@@ -125,11 +125,11 @@ if(platypus.version=="v3"){
   # filter for 1H1L
 
   if(filter1H1L==T){
-    VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][which((VDJ.GEX.matrix[[1]]$Nr_of_VDJ_chains==1)&(VDJ.GEX.matrix[[1]]$Nr_of_VJ_chains==1)),]
+    VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][VDJ.GEX.matrix[[1]]$Nr_of_VDJ_chains==1 &VDJ.GEX.matrix[[1]]$Nr_of_VJ_chains==1,]
   }
 
   clonotype.frequency <- paste0("clonotype_frequency_", stringr::str_split(clonotype.column, pattern="_")[[1]][3])
-  
+
   #filter out clonotypes with less then c.threshold cells
   if(clonotype.frequency %in% colnames(VDJ.GEX.matrix[[1]])){ #check if 10x frequency already exists... will only be created after reclonotyping.
     VDJ.GEX.matrix[[1]] <-VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]][[clonotype.frequency]] >= c.threshold),]
@@ -154,11 +154,12 @@ if(platypus.version=="v3"){
   #split up into samples to plot individually
   VDJ.GEX_list <- list()
   for (i in 1:length(unique(VDJ.GEX.matrix[[1]]$sample_id))){
+    print(unique(VDJ.GEX.matrix[[1]]$sample_id)[i])
     VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id== unique(VDJ.GEX.matrix[[1]]$sample_id)[i]),]
   }
-  
+
   # filter topX clonotypes
-  
+
   if(topX != "all"){
     for(k in 1:length(VDJ.GEX_list)){
       clonotypes_topX <- names(utils::head(sort(table(VDJ.GEX_list[[k]][[clonotype.column]]),decreasing = T),topX))
@@ -213,14 +214,14 @@ if(platypus.version=="v3"){
     rownames(Vgene_usage_matrix[[k]]) <- unique(TRA)
     colnames(Vgene_usage_matrix[[k]]) <- unique(TRB)
   }
-  
 
-  
+
+
   if(cell.level == F){
     message("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
     message(paste("Chosen clonotype column: ", clonotype.column))
   }
-  
+
   for (k in 1:length(VDJ.GEX_list)){
 
     #create dummy df which will contain the counts for each combination
@@ -357,16 +358,16 @@ if(platypus.version=="v3"){
     circos.recorded <- recordPlot()
     plot[[i]] <- circos.recorded
   }
-  
+
   plot[[i+1]] <- Vgene_usage_matrix
   plot[[i+2]] <- grid.col
   plot[[i+3]] <- group
 
-  
+
 }else if(platypus.version=="v2"){
 #### Platypus Version 2 ####
 
- 
+
   if(missing(B.or.Tcells)){
     for(i in 1:nrow(VDJ[[1]])){
       if(substr(VDJ[[1]]$HC_vgene[[i]],start=1, stop = 2)=="IG"){

@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.0</span>
       </span>
     </div>
 
@@ -118,7 +118,7 @@
                         <h4 data-toc-skip class="author">Platypus
 Team</h4>
             
-            <h4 data-toc-skip class="date">2022-04-02</h4>
+            <h4 data-toc-skip class="date">2022-07-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/alexyermanos/Platypus/tree/mastervignettes/quickstart.Rmd" class="external-link"><code>vignettes/quickstart.Rmd</code></a></small>
       <div class="hidden name"><code>quickstart.Rmd</code></div>
@@ -313,58 +313,42 @@ format is identical to that of section 5.1</p>
                       integrate.GEX.to.VDJ <span class="op">=</span> <span class="cn">T</span>,
                       integrate.VDJ.to.GEX <span class="op">=</span> <span class="cn">T</span>,
                       verbose <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span>
-
-<span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span>
-
-<span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span>
-
-<span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span></code></pre>
 <pre><code><span class="co">## Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric</span>
 <span class="co">## To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'</span>
 <span class="co">## This message will be shown once per session</span></code></pre>
 <p>We can briefly look at the datastructure</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "barcode"          "orig_barcode"     "sample_id"        "FB_assignment"   </span>
-<span class="co">## [5] "group_id"         "clonotype_id_10x"</span></code></pre>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<pre><code><span class="co">## [1] "barcode"             "sample_id"           "group_id"           </span>
+<span class="co">## [4] "clonotype_id_10x"    "clonotype_id"        "clonotype_frequency"</span></code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## By setting integrate.GEX.to.VDJ and integrate.VDJ.to.GEX to T, VDJ and GEX information will be found in vgm[[1]] and vgm[[2]] objects.</span>
 <span class="co"># For example, the seurat-determined cluster is attached to each cell in the VDJ library by</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">seurat_clusters</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] &lt;NA&gt; 1    1    1    5    1   </span>
+<pre><code><span class="co">## [1] &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;</span>
 <span class="co">## Levels: 0 1 2 3 4 5 6 7 8 9 10 11</span></code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># which corresponds to cells with the following VDJ_cdr3 </span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">VDJ_cdr3s_aa</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "CARIGYAMDYW"        "CARDFTTVVARGYFDVW"  "CARGITTVVAYYYAMDYW"</span>
 <span class="co">## [4] "CTTGPYDYYAMDYW"     "CARPHDYDGVDYW"      "CARRYYSNYAWFAYW"</span></code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># an NA indicates that the cell barcode in the VDJ library was not detected in the GEX object (or was filtered out, depending on mitochondrial gene limits, etc)</span></code></pre></div>
 <p>Importantly, all samples are integrated in one vgm. Basic stats can
 be retrieved from the VDJ_GEX_stats output which was run as part of the
 VGM function (get_VDJ_stats = T)</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> </code></pre></div>
-<pre><code><span class="co">##                                                                               Repertoir path</span>
-<span class="co">## VDJ.stats  N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/VDJ/Aged.CNS.pool.3m.Bcell.S1</span>
-<span class="co">## VDJ.stats1                                                                              &lt;NA&gt;</span>
-<span class="co">## VDJ.stats2                                                                              &lt;NA&gt;</span>
-<span class="co">## VDJ.stats3                                                                              &lt;NA&gt;</span>
-<span class="co">##                                                                                  Sample name</span>
-<span class="co">## VDJ.stats  N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/VDJ/Aged.CNS.pool.3m.Bcell.S1</span>
-<span class="co">## VDJ.stats1                                                                              &lt;NA&gt;</span>
-<span class="co">## VDJ.stats2                                                                              &lt;NA&gt;</span>
-<span class="co">## VDJ.stats3                                                                              &lt;NA&gt;</span>
-<span class="co">##            Nr unique barcodes Nr barcodes is_cell Nr cells 1VDJ 1VJ</span>
-<span class="co">## VDJ.stats                  78                  78                61</span>
-<span class="co">## VDJ.stats1                160                 160               122</span>
-<span class="co">## VDJ.stats2                208                 208               160</span>
-<span class="co">## VDJ.stats3                499                 499               372</span>
+<pre><code><span class="co">##                                                                                  Repertoir path</span>
+<span class="co">## VDJ.stats     N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/VDJ/Aged.CNS.pool.3m.Bcell.S1</span>
+<span class="co">## VDJ.stats1   N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/VDJ/Aged.CNS.pool.12m.Bcell.S2</span>
+<span class="co">## VDJ.stats2   N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/VDJ/Aged.CNS.pool.18m.Bcell.S3</span>
+<span class="co">## VDJ.stats3 N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/VDJ/Aged.CNS.single.18m.Bcell.S4</span>
+<span class="co">##            Sample name Nr unique barcodes Nr barcodes is_cell Nr cells 1VDJ 1VJ</span>
+<span class="co">## VDJ.stats           s1                 78                  78                61</span>
+<span class="co">## VDJ.stats1          s2                160                 160               122</span>
+<span class="co">## VDJ.stats2          s3                208                 208               160</span>
+<span class="co">## VDJ.stats3          s4                499                 499               372</span>
 <span class="co">##            Nr cells 1VDJ 0VJ Nr cells 0VDJ 1VJ Nr cells 2 or more VDJ 1VJ</span>
 <span class="co">## VDJ.stats                  8                 1                          0</span>
 <span class="co">## VDJ.stats1                13                15                          1</span>
@@ -588,7 +572,7 @@ VGM function (get_VDJ_stats = T)</p>
 <p>Moreover, given the many parameters of the VGM function is may be
 useful to check back on runtime parameters. These, as well as session
 info are also saved in the vgm object</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#Runtime params</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#session info</span></code></pre></div>
 </div>
@@ -604,7 +588,7 @@ default, UMAP, PCA, and TSNE embeddings are included in the object. Here
 it is important to supply the seurat object in vgm[[2]]. For the
 parameter group.by we supply “sample_id” to color points by the entry in
 their sample id column</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># In Platypus version 2, the output from GEX_automate was used as input to other GEX functions. These functions are still compatible with v3 if the vgm[[2]] seurat object is supplied as input.</span>
 <span class="co"># For example, the following function can be used to calculate the DE genes for each cluster, as before. </span>
 <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html" class="external-link">DimPlot</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"sample_id"</span><span class="op">)</span>
@@ -620,12 +604,12 @@ samples, suggesting a similar distribution of transcriptional properties
 between the two samples. We can also plot the cluster membership for
 each of the distinct sample using the GEX_proportions_barplot
 function.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/GEX_proportions_barplot.html">GEX_proportions_barplot</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, stacked.plot <span class="op">=</span> <span class="cn">T</span>, source.group <span class="op">=</span> <span class="st">"sample_id"</span>, target.group <span class="op">=</span> <span class="st">"seurat_clusters"</span><span class="op">)</span>
 <span class="co">#This function is very flexible and can be used to plot proportions of cells from and of any groups. For this use the source.group and target.group parameters to specify metadata columns.</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
 <p>Finally, we can also look at common B cell markers.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html" class="external-link">FeaturePlot</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,reduction <span class="op">=</span> <span class="st">"umap"</span>,features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>,<span class="st">"PTPRC"</span>, <span class="st">"EBF1"</span>, <span class="st">"H2-K1"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#To easily scout through genes in the dataset use:</span>
 <span class="co">#View(as.data.frame(rownames(vgm[[2]])))</span></code></pre></div>
@@ -639,7 +623,7 @@ the default cell states are quite basic, we find that the strength of
 the function is that a user can label cells with custon phenotypes as
 demonstrated below. For more information please see the functions
 documentation.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#using defaults</span>
 <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_phenotype.html">GEX_phenotype</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, default <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="co">#custom criteria</span>
@@ -647,7 +631,7 @@ documentation.</p>
 <p>The resulting Seurat object now contains a “cell.state” column which
 can be used for annotation in the DimPlot function of the Seurat
 package.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html" class="external-link">DimPlot</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"cell.state"</span><span class="op">)</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
 <div class="section level3">
@@ -668,19 +652,19 @@ has the same format as the FindMarkers function from Seurat. The pct.1
 will correspond to the percentage of cells expressing the gene in the
 cluster of interest, and the pct.2 to the percentage of cells in all
 other clusters.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gene_expression_cluster</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_cluster_genes.html">GEX_cluster_genes</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,min.pct <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> 
 <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">gene_expression_cluster</span><span class="op">)</span> <span class="co"># length of 12, corresponding to 12 clusters</span></code></pre></div>
 <pre><code><span class="co">## [1] 12</span></code></pre>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">seurat_clusters</span><span class="op">)</span><span class="op">)</span> <span class="co"># length of 12</span></code></pre></div>
 <pre><code><span class="co">## [1] 12</span></code></pre>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">gene_expression_cluster</span>,<span class="va">nrow</span><span class="op">)</span><span class="op">)</span> <span class="co">#Nr of differentially expressed genes per cluster</span></code></pre></div>
 <pre><code><span class="co">##  [1]  711  506  459 1463  459  819 1021  937  871 1211 1061  956</span></code></pre>
 <p>We can now look at some of the genes associated with cluster0 in the
 previously displayed umap</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gene_expression_cluster</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##               p_val avg_logFC pct.1 pct.2     p_val_adj SYMBOL cluster</span>
 <span class="co">## NKG7   0.000000e+00  3.311587 0.980 0.102  0.000000e+00   NKG7       0</span>
@@ -699,7 +683,7 @@ Additionally, the user can determine the number of genes to display for
 each cluster based on the n.genes.per.cluster argument. The function
 GEX_cluster_genes_heatmap can be used to produce a ggplot object, based
 on the DoHeatmap from Seurat.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">agedCNS_heatmap_clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_cluster_genes_heatmap.html">GEX_cluster_genes_heatmap</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, GEX_cluster_genes.output <span class="op">=</span> <span class="va">gene_expression_cluster</span>,n.genes.per.cluster <span class="op">=</span> <span class="fl">3</span>,max.cell <span class="op">=</span> <span class="fl">30</span>,metric <span class="op">=</span> <span class="st">"avg_logFC"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">agedCNS_heatmap_clusters</span><span class="op">)</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-16-1.png" width="672"></p>
@@ -707,10 +691,10 @@ on the DoHeatmap from Seurat.</p>
 various clusters - mainly indicated by the diagonal.</p>
 <p>Further, volcano plots may be used to show and annotate a larger
 number of differentially expressed genes</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">agedCNS_heatmap_volcano</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_volcano.html">GEX_volcano</a></span><span class="op">(</span>DEGs.input <span class="op">=</span> <span class="va">gene_expression_cluster</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, input.type <span class="op">=</span> <span class="st">"cluster.genes"</span>, RP.MT.filter <span class="op">=</span> <span class="cn">T</span>, color.p.threshold <span class="op">=</span> <span class="fl">0.01</span>, n.label.up <span class="op">=</span> <span class="fl">10</span>, n.label.down <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">agedCNS_heatmap_volcano</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_volcano.html">GEX_volcano</a></span><span class="op">(</span>DEGs.input <span class="op">=</span> <span class="va">gene_expression_cluster</span>, input.type <span class="op">=</span> <span class="st">"cluster.genes"</span>, RP.MT.filter <span class="op">=</span> <span class="cn">T</span>, color.p.threshold <span class="op">=</span> <span class="fl">0.01</span>, n.label.up <span class="op">=</span> <span class="fl">10</span>, n.label.down <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "Top 10 and bottom 10 genes will be labeled"</span></code></pre>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">agedCNS_heatmap_volcano</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#genes specific to cluster 0</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
 <p>We can extract and test for differential expressed genes between the
@@ -726,7 +710,7 @@ information and the second element contains the heatmap displaying the
 most up-/downregulated genes.<br>
 If more than two samples are to be examined please refer to
 GEX_pairwise_degs two chunks below</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">DE_genes_samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_DEgenes.html">GEX_DEgenes</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,min.pct <span class="op">=</span> <span class="fl">.25</span>, grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,group1 <span class="op">=</span> <span class="st">"s1"</span>, group2 <span class="op">=</span> <span class="st">"s2"</span>,return.plot <span class="op">=</span> <span class="st">"volcano"</span>,up.genes <span class="op">=</span> <span class="fl">5</span>,down.genes <span class="op">=</span> <span class="fl">5</span>,logFC <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="co">#This function is flexible and takes any column name as grouping.column to allow easy exploration of differences between custom groups</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">DE_genes_samples</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> </code></pre></div>
@@ -744,17 +728,17 @@ GEX_pairwise_degs two chunks below</p>
 <span class="co">## CST3          TRUE            TRUE</span>
 <span class="co">## HPGDS         TRUE            TRUE</span>
 <span class="co">## C1QA          TRUE            TRUE</span></code></pre>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">DE_genes_samples</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> </code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-18-1.png" width="672"></p>
 <p>The same function can also return DEGs between seurat clusters or any
 2 groups of cells Here DEGs between cluster 1 and 3 are calculated</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">DE_genes_cl1_vs_3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_DEgenes.html">GEX_DEgenes</a></span><span class="op">(</span>GEX<span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,min.pct <span class="op">=</span> <span class="fl">.25</span>, grouping.column <span class="op">=</span> <span class="st">"seurat_clusters"</span>,group1 <span class="op">=</span> <span class="st">"1"</span>, group2 <span class="op">=</span> <span class="st">"3"</span>,return.plot <span class="op">=</span> <span class="st">"heatmap"</span>,up.genes <span class="op">=</span> <span class="fl">10</span>,down.genes <span class="op">=</span> <span class="fl">10</span>,logFC <span class="op">=</span> <span class="cn">F</span>, size.top.colorbar <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##  [1] "CD74"   "H2-AA"  "CD79A"  "H2-EB1" "H2-AB1" "EBF1"   "TMSB10" "H3F3A" </span>
 <span class="co">##  [9] "FAU"    "LY6D"   "C1QC"   "P2RY12" "CX3CR1" "CSF1R"  "C1QA"   "C1QB"  </span>
 <span class="co">## [17] "SPARC"  "FCER1G" "OLFML3" "GPR34"</span></code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#head(DE_genes_cl1_vs_3[[1]]) </span>
 <span class="va">DE_genes_cl1_vs_3</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> </code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-19-1.png" width="672"></p>
@@ -766,25 +750,25 @@ number of 12 groups/clusters/samples This function automatically saves
 plots where top label.n.top.genes genes are labeled by their p value.
 Additionally, genes of special interest that should be labeled
 irregardless of their p value can be supplied to genes.to.label</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#DE_clusters_all &lt;- GEX_pairwise_DEGs(GEX = vgm[[2]], group.by = "seurat_clusters", min.pct = 0.25, RP.MT.filter = T, label.n.top.genes = 10, genes.to.label = c("CD74", "EBF1"), save.plot = F)</span></code></pre></div>
 <p>Now that cluster defining genes have been examined, a helper plotting
 function allows to visualize selected genes.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dottile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_dottile_plot.html">GEX_dottile_plot</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>, <span class="st">"CD74"</span>,<span class="st">"SDC1"</span>, <span class="st">"EBF1"</span>,<span class="st">"PTPRC"</span>,<span class="st">"CD93"</span>,<span class="st">"CD38"</span>,<span class="st">"CD24A"</span>,<span class="st">"CD34"</span>,<span class="st">"CD1D1"</span>,<span class="st">"CR2"</span>,<span class="st">"MS4A1"</span>,<span class="st">"CXCR5"</span>,<span class="st">"SELL"</span>,<span class="st">"CD40"</span>,<span class="st">"CD83"</span>,<span class="st">"H2-AB1"</span>,<span class="st">"H2-EB1"</span>,<span class="st">"CD27"</span>,<span class="st">"POU2AF1"</span>,<span class="st">"NT5E"</span>,<span class="st">"FAS"</span>,<span class="st">"PDCD1LG2"</span>,<span class="st">"PRDM1"</span>,<span class="st">"ITGAM"</span>,<span class="st">"IL10"</span>,<span class="st">"IL12A"</span>,<span class="st">"HAVCR2"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, threshold.to.plot <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> 
 <span class="co">#threshold.to.plot specifies how many % of cells have to express a gene to show a dot.</span>
 <span class="va">dottile</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, plot.subtitle <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> </code></pre></div>
 <pre><code><span class="co">## Warning: Removed 194 rows containing missing values (geom_point).</span></code></pre>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#For visualisation purposes in the RMD format</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-21-1.png" width="672"></p>
 <p>To examine patterns of co-expression two functions allow to generate
 both overview and single-cell resolution plots.</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#overview</span>
 <span class="va">coexpression_dotmap</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_coexpression_coefficient.html">GEX_coexpression_coefficient</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>, <span class="st">"CD74"</span>,<span class="st">"SDC1"</span>, <span class="st">"EBF1"</span>,<span class="st">"PTPRC"</span>,<span class="st">"CD93"</span>,<span class="st">"CD38"</span>,<span class="st">"CD24A"</span>,<span class="st">"CD34"</span><span class="op">)</span>, plot.dotmap <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Calculating coexpression for 9 genes with 2064 cells</span></code></pre>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">coexpression_dotmap</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span>
 <span class="co">#detail of two selected genes</span>
 <span class="fu"><a href="../reference/GEX_scatter_coexpression.html">GEX_scatter_coexpression</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, gene.1 <span class="op">=</span> <span class="st">"CD19"</span>, gene.2 <span class="op">=</span> <span class="st">"EBF1"</span>, color.theme <span class="op">=</span> <span class="st">"darkred"</span><span class="op">)</span>
@@ -805,12 +789,12 @@ This is done using the GEX_topN_DE_genes_per_cluster function). This
 function does require internet connection.</p>
 <p>To return plots as PDF directly to the current working directory set
 go.plot = T</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ontology_agedCNS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_GOterm.html">GEX_GOterm</a></span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span> <span class="va">gene_expression_cluster</span>, topNgenes <span class="op">=</span> <span class="fl">10</span>, go.plots <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ontology_agedCNS</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#Cluster 0 </span></code></pre></div>
 <p>We can additionally extract the top N genes per cluster directly
 (with filtering) using the following function:</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">top_10_genes_per_cluster</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_topN_DE_genes_per_cluster.html">GEX_topN_DE_genes_per_cluster</a></span><span class="op">(</span>GEX_cluster_genes.output <span class="op">=</span> <span class="va">gene_expression_cluster</span>, n.genes <span class="op">=</span> <span class="fl">10</span>, by_FC <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">top_10_genes_per_cluster</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##               p_val avg_logFC pct.1 pct.2    p_val_adj SYMBOL cluster</span>
@@ -830,7 +814,7 @@ file containing the gene sets, which can be downloaded for example from
 MSigDB. (<a href="http://www.gsea-msigdb.org/gsea/msigdb/collections.jsp" class="external-link uri">http://www.gsea-msigdb.org/gsea/msigdb/collections.jsp</a>
 C7: immunologic signature gene sets) For instance we can perform GSEA
 for cluster0 and look at the most significant pathways.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gsea_EAE</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_GSEA.html">GEX_GSEA</a></span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span> <span class="va">gene_expression_cluster</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">T</span>, path.to.pathways <span class="op">=</span> <span class="st">"~/Downloads/c7.all.v7.4.symbols.gmt"</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
@@ -844,33 +828,34 @@ for cluster0 and look at the most significant pathways.</p>
 GEX information. This may be useful if only VDJ libraries have been
 sequenced without the accompanying gene expression data. We first start
 by examining the structure of vgm[[1]]</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##  [1] "barcode"                 "orig_barcode"           </span>
-<span class="co">##  [3] "sample_id"               "FB_assignment"          </span>
-<span class="co">##  [5] "group_id"                "clonotype_id_10x"       </span>
+<pre><code><span class="co">##  [1] "barcode"                 "sample_id"              </span>
+<span class="co">##  [3] "group_id"                "clonotype_id_10x"       </span>
+<span class="co">##  [5] "clonotype_id"            "clonotype_frequency"    </span>
 <span class="co">##  [7] "celltype"                "Nr_of_VDJ_chains"       </span>
 <span class="co">##  [9] "Nr_of_VJ_chains"         "VDJ_cdr3s_aa"           </span>
 <span class="co">## [11] "VJ_cdr3s_aa"             "VDJ_cdr3s_nt"           </span>
-<span class="co">## [13] "VJ_cdr3s_nt"             "VDJ_chain_contig"       </span>
-<span class="co">## [15] "VJ_chain_contig"         "VDJ_chain"              </span>
-<span class="co">## [17] "VJ_chain"                "VDJ_vgene"              </span>
-<span class="co">## [19] "VJ_vgene"                "VDJ_dgene"              </span>
-<span class="co">## [21] "VDJ_jgene"               "VJ_jgene"               </span>
-<span class="co">## [23] "VDJ_cgene"               "VJ_cgene"               </span>
-<span class="co">## [25] "VDJ_sequence_nt_raw"     "VJ_sequence_nt_raw"     </span>
-<span class="co">## [27] "VDJ_sequence_nt_trimmed" "VJ_sequence_nt_trimmed" </span>
-<span class="co">## [29] "VDJ_sequence_aa"         "VJ_sequence_aa"         </span>
-<span class="co">## [31] "VDJ_trimmed_ref"         "VJ_trimmed_ref"         </span>
-<span class="co">## [33] "VDJ_raw_consensus_id"    "VJ_raw_consensus_id"    </span>
-<span class="co">## [35] "clonotype_frequency"     "specifity"              </span>
-<span class="co">## [37] "affinity"                "GEX_available"          </span>
-<span class="co">## [39] "orig.ident"              "orig_barcode_GEX"       </span>
-<span class="co">## [41] "seurat_clusters"         "PC_1"                   </span>
-<span class="co">## [43] "PC_2"                    "UMAP_1"                 </span>
-<span class="co">## [45] "UMAP_2"                  "tSNE_1"                 </span>
-<span class="co">## [47] "tSNE_2"                  "batch_id"               </span>
-<span class="co">## [49] "clonotype_id"</span></code></pre>
+<span class="co">## [13] "VJ_cdr3s_nt"             "VDJ_umis"               </span>
+<span class="co">## [15] "VJ_umis"                 "VDJ_chain_contig"       </span>
+<span class="co">## [17] "VJ_chain_contig"         "VDJ_chain"              </span>
+<span class="co">## [19] "VJ_chain"                "VDJ_vgene"              </span>
+<span class="co">## [21] "VJ_vgene"                "VDJ_dgene"              </span>
+<span class="co">## [23] "VDJ_jgene"               "VJ_jgene"               </span>
+<span class="co">## [25] "VDJ_cgene"               "VJ_cgene"               </span>
+<span class="co">## [27] "VDJ_sequence_nt_raw"     "VJ_sequence_nt_raw"     </span>
+<span class="co">## [29] "VDJ_sequence_nt_trimmed" "VJ_sequence_nt_trimmed" </span>
+<span class="co">## [31] "VDJ_sequence_aa"         "VJ_sequence_aa"         </span>
+<span class="co">## [33] "VDJ_raw_ref"             "VJ_raw_ref"             </span>
+<span class="co">## [35] "VDJ_trimmed_ref"         "VJ_trimmed_ref"         </span>
+<span class="co">## [37] "VDJ_raw_consensus_id"    "VJ_raw_consensus_id"    </span>
+<span class="co">## [39] "orig_barcode"            "specifity"              </span>
+<span class="co">## [41] "affinity"                "GEX_available"          </span>
+<span class="co">## [43] "orig.ident"              "seurat_clusters"        </span>
+<span class="co">## [45] "PC_1"                    "PC_2"                   </span>
+<span class="co">## [47] "UMAP_1"                  "UMAP_2"                 </span>
+<span class="co">## [49] "tSNE_1"                  "tSNE_2"                 </span>
+<span class="co">## [51] "batch_id"</span></code></pre>
 <p>If GEX data has been integrated, this dataframe also contains
 dimensional reduction coordinates and cluster id. If trim.and.align was
 set to TRUE, the columns VDJ_sequence_nt_trimmed to VJ_trimmed_ref
@@ -880,7 +865,7 @@ int the clonotype_id_10x column.</p>
 <p>This object contains both cells with less than 2 V(D)J chains as well
 as with more than 2 To show how this is done the VDJ_cgene column is
 taken as an example</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">VDJ_cgene</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "IGHM"        "IGHD"        ""            "IGHM;IGHM"   "IGHG2B"     </span>
 <span class="co">## [6] "IGHM;IGHD"   "IGHG1"       "IGHA"        "IGHM;IGHG2C"</span></code></pre>
@@ -896,24 +881,24 @@ used</p>
 <p>For advanced filtering and selection options concerning cells with
 aberrant number of chains, please refer to the detailed VDJ_GEX_matrix
 vignette.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">" Cell count by number of VDJ chains"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##  Cell count by number of VDJ chains</span></code></pre>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Nr_of_VDJ_chains</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">##   0   1   2 </span>
 <span class="co">##  92 831  22</span></code></pre>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n Cell count by number of VJ chains"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">##  Cell count by number of VJ chains</span></code></pre>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Nr_of_VJ_chains</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">##   0   1   2 </span>
 <span class="co">##  62 820  63</span></code></pre>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Subset the VGM matrix to only include cells with 1 VDJ and 1 VJ chain</span>
 <span class="co">#vgm[[1]] &lt;- subset(vgm[[1]], Nr_of_VDJ_chains == 1 &amp; Nr_of_VJ_chains == 1)</span></code></pre></div>
 </div>
@@ -930,12 +915,11 @@ acid CDRH3 + CDRL3 seuqence, identical germline usage, or seqeunce
 homology requirements. This function works both for V3 and V2 of
 platypus. The version needs to be specified. For V3 (vgm)
 platypus.version a new clonotyping function was added to improve the
-existing one. For the full documentation see VDJ_clonotype_v3(). The
-deprecated function VDJ_clonotype may still be used for Platypus v2
-input Three new parameters have been added therein: 1. global.clonotype
-If set to TRUE, clonotypes will be generated across all samples of the
-vgm. This may be useful if more than one sample has been taken from the
-same animal (e.g. spleen and bone marrow). Moreover this can provide an
+existing one. For the full documentation see VDJ_clonotype().</p>
+<p>Three new parameters have been added therein: 1. global.clonotype If
+set to TRUE, clonotypes will be generated across all samples of the vgm.
+This may be useful if more than one sample has been taken from the same
+animal (e.g. spleen and bone marrow). Moreover this can provide an
 alternative approach to investigate clone sharing across donors or mice.
 After global clonotyping, the resulting clonotype_id can be used as a
 grouping variable and summary statistics can be generated per clone
@@ -966,8 +950,8 @@ missing a VJ chain due to stochastical sampling</p>
 clones based on identical CDRH3 + CDRL3 amino acid sequence. We will
 compare this to the case in which we group B cells by using the same
 germline genes (both heavy chain and light chain).</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonotype_v3.html">VDJ_clonotype_v3</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span>, global.clonotype <span class="op">=</span> <span class="cn">F</span>, VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, hierarchical <span class="op">=</span> <span class="st">"single.chains"</span><span class="op">)</span> </code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span>, global.clonotype <span class="op">=</span> <span class="cn">F</span>, VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, hierarchical <span class="op">=</span> <span class="st">"single.chains"</span><span class="op">)</span> </code></pre></div>
 <pre><code><span class="co">## Clonotyping strategy: cdr3.aa</span></code></pre>
 <pre><code><span class="co">## Filtered out 22 cells containing more than one VDJ AND VJ chain or two VDJ chains, as these likely correspond to doublets</span></code></pre>
 <pre><code><span class="co">## Processing sample 1 of 4</span></code></pre>
@@ -979,19 +963,19 @@ germline genes (both heavy chain and light chain).</p>
 <pre><code><span class="co">## Processing sample 4 of 4</span></code></pre>
 <pre><code><span class="co">## Attempting to merge in 94 aberrant cells</span></code></pre>
 <pre><code><span class="co">## Backing up 10x default clonotyping in columns clonotype_id_10x and clonotype_frequency_10x before updating clonotype_id and clonotype_frequency columns</span></code></pre>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">" Nr and distribution of clonotypes using exact CDR3.aa matching \n"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##  Nr and distribution of clonotypes using exact CDR3.aa matching</span></code></pre>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_cdr3.aa</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 321</span></code></pre>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_frequency_cdr3.aa</span><span class="op">)</span><span class="op">)</span> <span class="co">#Check distribution of clonotypes with identical CDR3 aa sequences</span></code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">##   1   2   3   4   5   6   7   8   9  12  24 </span>
 <span class="co">## 593 118  69  24  15  36   7  16   9  12  24</span></code></pre>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonotype_v3.html">VDJ_clonotype_v3</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, clone.strategy <span class="op">=</span> <span class="st">"VDJJ.VJJ"</span>, global.clonotype <span class="op">=</span> <span class="cn">F</span>, VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, hierarchical <span class="op">=</span> <span class="st">"double.and.single.chains"</span>, triple.chain.count.threshold <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> </code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, clone.strategy <span class="op">=</span> <span class="st">"VDJJ.VJJ"</span>, global.clonotype <span class="op">=</span> <span class="cn">F</span>, VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, hierarchical <span class="op">=</span> <span class="st">"double.and.single.chains"</span>, triple.chain.count.threshold <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> </code></pre></div>
 <pre><code><span class="co">## Clonotyping strategy: VDJJ.VJJ</span></code></pre>
 <pre><code><span class="co">## Filtered out 0 cells containing more than one VDJ AND VJ chain or two VDJ chains, as these likely correspond to doublets</span></code></pre>
 <pre><code><span class="co">## Found 0 exact matching clones with 3 chains and a frequency of at least 4. These will be used as high confidence clonotypes.</span></code></pre>
@@ -1003,15 +987,15 @@ germline genes (both heavy chain and light chain).</p>
 <pre><code><span class="co">## Attempting to merge in 23 aberrant cells</span></code></pre>
 <pre><code><span class="co">## Processing sample 4 of 4</span></code></pre>
 <pre><code><span class="co">## Attempting to merge in 94 aberrant cells</span></code></pre>
-<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n Nr and distribution of clonotypes using germline gene matching \n "</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">##  Nr and distribution of clonotypes using germline gene matching </span>
 <span class="co">## </span></code></pre>
-<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_VDJJ.VJJ</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 295</span></code></pre>
-<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_frequency_VDJJ.VJJ</span><span class="op">)</span><span class="op">)</span> <span class="co">#Check distribution of clonotypes with identical germline genes</span></code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">##   1   2   3   4   5   6   7   8  10  12  24 </span>
@@ -1019,12 +1003,12 @@ germline genes (both heavy chain and light chain).</p>
 <p>Columns with new clonotype information are added to the VGM so to
 allow for multiple different strategies to be compared easily. For most
 Platypus downstream functions, the columns default columns
-“clonotype_id” and “clonotype_frequency” are used. The VDJ_clonotype_v3
+“clonotype_id” and “clonotype_frequency” are used. The VDJ_clonotype
 function sets overwrites these columns, so that the last clonotyping run
 is the “active” one and used by downstream functions.</p>
 <p>To manually change the active clonotype, use these lines by adapting
 the column names to use as input</p>
-<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id</span> <span class="op">&lt;-</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_cdr3.aa</span>
 <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_frequency</span> <span class="op">&lt;-</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_frequency_cdr3.aa</span></code></pre></div>
 </div>
@@ -1046,7 +1030,7 @@ annotations by cellranger (feature$region_type). Alignment is done via
 Biostrings::pairwiseAlignment and the alignment with maximum score is
 returned. If alignments are not complete, the vgm parameters
 gap.opening.cost and gap.extension.cost can be modified</p>
-<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vgm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_GEX_matrix.html">VDJ_GEX_matrix</a></span><span class="op">(</span>Data.in <span class="op">=</span> <span class="va">yermanos2021_raw</span>, <span class="co">#For local dataset input see section 5.1</span>
                                GEX.integrate <span class="op">=</span> <span class="cn">T</span>,
                                VDJ.combine <span class="op">=</span> <span class="cn">T</span>,
@@ -1056,32 +1040,21 @@ gap.opening.cost and gap.extension.cost can be modified</p>
                                gap.opening.cost <span class="op">=</span> <span class="fl">10</span>,
                                gap.extension.cost <span class="op">=</span> <span class="fl">4</span>, <span class="co">#Tweak to optimize alignments if neccessary</span>
                                parallel.processing <span class="op">=</span> <span class="st">"parlapply"</span><span class="op">)</span> </code></pre></div>
-<pre><code><span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span>
-
-<span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span>
-
-<span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span>
-
-<span class="co">## Warning: Feature names cannot have underscores ('_'), replacing with dashes</span>
-<span class="co">## ('-')</span></code></pre>
 <p>No trimmed and reference sequence columns should be filled.</p>
-<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##                 barcode     orig_barcode sample_id  FB_assignment group_id</span>
-<span class="co">## 1 s1_AAACGGGGTTTAGGAA-1 AAACGGGGTTTAGGAA        s1 Not assignable        1</span>
-<span class="co">##   clonotype_id_10x celltype Nr_of_VDJ_chains Nr_of_VJ_chains VDJ_cdr3s_aa</span>
-<span class="co">## 1       clonotype7   B cell                1               1  CARIGYAMDYW</span>
+<pre><code><span class="co">##               barcode sample_id group_id clonotype_id_10x clonotype_id</span>
+<span class="co">## 1 s1_AAACGGGGTTTAGGAA        s1        1       clonotype7   clonotype7</span>
+<span class="co">##   clonotype_frequency celltype Nr_of_VDJ_chains Nr_of_VJ_chains VDJ_cdr3s_aa</span>
+<span class="co">## 1                   1   B cell                1               1  CARIGYAMDYW</span>
 <span class="co">##   VJ_cdr3s_aa                      VDJ_cdr3s_nt</span>
 <span class="co">## 1 CQQGNTLPPTF TGTGCTCGAATAGGATATGCTATGGACTACTGG</span>
-<span class="co">##                         VJ_cdr3s_nt            VDJ_chain_contig</span>
-<span class="co">## 1 TGCCAACAGGGTAATACGCTTCCTCCGACGTTC AAACGGGGTTTAGGAA-1_contig_2</span>
-<span class="co">##               VJ_chain_contig VDJ_chain VJ_chain VDJ_vgene  VJ_vgene VDJ_dgene</span>
-<span class="co">## 1 AAACGGGGTTTAGGAA-1_contig_1       IGH      IGK   IGHV8-8 IGKV10-96          </span>
-<span class="co">##   VDJ_jgene VJ_jgene VDJ_cgene VJ_cgene</span>
-<span class="co">## 1     IGHJ4    IGKJ1      IGHM     IGKC</span>
+<span class="co">##                         VJ_cdr3s_nt VDJ_umis VJ_umis</span>
+<span class="co">## 1 TGCCAACAGGGTAATACGCTTCCTCCGACGTTC        2       8</span>
+<span class="co">##              VDJ_chain_contig             VJ_chain_contig VDJ_chain VJ_chain</span>
+<span class="co">## 1 AAACGGGGTTTAGGAA-1_contig_2 AAACGGGGTTTAGGAA-1_contig_1       IGH      IGK</span>
+<span class="co">##   VDJ_vgene  VJ_vgene VDJ_dgene VDJ_jgene VJ_jgene VDJ_cgene VJ_cgene</span>
+<span class="co">## 1   IGHV8-8 IGKV10-96               IGHJ4    IGKJ1      IGHM     IGKC</span>
 <span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            VDJ_sequence_nt_raw</span>
 <span class="co">## 1 TGGGAAGTGTGCAGCCATGGGCAGGCTTACTTCTTCATTCCTGTTACTGATTGTCCCTGCATATGTCCTGTCCCAGGTTACTCTGAAAGAGTCTGGCCCTGGGATATTGCAGCCCTCCCAGACCCTCAGTCTGACTTGTTCTTTCTCTGGGTTTTCACTGAGCACTTTTGGTATGGGTGTAGGCTGGATTCGTCAGCCTTCAGGGAAGGGTCTGGAGTGGCTGGCACACATTTGGTGGGATGATGATAAGTACTATAACCCAGCCCTGAAGAGTCGGCTCACAATCTCCAAGGATACCTCCAAAAACCAGGTATTCCTCAAGATCGCCAATGTGGACACTGCAGATACTGCCACATACTACTGTGCTCGAATAGGATATGCTATGGACTACTGGGGTCAAGGAACCTCAGTCACCGTCTCCTCAGAGAGTCAGTCCTTCCCAAATGTCTTCCCCCTCGTCTCCTGCGAGAGCCCCCTGTCTGATAAGAATCTGGTGGCCATGGGCTGCCTGGCCCGGGACTTCCTGCCCAGCACCATTTCCTTCACCTGGAACTACCAGAACAACACTGAAGTCATCCAGGGTATCAGAACCTTCCCAACACTGAGGACAGGGGGCAAGTACCTAGCCACCTCGCA</span>
 <span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        VJ_sequence_nt_raw</span>
@@ -1094,20 +1067,22 @@ gap.opening.cost and gap.extension.cost can be modified</p>
 <span class="co">## 1 MGRLTSSFLLLIVPAYVLSQVTLKESGPGILQPSQTLSLTCSFSGFSLSTFGMGVGWIRQPSGKGLEWLAHIWWDDDKYYNPALKSRLTISKDTSKNQVFLKIANVDTADTATYYCARIGYAMDYWGQGTSVTVSS</span>
 <span class="co">##                                                                                                                    VJ_sequence_aa</span>
 <span class="co">## 1 MMSSAQFLGLLLLCFQGTRCDIQMTQTTSSLSASLGDRVTISCRASQDISNYLNWYQQKPDGTVKLLIYYTSRLHSGVPSRFSGSGSGTDYSLTISNLEQEDIATYFCQQGNTLPPTFGGGTKLEIK</span>
+<span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        VDJ_raw_ref</span>
+<span class="co">## 1 ATGGGCAGGCTTACTTCTTCATTCCTGTTACTGATTGTCCCTGCATATGTCCTGTCCCAGGTTACTCTGAAAGAGTCTGGCCCTGGGATATTGCAGCCCTCCCAGACCCTCAGTCTGACTTGTTCTTTCTCTGGGTTTTCACTGAGCACTTTTGGTATGGGTGTAGGCTGGATTCGTCAGCCTTCAGGGAAGGGTCTGGAGTGGCTGGCACACATTTGGTGGGATGATGATAAGTACTATAACCCAGCCCTGAAGAGTCGGCTCACAATCTCCAAGGATACCTCCAAAAACCAGGTATTCCTCAAGATCGCCAATGTGGACACTGCAGATACTGCCACATACTACTGTGCTCGAATAGATTACTATGCTATGGACTACTGGGGTCAAGGAACCTCAGTCACCGTCTCCTCAGAGAGTCAGTCCTTCCCAAATGTCTTCCCCCTCGTCTCCTGCGAGAGCCCCCTGTCTGATAAGAATCTGGTGGCCATGGGCTGCCTGGCCCGGGACTTCCTGCCCAGCACCATTTCCTTCACCTGGAACTACCAGAACAACACTGAAGTCATCCAGGGTATCAGAACCTTCCCAACACTGAGGACAGGGGGCAAGTACCTAGCCACCTCGCAGGTGTTGCTGTCTCCCAAGAGCATCCTTGAAGGTTCAGATGAATACCTGGTATGCAAAATCCACTACGGAGGCAAAAACAAAGATCTGCATGTGCCCATTCCAGCTGTCGCAGAGATGAACCCCAATGTAAATGTGTTCGTCCCACCACGGGATGGCTTCTCTGGCCCTGCACCACGCAAGTCTAAACTCATCTGCGAGGCCACGAACTTCACTCCAAAACCGATCACAGTATCCTGGCTAAAGGATGGGAAGCTCGTGGAATCTGGCTTCACCACAGATCCGGTGACCATCGAGAACAAAGGATCCACACCCCAAACCTACAAGGTCATAAGCACACTTACCATCTCTGAAATCGACTGGCTGAACCTGAATGTGTACACCTGCCGTGTGGATCACAGGGGTCTCACCTTCTTGAAGAACGTGTCCTCCACATGTGCTGCCAGTCCCTCCACAGACATCCTAACCTTCACCATCCCCCCCTCCTTTGCCGACATCTTCCTCAGCAAGTCCGCTAACCTGACCTGTCTGGTCTCAAACCTGGCAACCTATGAAACCCTGAATATCTCCTGGGCTTCTCAAAGTGGTGAACCACTGGAAACCAAAATTAAAATCATGGAAAGCCATCCCAATGGCACCTTCAGTGCTAAGGGTGTGGCTAGTGTTTGTGTGGAAGACTGGAATAACAGGAAGGAATTTGTGTGTACTGTGACTCACAGGGATCTGCCTTCACCACAGAAGAAATTCATCTCAAAACCCAATGAGGTGCACAAACATCCACCTGCTGTGTACCTGCTGCCACCAGCTCGTGAGCAACTGAACCTGAGGGAGTCAGCCACAGTCACCTGCCTGGTGAAGGGCTTCTCTCCTGCAGACATCAGTGTGCAGTGGCTTCAGAGAGGGCAACTCTTGCCCCAAGAGAAGTATGTGACCAGTGCCCCGATGCCAGAGCCTGGGGCCCCAGGCTTCTACTTTACCCACAGCATCCTGACTGTGACAGAGGAGGAATGGAACTCCGGAGAGACCTATACCTGTGTTGTAGGCCACGAGGCCCTGCCACACCTGGTGACCGAGAGGACCGTGGACAAGTCCACTGGTAAACCCACACTGTACAATGTCTCCCTGATCATGTCTGACACAGGCGGCACCTGCTAT</span>
+<span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          VJ_raw_ref</span>
+<span class="co">## 1 ATGATGTCCTCTGCTCAGTTCCTTGGTCTCCTGTTGCTCTGTTTTCAAGGTACCAGATGTGATATCCAGATGACACAGACTACATCCTCCCTGTCTGCCTCTCTGGGAGACAGAGTCACCATCAGTTGCAGGGCAAGTCAGGACATTAGCAATTATTTAAACTGGTATCAGCAGAAACCAGATGGAACTGTTAAACTCCTGATCTACTACACATCAAGATTACACTCAGGAGTCCCATCAAGGTTCAGTGGCAGTGGGTCTGGAACAGATTATTCTCTCACCATTAGCAACCTGGAGCAAGAAGATATTGCCACTTACTTTTGCCAACAGGGTAATACGCTTCCTCCGTGGACGTTCGGTGGAGGCACCAAGCTGGAAATCAAACGGGCTGATGCTGCACCAACTGTATCCATCTTCCCACCATCCAGTGAGCAGTTAACATCTGGAGGTGCCTCAGTCGTGTGCTTCTTGAACAACTTCTACCCCAAAGACATCAATGTCAAGTGGAAGATTGATGGCAGTGAACGACAAAATGGCGTCCTGAACAGTTGGACTGATCAGGACAGCAAAGACAGCACCTACAGCATGAGCAGCACCCTCACGTTGACCAAGGACGAGTATGAACGACATAACAGCTATACCTGTGAGGCCACTCACAAGACATCAACTTCACCCATTGTCAAGAGCTTCAACAGGAATGAGTGT</span>
 <span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                               VDJ_trimmed_ref</span>
 <span class="co">## 1 ATGGGCAGGCTTACTTCTTCATTCCTGTTACTGATTGTCCCTGCATATGTCCTGTCCCAGGTTACTCTGAAAGAGTCTGGCCCTGGGATATTGCAGCCCTCCCAGACCCTCAGTCTGACTTGTTCTTTCTCTGGGTTTTCACTGAGCACTTTTGGTATGGGTGTAGGCTGGATTCGTCAGCCTTCAGGGAAGGGTCTGGAGTGGCTGGCACACATTTGGTGGGATGATGATAAGTACTATAACCCAGCCCTGAAGAGTCGGCTCACAATCTCCAAGGATACCTCCAAAAACCAGGTATTCCTCAAGATCGCCAATGTGGACACTGCAGATACTGCCACATACTACTGTGCTCGAATAGATTACTATGCTATGGACTACTGGGGTCAAGGAACCTCAGTCACCGTCTCCTCA</span>
 <span class="co">##                                                                                                                                                                                                                                                                                                                                                                                     VJ_trimmed_ref</span>
 <span class="co">## 1 ATGATGTCCTCTGCTCAGTTCCTTGGTCTCCTGTTGCTCTGTTTTCAAGGTACCAGATGTGATATCCAGATGACACAGACTACATCCTCCCTGTCTGCCTCTCTGGGAGACAGAGTCACCATCAGTTGCAGGGCAAGTCAGGACATTAGCAATTATTTAAACTGGTATCAGCAGAAACCAGATGGAACTGTTAAACTCCTGATCTACTACACATCAAGATTACACTCAGGAGTCCCATCAAGGTTCAGTGGCAGTGGGTCTGGAACAGATTATTCTCTCACCATTAGCAACCTGGAGCAAGAAGATATTGCCACTTACTTTTGCCAACAGGGTAATACGCTTCCTCCGTGGACGTTCGGTGGAGGCACCAAGCTGGAAATCAAA</span>
-<span class="co">##      VDJ_raw_consensus_id     VJ_raw_consensus_id clonotype_frequency specifity</span>
-<span class="co">## 1 clonotype7_concat_ref_1 clonotype7_concat_ref_2                   1        NA</span>
-<span class="co">##   affinity GEX_available orig.ident orig_barcode_GEX seurat_clusters PC_1 PC_2</span>
-<span class="co">## 1       NA         FALSE       &lt;NA&gt;             &lt;NA&gt;            &lt;NA&gt;   NA   NA</span>
-<span class="co">##   UMAP_1 UMAP_2 tSNE_1 tSNE_2</span>
-<span class="co">## 1     NA     NA     NA     NA</span>
+<span class="co">##      VDJ_raw_consensus_id     VJ_raw_consensus_id     orig_barcode specifity</span>
+<span class="co">## 1 clonotype7_concat_ref_1 clonotype7_concat_ref_2 AAACGGGGTTTAGGAA        NA</span>
+<span class="co">##   affinity GEX_available orig.ident seurat_clusters PC_1 PC_2 UMAP_1 UMAP_2</span>
+<span class="co">## 1       NA         FALSE       &lt;NA&gt;            &lt;NA&gt;   NA   NA     NA     NA</span>
+<span class="co">##   tSNE_1 tSNE_2</span>
+<span class="co">## 1     NA     NA</span>
 <span class="co">##                                                                            batch_id</span>
-<span class="co">## 1 N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/GEX/Aged.CNS.pool.3m.Bcell.S1</span>
-<span class="co">##   clonotype_id</span>
-<span class="co">## 1   clonotype7</span></code></pre>
+<span class="co">## 1 N:/reddy/Shared_Folders/AA_AY/DBmanuscript_Aged_CNS/GEX/Aged.CNS.pool.3m.Bcell.S1</span></code></pre>
 <p>A different way to get germline reference sequences is by using
 MIXCR. MIXCR can be called directly from R on both Windows and MAC
 machines. Given that output files have to be read in, it is important to
@@ -1132,7 +1107,7 @@ still very long (e.g., in the example below the “full_HC_germline”
 length is over 600 nucleotides). This will be filled in using the
 separate function VDJ_extract_germline.</p>
 <p>For MAC users</p>
-<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">### WARNING: You will need to download MiXCR and change the mixcr.directory to the folder which contains the mixcr.jar executable</span>
 
 <span class="co">#VDJ_mixcr_out &lt;- VDJ_call_MIXCR(VDJ = vgm[[1]], mixcr.directory = "~/Downloads/Directory-with-MiXcr/",species = "mmu", platypus.version = "v3", operating.system = "Darwin", simplify = T)</span>
@@ -1140,7 +1115,7 @@ separate function VDJ_extract_germline.</p>
 <span class="co">#set simplify to T to append only a selected columns of the MIXCR output to the vgm matrix</span></code></pre></div>
 <p>FOR Windows users The mixcr.jar executable needs to be in the current
 working directory!</p>
-<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#check working directory</span>
 <span class="co">#getwd()</span>
 <span class="co">### WARNING: You will need to download MiXCR and have it in your current working directory</span>
@@ -1153,7 +1128,7 @@ working directory!</p>
 </h3>
 <p>Directly from the MIXCR output we can plot the frequency of somatic
 hypermutations and run basic tests of significance between groups</p>
-<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/VDJ_plot_SHM.html">VDJ_plot_SHM</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">VDJ_mixcr_out</span>, group.by <span class="op">=</span> <span class="st">"sample_id"</span>, quantile.label <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [[1]]</span></code></pre>
 <pre><code><span class="co">## </span>
@@ -1178,7 +1153,7 @@ clonotype_id column as input. If VDJ_clonotyping function was used, its
 result are stored in that column. If not, the default 10x clonotyping is
 stored there. To retrieve default 10x clonotyping, use the column
 clonotyping_id_10x</p>
-<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">donuts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, expanded.colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey50"</span>, <span class="st">"grey65"</span>, <span class="st">"grey80"</span><span class="op">)</span>, non.expanded.color <span class="op">=</span> <span class="st">"black"</span>, counts.to.use <span class="op">=</span> <span class="st">"freq_column"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Warning in VDJ_clonal_donut(VDJ = vgm[[1]], expanded.colors = c("grey50", :</span>
 <span class="co">## Column name for counts.to.use was not found in VDJ. Defaulting to</span>
@@ -1192,7 +1167,7 @@ clonotyping_id_10x</p>
 <pre><code><span class="co">## Cells: Expanded: 15 / 7.21%; 1 cell 193 / 92.79%; Total: 208</span></code></pre>
 <pre><code><span class="co">## Clones: Expanded: 64 / 18.34%; 1 cell 285 / 81.66%; total: 349</span></code></pre>
 <pre><code><span class="co">## Cells: Expanded: 214 / 42.89%; 1 cell 285 / 57.11%; Total: 499</span></code></pre>
-<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Counts to use = "freq_column" uses the counts in the clonotype_frequency column. Counts to use = "vgm" simply counts the rows of a given clonotype in the VGM table (these counts may differ if cells have been filtered out due to overlapping barcodes or if another clonotyping strategy was used)</span>
 <span class="va">donuts</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-35-1.png" width="672"></p>
@@ -1206,33 +1181,25 @@ number of clones (cells)</p>
 <p>This requires the Vegan package. We can calculate the diversity for
 any column(s) in the vgm. If more than one column is provided, the
 content will be pasted together before calculating diversity metrics</p>
-<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Shannon Evenness for the VDJ chain CDR3</span>
-<span class="va">diversity_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_diversity.html">VDJ_diversity</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cdr3s_aa"</span><span class="op">)</span>,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shannonevenness"</span><span class="op">)</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span>, subsample.to.same.n <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Used group s1 as a reference for subsampling with 77 entries</span></code></pre>
-<pre><code><span class="co">## Subsampled group s2 to 77 entries</span></code></pre>
-<pre><code><span class="co">## Subsampled group s3 to 77 entries</span></code></pre>
-<pre><code><span class="co">## Subsampled group s4 to 77 entries</span></code></pre>
-<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">diversity_plot</span>
+<span class="va">diversity_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_diversity.html">VDJ_diversity</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cdr3s_aa"</span><span class="op">)</span>,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shannonevenness"</span><span class="op">)</span>, subsample.to.same.n <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="va">diversity_plot</span>
 <span class="co">#Gini-Simpson index for pasted VDJ and VJ chain CDR3s</span>
-<span class="va">diversity_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_diversity.html">VDJ_diversity</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cdr3s_aa"</span>, <span class="st">"VJ_cdr3s_aa"</span><span class="op">)</span>,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ginisimpson"</span><span class="op">)</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span>, subsample.to.same.n <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Used group s1 as a reference for subsampling with 69 entries</span></code></pre>
-<pre><code><span class="co">## Subsampled group s2 to 69 entries</span></code></pre>
-<pre><code><span class="co">## Subsampled group s3 to 69 entries</span></code></pre>
-<pre><code><span class="co">## Subsampled group s4 to 69 entries</span></code></pre>
-<div class="sourceCode" id="cb137"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">diversity_plot</span>
+<span class="va">diversity_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_diversity.html">VDJ_diversity</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cdr3s_aa"</span>, <span class="st">"VJ_cdr3s_aa"</span><span class="op">)</span>,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ginisimpson"</span><span class="op">)</span>, subsample.to.same.n <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="va">diversity_plot</span>
 <span class="co">#exact values can be retrived as </span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">diversity_plot</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##                index groups    metric  colors</span>
-<span class="co">## 1 Gini-Simpson index     s1 0.9838269 #FF0000</span>
-<span class="co">## 2 Gini-Simpson index     s2 0.9796261 #80FF00</span>
-<span class="co">## 3 Gini-Simpson index     s3 0.9842470 #00FFFF</span>
-<span class="co">## 4 Gini-Simpson index     s4 0.9842470 #8000FF</span></code></pre>
-<div class="sourceCode" id="cb139"><pre class="downlit sourceCode r">
+<pre><code><span class="co">## <span style="color: #949494;"># A tibble: 4 x 4</span></span>
+<span class="co">##   group metric metric_name        colors </span>
+<span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span>
+<span class="co">## <span style="color: #BCBCBC;">1</span> s1    0.015<span style="text-decoration: underline;">1</span> Gini-Simpson index #FF0000</span>
+<span class="co">## <span style="color: #BCBCBC;">2</span> s2    0.025<span style="text-decoration: underline;">5</span> Gini-Simpson index #80FF00</span>
+<span class="co">## <span style="color: #BCBCBC;">3</span> s3    0.015<span style="text-decoration: underline;">1</span> Gini-Simpson index #00FFFF</span>
+<span class="co">## <span style="color: #BCBCBC;">4</span> s4    0.020<span style="text-decoration: underline;">8</span> Gini-Simpson index #8000FF</span></code></pre>
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Jaccard index between repertoires of the two samples</span>
-<span class="va">diversity_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_diversity.html">VDJ_diversity</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cgene"</span><span class="op">)</span>,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"jaccard"</span><span class="op">)</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span>, subsample.to.same.n <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="va">diversity_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_diversity.html">VDJ_diversity</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cgene"</span><span class="op">)</span>,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>,metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"jaccard"</span><span class="op">)</span>, subsample.to.same.n <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="va">diversity_plot</span> </code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-36-1.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-36-2.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-36-3.png" width="672"></p>
 </div>
@@ -1253,7 +1220,7 @@ clones in the first patient when using the default clonotyping strategy.
 We can additionally use the new clonotyping strategies to compare how
 changing the clonal defintion impacts the clonal expansion profiles. We
 simply supply the output from VDJ_clonotype</p>
-<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,celltype <span class="op">=</span> <span class="st">"Bcells"</span>,clones <span class="op">=</span> <span class="st">"30"</span>, group.by <span class="op">=</span> <span class="st">"sample_id"</span>, color.by <span class="op">=</span> <span class="st">"isotype"</span>, isotypes.to.plot <span class="op">=</span> <span class="st">"all"</span>, treat.incomplete.clones <span class="op">=</span> <span class="st">"exclude"</span>, treat.incomplete.cells <span class="op">=</span> <span class="st">"proportional"</span><span class="op">)</span>
 <span class="co">#group by specifies how many separate plots should be generated. If vgm contains global clonotype information this can be set to "none"</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#Plot sample 1</span>
@@ -1276,7 +1243,7 @@ should be produced.</p>
 <p>This function is quite specialized and we are working on building a
 better networks module. But hopefully the code can be used as a template
 for your own analyses.</p>
-<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#subsampled_VGM &lt;- dplyr::sample_n(vgm[[1]], 60)</span>
 <span class="va">cl_network</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_network.html">VDJ_network</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,per.sample <span class="op">=</span> <span class="cn">T</span>,distance.cutoff <span class="op">=</span> <span class="fl">8</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span>
 <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span><span class="op">{</span>
@@ -1306,17 +1273,17 @@ where the rows correspond to the heavy chain V genes and the columns
 correspond to the light chains of the V genes. Therefore the
 output[[1]][i,j] corresponds to the number of clones using the
 combination of IGH-Vgene[i] and IGK/L-Vgene[j].</p>
-<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#First calculate adjacency matrix for V gene usage</span>
 <span class="va">Vgene_usage</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_Vgene_usage.html">VDJ_Vgene_usage</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span>
 <span class="co">#library(pheatmap)</span>
 <span class="fu">pheatmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pheatmap/man/pheatmap.html" class="external-link">pheatmap</a></span><span class="op">(</span><span class="va">Vgene_usage</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,show_rownames <span class="op">=</span> <span class="cn">F</span>,show_colnames <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">Vgene_usage</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "matrix" "array"</span></code></pre>
-<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/rownames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Vgene_usage</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Vgene_usage</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "IGHV8-8"  "IGHV1-9"  "IGHV1-26" "IGHV14-1" "IGHV5-17" "IGHV5-16"</span></code></pre>
-<div class="sourceCode" id="cb146"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Vgene_usage</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "IGKV10-96" "IGKV6-32"  "IGKV19-93" "IGKV8-24"  "IGKV1-110" "IGKV4-55"</span></code></pre>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-39-1.png" width="672"></p>
@@ -1329,26 +1296,35 @@ used IgH or IgK/L V genes. By default, this function only provides
 visualizations for the HC V genes, but can also provide for the LC if
 LC. Vgene is set to TRUE. The User can also select the number of most
 used genes to be depicted.</p>
-<div class="sourceCode" id="cb148"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">Vgene_usage_barplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_Vgene_usage_barplot.html">VDJ_Vgene_usage_barplot</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, HC.gene.number <span class="op">=</span> <span class="fl">10</span>, LC.Vgene <span class="op">=</span> <span class="cn">T</span>, LC.gene.number <span class="op">=</span> <span class="fl">10</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Sample order: s1 ; s2 ; s3 ; s4</span></code></pre>
-<div class="sourceCode" id="cb150"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">Vgene_usage_barplot</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="co">#VDJ chains</span>
 <span class="va">Vgene_usage_stackedbarplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_Vgene_usage_stacked_barplot.html">VDJ_Vgene_usage_stacked_barplot</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, LC.Vgene <span class="op">=</span> <span class="cn">F</span>,HC.gene.number <span class="op">=</span> <span class="fl">10</span>, Fraction.HC <span class="op">=</span> <span class="fl">1</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Sample order: s1 ; s2 ; s3 ; s4</span></code></pre>
-<div class="sourceCode" id="cb152"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">Vgene_usage_stackedbarplot</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-40-1.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-40-2.png" width="672"></p>
 <p>Furthermore, we can also produce a circular visualization of how V
 and J genes are combined throughout the repertoire. In the example that
 follows we use VDJ_VJ_usage_circos to look at the V gene with the
 corresponding J gene for each expanded clonotype.</p>
-<div class="sourceCode" id="cb153"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#VDJ and VJ V and J gene pairing</span>
-<span class="va">vj_circos_bcells</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_VJ_usage_circos.html">VDJ_VJ_usage_circos</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, c.threshold <span class="op">=</span> <span class="fl">5</span>,label.threshold<span class="op">=</span><span class="fl">5</span>,cell.level <span class="op">=</span> <span class="cn">T</span>, A.or.B <span class="op">=</span> <span class="st">"both"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span>
-<span class="co">#VDJ and VJ pairing </span>
-<span class="va">HL_circos_bcells</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_alpha_beta_Vgene_circos.html">VDJ_alpha_beta_Vgene_circos</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, c.threshold <span class="op">=</span> <span class="fl">5</span>,label.threshold<span class="op">=</span><span class="fl">5</span>,cell.level <span class="op">=</span> <span class="cn">T</span>, V.or.J<span class="op">=</span> <span class="st">"both"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></code></pre></div>
+<span class="va">vj_circos_bcells</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_VJ_usage_circos.html">VDJ_VJ_usage_circos</a></span><span class="op">(</span>VGM <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, c.threshold <span class="op">=</span> <span class="fl">5</span>,label.threshold<span class="op">=</span><span class="fl">5</span>,cell.level <span class="op">=</span> <span class="cn">T</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Chosen clonotype column:  clonotype_id_10x</span></code></pre>
+<pre><code><span class="co">## Chosen clonotype.frequency column:  clonotype_frequency_10x</span></code></pre>
+<pre><code><span class="co">## Chosen clonotype.frequency column:  clonotype_frequency</span></code></pre>
+<pre><code><span class="co">## Processing sample 1</span></code></pre>
+<pre><code><span class="co">## Processing sample 2</span></code></pre>
+<div class="sourceCode" id="cb147"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#VDJ and VJ pairing </span>
+<span class="va">HL_circos_bcells</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_alpha_beta_Vgene_circos.html">VDJ_alpha_beta_Vgene_circos</a></span><span class="op">(</span>VGM <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, c.threshold <span class="op">=</span> <span class="fl">5</span>,label.threshold<span class="op">=</span><span class="fl">5</span>,cell.level <span class="op">=</span> <span class="cn">T</span>, V.or.J<span class="op">=</span> <span class="st">"both"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Chosen clonotype.frequency column:  clonotype_frequency</span></code></pre>
+<pre><code><span class="co">## [1] "s2"</span>
+<span class="co">## [1] "s4"</span></code></pre>
 <pre><code><span class="co">## Plotting for sample s2</span></code></pre>
 <pre><code><span class="co">## Plotting for sample s4</span></code></pre>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-41-1.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-41-2.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-41-3.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-41-4.png" width="672"></p>
@@ -1362,11 +1338,11 @@ VDJ_logoplot_vector function the user can plot a logoplot of the CDR3
 region od a certain length, specifyed by the length_cdr3 argument. For
 instance, the logoplot below corresponds to all those CDR3 aminoacid
 sequences of length 25</p>
-<div class="sourceCode" id="cb156"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb152"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pasted_CDR3s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">VDJ_cdr3s_aa</span>, <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">VJ_cdr3s_aa</span><span class="op">)</span>
 <span class="va">agedCNS_CDR3_logoplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_logoplot_vector.html">VDJ_logoplot_vector</a></span><span class="op">(</span>cdr3.vector <span class="op">=</span> <span class="va">pasted_CDR3s</span>, seq_type <span class="op">=</span> <span class="st">"aa"</span>, length_cdr3 <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Returning logoplot based on 106 sequences of a total 945 input sequences</span></code></pre>
-<div class="sourceCode" id="cb158"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb154"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">agedCNS_CDR3_logoplot</span><span class="op">)</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-42-1.png" width="672"></p>
 </div>
@@ -1377,7 +1353,7 @@ sequences of length 25</p>
 variants of CDR3s or full length sequences may be contained. To count
 variants, the function VDJ_variants_per_clone is used. It returns a
 table per sample_id with stats about variants</p>
-<div class="sourceCode" id="cb159"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb155"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">variants_agedCNS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_variants_per_clone.html">VDJ_variants_per_clone</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, variants.of <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cdr3s_aa"</span>, <span class="st">"VJ_cdr3s_aa"</span><span class="op">)</span>, clonotypes.col <span class="op">=</span> <span class="st">"clonotype_id_10x"</span>, split.by <span class="op">=</span> <span class="st">"sample_id"</span>, stringDist.method <span class="op">=</span> <span class="st">"levenshtein"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">variants_agedCNS</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##   split_group clonotype_id n sequences n variants mean variants distance</span>
@@ -1401,7 +1377,7 @@ table per sample_id with stats about variants</p>
 <span class="co">## 4                    1                    IGHD</span>
 <span class="co">## 5                    1                    IGHM</span>
 <span class="co">## 6                    1                    IGHM</span></code></pre>
-<div class="sourceCode" id="cb161"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb157"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#set split.by to "none" if clonotyping was conducted across all samples</span></code></pre></div>
 </div>
 <div class="section level3">
@@ -1410,7 +1386,7 @@ table per sample_id with stats about variants</p>
 <p>Public clones or sequences are sequences that are shared between
 individuals. The VDJ_overlap_heatmap function can quantify this overlap
 and return a list of overlapping items</p>
-<div class="sourceCode" id="cb162"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb158"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#overlap of VDJ V genes</span>
 <span class="va">VDJv_overlap</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_overlap_heatmap.html">VDJ_overlap_heatmap</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_vgene"</span><span class="op">)</span> ,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>, axis.label.size <span class="op">=</span> <span class="fl">20</span>, pvalues.label.size <span class="op">=</span> <span class="fl">12</span>, add.barcode.table <span class="op">=</span> <span class="cn">T</span>, plot.type <span class="op">=</span> <span class="st">"ggplot"</span><span class="op">)</span> 
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">VDJv_overlap</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#summary of overlap</span></code></pre></div>
@@ -1435,7 +1411,7 @@ and return a list of overlapping items</p>
 <span class="co">## 4          40</span>
 <span class="co">## 5          47</span>
 <span class="co">## 6          53</span></code></pre>
-<div class="sourceCode" id="cb164"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb160"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">VDJv_overlap</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co">#Table of overlapping items</span></code></pre></div>
 <pre><code><span class="co">##   overlapping_items Freq in s1</span>
 <span class="co">## 1           IGHV8-8          1</span>
@@ -1444,13 +1420,13 @@ and return a list of overlapping items</p>
 <span class="co">## 4          IGHV5-17          1</span>
 <span class="co">## 5          IGHV5-16          2</span>
 <span class="co">## 6          IGHV1-54          1</span>
-<span class="co">##                                                                                                                                                                                                                                                               Barcodes s1</span>
-<span class="co">## 1                                                                                                                                                                                                                                                   s1_AAACGGGGTTTAGGAA-1</span>
-<span class="co">## 2                                                                                                                                                                                                       s1_AAGGCAGTCTCTGCTG-1;s1_AGAGTGGAGGAGTCTG-1;s1_GATCGCGAGTACGATA-1</span>
-<span class="co">## 3 s1_ACAGCTACAGTCGTGC-1;s1_CATATGGTCTTTAGTC-1;s1_CCTCAGTGTACTTAGC-1;s1_CGAGCCACAATGTAAG-1;s1_CGATGGCAGGGTATCG-1;s1_GAAACTCCAAGCTGAG-1;s1_GACGCGTTCAGGCGAA-1;s1_GATGAGGCAGCGTTCG-1;s1_GGCCGATAGTTAAGTG-1;s1_TCAGGATTCACAGGCC-1;s1_TGCCCATAGTTAACGA-1;s1_TTTACTGCAGCAGTTT-1</span>
-<span class="co">## 4                                                                                                                                                                                                                                                   s1_AGAGCTTGTCATGCAT-1</span>
-<span class="co">## 5                                                                                                                                                                                                                             s1_AGCAGCCTCAAACCGT-1;s1_GTCAAGTAGACTTGAA-1</span>
-<span class="co">## 6                                                                                                                                                                                                                                                   s1_AGCGTCGGTTTCGCTC-1</span>
+<span class="co">##                                                                                                                                                                                                                                       Barcodes s1</span>
+<span class="co">## 1                                                                                                                                                                                                                             s1_AAACGGGGTTTAGGAA</span>
+<span class="co">## 2                                                                                                                                                                                     s1_AAGGCAGTCTCTGCTG;s1_AGAGTGGAGGAGTCTG;s1_GATCGCGAGTACGATA</span>
+<span class="co">## 3 s1_ACAGCTACAGTCGTGC;s1_CATATGGTCTTTAGTC;s1_CCTCAGTGTACTTAGC;s1_CGAGCCACAATGTAAG;s1_CGATGGCAGGGTATCG;s1_GAAACTCCAAGCTGAG;s1_GACGCGTTCAGGCGAA;s1_GATGAGGCAGCGTTCG;s1_GGCCGATAGTTAAGTG;s1_TCAGGATTCACAGGCC;s1_TGCCCATAGTTAACGA;s1_TTTACTGCAGCAGTTT</span>
+<span class="co">## 4                                                                                                                                                                                                                             s1_AGAGCTTGTCATGCAT</span>
+<span class="co">## 5                                                                                                                                                                                                         s1_AGCAGCCTCAAACCGT;s1_GTCAAGTAGACTTGAA</span>
+<span class="co">## 6                                                                                                                                                                                                                             s1_AGCGTCGGTTTCGCTC</span>
 <span class="co">##   Freq in s2</span>
 <span class="co">## 1          2</span>
 <span class="co">## 2          7</span>
@@ -1458,13 +1434,13 @@ and return a list of overlapping items</p>
 <span class="co">## 4          2</span>
 <span class="co">## 5          2</span>
 <span class="co">## 6          1</span>
-<span class="co">##                                                                                                                                                                       Barcodes s2</span>
-<span class="co">## 1                                                                                                                                     s2_CATATTCAGCTGAACG-1;s2_GCATGTATCTGCGGCA-1</span>
-<span class="co">## 2                       s2_ACGAGGATCGCATGGC-1;s2_AGAGCGAAGCCACCTG-1;s2_AGCAGCCTCTGTACGA-1;s2_CGATGTATCCTATGTT-1;s2_CGTAGCGAGTCCCACG-1;s2_CTAGAGTGTAAATGAC-1;s2_CTAGCCTGTGACTACT-1</span>
-<span class="co">## 3 s2_ACGTCAAAGCGCTTAT-1;s2_CTACACCAGCCCTAAT-1;s2_GCACATAAGGATATAC-1;s2_GGGACCTTCGGACAAG-1;s2_GTGCATACACCTATCC-1;s2_TCTCTAAGTATATGGA-1;s2_TGCCCATTCGGCTTGG-1;s2_TTGGCAATCTGGCGTG-1</span>
-<span class="co">## 4                                                                                                                                     s2_CTGCTGTTCGTTTGCC-1;s2_GTCGGGTCACGACGAA-1</span>
-<span class="co">## 5                                                                                                                                     s2_AAAGTAGTCACCCGAG-1;s2_CAACCTCGTGCGCTTG-1</span>
-<span class="co">## 6                                                                                                                                                           s2_CAGTAACGTGGTACAG-1</span>
+<span class="co">##                                                                                                                                                       Barcodes s2</span>
+<span class="co">## 1                                                                                                                         s2_CATATTCAGCTGAACG;s2_GCATGTATCTGCGGCA</span>
+<span class="co">## 2                     s2_ACGAGGATCGCATGGC;s2_AGAGCGAAGCCACCTG;s2_AGCAGCCTCTGTACGA;s2_CGATGTATCCTATGTT;s2_CGTAGCGAGTCCCACG;s2_CTAGAGTGTAAATGAC;s2_CTAGCCTGTGACTACT</span>
+<span class="co">## 3 s2_ACGTCAAAGCGCTTAT;s2_CTACACCAGCCCTAAT;s2_GCACATAAGGATATAC;s2_GGGACCTTCGGACAAG;s2_GTGCATACACCTATCC;s2_TCTCTAAGTATATGGA;s2_TGCCCATTCGGCTTGG;s2_TTGGCAATCTGGCGTG</span>
+<span class="co">## 4                                                                                                                         s2_CTGCTGTTCGTTTGCC;s2_GTCGGGTCACGACGAA</span>
+<span class="co">## 5                                                                                                                         s2_AAAGTAGTCACCCGAG;s2_CAACCTCGTGCGCTTG</span>
+<span class="co">## 6                                                                                                                                             s2_CAGTAACGTGGTACAG</span>
 <span class="co">##   Freq in s3</span>
 <span class="co">## 1          4</span>
 <span class="co">## 2          8</span>
@@ -1472,13 +1448,13 @@ and return a list of overlapping items</p>
 <span class="co">## 4          1</span>
 <span class="co">## 5          2</span>
 <span class="co">## 6          1</span>
-<span class="co">##                                                                                                                                                                                             Barcodes s3</span>
-<span class="co">## 1                                                                                                               s3_CTAGAGTGTAGCCTCG-1;s3_GCCTCTATCTCTTATG-1;s3_GGGTTGCCATACGCCG-1;s3_TGGGAAGAGGACTGGT-1</span>
-<span class="co">## 2                       s3_AAAGATGTCTTATCTG-1;s3_AGTGAGGTCATTTGGG-1;s3_ATGAGGGCACTACAGT-1;s3_CAGCGACCAAGTAATG-1;s3_CTACATTTCTTGTCAT-1;s3_CTCGGAGGTCTAGCCG-1;s3_CTGAAGTCACGAGAGT-1;s3_TGTTCCGGTAGGGTAC-1</span>
-<span class="co">## 3 s3_ACATCAGAGTGGTCCC-1;s3_AGAGCTTGTACATGTC-1;s3_AGCCTAATCGATGAGG-1;s3_CATGACAGTCCGTTAA-1;s3_CCTTCGAGTATGCTTG-1;s3_CTCGGAGAGAAACCTA-1;s3_CTGCTGTGTTACAGAA-1;s3_GGGATGAAGGTGCAAC-1;s3_TGGCCAGAGACGCAAC-1</span>
-<span class="co">## 4                                                                                                                                                                                 s3_GAGGTGAAGGCATGGT-1</span>
-<span class="co">## 5                                                                                                                                                           s3_AGGCCGTCAGTACACT-1;s3_TCGTAGATCTTATCTG-1</span>
-<span class="co">## 6                                                                                                                                                                                 s3_TGACTAGGTAGTACCT-1</span>
+<span class="co">##                                                                                                                                                                           Barcodes s3</span>
+<span class="co">## 1                                                                                                     s3_CTAGAGTGTAGCCTCG;s3_GCCTCTATCTCTTATG;s3_GGGTTGCCATACGCCG;s3_TGGGAAGAGGACTGGT</span>
+<span class="co">## 2                     s3_AAAGATGTCTTATCTG;s3_AGTGAGGTCATTTGGG;s3_ATGAGGGCACTACAGT;s3_CAGCGACCAAGTAATG;s3_CTACATTTCTTGTCAT;s3_CTCGGAGGTCTAGCCG;s3_CTGAAGTCACGAGAGT;s3_TGTTCCGGTAGGGTAC</span>
+<span class="co">## 3 s3_ACATCAGAGTGGTCCC;s3_AGAGCTTGTACATGTC;s3_AGCCTAATCGATGAGG;s3_CATGACAGTCCGTTAA;s3_CCTTCGAGTATGCTTG;s3_CTCGGAGAGAAACCTA;s3_CTGCTGTGTTACAGAA;s3_GGGATGAAGGTGCAAC;s3_TGGCCAGAGACGCAAC</span>
+<span class="co">## 4                                                                                                                                                                 s3_GAGGTGAAGGCATGGT</span>
+<span class="co">## 5                                                                                                                                             s3_AGGCCGTCAGTACACT;s3_TCGTAGATCTTATCTG</span>
+<span class="co">## 6                                                                                                                                                                 s3_TGACTAGGTAGTACCT</span>
 <span class="co">##   Freq in s4</span>
 <span class="co">## 1          4</span>
 <span class="co">## 2         38</span>
@@ -1486,14 +1462,14 @@ and return a list of overlapping items</p>
 <span class="co">## 4         17</span>
 <span class="co">## 5          6</span>
 <span class="co">## 6          9</span>
-<span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           Barcodes s4</span>
-<span class="co">## 1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             s4_CGAATGTCAGTTTACG-1;s4_CGGACGTGTCAAAGAT-1;s4_TCTCTAATCGGCGCAT-1;s4_TTAGGACCAGCGTCCA-1</span>
-<span class="co">## 2 s4_AACCATGGTCTGGAGA-1;s4_AAGGAGCGTATATGGA-1;s4_AAGGCAGCAAGCCCAC-1;s4_ACAGCCGCACACATGT-1;s4_ACGATGTGTCGCTTTC-1;s4_ACGCAGCGTGCCTGGT-1;s4_AGAATAGCAACTGCGC-1;s4_AGCTCCTTCATTGCCC-1;s4_ATGTGTGTCCTTCAAT-1;s4_CAAGGCCAGTGACTCT-1;s4_CACACTCCAAGCCCAC-1;s4_CAGCAGCGTTCCGGCA-1;s4_CCGTTCAAGTTAACGA-1;s4_CCTAAAGAGTACATGA-1;s4_CCTCAGTAGAGGTACC-1;s4_CGGAGTCAGGTGGGTT-1;s4_CGTAGGCAGAGTAATC-1;s4_CTGAAACAGGCAGGTT-1;s4_CTGTGCTCACGTAAGG-1;s4_GAATAAGTCCTCAACC-1;s4_GACGTGCTCACTTCAT-1;s4_GATGCTAAGCGTTTAC-1;s4_GCGAGAATCGCGTAGC-1;s4_GGACATTGTCCAACTA-1;s4_GGAGCAATCAGGCGAA-1;s4_GTCAAGTCAACGCACC-1;s4_GTCACGGCAGTATCTG-1;s4_GTGTGCGTCTGGCGAC-1;s4_TAAACCGAGACTTTCG-1;s4_TACCTTACAAAGGTGC-1;s4_TACTCATGTAACGTTC-1;s4_TAGGCATGTAATTGGA-1;s4_TCGCGAGTCGTACCGG-1;s4_TGATTTCAGATCCCGC-1;s4_TGATTTCTCGGCCGAT-1;s4_TGGCCAGAGCTAACAA-1;s4_TTCTCAACAAGCGCTC-1;s4_TTGGAACTCTTCGGTC-1</span>
-<span class="co">## 3                                                                                                                                                                                                                                                                                                                     s4_AGGTCATAGGGCTTCC-1;s4_CAAGATCTCCGGGTGT-1;s4_CACATAGTCGCCAGCA-1;s4_CGAGAAGTCAACGAAA-1;s4_CGGGTCATCAGGCCCA-1;s4_CGGTTAACATTCTTAC-1;s4_CGTCAGGCAGATCTGT-1;s4_CTACGTCGTACTTGAC-1;s4_CTCATTATCAGTCCCT-1;s4_GACACGCCACTGCCAG-1;s4_GACTACAGTACATGTC-1;s4_GGAATAAGTTCACCTC-1;s4_GGGCATCGTAGCGTAG-1;s4_GGGTCTGTCCGCTGTT-1;s4_GGTGTTAGTAACGCGA-1;s4_GTGGGTCTCGGATGGA-1;s4_GTTCATTGTTAAGATG-1;s4_GTTTCTAGTATATGAG-1;s4_TACTTACGTGCCTGGT-1;s4_TCACGAATCTAACTGG-1;s4_TCCCGATTCTCTGTCG-1;s4_TGTTCCGGTTGCCTCT-1;s4_TTGGAACGTGTGAAAT-1;s4_TTTATGCGTACCGTTA-1</span>
-<span class="co">## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                               s4_AAATGCCTCTGGGCCA-1;s4_ACACCAACAGTCAGCC-1;s4_ACTTACTTCTCAAGTG-1;s4_ATCATGGGTTCGGCAC-1;s4_CACACTCAGATCCCAT-1;s4_CACAGTAAGATGTAAC-1;s4_CAGCTAAAGGGTGTTG-1;s4_CCTAAAGCAATGTTGC-1;s4_CCTACCACAATCACAC-1;s4_CTGTTTAGTCGCTTCT-1;s4_GCACATAAGATCCTGT-1;s4_GGCGACTAGGTGCTTT-1;s4_GGCTCGACACCAGCAC-1;s4_GGGAGATCAGTTTACG-1;s4_TACCTTACACGCGAAA-1;s4_TCCCGATCACGTAAGG-1;s4_TGACTAGTCCTCATTA-1</span>
-<span class="co">## 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 s4_CGAACATAGATCCCAT-1;s4_CGGGTCAGTGCCTTGG-1;s4_CTACGTCCACGGCGTT-1;s4_GTAACGTTCAATCTCT-1;s4_GTCGGGTAGACTAGGC-1;s4_TAAGAGACATCGGTTA-1</span>
-<span class="co">## 6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               s4_AACTCAGTCGAGAACG-1;s4_ACGATACGTAGGCATG-1;s4_AGCAGCCTCCTGCCAT-1;s4_ATCGAGTTCTCTGTCG-1;s4_ATTGGTGTCATTGCGA-1;s4_CCGTACTTCCGGGTGT-1;s4_CGTTAGAGTTGCCTCT-1;s4_TCATTTGGTCATGCCG-1;s4_TGACGGCCATTGGGCC-1</span></code></pre>
-<div class="sourceCode" id="cb166"><pre class="downlit sourceCode r">
+<span class="co">##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Barcodes s4</span>
+<span class="co">## 1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         s4_CGAATGTCAGTTTACG;s4_CGGACGTGTCAAAGAT;s4_TCTCTAATCGGCGCAT;s4_TTAGGACCAGCGTCCA</span>
+<span class="co">## 2 s4_AACCATGGTCTGGAGA;s4_AAGGAGCGTATATGGA;s4_AAGGCAGCAAGCCCAC;s4_ACAGCCGCACACATGT;s4_ACGATGTGTCGCTTTC;s4_ACGCAGCGTGCCTGGT;s4_AGAATAGCAACTGCGC;s4_AGCTCCTTCATTGCCC;s4_ATGTGTGTCCTTCAAT;s4_CAAGGCCAGTGACTCT;s4_CACACTCCAAGCCCAC;s4_CAGCAGCGTTCCGGCA;s4_CCGTTCAAGTTAACGA;s4_CCTAAAGAGTACATGA;s4_CCTCAGTAGAGGTACC;s4_CGGAGTCAGGTGGGTT;s4_CGTAGGCAGAGTAATC;s4_CTGAAACAGGCAGGTT;s4_CTGTGCTCACGTAAGG;s4_GAATAAGTCCTCAACC;s4_GACGTGCTCACTTCAT;s4_GATGCTAAGCGTTTAC;s4_GCGAGAATCGCGTAGC;s4_GGACATTGTCCAACTA;s4_GGAGCAATCAGGCGAA;s4_GTCAAGTCAACGCACC;s4_GTCACGGCAGTATCTG;s4_GTGTGCGTCTGGCGAC;s4_TAAACCGAGACTTTCG;s4_TACCTTACAAAGGTGC;s4_TACTCATGTAACGTTC;s4_TAGGCATGTAATTGGA;s4_TCGCGAGTCGTACCGG;s4_TGATTTCAGATCCCGC;s4_TGATTTCTCGGCCGAT;s4_TGGCCAGAGCTAACAA;s4_TTCTCAACAAGCGCTC;s4_TTGGAACTCTTCGGTC</span>
+<span class="co">## 3                                                                                                                                                                                                                                                                                         s4_AGGTCATAGGGCTTCC;s4_CAAGATCTCCGGGTGT;s4_CACATAGTCGCCAGCA;s4_CGAGAAGTCAACGAAA;s4_CGGGTCATCAGGCCCA;s4_CGGTTAACATTCTTAC;s4_CGTCAGGCAGATCTGT;s4_CTACGTCGTACTTGAC;s4_CTCATTATCAGTCCCT;s4_GACACGCCACTGCCAG;s4_GACTACAGTACATGTC;s4_GGAATAAGTTCACCTC;s4_GGGCATCGTAGCGTAG;s4_GGGTCTGTCCGCTGTT;s4_GGTGTTAGTAACGCGA;s4_GTGGGTCTCGGATGGA;s4_GTTCATTGTTAAGATG;s4_GTTTCTAGTATATGAG;s4_TACTTACGTGCCTGGT;s4_TCACGAATCTAACTGG;s4_TCCCGATTCTCTGTCG;s4_TGTTCCGGTTGCCTCT;s4_TTGGAACGTGTGAAAT;s4_TTTATGCGTACCGTTA</span>
+<span class="co">## 4                                                                                                                                                                                                                                                                                                                                                                                                                                     s4_AAATGCCTCTGGGCCA;s4_ACACCAACAGTCAGCC;s4_ACTTACTTCTCAAGTG;s4_ATCATGGGTTCGGCAC;s4_CACACTCAGATCCCAT;s4_CACAGTAAGATGTAAC;s4_CAGCTAAAGGGTGTTG;s4_CCTAAAGCAATGTTGC;s4_CCTACCACAATCACAC;s4_CTGTTTAGTCGCTTCT;s4_GCACATAAGATCCTGT;s4_GGCGACTAGGTGCTTT;s4_GGCTCGACACCAGCAC;s4_GGGAGATCAGTTTACG;s4_TACCTTACACGCGAAA;s4_TCCCGATCACGTAAGG;s4_TGACTAGTCCTCATTA</span>
+<span class="co">## 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 s4_CGAACATAGATCCCAT;s4_CGGGTCAGTGCCTTGG;s4_CTACGTCCACGGCGTT;s4_GTAACGTTCAATCTCT;s4_GTCGGGTAGACTAGGC;s4_TAAGAGACATCGGTTA</span>
+<span class="co">## 6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     s4_AACTCAGTCGAGAACG;s4_ACGATACGTAGGCATG;s4_AGCAGCCTCCTGCCAT;s4_ATCGAGTTCTCTGTCG;s4_ATTGGTGTCATTGCGA;s4_CCGTACTTCCGGGTGT;s4_CGTTAGAGTTGCCTCT;s4_TCATTTGGTCATGCCG;s4_TGACGGCCATTGGGCC</span></code></pre>
+<div class="sourceCode" id="cb162"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#overlap of clones</span>
 <span class="va">clone_overlap</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_overlap_heatmap.html">VDJ_overlap_heatmap</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,feature.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"VDJ_cdr3s_aa"</span>,<span class="st">"VJ_cdr3s_aa"</span><span class="op">)</span> ,grouping.column <span class="op">=</span> <span class="st">"sample_id"</span>, axis.label.size <span class="op">=</span> <span class="fl">20</span>, pvalues.label.size <span class="op">=</span> <span class="fl">12</span>, add.barcode.table <span class="op">=</span> <span class="cn">T</span>, plot.type <span class="op">=</span> <span class="st">"ggplot"</span><span class="op">)</span> 
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">clone_overlap</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
@@ -1523,50 +1499,43 @@ functions that help explore and exploite this data</p>
 <p>First we get basic stats on the overlap between GEX and VDJ. In this
 dataset, GEX data contains both B and T cells while VDJ data contains
 only BCR sequences.</p>
-<div class="sourceCode" id="cb167"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb163"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Nr of cells for which VDJ info is available</span>
 <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 945</span></code></pre>
-<div class="sourceCode" id="cb169"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb165"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Nr of cells for which GEX info is available</span>
 <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 2064</span></code></pre>
-<div class="sourceCode" id="cb171"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb167"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#VDJ sequences for which GEX is available</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">VDJ_available</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] 704</span></code></pre>
-<div class="sourceCode" id="cb173"><pre class="downlit sourceCode r">
+<pre><code><span class="co">## [1] 303</span></code></pre>
+<div class="sourceCode" id="cb169"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#We can also plot this </span>
 <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html" class="external-link">DimPlot</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"VDJ_available"</span>, shuffle <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-45-1.png" width="672"></p>
 <p>If additional columns have been added to VDJ (e.g. by clonotyping),
 these can be transferred to GEX via the VGM_integrate function</p>
-<div class="sourceCode" id="cb174"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb170"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vgm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VGM_integrate.html">VGM_integrate</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Cells in GEX: 2064; cells in VDJ: 945</span>
-<span class="co">##  Overlap: 704</span></code></pre>
+<span class="co">##  Overlap: 303</span></code></pre>
 <pre><code><span class="co">## Integrating all VDJ columns which are not in GEX to GEX</span></code></pre>
-<pre><code><span class="co">## Added columns to GEX: clonotype_frequency; clonotype_id</span></code></pre>
+<pre><code><span class="co">## Added columns to GEX: clonotype_id; clonotype_frequency</span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="relating-clonal-expansion-to-transcriptional-cluster-membership">8.2. Relating clonal expansion to transcriptional cluster
 membership<a class="anchor" aria-label="anchor" href="#relating-clonal-expansion-to-transcriptional-cluster-membership"></a>
 </h3>
 <p>The VDJ_clonal_expansion function has been used above to plot isotype
-information. Here its exdented functionality is used to color clones by
+information. Here its extended functionality is used to color clones by
 their transcriptional cluster</p>
-<div class="sourceCode" id="cb178"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,celltype <span class="op">=</span> <span class="st">"Bcells"</span>,clones <span class="op">=</span> <span class="st">"30"</span>, group.by <span class="op">=</span> <span class="st">"sample_id"</span>, color.by <span class="op">=</span> <span class="st">"seurat_clusters"</span><span class="op">)</span>
+<div class="sourceCode" id="cb174"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,clones <span class="op">=</span> <span class="st">"30"</span>, group.by <span class="op">=</span> <span class="st">"none"</span>, color.by <span class="op">=</span> <span class="st">"seurat_clusters"</span><span class="op">)</span>
 <span class="co">#group by specifies how many separate plots should be generated. If vgm contains global clonotype information this can be set to "none"</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="quickstart_files/figure-html/unnamed-chunk-47-1.png" width="672"></p>
-<p>Similar plots can be generated using the GEX_phenotype_per_clone
-function</p>
-<div class="sourceCode" id="cb179"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_phenotype_per_clone.html">GEX_phenotype_per_clone</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, GEX.clonotypes <span class="op">=</span> <span class="st">"topclones"</span>, GEX.group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span>
-<span class="co">#If vgm contains global clonotype information this can be set global.clonotypes to TRUE</span>
-<span class="va">clonal_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-48-1.png" width="672"></p>
 </div>
 <div class="section level3">
 <h3 id="visualizing-clones-on-the-2-dimensional-landscape">8.3. Visualizing clones on the 2 dimensional landscape<a class="anchor" aria-label="anchor" href="#visualizing-clones-on-the-2-dimensional-landscape"></a>
@@ -1576,12 +1545,12 @@ highlighted on a dimensional reduction</p>
 <p>Because the legend of these plots can get quite large, we can split
 the plot and the legend and draw them separately. For this the gridExtra
 and cowplot package is required</p>
-<div class="sourceCode" id="cb180"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb175"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#here we overlay the top 5 clones</span>
 <span class="va">plot_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_GEX_overlay_clones.html">VDJ_GEX_overlay_clones</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">F</span>, ncol.facet <span class="op">=</span> <span class="fl">1</span>, split.plot.and.legend <span class="op">=</span> <span class="cn">F</span>, pt.size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Scale for 'colour' is already present. Adding another scale for 'colour',</span>
 <span class="co">## which will replace the existing scale.</span></code></pre>
-<div class="sourceCode" id="cb182"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb177"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plot_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="co"># the plot</span>
 
 <span class="co">#We can also plot any clone of interest by adding a column were TRUE values select which clones are to be plotted</span>
@@ -1591,10 +1560,10 @@ and cowplot package is required</p>
 <span class="va">plot_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_GEX_overlay_clones.html">VDJ_GEX_overlay_clones</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, clones.to.plot <span class="op">=</span> <span class="st">"clones_to_plot"</span>, by.sample <span class="op">=</span> <span class="cn">F</span>, ncol.facet <span class="op">=</span> <span class="fl">1</span>, split.plot.and.legend <span class="op">=</span> <span class="cn">T</span>, pt.size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Scale for 'colour' is already present. Adding another scale for 'colour',</span>
 <span class="co">## which will replace the existing scale.</span></code></pre>
-<div class="sourceCode" id="cb184"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb179"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plot_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="co"># the plot</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">plot_out</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="co"># the legend. Alternatively use gridExtra::grid.arrange(plot_out[[2]])</span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-49-1.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-49-2.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-49-3.png" width="672"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-48-1.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-48-2.png" width="672"><img src="quickstart_files/figure-html/unnamed-chunk-48-3.png" width="672"></p>
 </div>
 <div class="section level3">
 <h3 id="specific-gene-expression-information-on-the-clonal-level">8.4. Specific gene expression information on the clonal level<a class="anchor" aria-label="anchor" href="#specific-gene-expression-information-on-the-clonal-level"></a>
@@ -1605,43 +1574,43 @@ for certain clonotypes (e.g., how many of the cells in the top clone are
 expressing markers of activated B cells). This is done by adding an
 extra column to the VDJ and GEX objects containing binary information on
 expansion.</p>
-<div class="sourceCode" id="cb185"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb180"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vgm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VGM_expanded_clones.html">VGM_expanded_clones</a></span><span class="op">(</span><span class="va">vgm</span>, add.to.VDJ <span class="op">=</span> <span class="cn">T</span>, add.to.GEX <span class="op">=</span> <span class="cn">T</span>, expansion.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Added new columns to VDJ: expanded_clonotype_frequency</span></code></pre>
 <pre><code><span class="co">## Added new columns to GEX: expanded_clonotype_frequency</span></code></pre>
-<div class="sourceCode" id="cb188"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb183"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#We can use the dottile function to look at selected genes</span>
 <span class="fu"><a href="../reference/GEX_dottile_plot.html">GEX_dottile_plot</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>, <span class="st">"CD74"</span>,<span class="st">"IL2RA"</span>, <span class="st">"CD27"</span>,<span class="st">"CD80"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"expanded_clonotype_frequency"</span>, threshold.to.plot <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Warning: Removed 2 rows containing missing values (geom_point).</span></code></pre>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-50-1.png" width="672"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-49-1.png" width="672"></p>
 <p>For a more unbiased view, DEGs can be calculated between expanded and
 non-expanded clones</p>
-<div class="sourceCode" id="cb190"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb185"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">DE_byexpansion</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GEX_DEgenes.html">GEX_DEgenes</a></span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, min.pct <span class="op">=</span> <span class="fl">0.25</span>, group1 <span class="op">=</span> <span class="st">"TRUE"</span>, group2 <span class="op">=</span> <span class="st">"FALSE"</span>, grouping.column <span class="op">=</span> <span class="st">"expanded_clonotype_frequency"</span>, return.plot <span class="op">=</span> <span class="st">"volcano"</span>, logFC <span class="op">=</span> <span class="cn">F</span>, label.n.top.genes <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">DE_byexpansion</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##               p_val  avg_logFC pct.1 pct.2 p_val_adj SYMBOL signif_pval</span>
-<span class="co">## U2AF2  0.0003391546  0.6244668 0.412 0.254         1  U2AF2       FALSE</span>
-<span class="co">## MAN2B1 0.0005774963 -0.7846933 0.165 0.338         1 MAN2B1       FALSE</span>
-<span class="co">## ABLIM1 0.0007451424  0.3253529 0.495 0.313         1 ABLIM1       FALSE</span>
-<span class="co">## DNAJC7 0.0013553100  0.2995496 0.526 0.353         1 DNAJC7       FALSE</span>
-<span class="co">## CCM2   0.0014159094  0.3599800 0.412 0.254         1   CCM2       FALSE</span>
-<span class="co">## CST3   0.0016526364 -1.5807651 0.412 0.563         1   CST3       FALSE</span>
+<span class="co">## EDF1   0.0001018582 -0.6945464 0.200 0.489         1   EDF1       FALSE</span>
+<span class="co">## POLR1D 0.0002441627 -0.6863222 0.214 0.489         1 POLR1D       FALSE</span>
+<span class="co">## TRA2B  0.0002955248 -0.5573743 0.243 0.498         1  TRA2B       FALSE</span>
+<span class="co">## HSPE1  0.0003391985 -0.5913888 0.329 0.579         1  HSPE1       FALSE</span>
+<span class="co">## RBX1   0.0003399626 -0.6474882 0.286 0.554         1   RBX1       FALSE</span>
+<span class="co">## PSMA4  0.0006829527 -0.4248722 0.114 0.335         1  PSMA4       FALSE</span>
 <span class="co">##        signif_logfc color_threshold</span>
-<span class="co">## U2AF2          TRUE           FALSE</span>
-<span class="co">## MAN2B1         TRUE           FALSE</span>
-<span class="co">## ABLIM1         TRUE           FALSE</span>
-<span class="co">## DNAJC7         TRUE           FALSE</span>
-<span class="co">## CCM2           TRUE           FALSE</span>
-<span class="co">## CST3           TRUE           FALSE</span></code></pre>
-<div class="sourceCode" id="cb192"><pre class="downlit sourceCode r">
+<span class="co">## EDF1           TRUE           FALSE</span>
+<span class="co">## POLR1D         TRUE           FALSE</span>
+<span class="co">## TRA2B          TRUE           FALSE</span>
+<span class="co">## HSPE1          TRUE           FALSE</span>
+<span class="co">## RBX1           TRUE           FALSE</span>
+<span class="co">## PSMA4          TRUE           FALSE</span></code></pre>
+<div class="sourceCode" id="cb187"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">DE_byexpansion</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-51-1.png" width="672"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-50-1.png" width="672"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="version-information">9 Version information<a class="anchor" aria-label="anchor" href="#version-information"></a>
 </h2>
-<div class="sourceCode" id="cb193"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb188"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## R version 4.0.5 (2021-03-31)</span>
 <span class="co">## Platform: x86_64-w64-mingw32/x64 (64-bit)</span>
@@ -1658,7 +1627,7 @@ non-expanded clones</p>
 <span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
-<span class="co">##  [1] Platypus_3.3.3     SeuratObject_4.0.4 Seurat_4.1.0       forcats_0.5.1     </span>
+<span class="co">##  [1] Platypus_3.4.0     SeuratObject_4.0.4 Seurat_4.1.0       forcats_0.5.1     </span>
 <span class="co">##  [5] stringr_1.4.0      purrr_0.3.4        readr_2.1.2        tidyr_1.1.3       </span>
 <span class="co">##  [9] tibble_3.1.2       ggplot2_3.3.5      tidyverse_1.3.1    dplyr_1.0.7       </span>
 <span class="co">## </span>
@@ -1667,7 +1636,7 @@ non-expanded clones</p>
 <span class="co">##   [4] RSQLite_2.2.10        AnnotationDbi_1.52.0  htmlwidgets_1.5.4    </span>
 <span class="co">##   [7] grid_4.0.5            Rtsne_0.15            munsell_0.5.0        </span>
 <span class="co">##  [10] codetools_0.2-18      ragg_1.2.1            ica_1.0-2            </span>
-<span class="co">##  [13] future_1.23.0         miniUI_0.1.1.1        withr_2.4.3          </span>
+<span class="co">##  [13] future_1.24.0         miniUI_0.1.1.1        withr_2.4.3          </span>
 <span class="co">##  [16] colorspace_2.0-2      Biobase_2.50.0        highr_0.9            </span>
 <span class="co">##  [19] knitr_1.37            rstudioapi_0.13       stats4_4.0.5         </span>
 <span class="co">##  [22] ROCR_1.0-11           tensor_1.5            listenv_0.8.0        </span>

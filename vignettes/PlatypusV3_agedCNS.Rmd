@@ -38,7 +38,7 @@ knitr::opts_chunk$set(fig.width=7, fig.height=7)
 
 ```{r, eval = FALSE, include=FALSE}
 #this is for sourcing all functions under development and is not included in the knitting
-source_code_dir <- "C:/Dokumente usw/Master/Reddy Lab/1_thesis/3_code/4_DB project/PlatypusDB_admin/R" 
+source_code_dir <- "C:/Users/vickr/Documents/GitHub/Platypus/vignettes" 
 file_path_vec <- list.files(source_code_dir, full.names = T)
 for(f_path in file_path_vec){
   print(f_path)
@@ -397,38 +397,41 @@ print(table(vgm[[1]]$Nr_of_VJ_chains))
 
 ### 6.2 Changing the clonotype strategy
 
-Often paired nucleotide CDRH3 and CDRL3 clonotyping may not be the best strategy given somatic hypermutation may occur in the CDR3 region. Therefore, there could be highly similar clones that likely bind the same antigen that are officially part of different clonal families. To address this, we have added a function that allows for various heuristic clonotyping strategies. This involves clonotyping by identical amino acid CDRH3 + CDRL3 seuqence, identical germline usage, or seqeunce homology requirements. This function works both for V3 and V2 of platypus. The version needs to be specified. 
-For V3 (vgm) platypus.version should be set to "v3" and the whole vgm object should be supplied as VDJ.GEX.matrix. Two important parameters have been added:
-1. global.clonotype If set to TRUE, clonotypes will be generated across all samples of the vgm. This may be useful if more than one sample has been taken from the same animal (e.g. spleen and bone marrow)
-2. output.format The function can export either a vgm format (set to "vgm") of a list of dataframes, one for each sample both at cell and clonotype resolution (set to "dataframe.per.sample", "clone.level.dataframes" or "dataframe.per.clone")
-If output.format is set to "vgm" the function will update the clonotype_id column (not the clonotype_id_10x) and add a new columns containing new clonotype frequencies and the determining motives
+Often paired nucleotide CDRH3 and CDRL3 clonotyping may not be the best strategy given somatic hypermutation may occur in the CDR3 region. Therefore, there could be highly similar clones that likely bind the same antigen that are officially part of different clonal families. To address this, we have added a function that allows for various heuristic clonotyping strategies. This involves clonotyping by identical amino acid CDRH3 + CDRL3 seuqence, identical germline usage, or seqeunce homology requirements. This function works both for V3 of platypus. 
 
-A note for cells with aberrant numbers of VDJ and VJ chains: the functions implements a hierarchical clonotyping strategy for such cells. In brief, clonotypes are determined based on all cells with exactly 1VDJ and 1VJ chain. Other cells are then "joined in" in post. Two examples for illustration: 
+global.clonotype If set to TRUE, clonotypes will be generated across all samples of the vgm. This may be useful if more than one sample has been taken from the same animal (e.g. spleen and bone marrow)
+
+A note for cells with aberrant numbers of VDJ and VJ chains: the functions implements a hierarchical clonotyping strategy for such cells. In brief, clonotypes are determined based on all cells with exactly 1VDJ and 1VJ chain. Other cells are then "joined in" in post. Two examples for illustration of the hierarchical mode "single.chains": 
 1. A cell with 0VDJ and 1VJ chain is joined to an existing clonotype containing the same or a homologous VJ chain, depending of the clonotyping strategy.
 2. A cell with 1VDJ and 2VJ chain will be matched to a clonotype that contains either of the two possible combinations of the chains of that aberrant cell.
 In case that no existing clonotype matches the abberant cell in question, a new clonotype will be assigned
 In case of multiple matching clonotypes, abberant cells will be assigned to the most frequent of them. 
 Cells with 2VDJ and 2VJ chains are excluded as these most likely correspond to doublets. 
+Further the function implements the hierarchical mode "double.and.single.chains"
+Here the function will proceed as if set to "single.chains" but include two more steps
+3. Check the frequency of each cell 1 VDJ 2 VJ chain exact clone (by exact nucleotide CDR3 matching). Only if this count exceeds the triple.chain.count.threshold, the clone is used as a "hub clone". This protects from merging clonotypes on the basis of rare doublets.
+4. Merge existing clonotypes into the 1 VDJ 2 VJ clonotypes as they match with the assumption that e.g. a cell with 1 VDJ 1 VJ is part of that same clonotype, but missing a VJ chain due to stochastical sampling
 
 In the example that follows, we use VDJ_clonotype to group cells into clones based on identical CDRH3 + CDRL3 amino acid sequence. We will compare this to the case in which we group B cells by using the same germline genes (both heavy chain and light chain).
+
+The function adds new columns containing clonotype ids, features and frequencies, named based on the clonotyping strategy. This allows multiple clonotyping strategy outputs to be stored in the same VGM object
+
+The columns clonotype_frequency and clonotype_id are considered the "active" slot, as functions downstream pull from them. These two columns are updated every time the VDJ_clonotype function is run
 ```{r, fig.show='hold', eval = FALSE}
 
-vgm[[1]] <- VDJ_clonotype(platypus.version = "v3", VDJ = vgm[[1]], clone.strategy = "cdr3.aa", global.clonotype = F, output.format = "vgm", VDJ.VJ.1chain = F, hierarchical = T) #Not filtering cells with counts other than 1VDJ 1VJ chain and integrating these cells hierarchically into clonotypes
+vgm[[1]] <- VDJ_clonotype(VDJ = vgm[[1]], clone.strategy = "cdr3.aa", global.clonotype = F, VDJ.VJ.1chain = F, hierarchical = "single.chains") #Not filtering cells with counts other than 1VDJ 1VJ chain and integrating these cells hierarchically into clonotypes
 
 cat(" Nr and distribution of clonotypes using exact CDR3.aa matching \n")
-print(length(unique(vgm[[1]]$new_clonal_feature)))
-print(table(vgm[[1]]$new_clonal_frequency)) #Check distribution of clonotypes with identical CDR3 aa sequences
+print(length(unique(vgm[[1]]$clonotype_id_cdr3.aa)))
+print(table(vgm[[1]]$clonotype_frequency_cdr3.aa)) #Check distribution of clonotypes with identical CDR3 aa sequences
 
-vgm[[1]] <- VDJ_clonotype(platypus.version = "v3", VDJ = vgm[[1]], clone.strategy = "hvj.lvj", global.clonotype = F, output.format = "vgm", VDJ.VJ.1chain = F, hierarchical = T)
+vgm[[1]] <- VDJ_clonotype(VDJ = vgm[[1]], clone.strategy = "hvj.lvj", global.clonotype = F, output.format = "vgm", VDJ.VJ.1chain = F, hierarchical = "single.chains")
 
 cat("\n Nr and distribution of clonotypes using germline gene matching \n ")
-print(length(unique(vgm[[1]]$new_clonal_feature)))
-print(table(vgm[[1]]$new_clonal_frequency)) #Check distribution of clonotypes with identical germline genes
+print(length(unique(vgm[[1]]$clonotype_id_hvj.lvj)))
+print(table(vgm[[1]]$clonotype_frequency_hvj.lvj)) #Check distribution of clonotypes with identical germline genes
 
 ```
-Clonotyping based on germline genes resulted in less clonotypes (175 vs. 201).
-
-
 ### 6.3 Extracting full-length sequences from the VDJRegion
 
 At the start of this vignette the VGM function was run with trim.and.align = F. Here we run the function again, but this time with trim.and.align = T. This does take significantly longer
