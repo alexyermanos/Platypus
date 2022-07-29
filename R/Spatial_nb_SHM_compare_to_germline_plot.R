@@ -1,3 +1,4 @@
+#' Compating and plotting SHMs
 #' @description Plotting number of somatic hypermutation of clones compare to the germline sequence of the clonotype.
 #' @param simulation Logical operator, to describe which type of data we want to plot, TRUE if the data are output of Echidna simulation and FALSE if the we use real dataset.
 #' @param vgm_VDJ Data frame containing cell of interest and x and y coordinates and GEX_barcode.
@@ -40,8 +41,8 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
     install.packages("dplyr")
     library(dplyr)
   }
-  platypus.version <- "v3" 
-  
+  platypus.version <- "v3"
+
   #Simulated Data with Echidna------------------------------------------------------------------------------------------------------------------
   if(simulation == TRUE){
     #Set to null parameter needed only if simulation == FALSE
@@ -52,14 +53,14 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
     #Formation of tree path
     clonotype_id<-nb_clonotype
     clonotype_id<-paste0("clonotype",nb_clonotype)
-    
+
     clonoselect<-simulated_VDJ$all_contig_annotations$raw_clonotype_id==clonotype_id
-    
+
     barcode<-simulated_VDJ$all_contig_annotations$barcode[clonoselect]
     sequence<-simulated_VDJ$all_contig$seq[clonoselect]
-    
+
     history<-simulated_VDJ$history[simulated_VDJ$history$barcode.history %in% barcode,]
-    
+
     colnames(history)<-c("label","orig_barcode","network_sequences","distance_from_germline","trans_state_his" )
     .RM.EMPTY.NODE<-function(No,size0){
       if(length(size0)>0){
@@ -73,10 +74,10 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
         }
         No<-as.vector(t(empty_del))
       }
-      
+
       return(No)
     }
-    
+
     igraph_index_rm_empty<-function(igraph.index,history){
       #igraph
       size.of.vertex<-as.data.frame(stats::aggregate(barcode.history~seq.number,history,length,na.action = stats::na.pass))
@@ -86,29 +87,29 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       size.of.vertex[!(size.of.vertex$seq.number %in% size.of.vertex1$seq.number),2]<-0
       #NA count as 0
       colnames(size.of.vertex)<-c("seq.number","size")
-      
+
       igraph.index.attr<-data.frame(igraph.index)
       colnames(igraph.index.attr)<-"seq.number"
       igraph.index.attr<-subset(igraph.index.attr,!duplicated(igraph.index.attr$seq.number))
       #size of vertex
       igraph.index.attr<-merge(size.of.vertex,igraph.index.attr,by="seq.number",all.y=T)
       igraph.index.attr$size[1]<-0
-      
-      
+
+
       igraph.index.jr<-data.frame(igraph.index)
       colnames(igraph.index.jr)<-"seq.number"
       igraph.index.jr$No<-match(x=igraph.index.jr$seq.number,table=igraph.index.attr$seq.number)
-      
+
       #find empty
       size0<-which(igraph.index.attr$size==0)
-      
+
       No<-.RM.EMPTY.NODE(igraph.index.jr$No,size0[-1])
-      
+
       table<-cbind(igraph.index.attr[igraph.index.attr$size!=0,],No=2:(sum(igraph.index.attr$size!=0)+1))
       table[nrow(table)+1,]<-c(0,0,1)
       output<-table$seq.number[ match(No,table$No)]
-      
-      
+
+
       return(output)
     }
     igraph_index<-igraph_index_rm_empty(igraph.index = simulated_VDJ$igraph.index[[nb_clonotype]],history = simulated_VDJ$history)
@@ -144,11 +145,11 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                   filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                   filter(sample ==sample_names[1]) %>%
                    select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                 filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                 filter(sample ==sample_names[1]) %>%
                  select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -159,9 +160,9 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
       ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())
@@ -172,7 +173,7 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
     simulated_VDJ = NULL
     #Set up parameter only needed if simulation == FALSE
     if(missing(AbForest_output)) stop("Please provide AbForest_output input for this function")
-    #Preparation of VDJ based on AntibodyForest output containing tree_path and vertices_dataframe 
+    #Preparation of VDJ based on AntibodyForest output containing tree_path and vertices_dataframe
     vertices_dataframe<-igraph::as_data_frame(AbForest_output, what = "vertices")
     tree_pathway<-igraph::as_data_frame(AbForest_output, what = "edges")
     tree_dataframe<-list()
@@ -195,11 +196,11 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                   filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                   filter(sample ==sample_names[1]) %>%
                    select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                 filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                 filter(sample ==sample_names[1]) %>%
                  select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -210,9 +211,9 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
       ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())

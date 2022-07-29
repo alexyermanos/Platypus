@@ -18,6 +18,7 @@ VDJ_abundances(
   treat.incomplete.features,
   combine.features,
   treat.combined.features,
+  treat.combined.groups,
   specific.feature.colors,
   output.format
 )
@@ -31,7 +32,7 @@ VDJ_abundances(
 
 \item{specific.features}{vector of specific feature values (or NULL) for which to calculate counts/proportions, from the specified feature.columns parameter (only works if a single feature column is specified in feature.columns).}
 
-\item{grouping.column}{string or 'none', represents the column from the VDJ/VDJ.GEX.matrix[[1]] object by which to group counting process. This is usually the 'clonotype_id' column to calculate frequencies at the clonotype level. If 'none', no grouping will be done.
+\item{grouping.column}{string, vector of strings, or 'none' - represents the column from the VDJ/VDJ.GEX.matrix[[1]] object by which to group counting process. This is usually the 'clonotype_id' column to calculate frequencies at the clonotype level. If 'none', no grouping will be done. To group by multiple columns, input the specific columns as a vector of strings.
 For example, if feature.columns='VDJ_cgene' and grouping.column='clonotype_id', we will obtain a count dataframe of the frequencies of each isotype per unique clonotype (per sample if sample.column='sample_id').}
 
 \item{max.groups}{integer or NULL, the maximum number of groups for which to count features. If NULL, it will count for all groups.}
@@ -50,6 +51,8 @@ For example, if feature.columns='VDJ_cgene' and grouping.column='clonotype_id', 
 
 \item{treat.combined.features}{string, method of dealing with combined features with missing values. 'exclude' will be treated similarly to excluding incomplete feature values (excluding them completely if a single value is missing from the combination), or 'include' and will be treated as a new feature value.}
 
+\item{treat.combined.groups}{string, method of dealing with combined groups with missing values, in case the grouping.column parameter is a vector of strings. 'exclude' will exclude the combined group altogether if a group value is missing/NA. 'include' will include such groups in the analysis.}
+
 \item{specific.feature.colors}{named list of specific colors to be used in the final barplots, for each unique feature value in the VDJ object's feature.columns values.
 For example, if we have a feature column of binders with unique values=c('yes', 'no'), specific.feature.colors=list('yes'='blue', 'no'='red') will color them accordingly.}
 
@@ -64,8 +67,8 @@ Calculate the absolute counts or proportions of a specific cell-level feature (c
 }
 \examples{
 VDJ_abundances(VDJ = small_vgm[[1]],
-feature.columns='VDJ_cgene',proportions='absolute',
-grouping.column='clonotype_id',specific.groups='none',
-output.format='abundance.df')
+feature.columns='VDJ_cgene', proportions='absolute',
+grouping.column='clonotype_id', specific.groups='none',
+output.format='plot')
 
 }

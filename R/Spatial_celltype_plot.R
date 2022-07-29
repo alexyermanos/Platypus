@@ -1,3 +1,4 @@
+#' Plotting assigned celltype on spatial image
 #' @description Plotting celltype assign to cell according to their phenotype on the spatial image.
 #' @param sample_names Character vector containing the name of the sample.
 #' @param bcs_merge Data frame containing imagerow, imagecol and barcode of the cells belonging to the spatial image. It can also be created by the function scaling_spatial_image_parameter by selecting the output parameter 10.
@@ -42,9 +43,9 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
   if (missing(density)){
     density = FALSE
   }
-  
-  platypus.version <- "v3" 
-  
+
+  platypus.version <- "v3"
+
   GEX_celltype<-bcs_merge
   names(GEX_celltype)[6]<-"y"
   names(GEX_celltype)[7]<-"x"
@@ -69,17 +70,17 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
   } else if(unclassified_cells == FALSE){
     GEX_celltype <- filter(GEX_celltype, cell.state != "Unclassified")
   }
-  
+
   plot<-ggplot2::ggplot(data = GEX_celltype, ggplot2::aes(x=x,y=y, fill = as.factor(cell.state)))+
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
     ggplot2::coord_cartesian(expand=FALSE)+
     ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-    ggplot2::xlim(0,max(bcs_merge %>% 
-                 filter(sample ==sample_names[1]) %>% 
+    ggplot2::xlim(0,max(bcs_merge %>%
+                 filter(sample ==sample_names[1]) %>%
                  select(width)))+
-    ggplot2::ylim(max(bcs_merge %>% 
-               filter(sample ==sample_names[1]) %>% 
+    ggplot2::ylim(max(bcs_merge %>%
+               filter(sample ==sample_names[1]) %>%
                select(height)),0)+
     ggplot2::xlab("") +
     ggplot2::ylab("") +
@@ -90,13 +91,13 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
     ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
     ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
-          panel.background = ggplot2::element_blank(), 
+          panel.background = ggplot2::element_blank(),
           axis.line = ggplot2::element_line(colour = "black"),
           axis.text = ggplot2::element_blank(),
           axis.ticks = ggplot2::element_blank())
-  
+
   if (density == FALSE){
     return(plot)
   } else if (density == TRUE){
@@ -105,11 +106,11 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::stat_density_2d(ggplot2::aes(fill = ..level..), alpha = 0.2, geom = "polygon", colour="white")+
       ggplot2::scale_fill_viridis_c()+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                   filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                   filter(sample ==sample_names[1]) %>%
                    select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                 filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                 filter(sample ==sample_names[1]) %>%
                  select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -118,9 +119,9 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
             axis.title=ggplot2::element_text(size=size))+
       ggplot2::labs(fill = "Density")+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())

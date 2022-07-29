@@ -1,3 +1,4 @@
+#' Selection of expanded clones
 #' @description Selection of VGM[[1]]/VDJ data of the x more expanded clonotypes.
 #' @param nb_clonotype Number that describes how many clonotypes we want to extract from the VGM[[1]].
 #' @param vgm_VDJ Data frame containing VDJ information, found in the vgm made by platypus. It must have x and y coordinates column and the column containing the factor to plot.
@@ -10,13 +11,13 @@
 
 Spatial_selection_expanded_clonotypes<-function(nb_clonotype,
                                                      vgm_VDJ){
-  
+
   if(missing(nb_clonotype)) stop("Please provide nb_clonotype input for this function")
   if(missing(vgm_VDJ)) stop("Please provide vgm_VDJ input for this function")
-  
+
   platypus.version <- "v3"
-  
-  #clonotype 
+
+  #clonotype
   clonotype<-vgm_VDJ[,c("clonotype_id_10x","clonotype_frequency")]
   names(clonotype)<-c("clonotype_id","frequency")
   clonotype<-clonotype[!duplicated(clonotype), ]

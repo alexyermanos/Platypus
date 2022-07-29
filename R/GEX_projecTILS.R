@@ -1,10 +1,11 @@
+#' ProjectTILs tool utility
 #' @description Projection of scRNA-seq data into reference single-cell atlas, enabling their celltype annotation based on the single-cell atlas.
 #' @param ref_path Path to reference TIL atlas file (ex: c:/Users/.../ref_TILAtlas_mouse_v1.rds). The atlas can be downloaded from the GitHub of ProjecTILs.
 #' @param GEX GEX output of the VDJ_GEX_matrix function (VDJ_GEX_matrix[[2]])).
 #' @param split_by Optional character vector to specify how the GEX should be split for analysis. This parameter can refer to any column in the GEX. If none is given by the user the analysis will take the whole GEX.
 #' @param filtering Logical, if TRUE a filtering is apply which eliminates unwanted cells. By default it is set to FALSE.
 #' @param NA_cells Logical, if TRUE the cells not assigned by projecTILs are kept in the bar plot, if FALSE, not assigned cells are filtered out. By default it is set to TRUE.
-#' @return Return a list. Element[[1]] is the GEX data frame containing two new columns containing ProjecTILs cell type assignment. Element[[2]] is the output of make.projection function from projecTILs based on the given GEX. Element[[3]] contains a UMAP plot per each groups based on projecTILs assignment. Element[[4]] plots of the fraction of cells with predicted state per cluster. 
+#' @return Return a list. Element[[1]] is the GEX data frame containing two new columns containing ProjecTILs cell type assignment. Element[[2]] is the output of make.projection function from projecTILs based on the given GEX. Element[[3]] contains a UMAP plot per each groups based on projecTILs assignment. Element[[4]] plots of the fraction of cells with predicted state per cluster.
 #' @export
 #' @examples
 #' \dontrun{
@@ -13,9 +14,9 @@
 #' filtering =TRUE)
 #' output_projecTILS_wohle_VGM[[3]] #Umap
 #' output_projecTILS_wohle_VGM[[4]] #Barplots
-#' 
+#'
 #' #With splitting argument by groups_id
-#' output_projecTILS_split_by_group<-GEX_projecTILS(ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX, 
+#' output_projecTILS_split_by_group<-GEX_projecTILS(ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
 #' filtering =  TRUE, split_by = "group_id", NA_cells = FALSE)
 #' output_projecTILS_split_by_group[[3]] #Umap
 #' output_projecTILS_split_by_group[[4]] #Barplots
@@ -25,9 +26,9 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   if(missing(GEX))stop("Please provide GEX input for this function")
   GEX_final<-GEX
   if(missing(ref_path))stop("Please provide reference path to reference TIL atlas file")
-  
+
   platypus.version <- "It doesn't matter"
-  
+
   if(missing(NA_cells)){
     NA_cells = TRUE
   }
@@ -88,13 +89,13 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     if(NA_cells == TRUE){
       cells<-GEX@meta.data
       cells$functional.cluster <- replace(cells$functional.cluster,is.na(cells$functional.cluster),"Undetermined")
-      
+
     } else if (NA_cells == FALSE){
       cells<-GEX@meta.data[!is.na(GEX@meta.data$functional.cluster) | !is.na(GEX@meta.data$functional.cluster.conf), ]
     }
     barplots<-ggplot2::ggplot(cells, ggplot2::aes(x=split_by_character_vector, fill = functional.cluster)) + ggplot2::geom_bar(stat = "count", position = "fill", color="black", width = 0.6)  + ggplot2::theme_classic() +
       ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Group") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)) + ggplot2::ggtitle("") +
-      ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB","CD8_Tex"="#edbe2a", "CD8_Tpex" = "#A58AFF", "Tfh" ="#FF0000", "Th1"="#87f6a5", "Treg"="#e812dd", "CD4_NaiveLike" = "#d1cfcc", "Undetermined" = "#000000")) + 
+      ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB","CD8_Tex"="#edbe2a", "CD8_Tpex" = "#A58AFF", "Tfh" ="#FF0000", "Th1"="#87f6a5", "Treg"="#e812dd", "CD4_NaiveLike" = "#d1cfcc", "Undetermined" = "#000000")) +
       ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::labs(fill="predicted cell state") + ggplot2::scale_x_discrete(labels = split_by_character_vector)
     outputs<-list()
     outputs[[1]]<-GEX_final
@@ -150,13 +151,13 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     if(NA_cells == TRUE){
       cells<-GEX@meta.data
       cells$functional.cluster <- replace(cells$functional.cluster,is.na(cells$functional.cluster),"Undetermined")
-      
+
     } else if (NA_cells == FALSE){
       cells<-GEX@meta.data[!is.na(GEX@meta.data$functional.cluster) | !is.na(GEX@meta.data$functional.cluster.conf), ]
     }
     barplots<-ggplot2::ggplot(cells, ggplot2::aes(x=split_by_character_vector, fill = functional.cluster)) + ggplot2::geom_bar(stat = "count", position = "fill", color="black", width = 0.6)  + ggplot2::theme_classic() +
       ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Group") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)) + ggplot2::ggtitle("") +
-      ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB","CD8_Tex"="#edbe2a", "CD8_Tpex" = "#A58AFF", "Tfh" ="#FF0000", "Th1"="#87f6a5", "Treg"="#e812dd", "CD4_NaiveLike" = "#d1cfcc", "Undetermined" = "#000000")) + 
+      ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB","CD8_Tex"="#edbe2a", "CD8_Tpex" = "#A58AFF", "Tfh" ="#FF0000", "Th1"="#87f6a5", "Treg"="#e812dd", "CD4_NaiveLike" = "#d1cfcc", "Undetermined" = "#000000")) +
       ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::labs(fill="predicted cell state") + ggplot2::scale_x_discrete(labels = split_by_character_vector)
     outputs<-list()
     outputs[[1]]<-GEX_final
@@ -215,14 +216,14 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   if(NA_cells == TRUE){
     cells<-GEX@meta.data
     cells$functional.cluster <- replace(cells$functional.cluster,is.na(cells$functional.cluster),"Undetermined")
-    
+
   } else if (NA_cells == FALSE){
     cells<-GEX@meta.data[!is.na(GEX@meta.data$functional.cluster) | !is.na(GEX@meta.data$functional.cluster.conf), ]
   }
   barplots<-ggplot2::ggplot(cells, ggplot2::aes(x = as.character(.data[[split_by]]) , fill = functional.cluster))+ ggplot2::geom_bar(stat = "count", position = "fill", color="black", width = 0.6)  + ggplot2::theme_classic() +
     ggplot2::ylab("Fraction of cells") + ggplot2::xlab(split_by) + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)) + ggplot2::ggtitle("") +
-    ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB", 
-                                 "CD8_Tex"="#edbe2a", "CD8_Tpex" = "#A58AFF", "Tfh" ="#FF0000", "Th1"="#87f6a5", "Treg"="#e812dd", "CD4_NaiveLike" = "#d1cfcc", "Undetermined" = "#000000")) + 
+    ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB",
+                                 "CD8_Tex"="#edbe2a", "CD8_Tpex" = "#A58AFF", "Tfh" ="#FF0000", "Th1"="#87f6a5", "Treg"="#e812dd", "CD4_NaiveLike" = "#d1cfcc", "Undetermined" = "#000000")) +
     ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::labs(fill="predicted cell state") + ggplot2::scale_x_discrete(labels = c(split_by_character_vector))
   #Outputs
   outputs<-list()

@@ -1,3 +1,4 @@
+#' Plotting marker on spatial image
 #' @description Plotting a gene of interest in selected cells on the spatial image.
 #' @param sample_names Character vector containing the name of the sample.
 #' @param bcs_merge Data frame containing imagerow, imagecol and barcode of the cells belonging to the spatial image. It can also be created by the function scaling_spatial_image_parameter by selecting the output parameter 10.
@@ -18,7 +19,7 @@
 #' Spatial_marker_expression(matrix=scaling_parameters[[9]], marker="CD3E",bcs_merge=scaling_parameters[[10]],
 #' images_tibble=scaling_parameters[[5]],GEX_barcode=GEX_BCR_barcode,sample_names=sample_names, title = "B cells",
 #' threshold = "No")
-#' 
+#'
 #' #With expression threshold
 #' Spatial_marker_expression(matrix=scaling_parameters[[9]], marker="CD3E",bcs_merge=scaling_parameters[[10]],
 #' images_tibble=scaling_parameters[[5]],GEX_barcode=GEX_BCR_barcode,sample_names=sample_names, title = "B cells",
@@ -26,7 +27,7 @@
 #' }
 
 Spatial_marker_expression<-function(sample_names,bcs_merge,images_tibble,matrix,marker, GEX_barcode,title,threshold,size){
-  
+
   if(missing(sample_names)) stop("Please provide sample_names input for this function")
   if(missing(images_tibble)) stop("Please provide images_tibble input for this function")
   if(missing(bcs_merge)) stop("Please provide bcs_merge input for this function")
@@ -64,11 +65,11 @@ Spatial_marker_expression<-function(sample_names,bcs_merge,images_tibble,matrix,
       ggplot2::geom_point(shape = 21, colour = "black", size = 1.75, stroke = 0.5)+
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::scale_fill_gradientn(colours = myPalette(100))+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                   filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                   filter(sample ==sample_names[1]) %>%
                    select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                 filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                 filter(sample ==sample_names[1]) %>%
                  select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -77,9 +78,9 @@ Spatial_marker_expression<-function(sample_names,bcs_merge,images_tibble,matrix,
             axis.title=ggplot2::element_text(size=size))+
       ggplot2::labs(fill = marker)+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())
@@ -101,11 +102,11 @@ Spatial_marker_expression<-function(sample_names,bcs_merge,images_tibble,matrix,
       ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                   filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                   filter(sample ==sample_names[1]) %>%
                    select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                 filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                 filter(sample ==sample_names[1]) %>%
                  select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -116,9 +117,9 @@ Spatial_marker_expression<-function(sample_names,bcs_merge,images_tibble,matrix,
       ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
       ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())

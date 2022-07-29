@@ -1,3 +1,4 @@
+#' Spatial VDJ plotting utility
 #' @description Plotting immune repertoire data as clonotype or isotype for cells on a spatial image.
 #' @param sample_names Character vector containing the name of the sample.
 #' @param bcs_merge Data frame containing imagerow, imagecol and barcode of the cells belonging to the spatial image. It can also be created by the function scaling_spatial_image_parameter by selecting the output parameter 10.
@@ -17,7 +18,7 @@
 #' }
 
 Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legend_title,vgm_VDJ,analysis){
-  
+
   if(missing(vgm_VDJ)) stop("Please provide vgm_VDJ input for this function")
   if(missing(analysis)) stop("Please provide analysis input for this function")
   if(missing(bcs_merge)) stop("Please provide bcs_merge input for this function")
@@ -52,9 +53,9 @@ Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legen
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
     ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
     ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
-          panel.background = ggplot2::element_blank(), 
+          panel.background = ggplot2::element_blank(),
           axis.line = ggplot2::element_line(colour = "black"),
           axis.text = ggplot2::element_blank(),
           axis.ticks = ggplot2::element_blank())

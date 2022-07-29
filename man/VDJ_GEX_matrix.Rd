@@ -10,6 +10,7 @@ VDJ_GEX_matrix(
   FB.out.directory.list,
   Data.in,
   Seurat.in,
+  group.id,
   GEX.read.h5,
   VDJ.combine,
   GEX.integrate,
@@ -18,17 +19,17 @@ VDJ_GEX_matrix(
   exclude.GEX.not.in.VDJ,
   filter.overlapping.barcodes.GEX,
   filter.overlapping.barcodes.VDJ,
-  exclude.on.cell.state.markers,
-  exclude.on.barcodes,
   get.VDJ.stats,
-  numcores,
-  trim.and.align,
   append.raw.reference,
   select.excess.chains.by.umi.count,
   excess.chain.confidence.count.threshold,
+  trim.and.align,
+  parallel.processing,
+  numcores,
   gap.opening.cost,
   gap.extension.cost,
-  parallel.processing,
+  exclude.on.cell.state.markers,
+  exclude.on.barcodes,
   integration.method,
   VDJ.gene.filter,
   mito.filter,
@@ -40,24 +41,25 @@ VDJ_GEX_matrix(
   cluster.resolution,
   neighbor.dim,
   mds.dim,
-  subsample.barcodes,
   FB.count.threshold,
   FB.ratio.threshold,
   FB.exclude.pattern,
-  group.id,
+  subsample.barcodes,
   verbose
 )
 }
 \arguments{
 \item{VDJ.out.directory.list}{List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: filtered_contig_annotations.csv, clonotypes.csv, concat_ref.fasta, all_contig_annotations.csv (only if trim.and.align == T) and metrics_summary.csv (Optional, will be appended to stats table if get.VDJ.stats == T)}
 
-\item{GEX.out.directory.list}{List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ.}
+\item{GEX.out.directory.list}{List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ. These may be paths to cellranger aggr or cellranger multi output directories. In that case, additional matrices found, will be loaded as either GEX or FB (Feature barcodes) depending on the number of features in the matrix.}
 
 \item{FB.out.directory.list}{[FB] List of paths pointing at the outs/ directory of output from the Cellranger counts function which contain Feature barcode counts. ! Single list elements can be a path or "PLACEHOLDER", if the corresponding input in the VDJ or GEX path does not have any adjunct FB data. This is only the case when integrating two datasets of which only one has FB data. See examples for details. Any input will overwrite potential FB data loaded from the GEX input directories. This may be important, if wanting to input unfiltered FB data that will cover also cells in VDJ not present in GEX.}
 
 \item{Data.in}{Input for R objects from either the PlatypusDB_load_from_disk or the PlatypusDB_fetch function. If provided, input directories should not be specified. If you wish to integrate local and downloaded data, please load them via load_from_disk and fetch and provide as a list (e.g. Data.in = list(load_from_disk.output, fetch.output))}
 
 \item{Seurat.in}{Alternative to GEX.out.directory.list. A seurat object. VDJ.integrate has to be set to TRUE. In metadata the column of the seurat object, sample_id and group_id must be present. sample_id must contain ids in the format "s1", "s2" ... "sn" and must be matching the order of VDJ.out.directory.list. No processing (i.e. data normalisation and integration) will be performed on these objects. They will be returned as part of the VGM and with additional VDJ data if integrate.VDJ.to.GEX = T. Filtering parameters such as overlapping barcodes, exclude.GEX.not.in.VDJ and exclude.on.cell.state.markers will be applied to the Seurat.in GEX object(s).}
+
+\item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.}
 
 \item{GEX.read.h5}{Boolean. defaults to FALSE. Whether to read GEX data from an H5 file. If set to true, please provide the each directory containing a cellranger H5 output file or a direct path to a filtered_feature_bc_matrix.h5 as one GEX.out.directory.list element.}
 
@@ -75,15 +77,7 @@ VDJ_GEX_matrix(
 
 \item{filter.overlapping.barcodes.VDJ}{Boolean. defaults to TRUE. Whether to remove barcodes which are shared among samples in the GEX analysis. Shared barcodes normally appear at a very low rate.}
 
-\item{exclude.on.cell.state.markers}{Character vector. If no input is provided or input is "none", no cells are excluded. Input format should follow: Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Example: c("CD4+;CD44-","CD4+;IL7R+;CD44+"). All cells which match any of the given states (in the example case any of the 2) are excluded. This is useful in case different and non lymphocyte cells were co-sequenced. It should give the option to e.g. exclude B cells in the analysis of T cells in a dataset.}
-
-\item{exclude.on.barcodes}{Character vector. Provide a list of 10x barcodes WITHOUT the terminal id (-1 , -2 etc.) to exclude from GEX and VDJ prior to processing.}
-
 \item{get.VDJ.stats}{Boolean. defaults to TRUE. Whether to generate general statistics table for VDJ repertoires. This is appended as element [[3]] of the output list.}
-
-\item{numcores}{Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)}
-
-\item{trim.and.align}{Boolean. Defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time}
 
 \item{append.raw.reference}{Boolean. Defaults to TRUE. This appends the raw reference sequence for each contig even if trim.and.align is set to FALSE.}
 
@@ -91,11 +85,19 @@ VDJ_GEX_matrix(
 
 \item{excess.chain.confidence.count.threshold}{Interger. Defaults to 1000. This sets a umi count threshold for keeping excessive chains in a cell (e.g. T cells with 2 VJ and 1 VDJ chain) and only has an effect if select.excess.chains.by.umi.count is set to TRUE. For a given cell with chains and their UMI counts: VDJ1 = 3, VDJ2 = 7, VJ1 = 6. If count.threshold is kept at default (1000), the VDJ chain with the most UMIs will be kept (VDJ2), while the other is filtered out (VDJ1), leaving the cell as VDJ2, VJ1. If the count.threshold is set to 3, both chains VDJ chains of this cell are kept as their UMI counts are equal or greater to the count.threshold and therefore deemed high confidence chains. In the case of UMI counts being equal for two chains AND below the count.threshold, the first contig entry is kept, while the second is filtered. To avoid filtering excess chains, set select.excess.chains.by.umi.count to FALSE. For further notes on the implication of these please refer to the documentation of the parameter hierarchical in the function VDJ_clonotype_v3.}
 
+\item{trim.and.align}{Boolean. Defaults to FALSE. Whether to trim VJ/VDJ seqs, align them to the 10x reference and trim the reference. This is useful to get full sequences for antibody expression or numbers of somatic hypermutations. !Setting this to TRUE significantly increases computational time}
+
+\item{parallel.processing}{Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required}
+
+\item{numcores}{Number of cores used for parallel processing. Defaults to number of cores available. If you want to chek how many cores are available use the library Parallel and its command detectCores() (Not setting a limit here when running this function on a cluster may cause a crash)}
+
 \item{gap.opening.cost}{Argument passed to Biostrings::pairwiseAlignment during alignment to reference. Defaults to 10}
 
 \item{gap.extension.cost}{Argument passed to Biostrings::pairwiseAlignment during alignment to reference. Defaults to 4}
 
-\item{parallel.processing}{Character string. Can be "parlapply" for Windows system, "mclapply" for unix and Mac systems or "none" to use a simple for loop (slow!). Default is "none" for compatibility reasons. For the parlapply option the packages parallel, doParallel and the dependency foreach are required}
+\item{exclude.on.cell.state.markers}{Character vector. If no input is provided or input is "none", no cells are excluded. Input format should follow: Character vector containing the gene names for each state. ; is used to use multiple markers within a single gene state. Different vector elements correspond to different states. Example: c("CD4+;CD44-","CD4+;IL7R+;CD44+"). All cells which match any of the given states (in the example case any of the 2) are excluded. This is useful in case different and non lymphocyte cells were co-sequenced. It should give the option to e.g. exclude B cells in the analysis of T cells in a dataset.}
+
+\item{exclude.on.barcodes}{Character vector. Provide a list of 10x barcodes WITHOUT the terminal id (-1 , -2 etc.) to exclude from GEX and VDJ prior to processing.}
 
 \item{integration.method}{String specifying which data normalization and integration pipeline should be used. Default is "scale.data", which correspondings to the ScaleData function internal to harmony package. 'anchors' scales data individually and then finds and align cells in similar states as described here: https://satijalab.org/seurat/articles/integration_introduction.html. 'sct'specifies SCTransform from the Seurat package. "harmony" should be specificied to perform harmony integration. This method requires the harmony package from bioconductor.}
 
@@ -119,15 +121,13 @@ VDJ_GEX_matrix(
 
 \item{mds.dim}{Numeric vector specifying which dimensions should be supplied into dimensional reduction techniques in Seurat and Harmony. Default input is '1:10'.}
 
-\item{subsample.barcodes}{For development purposes only. If set to TRUE the function will run on 100 cells only to increase speeds of debugging}
-
 \item{FB.count.threshold}{Numeric. Defaults to 10. For description of Feature Barcode assignment see parameter FB.ratio.threshold above}
 
 \item{FB.ratio.threshold}{Numeric. Defaults to 2 Threshold for assignment of feature barcodes by counts. A feature barcode is assigned to a cell if its counts are >FB.count.threshold and if its counts are FB.ratio.threshold-times higher than the counts of the feature barcode with second most counts.}
 
 \item{FB.exclude.pattern}{Character (regex compatible). If a feature barcode matches this pattern it will be excluded from the hashing sample assignments. This may be neccessary if CITE-seq barcodes and hashing barcodes are sequenced in the same run.}
 
-\item{group.id}{vector with integers specifying the group membership. c(1,1,2,2) would specify the first two elements of the input VDJ/GEX lists are in group 1 and the third/fourth input elements will be in group 2.}
+\item{subsample.barcodes}{For development purposes only. If set to TRUE the function will run on 100 cells only to increase speeds of debugging}
 
 \item{verbose}{if TRUE prints runtime info to console. Defaults to TRUE}
 }

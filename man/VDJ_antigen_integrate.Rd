@@ -50,7 +50,7 @@ Integrate antigen-specific information from a list of antigen dataframes or anti
 }
 \examples{
 \dontrun{
-VDJ_antigen_integrate_v2(VDJ,antigen.directory.list=antigen.directory.list,
+VDJ_antigen_integrate(VDJ,antigen.directory.list=antigen.directory.list,
 antigen.feature=c('elisa', 'affinity'),VDJ.VJ.1chain=T,
 match.by='clonotype',sample.id=T, output.format='vgm')
 }

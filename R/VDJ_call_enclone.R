@@ -1,6 +1,4 @@
-#(Re)clonotype a VDJ object using cellranger's enclone tool
-
-
+#' (Re)clonotype a VDJ object using cellranger's enclone tool
 #'@description Calls recon to clonotype a VDJ object given a VDJ.directory (with sample folders which should include the all_contig_annotations.json file) - outputs a new VDJ with updated clonotype_id, clonotype_id_10x, and clonotype_frequency columns
 #' @param VDJ VDJ or VDJ.GEX.matrix[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
 #' @param VDJ.directory string - directory for the VDJ data, should be the main folder which includes the individual sample folders (each with the all_contig_annotations.json file that is used by enclone)

@@ -9,7 +9,8 @@ VDJ_phylogenetic_trees_plot(
   color.by,
   size.by,
   shape.by,
-  specific.leaf.colors
+  specific.leaf.colors,
+  specific.leaf.shapes
 )
 }
 \arguments{

@@ -19,7 +19,7 @@ VDJ_phylogenetic_trees(
   maximum.sequences,
   tree.algorithm,
   tree.level,
-  no.trees.combined,
+  n.trees.combined,
   germline.scale.factor,
   output.format,
   parallel
@@ -54,7 +54,7 @@ VDJ_phylogenetic_trees(
 
 \item{tree.level}{string - level at which to build phylogenetic trees. 'intraclonal' - tree per clonotype, per sample, 'global.clonotype' - global clonotype trees (include.germline must be F), irrespective of sample, 'combine.first.trees' will combine the trees for the most expanded clonotypes, per sample (include.germline must be F).}
 
-\item{no.trees.combined}{integer - number of trees to combine if tree.level='combine.first.trees'.}
+\item{n.trees.combined}{integer - number of trees to combine if tree.level='combine.first.trees'.}
 
 \item{germline.scale.factor}{numeric - as germlines are incredibly distant from their closest neighbours (in the tree), this controls the scale factor for the germline tree branch length for more intelligible downstream plotting.}
 

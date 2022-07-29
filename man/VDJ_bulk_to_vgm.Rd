@@ -17,9 +17,9 @@ VDJ_bulk_to_vgm(
 )
 }
 \arguments{
-\item{VDJ.bulk.out.directory.list}{List containing paths to bulk VDJ output files from MIXCR or MAF.}
+\item{VDJ.bulk.out.directory.list}{List containing paths to bulk VDJ output files from MIXCR or MAF. TRUST4 (and TRUST4.FULL) require an RDS file as input}
 
-\item{input.type}{Character vector. Defaults to "MIXCR". "MIXCR" and "MAF" are supported.}
+\item{input.type}{Character vector. Defaults to "MIXCR". "MIXCR", "MAF", "TRUST4", and "TRUST4.FULL" are supported. "TRUST4.FULL" contains TRUST additional columns, which were not originally supported by vgm: "cdr1", "cdr2", "v_cigar", "d_cigar", "j_cigar", "v_identity", "j_identity", "complete_vdj".}
 
 \item{integrate.MIXCR.output}{Boolean. Defaults to TRUE. Whether to include in the VGM output additional MiXCR (49-78) columns.}
 
