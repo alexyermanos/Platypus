@@ -161,26 +161,3 @@ VDJ_public <- function(VDJ,
     stop('Method not implemented yet!')
   }
 }
-
-
-
-
-
-mtcars <- datasets::mtcars
-
-
-set1 <- rownames(subset(mtcars, mpg>18))
-set2 <- rownames(subset(mtcars, qsec>18))
-set3 <- rownames(subset(mtcars, cyl<5))
-set4 <- rownames(subset(mtcars, wt>2.5))
-set5 <- rownames(subset(mtcars, gear==4))
-carset <- list(mpg=set1, qsec=set2, cyl=set3, wt=set4, gear=set5)
-
-ggplot() +
-  geom_venn(carset) +
-  theme_void()
-
-oo <- VDJ_public(vdj)
-oo
-
-vdj <- read.csv('./data/OVA_vgm_all_annotations.csv')
