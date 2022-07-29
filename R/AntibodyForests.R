@@ -468,7 +468,7 @@ AntibodyForests <- function(VDJ,
 
 
       feature_list[[i]] <- feats
-      feature_counts[[i]] <- unname(counts)
+      feature_counts[[i]] <- counts
     }
 
     network_df[[feature]] <- feature_list

@@ -33,6 +33,7 @@
 #' @param save.pdf boolean - if T, plots will be automatically saved to pdf, in the current working directory; F - normal output of the function (plot-ready igraph object and specific layout). New folders will be created for each sample of the input nested list of igraph objects.
 #' @param save.dir path to the directory oin which the network PDFs will be saved.
 #' @param show.legend boolean - whether the legend should be showed in the resulting plots
+#' @param color.gradient string - defualt: NULL - the feature whose value will be plot as a color gradient
 #' @return nested list of plot-ready AntibodyForests objects. Can also save the plots as a PDF file.
 #' @export
 #' @seealso AntibodyForests, AntibodyForests_metrics
@@ -44,28 +45,29 @@
 
 
 AntibodyForests_plot <- function(network.list,
-                                  graph.type,
-                                  node.color,
-                                  node.label,
-                                  node.shape,
-                                  node.size,
-                                  max.node.size,
-                                  node.scale.factor,
-                                  edge.length,
-                                  edge.width,
-                                  path.list,
-                                  specific.node.colors,
-                                  specific.node.shapes,
-                                  specific.edge.colors,
-                                  color.by.majority,
-                                  cell.color,
-                                  specific.cell.colors,
-                                  cell.size,
-                                  network.layout,
-                                  save.pdf,
-                                  save.dir,
-                                  show.legend
-                                  ){
+                                 graph.type,
+                                 node.color,
+                                 node.label,
+                                 node.shape,
+                                 node.size,
+                                 max.node.size,
+                                 node.scale.factor,
+                                 edge.length,
+                                 edge.width,
+                                 path.list,
+                                 specific.node.colors,
+                                 specific.node.shapes,
+                                 specific.edge.colors,
+                                 color.by.majority,
+                                 cell.color,
+                                 specific.cell.colors,
+                                 cell.size,
+                                 network.layout,
+                                 save.pdf,
+                                 save.dir,
+                                 show.legend,
+                                 color.gradient
+                                 ){
 
   if(missing(network.list)) stop('Please input a nested list of networks and their corresponding network dataframe, output of AntibodyForests_parallel')
   if(missing(graph.type)) graph.type <- 'tree'
@@ -89,11 +91,19 @@ AntibodyForests_plot <- function(network.list,
   if(missing(save.pdf)) save.pdf <- F
   if(missing(save.dir)) save.dir <- './forests_plots'
   if(missing(show.legend)) show.legend <- T
+  if(missing(color.gradient)) color.gradient <- NULL
+
 
 
   plot_single_network <- function(g){
 
-  #ADD NODE COLORS
+    breaks <- 300 #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
+    div=2
+    # crp <- colorRampPalette(c("#FFFAE8", "#801212"))
+    crp <- colorRampPalette(colorspace::diverge_hsv(3))
+    # length(unique(crp(breaks)))
+
+    #ADD NODE COLORS
     if(is.null(node.color)){
 
       igraph::V(g)$color[igraph::V(g)$node_type=='sequence'] <- specific.node.colors['sequence']
@@ -104,6 +114,16 @@ AntibodyForests_plot <- function(network.list,
 
       if(!is.null(igraph::vertex_attr(g, name=paste0(node.color, '_counts'), index=which(igraph::V(g)$node_type=='sequence')))){
         feature_counts <- igraph::vertex_attr(g, name=paste0(node.color, '_counts'), index=which(igraph::V(g)$node_type=='sequence'))
+
+        if(!is.null(color.gradient)) {
+          only_bulk_nodes <- c() # finding nodes composed of bulk
+          for (i in c(1:length(feature_counts))) {
+            if("bulk" %in% names(feature_counts[[i]]) & !("sc" %in% names(feature_counts[[i]])))
+              only_bulk_nodes <- append(only_bulk_nodes, i)
+          }
+          # print(only_bulk_nodes)
+        }
+
         max_indices <- lapply(feature_counts, function(x) which.max(x))
         max_features <- unlist(mapply(function(x,y) x[y], features, max_indices))
       }else{
@@ -112,7 +132,26 @@ AntibodyForests_plot <- function(network.list,
 
       if(!color.by.majority){
         chosen_colors <- unlist(unname(specific.node.colors[as.character(max_features)]))
-        igraph::V(g)$color[igraph::V(g)$node_type=='sequence'] <- chosen_colors
+
+        if(!is.null(color.gradient)) {
+          for (i in only_bulk_nodes) {
+
+            bulk_count = feature_counts[[i]][["bulk"]]
+
+            if(bulk_count <= 50)
+              bulk_count_for_color = bulk_count * 2 # 0 to 100
+            else if(bulk_count <= 100)
+              bulk_count_for_color = ceiling(50*2/div + bulk_count) # 100 to 150
+            else if(bulk_count <= 200)
+              bulk_count_for_color = ceiling(50*2/div + 50 + bulk_count/div) # 150 to 200
+            else
+              bulk_count_for_color = ceiling(50*2/div + 50 + 50*2 - sqrt(5 * 200) + sqrt(5 * bulk_count)) # 200 to ...
+
+            chosen_colors[i] <- crp(breaks)[min(bulk_count_for_color, breaks)]
+          }
+        }
+
+        igraph::V(g)$color[igraph::V(g)$node_type=='sequence'] <- chosen_colors # in new_plot_t was unlist(chosen_colors)
       }else{
         max_feature_counts <- unlist(lapply(max_features, function(x) length(which(max_features==x))))
         max_features <- max_features[which.max(max_feature_counts)]
@@ -126,6 +165,11 @@ AntibodyForests_plot <- function(network.list,
     }
 
     #Temp fix to plot label propagation intermediates
+
+    #### NEXT 2 lines were in new_plot_t, instead of the 19 lines below
+    # igraph::V(g)$color[igraph::V(g)$node_type=='intermediate'] <- specific.node.colors['intermediate']
+    # igraph::V(g)$color[igraph::V(g)$node_type=='germline'] <- specific.node.colors['germline']
+
     if(!is.null(node.color)){
       if(!stringr::str_detect(node.color, '_label_propagation')){
         igraph::V(g)$color[igraph::V(g)$node_type=='intermediate'] <- specific.node.colors['intermediate']
@@ -147,8 +191,7 @@ AntibodyForests_plot <- function(network.list,
     }
 
 
-
-  #ADD NODE SHAPES
+    #ADD NODE SHAPES
     if(is.null(node.shape)){
       igraph::V(g)$shape[igraph::V(g)$node_type=='sequence'] <- 'circle'
 
@@ -162,8 +205,43 @@ AntibodyForests_plot <- function(network.list,
         pie_features <- features[[ind]]
 
         g<-igraph::set_vertex_attr(g, name='shape', index=ind, value='pie')
+
+
+        if(!is.null(color.gradient)) {
+          bulk_count <- feature_counts[ind][[1]][["bulk"]] # we will use it for the color, but we want the node to be 1 half bulk-colored and 1 half sc-colored (see next line)
+          feature_counts[ind][[1]][["bulk"]] <- feature_counts[ind][[1]][["sc"]]
+        }
+
         g<-igraph::set_vertex_attr(g, name='pie', index=ind, value=c(feature_counts[ind]))
-        g<-igraph::set_vertex_attr(g, name='pie.color', index=ind, value=list(specific.node.colors[unlist(pie_features)]))
+        # g<-igraph::set_vertex_attr(g, name='pie.color', index=ind, value=list(specific.node.colors[unlist(pie_features)]))
+
+        if(!is.null(color.gradient))
+          feature_counts[ind][[1]][["bulk"]] <- bulk_count
+
+        val = list(unlist(specific.node.colors[unlist(features[ind])]))
+        # print(val)
+
+        if(!is.null(color.gradient)) {
+          if(bulk_count <= 50)
+            bulk_count_for_color = bulk_count * 2 # 0 to 100
+          else if(bulk_count <= 100)
+            bulk_count_for_color = ceiling(50*2/div + bulk_count) # 100 to 150
+          else if(bulk_count <= 200)
+            bulk_count_for_color = ceiling(50*2/div + 50 + bulk_count/div) # 150 to 200
+          else
+            bulk_count_for_color = ceiling(50*2/div + 50 + 50*2 - sqrt(5 * 200) + sqrt(5 * bulk_count)) # 200 to ...
+
+          val[[1]][["bulk"]] <- crp(breaks)[min(bulk_count_for_color, breaks)] # ADDED
+        }
+        # print(feature_counts[ind][[1]][["bulk"]])
+        # print(val)
+        # print(which(names(val)=="bulk"))
+        g<-igraph::set_vertex_attr(g, name='pie.color', index=ind, value=val)
+        # val[[1]][["bulk"]] <- "#FF0000" # ADDED, once that we have added the color, we put it back to one so that only a small slide of the pie will have bulk color
+        # print(features[ind])
+        # print(specific.node.colors[unlist(features[ind])])
+        # cat("\n\n")
+        # print(names(igraph::V(g)))
 
         #igraph::V(g)[ind]$shape <- 'pie'
         #igraph::V(g)[ind]$pie <- unlist(feature_counts[ind])
@@ -172,8 +250,6 @@ AntibodyForests_plot <- function(network.list,
 
       non_pie_indices <- which(indices==1)
       g<-igraph::set_vertex_attr(g, name='shape', index=non_pie_indices, value='circle')
-
-
 
     }else{
       features <- igraph::vertex_attr(g, name=node.shape, index=which(igraph::V(g)$node_type=='sequence'))
@@ -191,15 +267,22 @@ AntibodyForests_plot <- function(network.list,
     #igraph::V(g)$shape[igraph::V(g)$node_type=='cell'] <- 'circle'
 
 
-  #ADD NODE SIZES
+    #ADD NODE SIZES
     if(is.null(node.size)){
       igraph::V(g)$size <- node.scale.factor * rep(1, length(igraph::V(g)))
     }else if((node.size %in% c('scaleByExpansion', 'scaleByCloseness', 'scaleByBetweenness'))){
       if(node.size=='scaleByExpansion'){
         #igraph::V(g)$size[igraph::V(g)$size > 100] <- max(igraph::V(g)$size[igraph::V(g)$size > 100]) + 10
         igraph::V(g)$cell_number[is.na(igraph::V(g)$cell_number)] <- 1
-        sequence_frequencies <- igraph::V(g)$cell_number
+
+
+
+        if (!is.null(color.gradient))
+          sequence_frequencies <- ifelse(igraph::V(g)$cell_number <7, igraph::V(g)$cell_number, ceiling(sqrt(8 + 5 * igraph::V(g)$cell_number)))  # ADDED, the non-linear function (NEED TO INTRODUCE SOME NON-LINEARITY)
+        else
+          sequence_frequencies <- ceiling(igraph::V(g)$cell_number/1.5) # was without the division by 1.5
         sequence_frequencies[sequence_frequencies >= max.node.size] <- max.node.size
+
         #sequence_frequencies[is.na(sequence_frequencies)] <- 1
         scaled_frequencies <- unlist(lapply(sequence_frequencies, function(x) (8+2*x)/10))
         igraph::V(g)$size <- node.scale.factor * scaled_frequencies
@@ -218,7 +301,7 @@ AntibodyForests_plot <- function(network.list,
       igraph::V(g)$size[igraph::V(g)$node_type=='sequence'] <- node.scale.factor * igraph::vertex_attr(g, name=node.size, index=which(igraph::V(g)$node_type=='sequence'))
     }
 
-    igraph::V(g)$size[igraph::V(g)$node_type=='germline'] <- min(igraph::V(g)$size[igraph::V(g)$node_type=='sequence']) * 0.8
+    igraph::V(g)$size[igraph::V(g)$node_type=='germline'] <- min(igraph::V(g)$size[igraph::V(g)$node_type=='sequence']) * 1.5 # was 0.8
     igraph::V(g)$size[igraph::V(g)$node_type=='intermediate'] <- min(igraph::V(g)$size[igraph::V(g)$node_type=='sequence']) * 0.8
 
 
@@ -227,7 +310,9 @@ AntibodyForests_plot <- function(network.list,
 
     }else if(node.label == 'cells'){
       igraph::V(g)$cell_number[is.na(igraph::V(g)$cell_number)] <- 1
-      igraph::V(g)$label <- igraph::V(g)$cell_number
+      igraph::V(g)$label <- ifelse(igraph::V(g)$cell_number>1, igraph::V(g)$cell_number, "") # We don't want to show all the 1s
+      if (!is.null(color.gradient))
+        igraph::V(g)$label <- as.numeric(igraph::V(g)$label) - 1 # ADDED: FOR BULK AND SC MERGED TREES ONLY
       igraph::V(g)$label[igraph::V(g)$node_type == 'germline'] <- NA
       igraph::V(g)$label[igraph::V(g)$node_type == 'intermediate'] <- NA
       igraph::V(g)$label[igraph::V(g)$node_type == 'bulk'] <- NA
@@ -238,16 +323,20 @@ AntibodyForests_plot <- function(network.list,
       igraph::V(g)$label <- 1:length(igraph::V(g))
     }
 
-    label_size <- rep(min(igraph::V(g)$size)*0.125, length(igraph::V(g)))
+    label_size <- rep(min(igraph::V(g)$size)*0.150, length(igraph::V(g))) # was 0.125
     igraph::V(g)$label.cex <- label_size
     igraph::V(g)$label.font <- 2
-    igraph::V(g)$label.color <- 'beige'
+
+    if (bulk.gradient == T)
+      igraph::V(g)$label.color <- '#F9973B' #'#8FA5A6' #'#FFFFCC'
+    else
+      igraph::V(g)$label.color <- 'beige'
 
     #Quick fix
     igraph::V(g)$shape[is.na(igraph::V(g)$shape)] <- 'circle'
 
 
-  #ADD EDGE LENGTHS
+    #ADD EDGE LENGTHS
     if(!is.null(edge.length)){
       if(edge.length=='scaleByWeight'){
         igraph::E(g)$length <- 1/igraph::E(g)$weight
@@ -256,10 +345,10 @@ AntibodyForests_plot <- function(network.list,
       }
     }
 
-  #ADD EDGE WIDTHS
+    #ADD EDGE WIDTHS
     if(!is.null(edge.width)){
       if(edge.width=='scaleByWeight'){
-          igraph::E(g)$width <- 1/igraph::E(g)$weight
+        igraph::E(g)$width <- 1/igraph::E(g)$weight
       }else{
         igraph::E(g)$width <- igraph::edge_attr(g, name=edge.width)
       }
@@ -269,7 +358,7 @@ AntibodyForests_plot <- function(network.list,
       igraph::E(g)$weight <- 1
     }
 
-  #COLOR PATHS
+    #COLOR PATHS
     #igraph::E(g)$color <- 'grey24'
     #if(!is.null(path.list)){
     #  path_names <- names(paths)
@@ -350,10 +439,10 @@ AntibodyForests_plot <- function(network.list,
 
 
     xy <- graphlayouts::layout_as_multilevel(g,
-      type = "separate",
-      FUN1 = layout,
-      FUN2 = graphlayouts::layout_with_stress,
-      alpha = 25, beta = 45
+                                             type = "separate",
+                                             FUN1 = layout,
+                                             FUN2 = graphlayouts::layout_with_stress,
+                                             alpha = 25, beta = 45
     )
 
     g$layout <- xy
@@ -406,32 +495,32 @@ AntibodyForests_plot <- function(network.list,
       specific.node.colors <- specific.node.colors[order(nchar(names(specific.node.colors)),names(specific.node.colors))]
 
 
-     }else if(!inherits(specific.node.colors, 'list')){
-        if(!is.numeric(unique_features)){
-          features_not_added <- setdiff(unique_features, names(specific.node.colors))
-          if(length(features_not_added) > 0){
-            colors_to_add <- c(grDevices::rainbow(length(features_not_added)))
-            message(paste0('Colors not added for the following unique features in the specific.node.colors parameter:  ', paste0(features_not_added, collapse = ','), '.Will default to the following colors: ', paste0(colors_to_add, collapse = ',')))
-            names(colors_to_add) <- features_not_added
-            specific.node.colors <- c(specific.node.colors, colors_to_add)
-          }
-          specific.node.colors <- c(specific.node.colors, standard_colors)
-
-        }else{
-          if(length(specific.node.colors) == 1){
-            c1 <- 'gray'
-            c2 <- unlist(specific.node.colors)
-          }else{
-            c1 <- specific.node.colors[1]
-            c2 <- specific.node.colors[2]
-          }
-
-          breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-          pal <- dichromat::colorRampPalette(c(c1, c2))
-          unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
-          names(unique_feature_colors) <- unique_features
-          specific.node.colors <- unique_feature_colors
+    }else if(!inherits(specific.node.colors, 'list')){
+      if(!is.numeric(unique_features)){
+        features_not_added <- setdiff(unique_features, names(specific.node.colors))
+        if(length(features_not_added) > 0){
+          colors_to_add <- c(grDevices::rainbow(length(features_not_added)))
+          message(paste0('Colors not added for the following unique features in the specific.node.colors parameter:  ', paste0(features_not_added, collapse = ','), '.Will default to the following colors: ', paste0(colors_to_add, collapse = ',')))
+          names(colors_to_add) <- features_not_added
+          specific.node.colors <- c(specific.node.colors, colors_to_add)
         }
+        specific.node.colors <- c(specific.node.colors, standard_colors)
+
+      }else{
+        if(length(specific.node.colors) == 1){
+          c1 <- 'gray'
+          c2 <- unlist(specific.node.colors)
+        }else{
+          c1 <- specific.node.colors[1]
+          c2 <- specific.node.colors[2]
+        }
+
+        breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
+        pal <- dichromat::colorRampPalette(c(c1, c2))
+        unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
+        names(unique_feature_colors) <- unique_features
+        specific.node.colors <- unique_feature_colors
+      }
     }else if(inherits(specific.node.colors, 'list')){
       if(!('germline' %in% names(specific.node.colors))){
         germ <- list('blue')
@@ -583,17 +672,17 @@ AntibodyForests_plot <- function(network.list,
 
         if(graph.type == 'tree'){
           network.list[[i]][[j]]@plot_ready <- network.list[[i]][[j]]@tree %>%
-                                               plot_single_network()
+            plot_single_network()
 
         }else if(graph.type == 'heterogeneous'){
           network.list[[i]][[j]]@plot_ready <- network.list[[i]][[j]]@heterogeneous %>%
-                                               plot_single_network() %>%
-                                               plot_single_network_cells()
+            plot_single_network() %>%
+            plot_single_network_cells()
 
 
         }else if(graph.type == 'dynamic'){
           network.list[[i]][[j]]@plot_ready <- network.list[[i]][[j]]@dynamic %>%
-                                               plot_single_network()
+            plot_single_network()
 
 
 
@@ -603,14 +692,45 @@ AntibodyForests_plot <- function(network.list,
 
         title_name <- paste0(network.list[[i]][[j]]@sample_id, '_', network.list[[i]][[j]]@clonotype_id)
 
+        cex_ = 0.75
+        inset_ = -0.14
+
 
         if(save.pdf){
           if(!dir.exists(save.dir)) dir.create(save.dir)
           file_name <- paste0(title_name, '.pdf')
 
           grDevices::pdf(paste0(save.dir, '/', file_name))
-            plot(network.list[[i]][[j]]@plot_ready)
-            graphics::title(title_name)
+          plot(network.list[[i]][[j]]@plot_ready)
+          graphics::title(title_name)
+          graphics::legend(
+            "left",
+            legend = unlist(names(specific.node.colors)),
+            pt.bg  = unlist(specific.node.colors),
+            pch    = 21,
+            cex    = cex_,
+            inset = inset_,
+            bty    = "n",
+            title  = node.color
+          )
+
+          if(!is.null(specific.cell.colors)){
+            graphics::legend(
+              "right",
+              legend = unlist(names(specific.cell.colors)),
+              pt.bg  = unlist(specific.cell.colors),
+              pch    = 21,
+              cex    = 0.5,
+              bty    = "n",
+              title  = cell.color
+            )
+          }
+          grDevices::dev.off()
+        }else{
+
+          plot(network.list[[i]][[j]]@plot_ready)
+          graphics::title(title_name)
+          if(show.legend){
             graphics::legend(
               "left",
               legend = unlist(names(specific.node.colors)),
@@ -619,9 +739,9 @@ AntibodyForests_plot <- function(network.list,
               cex    = 0.5,
               bty    = "n",
               title  = node.color
-             )
+            )
 
-            if(!is.null(specific.cell.colors)){
+            if(!is.null(specific.cell.colors)) {
               graphics::legend(
                 "right",
                 legend = unlist(names(specific.cell.colors)),
@@ -630,36 +750,9 @@ AntibodyForests_plot <- function(network.list,
                 cex    = 0.5,
                 bty    = "n",
                 title  = cell.color
-               )
-             }
-          grDevices::dev.off()
-        }else{
-
-          plot(network.list[[i]][[j]]@plot_ready)
-          graphics::title(title_name)
-            if(show.legend){
-              graphics::legend(
-                "left",
-                legend = unlist(names(specific.node.colors)),
-                pt.bg  = unlist(specific.node.colors),
-                pch    = 21,
-                cex    = 0.5,
-                bty    = "n",
-                title  = node.color
-               )
-
-              if(!is.null(specific.cell.colors)) {
-                graphics::legend(
-                  "right",
-                  legend = unlist(names(specific.cell.colors)),
-                  pt.bg  = unlist(specific.cell.colors),
-                  pch    = 21,
-                  cex    = 0.5,
-                  bty    = "n",
-                  title  = cell.color
-                 )
-              }
+              )
             }
+          }
 
         }
       }
@@ -669,17 +762,17 @@ AntibodyForests_plot <- function(network.list,
 
     if(graph.type == 'tree'){
       network.list@plot_ready <- network.list@tree %>%
-                                           plot_single_network()
+        plot_single_network()
 
     }else if(graph.type == 'heterogeneous'){
       network.list@plot_ready <- network.list@heterogeneous %>%
-                                           plot_single_network() %>%
-                                           plot_single_network_cells()
+        plot_single_network() %>%
+        plot_single_network_cells()
 
 
     }else if(graph.type == 'dynamic'){
       network.list@plot_ready <- network.list@dynamic %>%
-                                           plot_single_network()
+        plot_single_network()
 
 
     }else{
@@ -694,32 +787,32 @@ AntibodyForests_plot <- function(network.list,
 
       grDevices::pdf(paste0(save.dir, '/', file_name))
 
-        plot(network.list@plot_ready)
-        #title(title_name)
-        if(show.legend){
+      plot(network.list@plot_ready)
+      #title(title_name)
+      if(show.legend){
+        graphics::legend(
+          "left",
+          legend = unlist(names(specific.node.colors)),
+          pt.bg  = unlist(specific.node.colors),
+          pch    = 21,
+          cex    = 0.5,
+          bty    = "n",
+          title  = node.color
+        )
+
+
+        if(!is.null(specific.cell.colors)){
           graphics::legend(
-            "left",
-            legend = unlist(names(specific.node.colors)),
-            pt.bg  = unlist(specific.node.colors),
+            "right",
+            legend = unlist(names(specific.cell.colors)),
+            pt.bg  = unlist(specific.cell.colors),
             pch    = 21,
             cex    = 0.5,
             bty    = "n",
-            title  = node.color
-           )
-
-
-          if(!is.null(specific.cell.colors)){
-            graphics::legend(
-              "right",
-              legend = unlist(names(specific.cell.colors)),
-              pt.bg  = unlist(specific.cell.colors),
-              pch    = 21,
-              cex    = 0.5,
-              bty    = "n",
-              title  = cell.color
-             )
-          }
+            title  = cell.color
+          )
         }
+      }
 
       grDevices::dev.off()
     }else{
@@ -736,7 +829,7 @@ AntibodyForests_plot <- function(network.list,
           cex    = 0.5,
           bty    = "n",
           title  = node.color
-         )
+        )
 
 
         if(!is.null(specific.cell.colors)){
@@ -748,7 +841,7 @@ AntibodyForests_plot <- function(network.list,
             cex    = 0.5,
             bty    = "n",
             title  = cell.color
-           )
+          )
         }
       }
     }
