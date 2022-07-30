@@ -1,5 +1,5 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
-#' @param VGM The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information. 
+#' @param VGM The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.
 #' @param VDJ.or.VJ Determines whether to plot the V J gene pairing of the alpha or beta chain. "VDJ", "VJ" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).
 #' @param c.count.label Boolean, lets the user decide if the gene and count labels should be plotted or not. Default = T.
@@ -14,14 +14,14 @@
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param filter1H1L Whether to filter the input VGM in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
-#' @param clonotype.colum Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".
+#' @param clonotype.column Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".
 #' @param platypus.version Which platypus.version of platypus is being used. Default = v3. Set to v3 if VDJ_GEX_matrix.output[[1]] is used
 #' @return Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.
 #' @export
 #' @examples
 #' \dontrun{
 #'  usage_circos_VDJVJ <- VDJ_VJ_usage_circos(vgm[[1]])
-#'  
+#'
 #'  # print plot:
 #'  usage_circos_VDJVJ[[1]]
 #'}
@@ -62,8 +62,8 @@ VDJ_VJ_usage_circos <- function(VGM,
   if(missing(platy.theme)){platy.theme <- "pretty"}
   if(missing(clonotype.column)){clonotype.column <- "clonotype_id_10x"}
   clonotype.frequency <- paste0("clonotype_frequency_", stringr::str_split(clonotype.column, pattern="_")[[1]][3])
-  
-  
+
+
   clonotypes_topX <- NULL
   VDJ.GEX.matrix <- NULL
   VDJ.GEX_list <- NULL
@@ -88,7 +88,7 @@ VDJ_VJ_usage_circos <- function(VGM,
   plot <- NULL
   circos.recorded <- NULL
   clonotype.frequency <- NULL
-  
+
 
   #naming compatibility
   VDJ.GEX.matrix <- list()
@@ -97,17 +97,17 @@ VDJ_VJ_usage_circos <- function(VGM,
 
   # If new version with VDJ_GEX_matric output should be used
   if(platypus.version=="v3"){
-    
+
       if(cell.level == F){
         message("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
         message("WARNING: If Circos plotting error occurs: Maybe your `gap.degree` is too large so that there is no space to allocate sectors -> You might want to increase clonotype.per.gene.threshold to reduce number of sectors in your Circos plots")
-        
+
       }
 
       message(paste("Chosen clonotype column: ", clonotype.column))
       clonotype.frequency <- paste0("clonotype_frequency_", stringr::str_split(clonotype.column, pattern="_")[[1]][3])
       message(paste("Chosen clonotype.frequency column: ", clonotype.frequency))
-      
+
       #filter for 1H1L
       if(filter1H1L==T){
         VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][which((VDJ.GEX.matrix[[1]]$Nr_of_VDJ_chains==1)&(VDJ.GEX.matrix[[1]]$Nr_of_VJ_chains==1)),]
@@ -121,7 +121,7 @@ VDJ_VJ_usage_circos <- function(VGM,
         VDJ.GEX.matrix[[1]] <-VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]][["clonotype_frequency"]] >= c.threshold),]
         message(paste("Chosen clonotype.frequency column: ", "clonotype_frequency"))
       }
-      
+
       #replace empty fields "" with "None"
         VDJ.GEX.matrix[[1]]$VJ_vgene[which(VDJ.GEX.matrix[[1]]$VJ_vgene == "")] <- "None"
         VDJ.GEX.matrix[[1]]$VJ_jgene[which(VDJ.GEX.matrix[[1]]$VJ_jgene == "")] <- "None"
@@ -138,13 +138,13 @@ VDJ_VJ_usage_circos <- function(VGM,
       for (i in 1:length(unique(VDJ.GEX.matrix[[1]]$sample_id))){
         VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id== unique(VDJ.GEX.matrix[[1]]$sample_id)[i]),]
       }
-      
+
       # filter topX clonotypes
-      
+
       if(topX != "all"){
         for(k in 1:length(VDJ.GEX_list)){
           clonotypes_topX <- names(utils::head(sort(table(VDJ.GEX_list[[k]][[clonotype.column]]),decreasing = T),topX))
-          
+
           #filter and keep only cells of topX clonotypes
           VDJ.GEX_list[[k]] <- VDJ.GEX_list[[k]][which(VDJ.GEX_list[[k]][[clonotype.column]] %in% clonotypes_topX),]
         }
@@ -202,9 +202,9 @@ VDJ_VJ_usage_circos <- function(VGM,
           colnames(dummy_alpha_df[[k]]) <- c("vjgene", "count")
           dummy_beta_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$beta_VJ_gene))
           colnames(dummy_beta_df[[k]]) <- c("vjgene", "count")
-          
+
         }else{
-          
+
           dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype.column]],VDJ.GEX_list[[k]]$alpha_VJ_gene, sep="/and/")))
           colnames(dummy) <- c("pasted")
           dummy$clonotype <- stringr::str_split_fixed(dummy$pasted, "/and/", 2)
@@ -220,8 +220,8 @@ VDJ_VJ_usage_circos <- function(VGM,
           colnames(dummy_beta_df[[k]]) <- c("vjgene", "count")
 
         }
-        
-        
+
+
 
         #go elementwise in the matrix and count the occurancies of each combination in the VDJ.clonotype.output$vgenes column
         for (i in 1:nrow(Vgene_usage_matrix[[k]])){
@@ -385,10 +385,10 @@ VDJ_VJ_usage_circos <- function(VGM,
   plot <- list()
   for (i in 1:length(Vgene_usage_matrix)){
     VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold, c.count.label=c.count.label, gene.label = gene.label, gene.label.size = gene.label.size, c.count.label.size=c.count.label.size, arr.col = arr.col, arr.direction = arr.direction, platy.theme = platy.theme)
-    circos.recorded <- recordPlot()
+    circos.recorded <- grDevices::recordPlot()
     plot[[i]] <- circos.recorded
   }
-  
+
   plot[[i+1]] <- Vgene_usage_matrix
   plot[[i+2]] <- grid.col
   plot[[i+3]] <- group

@@ -14,7 +14,7 @@
 #' @examples
 #'
 #' \dontrun{
-#' Rarefaction analysis of CDRH3 across samples
+#' #Rarefaction analysis of CDRH3 across samples
 #' plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 #' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id")
 #'

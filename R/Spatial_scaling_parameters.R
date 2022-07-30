@@ -7,7 +7,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' scaling_parameters<-Spatial_scaling_parameters(vgm_spatial = vgm_spatial, GEX.out.directory.list = GEX.out.directory.list,
+#' scaling_parameters<-Spatial_scaling_parameters(vgm_spatial = vgm_spatial,
+#' GEX.out.directory.list = GEX.out.directory.list,
 #' sample_names = sample_names)
 #'}
 Spatial_scaling_parameters <- function(vgm_spatial,

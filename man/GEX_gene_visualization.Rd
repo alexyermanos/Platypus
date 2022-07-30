@@ -17,6 +17,8 @@ GEX_gene_visualization(
 \item{gene_set}{Character vector containing the markers of interest given by the user.}
 
 \item{predefined_genes}{Character vector to chose between B_cell, CD4_T_cell, and CD8_T_cell.}
+
+\item{group.by}{Character. Column name of vgm to group plots by}
 }
 \value{
 Return a list. Element[[1]] is the feature plot of markers of interest or predefined genes. Element[[2]] is the dottile plot of markers of interest or predefined genes. Element[[3]] is the violin plot of markers of interest or predefined genes.

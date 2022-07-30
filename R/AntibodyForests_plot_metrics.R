@@ -16,7 +16,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_plot_metrics(trees, plot.format = 'violin', metrics.to.plot = 'degree', group.by = 'sample_id', sample.by = NULL)
+#' AntibodyForests_plot_metrics(trees,
+#' plot.format = 'violin', metrics.to.plot = 'degree',
+#' group.by = 'sample_id', sample.by = NULL)
 #'}
 
 
@@ -85,6 +87,13 @@ AntibodyForests_plot_metrics <- function(trees,
 
   get_metrics_mean <- function(metrics_df){
 
+    use.mean <- NULL
+    plot.level = "sample" #setting defaults as now parameter is listed in funct def
+    sample_id <- NULL
+    clonotype_id <- NULL
+    metric_q <- NULL
+    median <- NULL
+
     if(!is.null(use.mean) & plot.level != 'clonotype'){
 
       for(metric in metrics.to.plot){
@@ -115,6 +124,8 @@ AntibodyForests_plot_metrics <- function(trees,
   }
 
   get_metrics_df <- function(trees){
+
+    cell_number <- NULL
 
     if(inherits(trees, 'list')){
       metrics_dfs <- vector(mode = 'list', length = length(trees))
@@ -206,6 +217,10 @@ AntibodyForests_plot_metrics <- function(trees,
   }
 
   pca_plot <- function(metrics_df, features, pca_metrics){
+
+    PC1 <- NULL
+    PC2 <- NULL
+    feature <- NULL
 
     pca_matrix <- as.matrix(metrics_df[,which(colnames(metrics_df) %in% pca_metrics)])
     pca_matrix[is.na(pca_matrix)] <- 0

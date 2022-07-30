@@ -15,14 +15,20 @@
 #' @examples
 #' \dontrun{
 #' #Clustering of whole cells regardless of cell type
-#' GEX_cluster_B_cells<-Spatial_cluster(cluster = "GEX_cluster", vgm_cluster = vgm_with_simulated_VDJ$spatial$cluster[[1]],
-#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ, GEX.out.directory.list = GEX.out.directory.list[[1]],images_tibble=scaling_parameters[[5]],
-#' bcs_merge=scaling_parameters[[10]], title = "B cells", sample_names = sample_names, legend_title = "GEX clusters" )
+#' GEX_cluster_B_cells<-Spatial_cluster(cluster = "GEX_cluster",
+#'  vgm_cluster = vgm_with_simulated_VDJ$spatial$cluster[[1]],
+#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ,
+#' GEX.out.directory.list = GEX.out.directory.list[[1]],
+#' images_tibble=scaling_parameters[[5]],
+#' bcs_merge=scaling_parameters[[10]], title = "B cells",
+#' sample_names = sample_names, legend_title = "GEX clusters")
 #' GEX_cluster_B_cells[[1]]
 #'
 #' #Reclustering with only B cells
-#' reclustering_B_cells<-Spatial_cluster(cluster = "reclustering", vgm_VDJ = vgm_with_simulated_VDJ$VDJ,
-#' GEX.out.directory.list = GEX.out.directory.list[[1]],images_tibble=scaling_parameters[[5]],bcs_merge=scaling_parameters[[10]],
+#' reclustering_B_cells<-Spatial_cluster(cluster = "reclustering",
+#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ,
+#' GEX.out.directory.list = GEX.out.directory.list[[1]],
+#' images_tibble=scaling_parameters[[5]],bcs_merge=scaling_parameters[[10]],
 #' title = "B cells", sample_names = sample_names, legend_title = "Reclustering")
 #' reclustering_B_cells[[1]]
 #'}

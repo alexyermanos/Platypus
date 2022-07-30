@@ -31,6 +31,7 @@ Phylogenetic trees and ancestral sequence reconstruction is performed using the 
 }
 \examples{
 \dontrun{
-AntibodyForests_infer_ancestral(trees, alignment.method = 'mafft', igtree.directoty = '/Users/tudorcotet/Desktop/iqtree-1.6.12-MacOSX')
+AntibodyForests_infer_ancestral(trees, alignment.method = 'mafft',
+igtree.directoty = '/Users/.../Desktop/iqtree-1.6.12-MacOSX')
 }
 }

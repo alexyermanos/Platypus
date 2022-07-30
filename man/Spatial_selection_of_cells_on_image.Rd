@@ -43,8 +43,11 @@ Allows to select an area on the spatial image and to isolate the cells expressed
 }
 \examples{
 \dontrun{
-test<-Spatial_selection_of_cells_on_image(vgm_VDJ = vgm_spatial_simulated$VDJ$B_cells$random_BCR_assignment,
-images_tibble = scaling_parameters[[5]],bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
+test<-Spatial_selection_of_cells_on_image(vgm_VDJ =
+vgm_spatial_simulated$VDJ$B_cells$random_BCR_assignment,
+images_tibble = scaling_parameters[[5]],
+bcs_merge = scaling_parameters[[10]],
+sample_names = sample_names,
 plotting = TRUE)
 }
 }

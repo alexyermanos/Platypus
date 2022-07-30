@@ -69,6 +69,7 @@ VDJ_abundances <- function(VDJ,
   unique_feature_counts <- NULL
   group <- NULL
   feature_value_counts <- NULL
+  ..count.. <- NULL
 
 
   ###############################UTILITY FUNCTIONS FOR LAPPLY###########################################
@@ -390,7 +391,7 @@ VDJ_abundances <- function(VDJ,
 
 
      if(output.format == 'barplot'){
-       plots[[i]] <-  ggplot2::ggplot(sample_dfs[[i]], ggplot2::aes(fill=unique_feature_values, y=feature_value_counts, x=reorder(group, nchar(group)))) +
+       plots[[i]] <-  ggplot2::ggplot(sample_dfs[[i]], ggplot2::aes(fill=unique_feature_values, y=feature_value_counts, x=stats::reorder(group, nchar(group)))) +
                          ggplot2::geom_bar(stat="identity", width=0.6, color="black") +
                          ggplot2::theme_bw() +
                          ggplot2::theme_classic() +

@@ -22,11 +22,13 @@ Returns a list.Element [[1]] cell data set object with the pseudotime trajectori
 This function plots pseudotime along the trajectories which have been constructed with the GEX_trajectories() function.
 }
 \examples{
-\dontrun{ 
+\dontrun{
 ##monocle3
-pseudotime_output <- GEX_pseudotime_trajectory_plot(GEX_trajectories_output[[1]], root.nodes = c('Y_742','Y_448','Y_964') )
+pseudotime_output <- GEX_pseudotime_trajectory_plot(
+GEX_trajectories_output[[1]], root.nodes = c('Y_742','Y_448','Y_964') )
 
 ##monocle2
-pseudotime_output <- GEX_pseudotime_trajectory_plot(GEX_trajectories_output[[1]], monocle.version = 'monocle3', root.state = "2")
+pseudotime_output <- GEX_pseudotime_trajectory_plot(
+GEX_trajectories_output[[1]], monocle.version = 'monocle3', root.state = "2")
  }
 }

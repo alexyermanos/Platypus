@@ -47,6 +47,8 @@ Node transitions represent the number of (un)directed edges between two feature 
 }
 \examples{
 \dontrun{
-AntibodyForests_node_transitions(trees, graph.type = 'tree', features = 'VDJ_cgene', plot.results = T)
+AntibodyForests_node_transitions(trees,
+graph.type = 'tree', features = 'VDJ_cgene',
+plot.results = T)
 }
 }

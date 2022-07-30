@@ -29,6 +29,8 @@ VDJ_GEX_clonotype_clusters_circos(
 
 \item{label.threshold}{Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).}
 
+\item{axis}{Character. Axis scaling. Defaults to "max". Passed to VDJ_circos}
+
 \item{c.threshold}{Only clonotypes are considered with a frequency higher then c.threshold. Allows to filter for only highly expanded clonotypes.}
 
 \item{c.count.label}{Boolean, lets the user decide if the gene and count labels should be plotted or not. Default = T.}
@@ -36,6 +38,8 @@ VDJ_GEX_clonotype_clusters_circos(
 \item{c.count.label.size}{Determines the font size of the gene labels. By default the font size for count labels is 0.6.}
 
 \item{n_cluster}{Integer. No default.}
+
+\item{platypus.version}{Input version to use. Defaults to "v3" for VDJ_GEX_matrix input}
 
 \item{gene.label}{Boolean, lets the user decide if the gene labels should be plotted or not.}
 
@@ -47,11 +51,7 @@ VDJ_GEX_clonotype_clusters_circos(
 
 \item{platy.theme}{Allows plotting in the new "pretty" theme or the older "spiky" theme without group labels and radial arrangement of gene.labels. Default = "pretty".}
 
-\item{clonotype.per.gene.threshold}{How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.}
-
-\item{filter1H1L}{Whether to filter the input VGM in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE}
-
-\item{clonotype.colum}{Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".}
+\item{clonotype.column}{Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".}
 }
 \value{
 Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.

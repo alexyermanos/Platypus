@@ -98,17 +98,50 @@ VDJ_GEX_clonotyme(
 
 \item{velocyto.kGenes}{Parameter for Velocyto analysis}
 
+\item{root.selection}{Character. Method for root selection. Defaults to "manual"}
+
+\item{root.marker}{Character. Marker to use as Root. Defaults to "SELL"}
+
+\item{ridgeline.separator}{Character. Variable to group ridgeline plots by. Defaults to "clonotype"
+Function to cutomise the Dot Plot of CellPhoneDB analysis results.}
+
 \item{genes.for.module.score}{List of vectors of genes. With module scores inferred via Seurat::AddModuleScore(). Default is set to NULL.}
 
 \item{root.nodes}{Labeled node from trajectory plot to specify root nodes root nodes for pseudotime trajectory.}
 
 \item{color.cells}{For the module score plot decide how the cells should be coloured (based on e.g. group_id, seurat_clusters etc.). Default = 'seurat_clusters'}
+
+\item{vgm.input}{Output of the VDJ_GEX_matrix function. Mandatory. Object where to save the dotplot.}
+
+\item{selected.rows}{Strings vector. Defaults to NULL. Vector of rows to plot (interacting genes pair), one per line.}
+
+\item{selected.columns}{Strings vector. Defaults to  NULL. Vector of columns (interacting groups) to plot, one per line}
+
+\item{threshold.type}{Character vector. Defaults to NULL. Possible arguments: "pvalue", "log2means", "pvalue_topn", "log2means_topn". Which thresholding system the user wants to use.}
+
+\item{threshold.value}{Numerical. Defaults to NULL. Value below/above (depending on whether it's pvalue or log2means) which genes to plot are selected.}
+
+\item{project.name}{Character vector. Defaults to NULL. Subfolder where to find the output of the CellPhoneDB analysis and where to save the dot_plot output plot.}
+
+\item{filename}{Character vector. Defaults to "selection_plot.pdf". Name of the file where the dot_plot output plot will be saved.}
+
+\item{width}{Numerical. Defaults to 8. Width of the plot.}
+
+\item{height}{Numerical. Defaults to 10. Height of the plot.}
+
+\item{text.size}{Numerical. Defaults to 12. Font size of the plot axes}
+
+\item{return.vector}{Logical. Defaults to FALSE. If set to TRUE, it includes the vector of genes_pairs present in the dot_plot in the VDJ_GEX_matrix[[10]] list.}
+
+\item{platypus.version}{This function works with "v3" only, there is no need to set this parameter}
 }
 \value{
 If method=monocle3, the function returns a list element: [[1]] UMAP colored by Pseudotime, [[2]] Ridgeline plots showing the density of each of the top.N.clonotypes per cluster along pseudotime., [[3]] Gene expression plots highlighting the gene expression across pseudotime colored by transcriptional cluster, [[4]] Gene expression plots highlighting the gene expression across pseudotime colored by colotype. If method=velocyto, plots and RDS will be saved to velocyto.out.dir.
 }
 \description{
 Pseudotime analysis for scRNA and repertoire sequencing datasets
+
+Function to cutomise the Dot Plot of CellPhoneDB analysis results.
 }
 \examples{
 \dontrun{

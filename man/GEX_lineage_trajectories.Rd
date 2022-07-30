@@ -20,7 +20,7 @@ Returns a list. Element [[1]] returns updated GEX object with the inferred pseud
 This is a function to infer single cell trajectories and identifying lineage structures on clustered cells. Using the slingshot library
 }
 \examples{
-\dontrun{ 
+\dontrun{
 lineage_trajectories <- GEX_lineage_trajectories( VGM$GEX,
  grouping = 'group_id',
   cluster.num = "3")

@@ -16,7 +16,10 @@
 #' @seealso AntibodyForests, AntibodyForests_plot
 #' @examples
 #' \dontrun{
-#' AntibodyForests_communities(trees = AntibodyForests_object, VGM = NULL, community.algorithm = 'louvain', graph.type = 'tree', features = 'seurat_clusters', count.level = 'cells', additional.parameters = list(resolution = 0.25))
+#' AntibodyForests_communities(trees = AntibodyForests_object,
+#' VGM = NULL, community.algorithm = 'louvain',
+#' graph.type = 'tree', features = 'seurat_clusters',
+#' count.level = 'cells', additional.parameters = list(resolution = 0.25))
 #'}
 
 

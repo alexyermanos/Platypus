@@ -47,6 +47,8 @@ If the node.shape parameter is null, the node shape for all nodes will default t
 \item{node.size}{string denoting either a specific method of scaling the node sizes of the input graph or a specific vertex attribute of numeric values (added via the node.features parameter of the AntibodyForests from the original vgm[[1]]/VDJ dataframe) to be used for node sizes.
 If NULL, then the sizes will be equal to node.scale.factor * 1. If scaleByEigen, node sizes will be scaled by the eigenvector centrality of each node; scaleByCloseness - closeness centrality; scaleByBetweenness - betweenness centrality; scaleByExpansion - by the sequence frequency of each node, as originally calculated by the AntibodyForests function.}
 
+\item{max.node.size}{Maximum size of any given node}
+
 \item{node.scale.factor}{integer to further refine the size of each node. Each vertex size will be multiplied by scaling factor.}
 
 \item{edge.length}{either NULL - edge lengths are constant, scaleByWeight - edge lengths will be scaled by the edge weight attribute (the string distance between pairs of sequences/nodes, as calculated by the AntibodyForests function) - larger weights/string distances = longer edges/nodes further apart, or a specific igraph edge attribute name.}
@@ -68,6 +70,8 @@ For example, if specific.edge.colors=list('longest.path.weighted'='blue', 'short
 
 \item{cell.color}{string - cell feature column denoting the cell colors - as denoted by the node.features parameter when calling AntibodyForests_heterogeneous.}
 
+\item{specific.cell.colors}{named list of cell colors and their features (e.g., for Seurat clusters: list(1 = 'red', 2 = 'blue')). Optional (will auto search for unique colors per feature).}
+
 \item{cell.size}{integer denoting the size of the cell nodes.}
 
 \item{network.layout}{either NULL - will default to the automatic igraph::layout_nicely(), 'fr' - igraph::layout_with_fr() - for fully connected graphs/graphs with defined connected components, 'tree' - for tree graphs, as obtained from AntibodyForests with network.algorithm='tree'.}
@@ -79,11 +83,6 @@ For example, if specific.edge.colors=list('longest.path.weighted'='blue', 'short
 \item{show.legend}{boolean - whether the legend should be showed in the resulting plots}
 
 \item{color.gradient}{string - defualt: NULL - the feature whose value will be plot as a color gradient}
-
-\item{edge.color}{a nested list of edge paths (longest/shortest), as obtained from the AntibodyForests_metrics function. The named path list must be provided to the path.list parameter.
-If NULL, edge colors will default to black.}
-
-\item{specific.cell.color}{named list of cell colors and their features (e.g., for Seurat clusters: list(1 = 'red', 2 = 'blue')). Optional (will auto search for unique colors per feature).}
 }
 \value{
 nested list of plot-ready AntibodyForests objects. Can also save the plots as a PDF file.
@@ -93,7 +92,9 @@ AntibodyForests_plot takes the input of AntibodyForests and outputs a list of pl
 }
 \examples{
 \dontrun{
-AntibodyForests_plot(graphs, node.color='clonotype_id', node.size='scaleByExpansion', network.layout='tree', save.pdf=T)
+AntibodyForests_plot(graphs, node.color='clonotype_id',
+node.size='scaleByExpansion', network.layout='tree',
+save.pdf=T)
 }
 }
 \seealso{

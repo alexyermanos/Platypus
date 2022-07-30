@@ -46,13 +46,17 @@ Plotting a gene of interest in selected cells on the spatial image.
 GEX_BCR_barcode<-vgm_with_simulated_VDJ$VDJ$GEX_barcode
 GEX_BCR_barcode<-paste0(GEX_BCR_barcode,"-1") #Add -1 at the end of each barcode
 #Without expression threshold
-Spatial_marker_expression(matrix=scaling_parameters[[9]], marker="CD3E",bcs_merge=scaling_parameters[[10]],
-images_tibble=scaling_parameters[[5]],GEX_barcode=GEX_BCR_barcode,sample_names=sample_names, title = "B cells",
+Spatial_marker_expression(matrix=scaling_parameters[[9]],
+marker="CD3E",bcs_merge=scaling_parameters[[10]],
+images_tibble=scaling_parameters[[5]],
+GEX_barcode=GEX_BCR_barcode,sample_names=sample_names, title = "B cells",
 threshold = "No")
 
 #With expression threshold
-Spatial_marker_expression(matrix=scaling_parameters[[9]], marker="CD3E",bcs_merge=scaling_parameters[[10]],
-images_tibble=scaling_parameters[[5]],GEX_barcode=GEX_BCR_barcode,sample_names=sample_names, title = "B cells",
+Spatial_marker_expression(matrix=scaling_parameters[[9]],
+marker="CD3E",bcs_merge=scaling_parameters[[10]],
+images_tibble=scaling_parameters[[5]],
+GEX_barcode=GEX_BCR_barcode,sample_names=sample_names, title = "B cells",
 threshold = 5)
 }
 }

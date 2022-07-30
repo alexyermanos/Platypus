@@ -28,6 +28,8 @@ VDJ_kmers <- function(VDJ,
                       plot.format, #barplot, histogram
                       as.proportions){
 
+
+
   if(missing(VDJ)) stop('Please input your VDJ matrix for the kmer analysis')
   if(missing(sequence.column)) sequence.column <- 'VDJ_cdr3s_aa'
   if(missing(grouping.column)) grouping.column <- 'sample_id'
@@ -103,6 +105,14 @@ VDJ_kmers <- function(VDJ,
 
   plot_kmers <- function(kmer_df){
 
+    #For CRAN checks
+    kmers <- NULL
+    counts <- NULL
+    total_counts <- NULL
+    group <- NULL
+    PC1 <- NULL
+    PC2 <- NULL
+
     if(plot.format == 'barplot'){
       if(is.null(specific.kmers)){
         temp_df <- kmer_df %>%
@@ -155,7 +165,7 @@ VDJ_kmers <- function(VDJ,
       }
       counts_df <- do.call('rbind', counts_list)
       rownames(counts_df) <- unique_groups
-      pca_out <- prcomp(t(counts_df))$rotation[,1:2] %>% as.data.frame()
+      pca_out <- stats::prcomp(t(counts_df))$rotation[,1:2] %>% as.data.frame()
       pca_out$group <- rownames(pca_out)
       plot <- ggplot2::ggplot(data = pca_out) +
                   ggplot2::geom_vline(xintercept = c(0), color = "grey70", linetype = 2, size = 0.75) +

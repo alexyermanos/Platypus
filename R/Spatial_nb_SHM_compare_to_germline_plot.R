@@ -15,8 +15,10 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' Spatial_nb_SHM_compare_to_germline_plot(simulation = FALSE,AbForest_output=forest[[1]][[2]], vgm_VDJ = vgm$VDJ,
-#' images_tibble = scaling_parameters[[5]],bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
+#' Spatial_nb_SHM_compare_to_germline_plot(simulation = FALSE,
+#' AbForest_output=forest[[1]][[2]], vgm_VDJ = vgm$VDJ,
+#' images_tibble = scaling_parameters[[5]],
+#' bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
 #' title = "Number of SHM of clonotype 10", legend_title = "nb of SHM")
 #'}
 

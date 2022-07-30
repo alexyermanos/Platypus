@@ -37,6 +37,12 @@ VDJ_call_RECON <- function(VDJ,
                            operating.system
                            ){
 
+  #for CRAN checks
+  Frequencies <- NULL
+  `Cells per feature` <- NULL
+  `Total number of features` <- NULL
+  save.pdf <- T
+
  if(missing(VDJ)) stop('Please input your data as a vgm[[1]]/VDJ dataframe')
  if(missing(recon.directory)) recon.directory <- paste0(getwd(),'/Recon')
  if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3s_aa'
@@ -132,7 +138,7 @@ VDJ_call_RECON <- function(VDJ,
     temp_df <- data.frame(Feature=abundance_df$unique_feature_values,
                           Frequencies=abundance_df$feature_value_counts)
 
-    temp_df <- temp_df %>% dplyr::arrange(desc(Frequencies))
+    temp_df <- temp_df %>% dplyr::arrange(plyr::desc(Frequencies))
     id <- unique_groups[i]
 
     table_file_name <- paste0(temp_directory, '/' , id, '_', 'temp.txt')

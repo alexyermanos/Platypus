@@ -125,6 +125,9 @@ Lastly, networks can be created by converting a phylogenetic tree inferred via d
 }
 \examples{
 \dontrun{
-AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed', include.germline=T, network.algorithm='tree', resolve.ties=c('close.germline.distance', 'max.expansion'), node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
+AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed',
+include.germline=T, network.algorithm='tree',
+resolve.ties=c('close.germline.distance', 'max.expansion'),
+node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
 }
 }

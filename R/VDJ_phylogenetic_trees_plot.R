@@ -8,6 +8,7 @@
 #' @param size.by string or NULL - VDJ or tree df column name which determines the node size. If NULL, node sizes will be equal.
 #' @param shape.by string or NULL - VDJ or tree df column name which determines the node shape. If NULL, node sizes will be equal.
 #' @param specific.leaf.colors named list or NULL - if NULL, colors will be automatically selected for each node according to its color.by value.
+#' @param specific.leaf.shapes named list or NULL - if NULL, shapes will be automatically selected for each node according to its shape.by value.
 #' @return nested list of ggtree plot objects for each sample and each clonotype.
 #' @export
 #' @examples
@@ -22,15 +23,14 @@ VDJ_phylogenetic_trees_plot <- function(tree.dfs,
                            specific.leaf.colors,
                            specific.leaf.shapes){
 
+  requireNamespace("ggtree")
+
  if(missing(tree.dfs)) stop('Please input a nested list of tidytree dataframes from VDJ_clonal_lineages(ouput.format=tree.df.list)')
  if(missing(color.by)) color.by <-  'clonotype_id'
  if(missing(size.by)) size.by <- 'sequence_frequency'
  if(missing(shape.by)) shape.by <- NULL
  if(missing(specific.leaf.colors)) specific.leaf.colors <- NULL
  if(missing(specific.leaf.shapes)) specific.leaf.shapes <- NULL
-
- requireNamespace('ggtree')
- requireNamespace('tidytree')
 
  output_plots <- list()
 

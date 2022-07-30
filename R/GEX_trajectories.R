@@ -78,6 +78,9 @@ GEX_trajectories <- function(GEX,
   plot.clusters <- NULL
   learned.plot <- NULL
   trajectory.plot <- NULL
+  mean_expression <- NULL
+  dispersion_empirical <- NULL
+  dispersion_fit <- NULL
 
   ##############
 

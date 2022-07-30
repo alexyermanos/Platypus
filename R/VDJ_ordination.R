@@ -8,6 +8,7 @@
 #' @param VDJ.VJ.1chain Boolean defaults to TRUE. Whether to filter out aberrant cells (more than 1 VDJ or VJ chain).
 #' @param umap.n.neighbours Integer. Control the number of UMAP KNN neighbours when method = 'umap'.
 #' @param umap.n.neighbours Integer. Control the t-SNE perplexity when method = 'tsne'.
+#' @param tsne.perplexity Integrer. Defaults to 1
 #' @return Returns a ggplot with the ordination analysis performer across features, groups, or both
 #' @export
 #' @examples
@@ -92,6 +93,17 @@ VDJ_ordination <- function(VDJ,
 
   compute_ordination <- function(vdj, feature.columns, grouping.column, VDJ.VJ.1chain, method, reduction.level, umap.n.neighbours, tsne.perplexity){
 
+    #For CRAN checks
+    PC1 <- NULL
+    PC2 <- NULL
+    NMDS1 <- NULL
+    NMDS2 <- NULL
+    DCA1 <- NULL
+    DCA2 <- NULL
+    DIM1 <- NULL
+    DIM2 <- NULL
+    group <- NULL
+
      incidence_df <- vdj %>%
                      get_abundances(feature.columns, grouping.column, VDJ.VJ.1chain) %>%
                      abundance_to_incidence_df()
@@ -99,14 +111,14 @@ VDJ_ordination <- function(VDJ,
      if(method == 'pca'){
 
        if(reduction.level == 'groups' | reduction.level == 'both'){
-         groups_ordination <- as.data.frame(prcomp(t(incidence_df))$rotation[,1:2])
+         groups_ordination <- as.data.frame(stats::prcomp(t(incidence_df))$rotation[,1:2])
          groups_ordination <- groups_ordination %>% dplyr::rename(DIM1 = PC1, DIM2 = PC2)
          groups_ordination$method <- 'PCA reduction'
        }
 
 
        if(reduction.level == 'features' | reduction.level == 'both'){
-         features_ordination <- as.data.frame(prcomp(incidence_df)$rotation[,1:2])
+         features_ordination <- as.data.frame(stats::prcomp(incidence_df)$rotation[,1:2])
          features_ordination <- features_ordination %>% dplyr::rename(DIM1 = PC1, DIM2 = PC2)
          features_ordination$method <- 'PCA reduction'
 
@@ -156,7 +168,7 @@ VDJ_ordination <- function(VDJ,
          features_ordination$method <- 'UMAP reduction'
        }
      }else if(method == 'pcoa' | method == 'mds' | method == 'metamds'){
-       invisible(capture.output(mds <- vegan::metaMDS(incidence_df) %>% suppressWarnings()))
+       invisible(utils::capture.output(mds <- vegan::metaMDS(incidence_df) %>% suppressWarnings()))
 
        if(reduction.level == 'groups' | reduction.level == 'both'){
          groups_ordination <- as.data.frame(vegan::scores(mds, display = 'sites'))
@@ -206,6 +218,10 @@ VDJ_ordination <- function(VDJ,
   }
 
   plot_ordination <- function(ordination_df, reduction.level){
+
+    DIM1 <- NULL
+    DIM2 <- NULL
+    group <- NULL
 
     if(reduction.level == 'groups'){
       groups_ordination <- ordination_df

@@ -23,6 +23,8 @@ VDJ_phylogenetic_trees_plot(
 \item{shape.by}{string or NULL - VDJ or tree df column name which determines the node shape. If NULL, node sizes will be equal.}
 
 \item{specific.leaf.colors}{named list or NULL - if NULL, colors will be automatically selected for each node according to its color.by value.}
+
+\item{specific.leaf.shapes}{named list or NULL - if NULL, shapes will be automatically selected for each node according to its shape.by value.}
 }
 \value{
 nested list of ggtree plot objects for each sample and each clonotype.

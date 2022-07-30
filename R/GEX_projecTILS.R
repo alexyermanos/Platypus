@@ -10,13 +10,15 @@
 #' @examples
 #' \dontrun{
 #' #Without splitting argument, considering the whole VGM
-#' output_projecTILS_wohle_VGM<-GEX_projecTILS(ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
+#' output_projecTILS_wohle_VGM<-GEX_projecTILS(
+#' ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
 #' filtering =TRUE)
 #' output_projecTILS_wohle_VGM[[3]] #Umap
 #' output_projecTILS_wohle_VGM[[4]] #Barplots
 #'
 #' #With splitting argument by groups_id
-#' output_projecTILS_split_by_group<-GEX_projecTILS(ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
+#' output_projecTILS_split_by_group<-GEX_projecTILS(
+#' ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
 #' filtering =  TRUE, split_by = "group_id", NA_cells = FALSE)
 #' output_projecTILS_split_by_group[[3]] #Umap
 #' output_projecTILS_split_by_group[[4]] #Barplots
@@ -28,22 +30,19 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   if(missing(ref_path))stop("Please provide reference path to reference TIL atlas file")
 
   platypus.version <- "It doesn't matter"
+  orig_barcode <- NULL
+  functional.cluster <- NULL
+  functional.cluster.conf <- NULL
+  .data <- NULL
 
   if(missing(NA_cells)){
     NA_cells = TRUE
   }
   if(missing(filtering)){filtering = FALSE}
   if (!require("ProjecTILs", character.only = TRUE)) {
-    install.packages("remotes")
-    library(remotes)
-    remotes::install_github("carmonalab/scGate")
-    remotes::install_github("carmonalab/ProjecTILs")
-    library(ProjecTILs)
+    stop("ProjecTILs not installed. Please install via: remotes::install_github('carmonalab/scGate') and remotes::install_github('carmonalab/ProjecTILs')")
   }
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+
   ref<-readRDS(ref_path)
   if(missing(split_by)){
     data.seurat<-GEX
@@ -56,17 +55,17 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     split_by_character_vector<-c("Wohle VGM")
     projection_plots<-list()
     for(i in 1:length(query.projected)){
-      projection_plots[[i]]<-print(plot.projection(ref,query.projected[[i]]) + ggplot2::ggtitle(split_by_character_vector[[i]]))
+      projection_plots[[i]]<-print(ProjecTILs::plot.projection(ref,query.projected[[i]]) + ggplot2::ggtitle(split_by_character_vector[[i]]))
     }
     #Create two new columns in GEX data frame
     meta_data_new<-list()
     for (i in 1:length(query.projected)) {
       tils_prediction <- ProjecTILs::cellstate.predict(ref=ref, query=query.projected[[i]], )
-      meta_data<-merge(GEX@meta.data, select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
+      meta_data<-merge(GEX@meta.data, dplyr::select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
       meta_data_new<-rbind(meta_data_new, meta_data)
     }
     #AddMetaData to GEX
-    ProjecTILS_assignment <- select(tils_prediction@meta.data,"functional.cluster")
+    ProjecTILS_assignment <- dplyr::select(tils_prediction@meta.data,"functional.cluster")
     ProjecTILS_assignment<-ProjecTILS_assignment$functional.cluster
     names(ProjecTILS_assignment) <- colnames(x = tils_prediction)
     GEX_final<- Seurat::AddMetaData(
@@ -106,7 +105,7 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   }
   #Split by parameter
   subgroups<-unique(GEX@meta.data[[split_by]])
-  subgroups<-na.omit(subgroups)
+  subgroups<-stats::na.omit(subgroups)
   if(length(subgroups)<=1){
     data.seurat<-GEX
     query.projected <- ProjecTILs::make.projection(data.seurat, ref=ref, filter.cells = filtering)
@@ -118,17 +117,17 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     split_by_character_vector<-c("Wohle VGM")
     projection_plots<-list()
     for(i in 1:length(query.projected)){
-      projection_plots[[i]]<-print(plot.projection(ref,query.projected[[i]]) + ggplot2::ggtitle(split_by_character_vector[[i]]))
+      projection_plots[[i]]<-print(ProjecTILs::plot.projection(ref,query.projected[[i]]) + ggplot2::ggtitle(split_by_character_vector[[i]]))
     }
     #Create two new columns in GEX data frame
     meta_data_new<-list()
     for (i in 1:length(query.projected)) {
       tils_prediction <- ProjecTILs::cellstate.predict(ref=ref, query=query.projected[[i]], )
-      meta_data<-merge(GEX@meta.data, select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
+      meta_data<-merge(GEX@meta.data, dplyr::select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
       meta_data_new<-rbind(meta_data_new, meta_data)
     }
     #AddMetaData to GEX
-    ProjecTILS_assignment <- select(tils_prediction@meta.data,"functional.cluster")
+    ProjecTILS_assignment <- dplyr::select(tils_prediction@meta.data,"functional.cluster")
     ProjecTILS_assignment<-ProjecTILS_assignment$functional.cluster
     names(ProjecTILS_assignment) <- colnames(x = tils_prediction)
     GEX_final<- Seurat::AddMetaData(
@@ -179,7 +178,7 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   split_by_character_vector<-names(query.projected.list)
   projection_plots<-list()
   for(i in 1:length(query.projected.list)){
-    projection_plots[[i]]<-print(plot.projection(ref,query.projected.list[[i]]) + ggplot2::ggtitle(split_by_character_vector[[i]]))
+    projection_plots[[i]]<-print(ProjecTILs::plot.projection(ref,query.projected.list[[i]]) + ggplot2::ggtitle(split_by_character_vector[[i]]))
   }
   #Barplots fraction of cells with predicted state per cluster
   #Create two new columns in GEX data frame
@@ -188,12 +187,12 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   for (i in 1:length(query.projected.list)) {
     tils_prediction <- ProjecTILs::cellstate.predict(ref=ref, query=query.projected.list[[i]], )
     object_list[[i]]<-tils_prediction
-    meta_data<-merge(GEX@meta.data, select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
+    meta_data<-merge(GEX@meta.data, dplyr::select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
     meta_data_new<-rbind(meta_data_new, meta_data)
   }
   merged_tils_prediction_object<-merge(x = object_list[[1]], y = object_list[-1])
   #AddMetaData to GEX
-  ProjecTILS_assignment <- select(merged_tils_prediction_object@meta.data,"functional.cluster")
+  ProjecTILS_assignment <- dplyr::select(merged_tils_prediction_object@meta.data,"functional.cluster")
   ProjecTILS_assignment<-ProjecTILS_assignment$functional.cluster
   names(ProjecTILS_assignment) <- colnames(x = merged_tils_prediction_object)
   GEX_final<- Seurat::AddMetaData(

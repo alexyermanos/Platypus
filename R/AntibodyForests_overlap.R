@@ -1,7 +1,7 @@
 #' Edge overlap heatmaps for a set of AntibodyForests sequence similarity networks or minimum spanning trees.
 
 #'@description Similar to the AntibodyForests_node_transitions function, will calculate the incidence of features across undirected edges. In this case, each edge will be considered a unique species - with incidence counts across each unique feature value if a specific edge is connected to a node with that feature. Overlap metrics are then calculated for this edge-feature incidence matrix.
-#' @param trees nested list of AntibodyForests objects, as obtained from the AntibodyForests function. 
+#' @param trees nested list of AntibodyForests objects, as obtained from the AntibodyForests function.
 #' @param group.by vector of strings - node features to group the edges by (counts edge incidence across the unique feature values for the specified node feature).
 #' @param method string - overlap calculator: 'overlap' for unique/public edge counts across the feature values, 'jaccard' to calculate the Jaccard index.
 
@@ -20,6 +20,8 @@ AntibodyForests_overlap <- function(trees,
   if(missing(trees)) stop('Please input a nested list of AntibodyForests objects/ a single AntibodyForests object!')
   if(missing(group.by)) group.by <- 'clonotype_id'
   if(missing(method)) method <- 'overlap'
+
+  metric <- NULL
 
   get_feature_names <- function(trees, features){
 

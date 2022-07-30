@@ -23,6 +23,8 @@ VDJ_clonotype_v3_w_enclone(
 \arguments{
 \item{VDJ}{For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
 
+\item{VDJ.directory}{Cellranger output directory for VDJ files.}
+
 \item{clone.strategy}{(Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options are 10x.default, cdr3.nt, cdr3.aa, VDJJ.VJJ, VDJJ.VJJ.cdr3length, VDJJ.VJJ.cdr3length.cdr3.homology, VDJJ.VJJ.cdr3length.VDJcdr3.homology, cdr3.homology, VDJcdr3.homology. cdr3.aa will convert the default cell ranger clonotyping to amino acid based. 'VDJJ.VJJ' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'cdr3length' will group all sequences with identical VDJ and VJ CDR3 sequence lengths. Those arguments including 'cdr3.homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3.homology',or 'CDRH3.homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the VDJ CDR3 sequence respectively).
 All homology calculations are performed on the amino acid level.}
 
@@ -50,8 +52,6 @@ If set to "double.and.single.chains" the function will proceed as if set to "sin
 \item{platypus.version}{Only "v3" available}
 
 \item{operating.system}{Character - operating system on which enclone will be run. 'Windows' for Windows, 'Linux' for Linux, 'Darwin' for MacOS.}
-
-\item{output.format}{Parameter output.format is deprecated. If non VGM-style output is required please refer to the function VDJ_clonotype. Output is VGM style VDJ by cell dataframe}
 }
 \value{
 Returns a VGM[[1]]-type dataframe. The columns clonotype_id and clonotype_frequency are updated with the new clonotyping strategy. They represent the "active strategy" that downstream functions will use. Furthermore extra columns are added with clonotyping information.New columns are named by clonotyping strategy so to allow for multiple clonotyping identifiers to be present in the same VDJ dataframe and make comparisons between these straighforward.
@@ -63,11 +63,11 @@ We advice the user to carefully examine the output after hierarchical clonotypin
 We thank Prof. Vijayanand as well as Vicente and Emmanuel from his lab for the discussions that have helped with improving the original Platypus clonotyping strategy.
 }
 \examples{
-reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
+reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 clone.strategy="cdr3.nt",
 hierarchical = "none", global.clonotype = TRUE)
 
-reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
+reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 clone.strategy="cdr3.homology", homology.threshold = 0.5,
 hierarchical = "single.chains", global.clonotype = TRUE)
 

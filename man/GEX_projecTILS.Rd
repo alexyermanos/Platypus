@@ -32,13 +32,15 @@ Projection of scRNA-seq data into reference single-cell atlas, enabling their ce
 \examples{
 \dontrun{
 #Without splitting argument, considering the whole VGM
-output_projecTILS_wohle_VGM<-GEX_projecTILS(ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
+output_projecTILS_wohle_VGM<-GEX_projecTILS(
+ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
 filtering =TRUE)
 output_projecTILS_wohle_VGM[[3]] #Umap
 output_projecTILS_wohle_VGM[[4]] #Barplots
 
 #With splitting argument by groups_id
-output_projecTILS_split_by_group<-GEX_projecTILS(ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
+output_projecTILS_split_by_group<-GEX_projecTILS(
+ref_path = "c:/Users/.../ref_TILAtlas_mouse_v1.rds", GEX = VGM$GEX,
 filtering =  TRUE, split_by = "group_id", NA_cells = FALSE)
 output_projecTILS_split_by_group[[3]] #Umap
 output_projecTILS_split_by_group[[4]] #Barplots

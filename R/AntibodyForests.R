@@ -1,6 +1,5 @@
 #' Infer B cell evolutionary networks and/or sequence similarity networks
 
-
 #'@description Function to infer immune receptor evolutionary networks (trees) or complex/sequence-similarity networks from a Platypus VDJ object/VGM[[1]] - AntibodyForests objects will be created for each sample and each unique clonotype, if the default parameters are used.
 #' Networks can be created in a tree-building manner (minimum spanning tree algorithm with custom tie solving methods), by linking sequences with a minimal string distance between them iteratively (and solving distance ties in a hierarchical way, with multiple resolve.ties parameters/configurations). Nodes in the network represent unique sequences per clonotype, edges are determined by the string distance between the nodes/sequences. Sequence types are dictated by the sequence.tyoe parameter, allowing networks to be built for most of the sequence types available in a Platypus VDJ object.
 #' Networks can also be created by pruning edges from a fully connected network obtained from all sequences from a specific clonotype - complex similarity networks. Pruning can either be done via a distance threshold (prunes nodes too far apart), a node degree threshold (to prune nodes with a smaller degree/not well connected), or an expansion threshold (to prune nodes for sequences with low expansion/frequency).
@@ -66,7 +65,10 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed', include.germline=T, network.algorithm='tree', resolve.ties=c('close.germline.distance', 'max.expansion'), node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
+#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed',
+#' include.germline=T, network.algorithm='tree',
+#' resolve.ties=c('close.germline.distance', 'max.expansion'),
+#' node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
 #'}
 
 
@@ -97,6 +99,9 @@ AntibodyForests <- function(VDJ,
                             random.seed,
                             parallel,
                             as.igraph){
+
+  #For RMD checks
+  adjacency_matrix <- NULL
 
 
   if(missing(VDJ)) stop('Please input your data as VDJ/df per clonotype list')

@@ -11,8 +11,6 @@
 #' @param output.format string - 'df' to get a shared element dataframe (with columns = Repertoire and Public), 'list' for a list of shared elements.
 #' @return Either a dataframe of public elements across multiple repertoires or a list.
 #' @export
-
-
 #' @examples
 #' VDJ_get_public(VDJ = small_vgm[[1]],
 #' feature.columns='VDJ_cdr3s_aa', find.public.all=TRUE,

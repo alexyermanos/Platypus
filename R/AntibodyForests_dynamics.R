@@ -9,7 +9,7 @@
 
 #' @param trees nested list of AntibodyForests objects, as obtained from the AntibodyForests function. Ensure the clonotype definition is consistent across each timepoint before running this function (and before running AntibodyForests to obtain your trees). Also ensure the timepoint ids are present in the sample_id column of your VDJ/VGM[[1]] object.
 #' @param graph.type string - 'tree' will use the usual output of the AntibodyForests function (tree graphs), 'heterogeneous' will use the output of the AntibodyForests_heterogeneous function (bipartite networks for both cells and sequences).
-#' @param timepoint.order vector of strings - order of the timepoints in the resulting nested list. For example, output[[1]][[1]] denotes the first clonotype, first timepoint/sample, output[[1]][[2]] denotes the first clonotype, second timepoint/sample,
+#' @param timepoints.order vector of strings - order of the timepoints in the resulting nested list. For example, output[[1]][[1]] denotes the first clonotype, first timepoint/sample, output[[1]][[2]] denotes the first clonotype, second timepoint/sample,
 
 
 #' @return nested list of AntibodyForests objects for each clonotype and each sample/timepoint. For example, output[[1]][[2]] denotes the AntibodyForests object of the first clonotype, second timepoint.

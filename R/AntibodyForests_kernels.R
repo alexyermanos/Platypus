@@ -10,7 +10,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_kernels(trees, graph.type = 'tree', kernel.method = 'weisfeiler_lehman', additional.params = 10, max.networks = 50)
+#' AntibodyForests_kernels(trees, graph.type = 'tree',
+#' kernel.method = 'weisfeiler_lehman',
+#' additional.params = 10, max.networks = 50)
 #'}
 
 

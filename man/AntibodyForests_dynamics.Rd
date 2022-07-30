@@ -11,7 +11,7 @@ AntibodyForests_dynamics(trees, graph.type, timepoints.order)
 
 \item{graph.type}{string - 'tree' will use the usual output of the AntibodyForests function (tree graphs), 'heterogeneous' will use the output of the AntibodyForests_heterogeneous function (bipartite networks for both cells and sequences).}
 
-\item{timepoint.order}{vector of strings - order of the timepoints in the resulting nested list. For example, output[[1]][[1]] denotes the first clonotype, first timepoint/sample, output[[1]][[2]] denotes the first clonotype, second timepoint/sample,}
+\item{timepoints.order}{vector of strings - order of the timepoints in the resulting nested list. For example, output[[1]][[1]] denotes the first clonotype, first timepoint/sample, output[[1]][[2]] denotes the first clonotype, second timepoint/sample,}
 }
 \value{
 nested list of AntibodyForests objects for each clonotype and each sample/timepoint. For example, output[[1]][[2]] denotes the AntibodyForests object of the first clonotype, second timepoint.

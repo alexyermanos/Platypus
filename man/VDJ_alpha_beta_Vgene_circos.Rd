@@ -60,7 +60,7 @@ VDJ_alpha_beta_Vgene_circos(
 
 \item{platy.theme}{Allows plotting in the new "pretty" theme or the older "spiky" theme without group labels and radial arrangement of gene.labels. Default = "pretty".}
 
-\item{clonotype.colum}{Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".}
+\item{clonotype.column}{Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".}
 }
 \value{
 Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.

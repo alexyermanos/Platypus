@@ -35,14 +35,20 @@ Plotting the contour density of selected cells or of all cells.
 \examples{
 \dontrun{
 #Assignment density-based
-density_BCR_assignment<-Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
-vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B", simulated_VDJ = simulated_B_cells_VDJ,
+density_BCR_assignment<-Spatial_VDJ_assignment(
+GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
+simulated_VDJ = simulated_B_cells_VDJ,
 method = "density")
 vgm_with_simulated_VDJ$VDJ<-density_BCR_assignment
 
-top_1_VDJ_BCR_density_data<-Spatial_selection_expanded_clonotypes(nb_clonotype = 1, vgm_VDJ = vgm_with_simulated_VDJ$VDJ)
-p_spatial_BCR_density_clonotype_density<-Spatial_density_plot(vgm_VDJ = top_1_VDJ_BCR_density_data,
-images_tibble = scaling_parameters[[5]], bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
+top_1_VDJ_BCR_density_data<-Spatial_selection_expanded_clonotypes(
+nb_clonotype = 1, vgm_VDJ = vgm_with_simulated_VDJ$VDJ)
+
+p_spatial_BCR_density_clonotype_density<-Spatial_density_plot(
+vgm_VDJ = top_1_VDJ_BCR_density_data,
+images_tibble = scaling_parameters[[5]],
+bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
 title = "B cell density assignment")
 p_spatial_BCR_density_clonotype_density
 }

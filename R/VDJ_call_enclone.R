@@ -100,7 +100,7 @@ VDJ_call_enclone <- function(VDJ,
   #SUBROUTINE 3: merge the new clonotypes into the sample dfs, using the stripped_barcodes column. Recalculate clonotype frequencies, reorder sample df, clean-up
 
   merge_enclone_clonotypes <- function(enclone_out){
-    new_clonotypes <- read.csv(enclone_out$csv_file)
+    new_clonotypes <- utils::read.csv(enclone_out$csv_file)
     new_clonotypes <- new_clonotypes[c('group_id', 'barcode')]
     names(new_clonotypes)[names(new_clonotypes) == 'group_id'] <- 'new_group_id'
     names(new_clonotypes)[names(new_clonotypes) == 'barcode'] <- 'stripped_barcodes'

@@ -21,7 +21,8 @@ Scaling of the spatial parameters to be able to express the gene expression on t
 }
 \examples{
 \dontrun{
-scaling_parameters<-Spatial_scaling_parameters(vgm_spatial = vgm_spatial, GEX.out.directory.list = GEX.out.directory.list,
+scaling_parameters<-Spatial_scaling_parameters(vgm_spatial = vgm_spatial,
+GEX.out.directory.list = GEX.out.directory.list,
 sample_names = sample_names)
 }
 }

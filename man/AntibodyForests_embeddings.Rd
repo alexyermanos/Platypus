@@ -38,6 +38,8 @@ Currently supported network/analysis types: 'tree' (for the minimum spanning tre
 
 \item{num.walks}{integer - number of biased random walks to be performed for the node2vec training dataset.}
 
+\item{num.steps}{integer - number of steps per biased random walk.}
+
 \item{p}{numeric - probability of revisiting the same node already vistied in a random walk step (= return parameter).}
 
 \item{q}{numeric - probability of 'jumping' to a node closer or farther away from the node visited at step x (e.g., q > 1, random walk is biased to closer nodes, q < 1, random walk will 'jump' to farher nodes more frequently).}
@@ -57,8 +59,6 @@ Currently supported network/analysis types: 'tree' (for the minimum spanning tre
 \item{seed}{integer - random seed for the random walk steps of the node2vec model.}
 
 \item{parallel}{boolean - whether to execute the random walks in parallel or not.}
-
-\item{num.step}{integer - number of steps per biased random walk.}
 }
 \value{
 A scatterplot of reduced vector embeddings for each node in the graphs, colored by the features specified in color.by.
@@ -68,6 +68,9 @@ Structural node embeddings algorithms of the AntibodyForests networks. Supported
 }
 \examples{
 \dontrun{
-AntibodyForests_embeddings(output_networks, graph.type = 'tree', embedding.method = 'node2vec', dim.reduction = 'pca', num.walks = 10, num.steps = 10, embedding.dim = 64, batch.size = 32, epochs = 50)
+AntibodyForests_embeddings(output_networks,
+graph.type = 'tree', embedding.method = 'node2vec',
+dim.reduction = 'pca', num.walks = 10, num.steps = 10,
+embedding.dim = 64, batch.size = 32, epochs = 50)
 }
 }

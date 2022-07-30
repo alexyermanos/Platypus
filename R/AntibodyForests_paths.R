@@ -21,7 +21,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_paths(trees, graph.type = 'tree', path.from = 'germline', path.to = 'leaf', plot.results = T, color.by = 'seurat_clusters')
+#' AntibodyForests_paths(trees, graph.type = 'tree',
+#' path.from = 'germline', path.to = 'leaf',
+#' plot.results = T, color.by = 'seurat_clusters')
 #'}
 
 
@@ -49,6 +51,13 @@ AntibodyForests_paths <- function(trees,
   if(missing(color.by)) color.by <- 'VDJ_cgene'
   if(missing(cell.frequency)) cell.frequency <- F
   if(missing(parallel)) parallel <- T
+
+  features <- NULL
+  counts <- NULL
+  clonotype_id <- NULL
+  total_cells <- NULL
+  total_nodes <- NULL
+  sample_id <- NULL
 
   get_paths <- function(tree){
 

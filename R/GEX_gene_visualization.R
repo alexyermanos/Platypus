@@ -2,19 +2,20 @@
 #' @param GEX GEX output of the VDJ_GEX_matrix function (VDJ_GEX_matrix[[2]])).
 #' @param gene_set Character vector containing the markers of interest given by the user.
 #' @param predefined_genes Character vector to chose between B_cell, CD4_T_cell, and CD8_T_cell.
+#' @param group.by Character. Column name of vgm to group plots by
 #' @return Return a list. Element[[1]] is the feature plot of markers of interest or predefined genes. Element[[2]] is the dottile plot of markers of interest or predefined genes. Element[[3]] is the violin plot of markers of interest or predefined genes.
 #' @export
 #' @examples
 #' \dontrun{
 #' # Pre-defined gene set for CD4 T cells
 #' GEX_gene_visualization(GEX = VGM$GEX, predefined_genes = "CD4_T_cell")
-#' 
+#'
 #' # Pre-defined gene set for CD8 T cells
 #' GEX_gene_visualization(GEX = VGM$GEX, predefined_genes = "CD8_T_cell")
-#' 
+#'
 #' # Pre-defined gene set for B cells
 #' GEX_gene_visualization(GEX = VGM$GEX, predefined_genes = "B_cell")
-#' 
+#'
 #' # Gene set defined by user
 #' GEX_gene_visualization(GEX = VGM$GEX, gene_set=c("CD8A","CD3E","SELL","FAS","ID3","SDC1"))
 #'}
@@ -25,7 +26,7 @@ GEX_gene_visualization<-function(GEX, gene_set, predefined_genes=c("B_cell","CD4
     group.by = "sample_id"
   }
   platypus.version <- "It doesn't matter"
-  
+
   if(missing(gene_set)){
     if(missing(predefined_genes))stop("Please provide a gene set or use predefined_genes (B_cell, CD4_T_cell or CD8_T_cell) input for this function")
     if(predefined_genes == "B_cell"){
@@ -39,11 +40,11 @@ GEX_gene_visualization<-function(GEX, gene_set, predefined_genes=c("B_cell","CD4
     genes<-gene_set
   }
   #Feature plot
-  feature_plot<-FeaturePlot(GEX, features = genes)
+  feature_plot<-Seurat::FeaturePlot(GEX, features = genes)
   #Dottile function
   Dottile_plot<-GEX_dottile_plot(GEX, genes = genes, group.by = group.by)
   #Violin plot for markers
-  violin_plot<-VlnPlot(GEX, features = genes)
+  violin_plot<-Seurat::VlnPlot(GEX, features = genes)
   results<-list()
   results$feature_plot<-feature_plot
   results$dottile_plot<-Dottile_plot

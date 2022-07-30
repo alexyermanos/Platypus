@@ -34,6 +34,8 @@ Performs label diffusion/propagation, using two different algorithms: if propaga
 }
 \examples{
 \dontrun{
-AntibodyForests_label_propagation(ova_trees, features = 'OVA_binder', propagation.algorithm = 'diffusion', parallel = T)
+AntibodyForests_label_propagation(ova_trees,
+features = 'OVA_binder',
+propagation.algorithm = 'diffusion', parallel = T)
 }
 }

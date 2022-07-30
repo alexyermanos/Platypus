@@ -40,7 +40,12 @@ Function that performs pseudo-bulking on the data (VGM input), according to crit
 }
 \examples{
 \dontrun{
-pseudo_DE<-GEX_pseudobulk(vgm.input=VGM_NP396_GP33_GP66_labelled, column.group="sample_id", group1 = c("s1"), group2 = c("s4"), column.comparison = "seurat_clusters", comparison=c(2,3,5,9), pool=FALSE)
+pseudo_DE<-GEX_pseudobulk(
+vgm.input=VGM_NP396_GP33_GP66_labelled,
+column.group="sample_id",
+group1 = c("s1"), group2 = c("s4"),
+column.comparison = "seurat_clusters",
+comparison=c(2,3,5,9), pool=FALSE)
 }
 
 }

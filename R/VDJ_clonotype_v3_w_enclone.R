@@ -4,6 +4,7 @@
 #' We advice the user to carefully examine the output after hierarchical clonotyping before proceeding with further analysis.
 #' We thank Prof. Vijayanand as well as Vicente and Emmanuel from his lab for the discussions that have helped with improving the original Platypus clonotyping strategy.
 #' @param VDJ For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])
+#' @param VDJ.directory Cellranger output directory for VDJ files.
 #' @param clone.strategy (Updated keywords, previous format is also functional) String describing the clonotyping strategy. Possible options are 10x.default, cdr3.nt, cdr3.aa, VDJJ.VJJ, VDJJ.VJJ.cdr3length, VDJJ.VJJ.cdr3length.cdr3.homology, VDJJ.VJJ.cdr3length.VDJcdr3.homology, cdr3.homology, VDJcdr3.homology. cdr3.aa will convert the default cell ranger clonotyping to amino acid based. 'VDJJ.VJJ' groups B cells with identical germline genes (V and J segments for both heavy chain and light chain. Those arguments including 'cdr3length' will group all sequences with identical VDJ and VJ CDR3 sequence lengths. Those arguments including 'cdr3.homology' will additionally impose a homology requirement for CDRH3 and CDRL3 sequences.'CDR3.homology',or 'CDRH3.homology' will group sequences based on homology only (either of the whole CDR3 sequence or of the VDJ CDR3 sequence respectively).
 #' All homology calculations are performed on the amino acid level.
 #' @param samples.to.clonotype Vector - lists the samples names which should be clonotyped. The unspecified samples will keep their old clonotype defintions.
@@ -19,21 +20,19 @@
 #' @param global.clonotype Logical specifying whether clonotyping should occur across samples or only within a single sample (grouping via sample_id column).
 #' @param VDJ.VJ.1chain Logical specifying whether cells other than once with 1 VDJ and 1 VJ chains should be considered.
 #' @param same.origin Logical - if the merged samples come from the same donor, with the same or with different origins. If two datasets come from the same origin, enclone will filter to remove certain artifacts.
-#' @param output.format Parameter output.format is deprecated. If non VGM-style output is required please refer to the function VDJ_clonotype. Output is VGM style VDJ by cell dataframe
 #' @param platypus.version Only "v3" available
 #' @param operating.system Character - operating system on which enclone will be run. 'Windows' for Windows, 'Linux' for Linux, 'Darwin' for MacOS.
 #' @return Returns a VGM[[1]]-type dataframe. The columns clonotype_id and clonotype_frequency are updated with the new clonotyping strategy. They represent the "active strategy" that downstream functions will use. Furthermore extra columns are added with clonotyping information.New columns are named by clonotyping strategy so to allow for multiple clonotyping identifiers to be present in the same VDJ dataframe and make comparisons between these straighforward.
 #' @export
 #' @examples
-#' reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
+#' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 #' clone.strategy="cdr3.nt",
 #' hierarchical = "none", global.clonotype = TRUE)
 #'
-#' reclonotyped_vgm <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
+#' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 #' clone.strategy="cdr3.homology", homology.threshold = 0.5,
 #' hierarchical = "single.chains", global.clonotype = TRUE)
 #'
-
 
 VDJ_clonotype_v3_w_enclone <- function(VDJ,
                              VDJ.directory,
@@ -181,7 +180,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
   #### ENCLONE VERSION #### - SUBROUTINE 3: merge the new clonotypes into the sample dfs, using the stripped_barcodes column. Recalculate clonotype frequencies, reorder sample df, clean-up
   merge_enclone_clonotypes <- function(enclone_out){
-    new_clonotypes <- read.csv(enclone_out$csv_file)
+    new_clonotypes <- utils::read.csv(enclone_out$csv_file)
     new_clonotypes <- new_clonotypes[c('group_id', 'barcode')]
     names(new_clonotypes)[names(new_clonotypes) == 'group_id'] <- 'new_group_id'
     names(new_clonotypes)[names(new_clonotypes) == 'barcode'] <- 'stripped_barcodes'
@@ -202,8 +201,6 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     return(sample_out)
   }
-
-
 
   #### Parameter setup ####
   platypus.version <- "v3"
@@ -226,7 +223,6 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
   if(!hierarchical %in% c("none", "single.chains", "double.and.single.chains")){
     stop("Please set hierachical to either 'none', 'single.chains', 'double.and.single.chains'.")
   }
-
 
   #### ENCLONE VERSION #### - Added the VDJ directory which enclone will need (which should include all sample VDJ)
   if(missing(VDJ.directory) & clone.strategy == 'enclone') stop('Please input the VDJ directory for all samples when clone.strategy = "enclone" ')

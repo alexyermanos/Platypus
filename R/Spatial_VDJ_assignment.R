@@ -11,16 +11,22 @@
 #' @examples
 #' \dontrun{
 #' #1)Assignment random to GEX
-#' random_BCR_assignment <- Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
-#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B", simulated_VDJ = simulated_B_cells_VDJ, method = "random")
+#' random_BCR_assignment <- Spatial_VDJ_assignment(
+#' GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ,
+#' celltype = "B", simulated_VDJ = simulated_B_cells_VDJ, method = "random")
 #'
 #' #2)Assignment density-based
-#' density_BCR_assignment<-Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
-#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B", simulated_VDJ = simulated_B_cells_VDJ, method = "density")
+#' density_BCR_assignment<-Spatial_VDJ_assignment(
+#' GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
+#' simulated_VDJ = simulated_B_cells_VDJ, method = "density")
 #'
 #' #3)Assignment germline-based
-#' germline_BCR_assignment<-Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
-#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B", simulated_VDJ = simulated_B_cells_VDJ, method = "germline")
+#' germline_BCR_assignment<-Spatial_VDJ_assignment(
+#' GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+#' vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
+#' simulated_VDJ = simulated_B_cells_VDJ, method = "germline")
 #'}
 
 Spatial_VDJ_assignment<-function(GEX_matrix,

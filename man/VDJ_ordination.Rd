@@ -29,6 +29,8 @@ VDJ_ordination(
 \item{VDJ.VJ.1chain}{Boolean defaults to TRUE. Whether to filter out aberrant cells (more than 1 VDJ or VJ chain).}
 
 \item{umap.n.neighbours}{Integer. Control the t-SNE perplexity when method = 'tsne'.}
+
+\item{tsne.perplexity}{Integrer. Defaults to 1}
 }
 \value{
 Returns a ggplot with the ordination analysis performer across features, groups, or both

@@ -41,6 +41,8 @@ Requires the AntibodyForests_plot_metrics to be called before (as this function 
 }
 \examples{
 \dontrun{
-AntibodyForests_plot_metrics(trees, plot.format = 'violin', metrics.to.plot = 'degree', group.by = 'sample_id', sample.by = NULL)
+AntibodyForests_plot_metrics(trees,
+plot.format = 'violin', metrics.to.plot = 'degree',
+group.by = 'sample_id', sample.by = NULL)
 }
 }

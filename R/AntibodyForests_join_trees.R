@@ -19,8 +19,10 @@ AntibodyForests_join_trees <- function(tree.list, join.per, join.method){
   if(missing(join.per)) join.per <- 'sample'
   if(missing(join.method)) join.method <- 'multiple.germlines'
 
+  new <- NULL
 
-  setClass('AntibodyForests',
+
+  methods::setClass('AntibodyForests',
     slots = c(
       tree = 'ANY', #in
       sample_id = 'ANY', #in

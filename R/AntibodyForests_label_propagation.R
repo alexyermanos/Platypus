@@ -12,7 +12,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_label_propagation(ova_trees, features = 'OVA_binder', propagation.algorithm = 'diffusion', parallel = T)
+#' AntibodyForests_label_propagation(ova_trees,
+#' features = 'OVA_binder',
+#' propagation.algorithm = 'diffusion', parallel = T)
 #'}
 
 

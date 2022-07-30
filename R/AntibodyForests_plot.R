@@ -13,9 +13,8 @@
 #' If the node.shape parameter is null, the node shape for all nodes will default to 'circle'
 #' @param node.size string denoting either a specific method of scaling the node sizes of the input graph or a specific vertex attribute of numeric values (added via the node.features parameter of the AntibodyForests from the original vgm[[1]]/VDJ dataframe) to be used for node sizes.
 #' If NULL, then the sizes will be equal to node.scale.factor * 1. If scaleByEigen, node sizes will be scaled by the eigenvector centrality of each node; scaleByCloseness - closeness centrality; scaleByBetweenness - betweenness centrality; scaleByExpansion - by the sequence frequency of each node, as originally calculated by the AntibodyForests function.
+#' @param max.node.size Maximum size of any given node
 #' @param node.scale.factor integer to further refine the size of each node. Each vertex size will be multiplied by scaling factor.
-#' @param edge.color a nested list of edge paths (longest/shortest), as obtained from the AntibodyForests_metrics function. The named path list must be provided to the path.list parameter.
-#' If NULL, edge colors will default to black.
 #' @param edge.length either NULL - edge lengths are constant, scaleByWeight - edge lengths will be scaled by the edge weight attribute (the string distance between pairs of sequences/nodes, as calculated by the AntibodyForests function) - larger weights/string distances = longer edges/nodes further apart, or a specific igraph edge attribute name.
 #' @param edge.width either NULL - edge widths are constant, scaleByWeight - edge widths will be scaled by the edge weight attribute (the string distance between pairs of sequences/nodes, as calculated by the AntibodyForests function) - larger weights/string distances = thinner edges), or a specific igraph edge attribute name.
 #' @param path.list named list of igraph paths, as obtained from the AntibodyForests_metrics function.
@@ -27,7 +26,7 @@
 #' For example, if specific.edge.colors=list('longest.path.weighted'='blue', 'shortest.path.unweighted'='red'), the longest weighted paths obtained from AbtibodyForests will be colored blue for each igraph object, the rest will be red.
 #' @param color.by.majority boolean - if T, will color the entire network (all nodes) by the dominant/most frequent node feature, as specified in the node.color parameter.
 #' @param cell.color string - cell feature column denoting the cell colors - as denoted by the node.features parameter when calling AntibodyForests_heterogeneous.
-#' @param specific.cell.color named list of cell colors and their features (e.g., for Seurat clusters: list(1 = 'red', 2 = 'blue')). Optional (will auto search for unique colors per feature).
+#' @param specific.cell.colors named list of cell colors and their features (e.g., for Seurat clusters: list(1 = 'red', 2 = 'blue')). Optional (will auto search for unique colors per feature).
 #' @param cell.size integer denoting the size of the cell nodes.
 #' @param network.layout either NULL - will default to the automatic igraph::layout_nicely(), 'fr' - igraph::layout_with_fr() - for fully connected graphs/graphs with defined connected components, 'tree' - for tree graphs, as obtained from AntibodyForests with network.algorithm='tree'.
 #' @param save.pdf boolean - if T, plots will be automatically saved to pdf, in the current working directory; F - normal output of the function (plot-ready igraph object and specific layout). New folders will be created for each sample of the input nested list of igraph objects.
@@ -39,7 +38,9 @@
 #' @seealso AntibodyForests, AntibodyForests_metrics
 #' @examples
 #' \dontrun{
-#' AntibodyForests_plot(graphs, node.color='clonotype_id', node.size='scaleByExpansion', network.layout='tree', save.pdf=T)
+#' AntibodyForests_plot(graphs, node.color='clonotype_id',
+#' node.size='scaleByExpansion', network.layout='tree',
+#' save.pdf=T)
 #'}
 
 
@@ -93,14 +94,14 @@ AntibodyForests_plot <- function(network.list,
   if(missing(show.legend)) show.legend <- T
   if(missing(color.gradient)) color.gradient <- NULL
 
-
+  bulk.gradient <- NULL
 
   plot_single_network <- function(g){
 
     breaks <- 300 #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
     div=2
     # crp <- colorRampPalette(c("#FFFAE8", "#801212"))
-    crp <- colorRampPalette(colorspace::diverge_hsv(3))
+    crp <- dichromat::colorRampPalette(colorspace::diverge_hsv(3))
     # length(unique(crp(breaks)))
 
     #ADD NODE COLORS

@@ -14,7 +14,7 @@
 #' @param topX Filters for the top X clonotypes and only plots the respective gene combinations or cluster memberships.
 #' @param clonotype.per.gene.threshold How many clonotypes are required to plot a sector for a gene. Filters the rows and colums of the final adjacency matrix.
 #' @param filter1H1L Whether to filter the input VGM in "v3" to only include cells with 1 VDJ and 1 VJ chain. Defaults to TRUE
-#' @param clonotype.colum Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".
+#' @param clonotype.column Which column in VGM contains the clonotyping information? Default="clonotype_id_10X".
 #' @param cell.level Logical, defines whether weight of connection should be based on number of clonotypes of number of cells. Default: number of clonotypes.
 #' @param platypus.version Which platypus.version of platypus is being used. Default = v3. Set to v3 if VDJ_GEX_matrix.output[[1]] is used
 #' @return Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.
@@ -355,7 +355,7 @@ if(platypus.version=="v3"){
     group = factor(group[sample(length(group), length(group))], levels = levels)
 
     VDJ_circos(Vgene_usage_matrix[[i]], group = group, grid.col=grid.col, label.threshold = label.threshold, c.count.label = c.count.label, gene.label = gene.label, gene.label.size = gene.label.size, c.count.label.size = c.count.label.size, arr.col = arr.col, arr.direction = arr.direction, platy.theme = platy.theme)
-    circos.recorded <- recordPlot()
+    circos.recorded <- grDevices::recordPlot()
     plot[[i]] <- circos.recorded
   }
 

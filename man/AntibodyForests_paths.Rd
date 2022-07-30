@@ -51,6 +51,8 @@ Moreover, there is an option to select paths for nodes given specific node featu
 }
 \examples{
 \dontrun{
-AntibodyForests_paths(trees, graph.type = 'tree', path.from = 'germline', path.to = 'leaf', plot.results = T, color.by = 'seurat_clusters')
+AntibodyForests_paths(trees, graph.type = 'tree',
+path.from = 'germline', path.to = 'leaf',
+plot.results = T, color.by = 'seurat_clusters')
 }
 }

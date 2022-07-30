@@ -52,7 +52,9 @@ matrix_path[[1]]<-c("c:/.../filtered_feature_bc_matrix/filtered_feature_bc_matri
 
 #VGM formation with spatial data
 vgm_spatial<-Spatial_vgm_formation(vgm = vgm_without_spatial_data_and_VDJ,
-tissue_lowres_image_path = tissue_lowres_image_path,tissue_positions_list_path = tissue_positions_list_path,
-scalefactors_json_path = scalefactors_json_path, cluster_path = cluster_path, matrix_path = matrix_path)
+tissue_lowres_image_path = tissue_lowres_image_path,
+tissue_positions_list_path = tissue_positions_list_path,
+scalefactors_json_path = scalefactors_json_path,
+cluster_path = cluster_path, matrix_path = matrix_path)
 }
 }

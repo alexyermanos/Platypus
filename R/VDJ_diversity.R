@@ -26,12 +26,6 @@
 #',metric = "jaccard")
 #'
 
-#TO ADD: alpha-diversity: bootstrap, jackknife, qstat
-#        beta: pearson, yuleq (other correlation metrics)
-#        more plotting options for alpha and beta (other than barplots/heatmaps)
-#        option to rarefy some alpha diversity metrics (e.g., chao1)
-
-
 VDJ_diversity <- function(VDJ,
                           feature.columns,
                           grouping.column,
@@ -74,7 +68,6 @@ VDJ_diversity <- function(VDJ,
 
     return(abundance_df)
   }
-
 
   ############## UTILITY 2: subsample groups to get to sample size = minimum size across all groups (for consistency in the diversity analyses) ##############
   subsample_abundance_df <- function(abundance_df){
@@ -129,7 +122,6 @@ VDJ_diversity <- function(VDJ,
 
     incidence_df <- as.data.frame(incidence_matrix)
     #incidence_df$group <- rownames(incidence_df)
-
 
     return(incidence_df)
   }
@@ -310,7 +302,6 @@ VDJ_diversity <- function(VDJ,
   ############## EVENESS METRICS ##############
   bulla_evenness <- function(abundance_vector, ignore.zeros = T){
 
-    #Modified from https://rdrr.io/github/microbiome/microbiome/src/R/evenness.R
     if(ignore.zeros){
       abundance_vector <- abundance_vector[abundance_vector > 0]
     }
@@ -327,7 +318,6 @@ VDJ_diversity <- function(VDJ,
 
   camargo_evenness <- function(abundance_vector, ignore.zeros = T){
 
-    #Modified from https://rdrr.io/github/microbiome/microbiome/src/R/evenness.R
     if(ignore.zeros){
       abundance_vector <- abundance_vector[abundance_vector > 0]
     }
@@ -349,7 +339,6 @@ VDJ_diversity <- function(VDJ,
     #missing variable definitions
     x <- NULL
 
-    #Modified from https://rdrr.io/github/microbiome/microbiome/src/R/evenness.R
     if(ignore.zeros){
       abundance_vector <- abundance_vector[abundance_vector > 0]
     }
@@ -633,7 +622,7 @@ VDJ_diversity <- function(VDJ,
     combs <- data.frame(t(utils::combn(groups, m = 2, simplify = TRUE)))
 
     combs$metric <- NA
-    combs$metric_name <- 'Sørensen-Dice similarity'
+    combs$metric_name <- 'Sorensen-Dice similarity'
 
     for(i in 1:nrow(combs)){
       a <- df$unique_feature_values[df$group == combs[i,1]]

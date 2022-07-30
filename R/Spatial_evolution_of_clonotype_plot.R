@@ -16,17 +16,31 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'Spatial_evolution_of_clonotype_plot(simulation = FALSE,tracking_type = "closest",AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
-#'sample_names = sample_names, images_tibble = scaling_parameters[[5]], bcs_merge = scaling_parameters[[10]],
+#'Spatial_evolution_of_clonotype_plot(
+#'simulation = FALSE,tracking_type = "closest",
+#'AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
+#'sample_names = sample_names,
+#'images_tibble = scaling_parameters[[5]],
+#'bcs_merge = scaling_parameters[[10]],
 #'title = "Tracking evolution of clonotype 10", legend_title = "nb of SHM" )
-#'Spatial_evolution_of_clonotype_plot(simulation = FALSE,tracking_type = "all",AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
-#'sample_names = sample_names, images_tibble = scaling_parameters[[5]], bcs_merge = scaling_parameters[[10]],
+#'
+#'Spatial_evolution_of_clonotype_plot(
+#'simulation = FALSE,tracking_type = "all",
+#'AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
+#'sample_names = sample_names,
+#'images_tibble = scaling_parameters[[5]], bcs_merge = scaling_parameters[[10]],
 #'title = "Tracking evolution of clonotype 10", legend_title = "nb of SHM" )
-#'Spatial_evolution_of_clonotype_plot(simulation = TRUE,tracking_type = "closest",nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
-#'VDJ =vgm_with_simulated_VDJ$VDJ,bcs_merge = bcs_merge,images_tibble = scaling_parameters[[5]],title = "B cell density",
+#'
+#'Spatial_evolution_of_clonotype_plot(simulation = TRUE,
+#'tracking_type = "closest",nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
+#'VDJ =vgm_with_simulated_VDJ$VDJ,bcs_merge = bcs_merge,
+#'images_tibble = scaling_parameters[[5]],title = "B cell density",
 #'legend_title = "nb_of_SHM",sample_names=sample_names)
-#'Spatial_evolution_of_clonotype_plot(simulation = TRUE,tracking_type = "all",nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
-#'VDJ =vgm_with_simulated_VDJ$VDJ,bcs_merge = bcs_merge,images_tibble = scaling_parameters[[5]],title = "B cell density",
+#'
+#'Spatial_evolution_of_clonotype_plot(simulation = TRUE,
+#'tracking_type = "all",nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
+#'VDJ =vgm_with_simulated_VDJ$VDJ,bcs_merge = bcs_merge,
+#'images_tibble = scaling_parameters[[5]],title = "B cell density",
 #'legend_title = "nb_of_SHM",sample_names=sample_names)
 #'}
 

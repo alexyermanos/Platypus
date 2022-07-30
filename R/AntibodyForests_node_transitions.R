@@ -18,7 +18,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_node_transitions(trees, graph.type = 'tree', features = 'VDJ_cgene', plot.results = T)
+#' AntibodyForests_node_transitions(trees,
+#' graph.type = 'tree', features = 'VDJ_cgene',
+#' plot.results = T)
 #'}
 
 
@@ -44,6 +46,11 @@ AntibodyForests_node_transitions <- function(trees,
   if(missing(n.permutations)) n.permutations <- 10
   if(missing(plot.results)) plot.results <- T
   if(missing(parallel)) parallel <- T
+
+  feature_name <- NULL
+  counts <- NULL
+  parent_child <- NULL
+  label_both <- NULL
 
   get_node_transitions <- function(tree){
 

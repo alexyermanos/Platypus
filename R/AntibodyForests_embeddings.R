@@ -9,7 +9,7 @@
 #' @param dim.reduction string - dimensionality reduction algorithm for the resulting node2vec embeddings. Currently implemented methods include: 'umap', 'tsne' and 'pca'.
 #' @param color.by vector of strings - features to color the resulting scatter plots by. These features must be included as igraph vertex attributes when creating the AntibodyForests objects, by including them in the node.features parameter.
 #' @param num.walks integer - number of biased random walks to be performed for the node2vec training dataset.
-#' @param num.step integer - number of steps per biased random walk.
+#' @param num.steps integer - number of steps per biased random walk.
 #' @param p numeric - probability of revisiting the same node already vistied in a random walk step (= return parameter).
 #' @param q numeric - probability of 'jumping' to a node closer or farther away from the node visited at step x (e.g., q > 1, random walk is biased to closer nodes, q < 1, random walk will 'jump' to farher nodes more frequently).
 #' @param window.size integer - size of sampling window in the skipgram model.
@@ -26,7 +26,10 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_embeddings(output_networks, graph.type = 'tree', embedding.method = 'node2vec', dim.reduction = 'pca', num.walks = 10, num.steps = 10, embedding.dim = 64, batch.size = 32, epochs = 50)
+#' AntibodyForests_embeddings(output_networks,
+#' graph.type = 'tree', embedding.method = 'node2vec',
+#' dim.reduction = 'pca', num.walks = 10, num.steps = 10,
+#' embedding.dim = 64, batch.size = 32, epochs = 50)
 #'}
 
 
@@ -69,6 +72,9 @@ AntibodyForests_embeddings <- function(trees,
    if(missing(tsne.perplexity)) tsne.perplexity <- 5
    if(missing(seed)) seed <- 1
    if(missing(parallel)) parallel <- T
+
+   X <- NULL
+   Y <- NULL
 
    rw_step <- function(g, prev_node, current_node){
 
@@ -353,7 +359,7 @@ AntibodyForests_embeddings <- function(trees,
    }
 
    set.seed(seed)
-   
+
    if(inherits(trees, 'list')){
 
      plots <- vector(mode = 'list', length = length(trees))
