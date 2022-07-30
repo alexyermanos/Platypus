@@ -94,7 +94,10 @@ GEX_volcano <- function(DEGs.input,
   if(n.label.up == F & n.label.down == F){
   }
 
-  if(class(n.label.up) != class(n.label.down)){
+  class_up <- as.character(class(n.label.up))
+  class_down <- as.character(class(n.label.down))
+
+  if(class_down != class_up){
     temp <- list(n.label.up, n.label.down)
     n.genes <- as.numeric(Filter(is.numeric, temp))
     n.label.up <- n.genes
@@ -102,7 +105,7 @@ GEX_volcano <- function(DEGs.input,
   } # Assuming the same number of up- and downregulated genes are to be labeled if only one is specified
 
   ###
-  if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric"){
+  if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")){
     print(paste0("Top ", n.label.up, " and bottom ",n.label.down, " genes will be labeled"))
   }
 
@@ -134,7 +137,7 @@ GEX_volcano <- function(DEGs.input,
           ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot() + ggplot2::ylab("-log10(p-value)")
       }
 
-      if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
+      if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
         if(by.logFC == F) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
           posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
@@ -164,7 +167,7 @@ GEX_volcano <- function(DEGs.input,
           ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot() + ggplot2::ylab("-log10(adj.p-value)")
       }
 
-      if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
+      if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
         if(by.logFC == F) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
           posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
@@ -192,23 +195,23 @@ GEX_volcano <- function(DEGs.input,
   }
 
   if(cluster.genes.output == T){
-    
+
     output.plot <- list()
-    
+
     if(is.list(DEGs.input)){
       DEGs.input.length <- length(DEGs.input)
     }else{
       DEGs.input.length <- 1
     }
-    
+
     for (i in 1:DEGs.input.length) {
-      
+
       if(is.list(DEGs.input)){
         findmarkers.output <- DEGs.input[[i]]
       }else{
         findmarkers.output <- DEGs.input
       }
-      
+
       if(RP.MT.filter ==T){
         exclude <- c()
         for (j in c("MT-", "RPL", "RPS")) {
@@ -229,7 +232,7 @@ GEX_volcano <- function(DEGs.input,
             ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot() + ggplot2::ylab("-log10(p-value)")
         }
 
-        if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
+        if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
           if(by.logFC == F) {
             findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
             posFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
@@ -260,7 +263,7 @@ GEX_volcano <- function(DEGs.input,
             ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot()+ ggplot2::ylab("-log10(adj.p-value)")
         }
 
-        if(class(n.label.up) == "numeric" & class(n.label.down) == "numeric") {
+        if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
           if(by.logFC == F) {
             findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
             posFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]

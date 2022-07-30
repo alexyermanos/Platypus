@@ -11,13 +11,11 @@
 #' @return Returns a ggplot with the kmer analysis depedning on the plot.format parameter
 #' @export
 #' @examples
-#'
-#' Calculate the 3-kmer frequency for CDRH3s and plot the 20 most abundant kmers.
 #' \dontrun{
+#' #Calculate the 3-kmer frequency for CDRH3s and plot the 20 most abundant kmers.
 #'  VDJ_kmers(VDJ = Platypus::small_vgm[[1]],
 #' ,sequence.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id", kmer.k = 3, max.kmers = 20)
 #'}
-
 
 VDJ_kmers <- function(VDJ,
                       sequence.column,
@@ -149,7 +147,7 @@ VDJ_kmers <- function(VDJ,
 
 
     }else if(plot.format == 'density'){
-      requireNamespace('ggridges')
+      #requireNamespace('ggridges')
       plot <- ggplot2::ggplot() +
               ggridges::geom_density_ridges(data = kmer_df, ggplot2::aes(x = counts, y = group, fill = group), alpha = 1) +
               ggplot2::theme_bw() +

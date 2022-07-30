@@ -235,7 +235,7 @@ dot_plot = function(vgm.input, #vgm where to save the dotplot
 
   #make the dot plot, including only the selcted rows and columns
   selection_dot_plot<-ggplot2::ggplot(plot.data,ggplot2::aes(x=clusters,y=pair)) +
-    ggplot2::geom_point(aes(size=-log10(pvalue),color=mean)) +
+    ggplot2::geom_point(ggplot2::aes(size=-log10(pvalue),color=mean)) +
     ggplot2::scale_color_gradientn('Log2 mean (Molecule 1, Molecule 2)', colors=my_palette) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
@@ -258,4 +258,3 @@ dot_plot = function(vgm.input, #vgm where to save the dotplot
   }
   return(vgm.input)
 }
-

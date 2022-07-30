@@ -49,7 +49,7 @@ PlatypusDB_find_CDR3s <- function(VDJ.cdr3s.aa,
 
       er <- try(load(url(url_), envir = .GlobalEnv))
 
-      if(class(er) != "try-error"){
+      if(inherits(er, "try-error")){
       out.list[[i]] <- get(to_download[i])
       out.list[[i]]$project_id <- stringr::str_split(to_download[i], "__", simplify = T)[,1]
       rm(list = ls(pattern = to_download[i], envir = .GlobalEnv), envir = .GlobalEnv)

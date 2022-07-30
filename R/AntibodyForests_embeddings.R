@@ -248,11 +248,11 @@ AntibodyForests_embeddings <- function(trees,
        out <- stats::prcomp(t(embeddings))$rotation[,1:2]
 
      }else if(dim.reduction == 'tsne'){
-       requireNamespace('Rtsne')
+       #requireNamespace('Rtsne')
        out <- Rtsne::Rtsne(embeddings, perplexity = tsne.perplexity)$Y
 
      }else if(dim.reduction == 'umap'){
-       requireNamespace('umap')
+       #requireNamespace('umap')
        out <- umap::umap(embeddings)$layout
 
      }else{
@@ -369,7 +369,7 @@ AntibodyForests_embeddings <- function(trees,
        embeddings <- vector(mode = "list", length = length(trees[[i]]))
 
        if(parallel){
-         requireNamespace('parallel')
+         #requireNamespace('parallel')
          cores <- parallel::detectCores()
 
          if(embedding.method  == 'node2vec'){

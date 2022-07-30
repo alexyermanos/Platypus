@@ -115,7 +115,9 @@ GEX_pseudobulk<-function(vgm.input, #mandatory  #the function takes vgm as an in
 
     #input object for summarizeAssayByGroup() needs to be a Summarised Experiment
     input<-Seurat::as.SingleCellExperiment(input)
-    assign("input", input, globalenv())
+    #for CRAN checks
+    #assign("input", input, globalenv())
+    eval(parse(text = "assign('input', input, envir = .GlobalEnv)"))
 
     # aggregate by cluster-sample
     g <- input@colData[, c("comparison", "groups")]

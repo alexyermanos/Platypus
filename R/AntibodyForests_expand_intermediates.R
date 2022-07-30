@@ -119,7 +119,7 @@ AntibodyForests_expand_intermediates <- function(trees,
       expanded_list <- vector(mode = "list", length = length(trees[[i]]))
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         expanded_list <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                  FUN = function(x) {x %>% expand_intermediates()

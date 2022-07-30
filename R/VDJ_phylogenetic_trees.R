@@ -234,15 +234,15 @@ VDJ_phylogenetic_trees <- function(VDJ,
         output_tree <- tidytree::as_tibble(output_tree)
 
       }
-    }else if(tree.algorithm == 'fastme.os'){
-      output_tree <- tidytree::as_tibble(ape::fastme.os(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
+    }else if(tree.algorithm == 'fastme.ols'){
+      output_tree <- tidytree::as_tibble(ape::fastme.ols(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
       if(include.germline==T){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
     }else if(tree.algorithm == 'ml' | tree.algorithm == 'mp'){
-      requireNamespace('phangorn')
-      requireNamespace('seqinr')
+      #requireNamespace('phangorn')
+      #requireNamespace('seqinr')
       sequences <- lineage_df$lineage_sequences
       output_tree <- ape::nj(stringdist::stringdistmatrix(sequences, sequences))
 
@@ -275,7 +275,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
      }else{
        alignment <- sequences %>%
                     matrix() %>%
-                    ape::as.dnabin() %>%
+                    ape::as.DNAbin() %>%
                     ape::clustal()
 
        phylo_data <- phangorn::read.phyDat(alignment, format='fasta')

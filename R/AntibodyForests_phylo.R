@@ -122,7 +122,7 @@ AntibodyForests_phylo <- function(trees,
     }
 
     if(output_format == 'treedata'){
-      requireNamespace('tidytree')
+      #requireNamespace('tidytree')
       node_df <- igraph::as_data_frame(g, what = 'vertices')
 
       tibble_tree <- tidytree::as_tibble(phylo)
@@ -138,7 +138,7 @@ AntibodyForests_phylo <- function(trees,
       phylo_list <- vector(mode = "list", length = length(trees[[i]]))
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         phylo_list <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                  FUN = function(x) {x %>% graph_to_phylo()

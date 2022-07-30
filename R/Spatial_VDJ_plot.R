@@ -33,10 +33,10 @@ Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legen
   if(missing(legend_title)){
     legend_title = ""
   }
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
   ggplot2::ggplot(data = vgm_VDJ, ggplot2::aes(x=x,y=y, fill = as.factor(analysis)))+
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+

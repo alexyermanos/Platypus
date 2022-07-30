@@ -302,7 +302,7 @@ AntibodyForests_node_transitions <- function(trees,
       transitions_dfs <- vector(mode = "list", length = length(trees[[i]]))
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         transitions_dfs <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                  FUN = function(x) {x %>% get_node_transitions()
@@ -316,7 +316,7 @@ AntibodyForests_node_transitions <- function(trees,
       for(j in 1:length(trees[[i]])){
 
         if(permutation.test){
-          requireNamespace('parallel')
+          #requireNamespace('parallel')
           cores <- parallel::detectCores()
           permuted_trees <- parallel::mclapply(1:n.permutations, mc.cores = cores, FUN = function(x) {trees[[i]][[j]] %>% permute_graph_nodes() })
           permuted_transitions <-  parallel::mclapply(permuted_trees, mc.cores = cores, FUN = function(x) {x %>% get_node_transitions() })
@@ -351,7 +351,7 @@ AntibodyForests_node_transitions <- function(trees,
     node_transitions <- trees %>% get_node_transitions()
 
     if(permutation.test){
-      requireNamespace('parallel')
+      #requireNamespace('parallel')
       cores <- parallel::detectCores()
       permuted_trees <- parallel::mclapply(1:n.permutations, mc.cores = cores, FUN = function(x) {trees %>% permute_graph_nodes() })
       permuted_transitions <-  parallel::mclapply(permuted_trees, mc.cores = cores, FUN = function(x) {x %>% get_node_transitions()})

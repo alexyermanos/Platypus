@@ -14,13 +14,10 @@
 #' @examples
 #'
 #' #PCA dimensionality reduction across samples for CDRH3
-#' plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
+#' plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]],
 #' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 #' ,method = "pca", reduction.level = 'groups')
 #'
-
-#TO ADD: clustering (kmeans, dbscan, spectral) and cluster plotting (possibly via fviz_cluster).
-#        option to color groups/features by other columns (e.g., if features = sequences, color them by isotype/ color by shared samples) in the output ordination plot.
 VDJ_ordination <- function(VDJ,
                            feature.columns,
                            grouping.column,
@@ -29,6 +26,9 @@ VDJ_ordination <- function(VDJ,
                            VDJ.VJ.1chain,
                            umap.n.neighbours,
                            tsne.perplexity){
+
+  #TO ADD: clustering (kmeans, dbscan, spectral) and cluster plotting (possibly via fviz_cluster).
+  #        option to color groups/features by other columns (e.g., if features = sequences, color them by isotype/ color by shared samples) in the output ordination plot.
 
   if(missing(VDJ)) stop('VDJ matrix not found. Please input the VDJ/VGM[[1]] matrix!')
   if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3s_aa'
@@ -127,7 +127,7 @@ VDJ_ordination <- function(VDJ,
      }else if(method == 'tsne'){
 
        if(reduction.level == 'groups' | reduction.level == 'both'){
-         requireNamespace('Rtsne')
+         #requireNamespace('Rtsne')
          groups_ordination <- Rtsne::Rtsne(incidence_df, perplexity = tsne.perplexity, check_duplicates = F)$Y
          groups_ordination <- as.data.frame(groups_ordination)
 
@@ -138,7 +138,7 @@ VDJ_ordination <- function(VDJ,
 
 
        if(reduction.level == 'features' | reduction.level == 'both'){
-         requireNamespace('Rtsne')
+         #requireNamespace('Rtsne')
          features_ordination <- Rtsne::Rtsne(t(incidence_df), perplexity = tsne.perplexity, check_duplicates = F)$Y
          features_ordination <- as.data.frame(features_ordination)
 
@@ -150,7 +150,7 @@ VDJ_ordination <- function(VDJ,
      }else if(method == 'umap'){
 
        if(reduction.level == 'groups' | reduction.level == 'both'){
-         requireNamespace('umap')
+         #requireNamespace('umap')
          groups_ordination <- umap::umap(incidence_df, n_neighbors = umap.n.neighbours)$layout
          groups_ordination <- as.data.frame(groups_ordination)
 

@@ -51,10 +51,10 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
   if(missing(bcs_merge)) stop("Please provide bcs_merge input for this function")
   if(missing(gene.set)) stop("Please provide gene.set input for this function")
   if(missing(GEX.out.directory.list)) stop("Please provide GEX.out.directory.list input for this function")
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
 
   platypus.version <- "v3"
 

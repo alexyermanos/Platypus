@@ -608,7 +608,7 @@ AntibodyForests_metrics <- function(trees,
     for(i in 1:length(trees)){
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         trees[[i]] <- parallel::mclapply(trees[[i]], mc.cores = cores, FUN = function(x) x %>% compute_node_metrics_lapply())
         trees[[i]] <- parallel::mclapply(trees[[i]], mc.cores = cores, FUN = function(x) x %>% compute_graph_metrics())

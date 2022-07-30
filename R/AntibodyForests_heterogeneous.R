@@ -196,7 +196,7 @@ AntibodyForests_heterogeneous <- function(trees,
       heterogeneous_list <- vector(mode = "list", length = length(trees[[i]]))
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         heterogeneous_list <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                  FUN = function(x) {x %>% create_cell_graph() %>%  create_heterogeneous_graph()

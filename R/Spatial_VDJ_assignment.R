@@ -41,10 +41,10 @@ Spatial_VDJ_assignment<-function(GEX_matrix,
   if(missing(celltype)) stop("Please provide celltype input for this function")
   if(missing(simulated_VDJ)) stop("Please provide simulated_VDJ input for this function")
   if(missing(method)) stop("Please provide method input for this function: random, density or germline")
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
   platypus.version <- "v3"
 
   filtered_contig_annotation<-simulated_VDJ$all_contig_annotations

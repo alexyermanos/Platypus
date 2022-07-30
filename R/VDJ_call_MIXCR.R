@@ -48,8 +48,8 @@ VDJ_call_MIXCR <- function(VDJ,
     }
 
     switch(platypus.version,
-           v3 = {if(class(VDJ) != "data.frame"){stop("When selecting platypus.version = 'v3', please input the VDJ matrix of the output of the VDJ_GEX_matrix function (usually VDJ.GEX.matrix.output[[1]]")}},
-           v2 = {if(class(VDJ) != "list"){stop("When selecting platypus.version = 'v2', please input the list output of VDJ.per.clone")}},
+           v3 = {if(!inherits(VDJ,"data.frame")){stop("When selecting platypus.version = 'v3', please input the VDJ matrix of the output of the VDJ_GEX_matrix function (usually VDJ.GEX.matrix.output[[1]]")}},
+           v2 = {if(!inherits(VDJ,"list")){stop("When selecting platypus.version = 'v2', please input the list output of VDJ.per.clone")}},
            {stop("Please input either 'v2' or 'v3' as platypus.version")})
 
     #Everything set up, now going through all four possibilities

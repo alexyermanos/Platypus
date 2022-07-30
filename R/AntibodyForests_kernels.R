@@ -29,8 +29,8 @@ AntibodyForests_kernels <- function(trees,
   if(missing(max.networks)) max.networks <- NULL
 
   graph_kernels <- function(tree.list){
-    requireNamespace('graphkernels')
-    requireNamespace('viridis')
+    #requireNamespace('graphkernels')
+    #requireNamespace('viridis')
     tree.list <- tree.list[order(nchar(names(tree.list)), names(tree.list))]
 
     if(!is.null(max.networks)){

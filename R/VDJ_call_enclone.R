@@ -223,7 +223,7 @@ VDJ_call_enclone <- function(VDJ,
 
   #Lapply the subroutines on the sample_dfs list of sample VDJ dataframes
   if(parallel){
-    requireNamespace('parallel')
+    #requireNamespace('parallel')
     cores <- parallel::detectCores() - 1
     enclone_outs <- parallel::mclapply(sample_dfs, get_enclone_output, mc.cores=cores)
     sample_outs <- parallel::mclapply(sample_dfs, merge_enclone_clonotypes, mc.cores=cores)

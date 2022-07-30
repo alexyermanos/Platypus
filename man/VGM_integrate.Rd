@@ -24,7 +24,7 @@ An output object from the VDJ_GEX_matrix function with added columns in VDJ or G
 \examples{
 
 #Adding a new clonotyping method to VDJ
-small_vgm[[1]] <- VDJ_clonotype_v3(VDJ=Platypus::small_vgm[[1]],
+small_vgm[[1]] <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 clone.strategy="cdr3.nt",
 hierarchical = "single.chains", global.clonotype = TRUE)
 

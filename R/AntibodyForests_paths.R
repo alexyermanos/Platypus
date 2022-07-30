@@ -266,7 +266,7 @@ AntibodyForests_paths <- function(trees,
       final_paths <- vector(mode = "list", length = length(trees[[i]]))
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         final_paths <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                  FUN = function(x) {x %>% get_paths()

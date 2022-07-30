@@ -73,8 +73,10 @@ Extracts the differentially expressed genes between two groups of cells. These g
 }
 \examples{
 #Basic run between two samples
-GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
 group1 = "s1",group2 = "s2", return.plot = "volcano")
+#DEGs[[1]] => Table of DEGs
+#DEGs[[2]] => Volcano plot
 
 #Getting DEGs between two seurat clusters
 #GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,

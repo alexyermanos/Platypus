@@ -150,7 +150,7 @@ VDJ_antigen_integrate <- function(VDJ,
 
 
     if(matching_type=='exact'){
-      requireNamespace('parallel')
+      #requireNamespace('parallel')
       cores <- parallel::detectCores()
       matched_indices <- parallel::mclapply(sample_sequences, mc.cores = cores, FUN = function(x) {if(any(antigen_sequences==x)) which(antigen_sequences==x) else NA})
       distance_matrix <- stringdist::stringdistmatrix(sample_sequences, antigen_sequences, method='lv')

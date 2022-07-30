@@ -27,12 +27,12 @@ VGM_expanded_clones <- function(VGM,
   #VERSION is set for now:
   platypus.version <- "v3"
 
-  if(class(VGM) != "list"){
+  if(!inherits(VGM,"list")){
     stop("For VGM please input a complete VDJ_GEX_matrix object (list class)")
   }
-  if(add.to.VDJ & class(VGM[[1]]) == "character"){
+  if(add.to.VDJ & inherits(VGM[[1]],"character")){
     warning("Expanded column could not be added to VDJ matrix, as no VDJ matrix was found in this VGM object")
-  } else if(add.to.VDJ & class(VGM[[1]]) != "character"){
+  } else if(add.to.VDJ & !inherits(VGM[[1]],"character")){
     #add expanded columns
 
     #search clonotype frequency columns (this is in conjunction with the clonotyping V3 function that can add multiple clonotyping strategies to the same VGM)
@@ -50,9 +50,9 @@ VGM_expanded_clones <- function(VGM,
   }
 
 
-  if(add.to.GEX & class(VGM[[2]]) == "character"){
+  if(add.to.GEX & inherits(VGM[[2]],"character")){
     warning("Expanded column could not be added to GEX matrix, as no GEX matrix was found in this VGM object")
-  } else if(add.to.GEX & class(VGM[[2]]) != "character"){
+  } else if(add.to.GEX & !inherits(VGM[[2]],"character")){
     #add expanded columns
 
     #search clonotype frequency columns (this is in conjunction with the clonotyping V3 function that can add multiple clonotyping strategies to the same VGM)

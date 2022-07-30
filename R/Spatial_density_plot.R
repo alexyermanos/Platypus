@@ -39,10 +39,10 @@ Spatial_density_plot<-function(sample_names,bcs_merge,images_tibble,vgm_VDJ,titl
   if(missing(vgm_VDJ)) stop("Please provide vgm_VDJ input for this function")
   if(missing(title)){
     title <- ""}
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
   plot<-ggplot2::ggplot(data = vgm_VDJ, ggplot2::aes(x=x, y=y) ) +
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::coord_cartesian(expand=FALSE)+

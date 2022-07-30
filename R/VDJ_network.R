@@ -92,7 +92,7 @@ VDJ_network <- function(VDJ,
     clonotype.list <- VDJ.matrix
     clonotype.list$CDR3_aa_pasted <- paste0(clonotype.list$VDJ_cdr3s_aa, clonotype.list$VJ_cdr3s_aa)
 
-    if(per.sample==F & class(known.binders) == 'logical'){
+    if(per.sample==F & inherits(known.binders,'logical')){
       if (hcdr3.only == T){
         clonotype.feature <- clonotype.list$VDJ_cdr3s_aa
       } else if (hcdr3.only == F){
@@ -119,7 +119,7 @@ VDJ_network <- function(VDJ,
       outlist[[4]] <- paired_graph
       return(outlist)
     }
-    else if(per.sample==T & class(known.binders) == 'logical'){
+    else if(per.sample==T & inherits(known.binders,'logical')){
 
       outlist <- list()
 
@@ -168,7 +168,7 @@ VDJ_network <- function(VDJ,
       outlist[[4]] <- graph.paired.list
       return(outlist)
     }
-    else if(per.sample==F & class(known.binders) != 'logical'){ #STAR GLOBAL known binders
+    else if(per.sample==F & !inherits(known.binders,'logical')){ #STAR GLOBAL known binders
 
       known.binders <- data.frame(known.binders)
       comb_cdrs <- append(known.binders[,1], clonotype.feature) # append cdrs
@@ -213,7 +213,7 @@ VDJ_network <- function(VDJ,
       return(outlist)
     }#STAR GLOBAL known binders
 
-    else if(per.sample==T & class(known.binders) != 'logical'){ #START per sample known binders
+    else if(per.sample==T & !inherits(known.binders,'logical')){ #START per sample known binders
 
       outlist <- list()
 

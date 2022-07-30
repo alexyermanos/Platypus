@@ -89,7 +89,7 @@ VDJ_rarefaction <- function(VDJ,
 
   plot_rarefaction <- function(inext_rep_list){
     output_plots <- list()
-    requireNamespace('iNEXT')
+    #requireNamespace('iNEXT')
 
     inext_object <- iNEXT::iNEXT(inext_rep_list, q=hill.numbers, datatype='abundance', nboot = number.resamples, endpoint = endpoint, size = sample.sizes)
 

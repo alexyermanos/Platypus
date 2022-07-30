@@ -39,10 +39,10 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
   if(missing(simulation)){
     simulation = FALSE
   }
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
   platypus.version <- "v3"
 
   #Simulated Data with Echidna------------------------------------------------------------------------------------------------------------------

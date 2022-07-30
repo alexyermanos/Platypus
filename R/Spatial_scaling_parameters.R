@@ -18,14 +18,14 @@ Spatial_scaling_parameters <- function(vgm_spatial,
   if(missing(vgm_spatial)) stop("Please provide vgm_spatial input for this function")
   if(missing(GEX.out.directory.list)) stop("Please provide GEX.out.directory.list input for this function")
   if(missing(sample_names)) stop("Please provide sample_names input for this function")
-  if (!require("hdf5r", character.only = TRUE)) {
-    install.packages("hdf5r")
-    library(hdf5r)
-  }
-  if (!require("Matrix", character.only = TRUE)) {
-    install.packages("Matrix")
-    library(Matrix)
-  }
+  #if (!require("hdf5r", character.only = TRUE)) {
+  #  install.packages("hdf5r")
+  #  library(hdf5r)
+  #}
+  #if (!require("Matrix", character.only = TRUE)) {
+  #  install.packages("Matrix")
+  #  library(Matrix)
+  #}
   platypus.version <- "v3"
 
   images_cl <- list()

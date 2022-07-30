@@ -39,7 +39,7 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     NA_cells = TRUE
   }
   if(missing(filtering)){filtering = FALSE}
-  if (!require("ProjecTILs", character.only = TRUE)) {
+  if ("ProjecTILs" %in% rownames(utils::installed.packages())){
     stop("ProjecTILs not installed. Please install via: remotes::install_github('carmonalab/scGate') and remotes::install_github('carmonalab/ProjecTILs')")
   }
 

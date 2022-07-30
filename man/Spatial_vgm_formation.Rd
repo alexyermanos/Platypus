@@ -20,11 +20,11 @@ Spatial_vgm_formation(
 
 \item{scalefactors_json_path}{Path to a file for converting pixel positions in the original, full-resolution image to pixel positions in the histological image in json format}
 
+\item{tissue_positions_list_path}{Path to a text file containing a table with rows that correspond to spots in csv format}
+
 \item{cluster_path}{Path to 10X Genomic clustering file that is not specific for immune cells, in csv format}
 
 \item{matrix_path}{Path to the filtered feature barcode matrix containing barcode from fixed list of known-good barcode sequences in the h5 format}
-
-\item{tissue_potions_list_path}{Path to a text file containing a table with rows that correspond to spots in csv format}
 }
 \value{
 Returns the input VGM matrix (output of VDJ_GEX_matrix()) with an additional list containing the spatial information.

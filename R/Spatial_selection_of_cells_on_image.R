@@ -37,10 +37,10 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
   }
   if(missing(sample_names)) stop("Please provide sample_names input for this function")
   if(missing(vgm_VDJ)) stop("Please provide vgm_VDJ input for this function")
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
   #ggplot-----------------------------------------------------------------
   spatial_plot<-ggplot2::ggplot(vgm_VDJ, ggplot2::aes(x, y)) +
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+

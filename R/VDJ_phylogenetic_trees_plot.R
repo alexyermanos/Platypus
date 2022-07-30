@@ -10,6 +10,7 @@
 #' @param specific.leaf.colors named list or NULL - if NULL, colors will be automatically selected for each node according to its color.by value.
 #' @param specific.leaf.shapes named list or NULL - if NULL, shapes will be automatically selected for each node according to its shape.by value.
 #' @return nested list of ggtree plot objects for each sample and each clonotype.
+#' @importFrom ggtree %<+%
 #' @export
 #' @examples
 #' \dontrun{
@@ -22,8 +23,6 @@ VDJ_phylogenetic_trees_plot <- function(tree.dfs,
                            shape.by,
                            specific.leaf.colors,
                            specific.leaf.shapes){
-
-  requireNamespace("ggtree")
 
  if(missing(tree.dfs)) stop('Please input a nested list of tidytree dataframes from VDJ_clonal_lineages(ouput.format=tree.df.list)')
  if(missing(color.by)) color.by <-  'clonotype_id'

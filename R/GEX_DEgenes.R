@@ -24,8 +24,10 @@
 #' @export
 #' @examples
 #' #Basic run between two samples
-#' GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+#' DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
 #' group1 = "s1",group2 = "s2", return.plot = "volcano")
+#' #DEGs[[1]] => Table of DEGs
+#' #DEGs[[2]] => Volcano plot
 #'
 #' #Getting DEGs between two seurat clusters
 #' #GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
@@ -200,15 +202,15 @@ GEX_DEgenes <- function(GEX,
     }
 
     if(color.by.threshold == F){
-      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
+      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = avg_logFC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30), legend.position = "none") + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
 
     } else if(color.by.threshold == T && color_all == F){
 
-      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = color_threshold)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_manual(values = c("black","darkred"))
+      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = color_threshold)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30), legend.position = "none") + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_manual(values = c("black","darkred"))
 
     } else if(color.by.threshold == T && color_all == T){
 
-      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = color_threshold)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30)) + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_manual(values = c("darkred"))
+      plot.out <- ggplot2::ggplot(cluster_markers, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), col = color_threshold)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(panel.background = ggplot2::element_blank(),axis.text = ggplot2::element_text(size = 30), axis.line = ggplot2::element_line(size = 2), axis.ticks = ggplot2::element_line(size = 2), axis.ticks.length = ggplot2::unit(0.3, "cm"), text = ggplot2::element_text(size=30), legend.position = "none") + ggplot2::labs(title = paste0("DEGs ", group1, " vs. ", group2), x = "log2(FC)", y = "-log10(adj p)") + ggrepel::geom_text_repel(data = cluster_markers_rel, ggplot2::aes(x = avg_logFC, y = -log10(p_val_adj), label = SYMBOL), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_manual(values = c("darkred"))
 
     }
   }

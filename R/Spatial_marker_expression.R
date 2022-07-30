@@ -46,10 +46,10 @@ Spatial_marker_expression<-function(sample_names,bcs_merge,images_tibble,matrix,
   if (missing(threshold)){
     threshold = "No"
   }
-  if (!require("dplyr", character.only = TRUE)) {
-    install.packages("dplyr")
-    library(dplyr)
-  }
+  #if (!require("dplyr", character.only = TRUE)) {
+  #  install.packages("dplyr")
+  #  library(dplyr)
+  #}
   #bind bcs_merge with markers
   test<-bind_cols(bcs_merge,data.table::as.data.table(matrix)[, marker, with=FALSE])
   #subset of bcs_merge containing only cell selected

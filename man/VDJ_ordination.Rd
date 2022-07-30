@@ -41,7 +41,7 @@ Performs ordination/dimensionality reduction for a species incidence matrix, dep
 \examples{
 
 #PCA dimensionality reduction across samples for CDRH3
-plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
+plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]],
 ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 ,method = "pca", reduction.level = 'groups')
 

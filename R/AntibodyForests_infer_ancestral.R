@@ -197,7 +197,7 @@ AntibodyForests_infer_ancestral <- function(trees,
         inferred_list <- vector(mode = "list", length = length(trees[[i]]))
 
         if(parallel){
-          requireNamespace('parallel')
+          #requireNamespace('parallel')
           cores <- parallel::detectCores()
           inferred_list <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                    FUN = function(x) {x %>% align_call_parse_iqtree()

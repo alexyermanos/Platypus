@@ -34,20 +34,6 @@
 #' @param root.selection Character. Method for root selection. Defaults to "manual"
 #' @param root.marker Character. Marker to use as Root. Defaults to "SELL"
 #' @param ridgeline.separator Character. Variable to group ridgeline plots by. Defaults to "clonotype"
-#' Function to cutomise the Dot Plot of CellPhoneDB analysis results.
-#' @description Function to cutomise the Dot Plot of CellPhoneDB analysis results.
-#' @param vgm.input Output of the VDJ_GEX_matrix function. Mandatory. Object where to save the dotplot.
-#' @param selected.rows Strings vector. Defaults to NULL. Vector of rows to plot (interacting genes pair), one per line.
-#' @param selected.columns Strings vector. Defaults to  NULL. Vector of columns (interacting groups) to plot, one per line
-#' @param threshold.type Character vector. Defaults to NULL. Possible arguments: "pvalue", "log2means", "pvalue_topn", "log2means_topn". Which thresholding system the user wants to use.
-#' @param threshold.value Numerical. Defaults to NULL. Value below/above (depending on whether it's pvalue or log2means) which genes to plot are selected.
-#' @param project.name Character vector. Defaults to NULL. Subfolder where to find the output of the CellPhoneDB analysis and where to save the dot_plot output plot.
-#' @param filename Character vector. Defaults to "selection_plot.pdf". Name of the file where the dot_plot output plot will be saved.
-#' @param width Numerical. Defaults to 8. Width of the plot.
-#' @param height Numerical. Defaults to 10. Height of the plot.
-#' @param text.size Numerical. Defaults to 12. Font size of the plot axes
-#' @param return.vector Logical. Defaults to FALSE. If set to TRUE, it includes the vector of genes_pairs present in the dot_plot in the VDJ_GEX_matrix[[10]] list.
-#' @param platypus.version This function works with "v3" only, there is no need to set this parameter
 #' @return If method=monocle3, the function returns a list element: [[1]] UMAP colored by Pseudotime, [[2]] Ridgeline plots showing the density of each of the top.N.clonotypes per cluster along pseudotime., [[3]] Gene expression plots highlighting the gene expression across pseudotime colored by transcriptional cluster, [[4]] Gene expression plots highlighting the gene expression across pseudotime colored by colotype. If method=velocyto, plots and RDS will be saved to velocyto.out.dir.
 #' @export
 #' @examples

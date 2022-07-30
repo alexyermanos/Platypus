@@ -39,9 +39,8 @@ Returns a ggplot with the kmer analysis depedning on the plot.format parameter
 Calculates and plots kmers distributions and frequencies.
 }
 \examples{
-
-Calculate the 3-kmer frequency for CDRH3s and plot the 20 most abundant kmers.
 \dontrun{
+#Calculate the 3-kmer frequency for CDRH3s and plot the 20 most abundant kmers.
  VDJ_kmers(VDJ = Platypus::small_vgm[[1]],
 ,sequence.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id", kmer.k = 3, max.kmers = 20)
 }

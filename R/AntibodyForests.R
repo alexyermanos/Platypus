@@ -1023,8 +1023,8 @@ AntibodyForests <- function(VDJ,
 
 
  create_phylo_trees <- function(network_df){
-   requireNamespace('phangorn')
-   requireNamespace('seqinr')
+   #requireNamespace('phangorn')
+   #requireNamespace('seqinr')
 
    if(nrow(network_df) < 3){
      stop('Ensure you have at least 3 sequences (incl. germline) to create phylogenetic trees - use the node.limits parameter')
@@ -1066,7 +1066,7 @@ AntibodyForests <- function(VDJ,
      }else{
        alignment <- network_df$network_sequences %>%
                     matrix() %>%
-                    ape::as.dnabin() %>%
+                    ape::as.DNAbin() %>%
                     ape::clustal()
 
        phylo_data <- phangorn::read.phyDat(alignment, format='fasta')
@@ -1412,7 +1412,7 @@ AntibodyForests <- function(VDJ,
    }
 
    if(!as.igraph){
-     requireNamespace('tidygraph')
+     #requireNamespace('tidygraph')
      g <- tidygraph::as_tbl_graph(g)
    }
 
@@ -1437,12 +1437,12 @@ AntibodyForests <- function(VDJ,
 
  set.seed(random.seed)
 
- if(class(VDJ)=='data.frame'){
+ if(inherits(VDJ,'data.frame')){
    VDJ.GEX.matrix <- list()
    VDJ.GEX.matrix[[1]] <- VDJ
    VDJ <- NULL
 
- }else if(class(VDJ)=='list'){
+ }else if(inherits(VDJ,'list')){
     VDJ.GEX.matrix <- list()
     for(i in 1:length(VDJ)){
       VDJ.GEX.matrix[[i]] <- do.call('rbind', VDJ[[i]])
@@ -1499,7 +1499,7 @@ AntibodyForests <- function(VDJ,
        }
      }
    }
-   if(class(clonotype_dfs)!='list'){
+   if(inherits(clonotype_dfs,'list')){
      temp_list <- list()
      temp_list[[1]] <- clonotype_dfs
      clonotype_dfs <- temp_list
@@ -1507,7 +1507,7 @@ AntibodyForests <- function(VDJ,
    }
 
    if(parallel){
-     requireNamespace('parallel')
+     #requireNamespace('parallel')
      cores <- parallel::detectCores()
 
      network_dfs <- parallel::mclapply(clonotype_dfs, transform_clonotype_to_network_df, mc.cores=cores)

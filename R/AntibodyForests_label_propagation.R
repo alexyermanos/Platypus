@@ -209,7 +209,7 @@ AntibodyForests_label_propagation <- function(trees,
     for(i in 1:length(trees)){
 
       if(parallel){
-        requireNamespace('parallel')
+        #requireNamespace('parallel')
         cores <- parallel::detectCores()
         trees[[i]] <- parallel::mclapply(trees[[i]], mc.cores = cores,
                                                  FUN = function(x) {label_propagation(x, features, label_dict, propagation.algorithm)
