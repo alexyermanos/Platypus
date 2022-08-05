@@ -1,5 +1,4 @@
-#' Spatial VDJ plotting utility
-#' @description Plotting immune repertoire data as clonotype or isotype for cells on a spatial image.
+#' Plotting immune repertoire data as clonotype or isotype for cells on a spatial image.
 #' @param sample_names Character vector containing the name of the sample.
 #' @param bcs_merge Data frame containing imagerow, imagecol and barcode of the cells belonging to the spatial image. It can also be created by the function scaling_spatial_image_parameter by selecting the output parameter 10.
 #' @param images_tibble Tbl-df containing the sample name, grob, height and width of the spatial image. It can also be created by the function scaling_spatial_image_parameter by selecting the output parameter 5.
@@ -18,7 +17,7 @@
 #' }
 
 Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legend_title,vgm_VDJ,analysis){
-
+  
   if(missing(vgm_VDJ)) stop("Please provide vgm_VDJ input for this function")
   if(missing(analysis)) stop("Please provide analysis input for this function")
   if(missing(bcs_merge)) stop("Please provide bcs_merge input for this function")
@@ -33,17 +32,65 @@ Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legen
   if(missing(legend_title)){
     legend_title = ""
   }
-  #if (!require("dplyr", character.only = TRUE)) {
-  #  install.packages("dplyr")
-  #  library(dplyr)
-  #}
-  ggplot2::ggplot(data = vgm_VDJ, ggplot2::aes(x=x,y=y, fill = as.factor(analysis)))+
+ 
+  platypus.version <- "v3"
+  
+  x <- NULL
+  y <- NULL
+  grob <- NULL
+  width <- NULL
+  height<- NULL
+  
+  geom_spatial <-  function(mapping = NULL,
+                            data = NULL,
+                            stat = "identity",
+                            position = "identity",
+                            na.rm = FALSE,
+                            show.legend = NA,
+                            inherit.aes = FALSE,
+                            ...) {
+    
+    GeomCustom <- ggplot2::ggproto(
+      "GeomCustom",
+      ggplot2::Geom,
+      setup_data = function(self, data, params) {
+        data <- ggplot2::ggproto_parent(ggplot2::Geom, self)$setup_data(data, params)
+        data
+      },
+      
+      draw_group = function(data, panel_scales, coord) {
+        vp <- grid::viewport(x=data$x, y=data$y)
+        g <- grid::editGrob(data$grob[[1]], vp=vp)
+        ggplot2:::ggname("geom_spatial", g)
+      },
+      
+      required_aes = c("grob","x","y")
+      
+    )
+    
+    ggplot2::layer(
+      geom = GeomCustom,
+      mapping = mapping,
+      data = data,
+      stat = stat,
+      position = position,
+      show.legend = show.legend,
+      inherit.aes = inherit.aes,
+      params = list(na.rm = na.rm, ...)
+    )
+  }
+  
+  plot<-ggplot2::ggplot(data = vgm_VDJ, ggplot2::aes(x=x,y=y, fill = as.factor(analysis)))+
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
     ggplot2::coord_cartesian(expand=FALSE)+
     ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-    ggplot2::xlim(0,max(bcs_merge %>% filter(sample ==sample_names[1]) %>%select(width)))+
-    ggplot2::ylim(max(bcs_merge %>%filter(sample ==sample_names[1]) %>%select(height)),0)+
+    ggplot2::xlim(0,max(bcs_merge %>% 
+                          dplyr::filter(sample ==sample_names[1]) %>%
+                          dplyr::select(width)))+
+    ggplot2::ylim(max(bcs_merge %>% 
+                        dplyr::filter(sample ==sample_names[1]) %>%
+                        dplyr::select(height)),0)+
     ggplot2::xlab("") +
     ggplot2::ylab("") +
     ggplot2::ggtitle(sample_names[1], title)+
@@ -53,11 +100,12 @@ Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legen
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
     ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
     ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
           panel.grid.minor = ggplot2::element_blank(),
-          panel.background = ggplot2::element_blank(),
+          panel.background = ggplot2::element_blank(), 
           axis.line = ggplot2::element_line(colour = "black"),
           axis.text = ggplot2::element_blank(),
           axis.ticks = ggplot2::element_blank())
+  return(plot)
 }
 

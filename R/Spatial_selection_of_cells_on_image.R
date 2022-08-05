@@ -1,5 +1,4 @@
-#' Selecion of cells by area
-#' @description Allows to select an area on the spatial image and to isolate the cells expressed on this part and repeat this process several times.
+#' Allows to select an area on the spatial image and to isolate the cells expressed on this part and repeat this process several times.
 #' @param vgm_VDJ Data frame containing all the data on the cell. It must contain the column clonotype_id which describes the number of the clonotype to which the cell belongs. This data frame can be obtained by the assignment functions (VDJ_assignment_random_based, VDJ_assignment_density_based and VDJ_assignment_germline_based).
 #' @param alpha Number that give the transparency coefficient (value between 0 and 1). If it is not given it will automatically be 0.
 #' @param bcs_merge Data frame containing imagerow, imagecol and barcode of the cells belonging to the spatial image. It can also be created by the function scaling_spatial_image_parameter by selecting the output parameter 10.
@@ -13,11 +12,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' test<-Spatial_selection_of_cells_on_image(vgm_VDJ =
-#' vgm_spatial_simulated$VDJ$B_cells$random_BCR_assignment,
-#' images_tibble = scaling_parameters[[5]],
-#' bcs_merge = scaling_parameters[[10]],
-#' sample_names = sample_names,
+#' test<-Spatial_selection_of_cells_on_image(vgm_VDJ = vgm_spatial_simulated$VDJ$B_cells$random_BCR_assignment,
+#' images_tibble = scaling_parameters[[5]],bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
 #' plotting = TRUE)
 #'}
 
@@ -37,36 +33,83 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
   }
   if(missing(sample_names)) stop("Please provide sample_names input for this function")
   if(missing(vgm_VDJ)) stop("Please provide vgm_VDJ input for this function")
-  #if (!require("dplyr", character.only = TRUE)) {
-  #  install.packages("dplyr")
-  #  library(dplyr)
-  #}
+  
+  platypus.version <- "v3"
+  
+  scaling_parameters = NULL
+  x = NULL
+  y = NULL
+  grob = NULL
+  width = NULL
+  height = NULL
+  . = NULL
+  selection_group = NULL
+  
+  geom_spatial <-  function(mapping = NULL,
+                            data = NULL,
+                            stat = "identity",
+                            position = "identity",
+                            na.rm = FALSE,
+                            show.legend = NA,
+                            inherit.aes = FALSE,
+                            ...) {
+    
+    GeomCustom <- ggplot2::ggproto(
+      "GeomCustom",
+      ggplot2::Geom,
+      setup_data = function(self, data, params) {
+        data <- ggplot2::ggproto_parent(ggplot2::Geom, self)$setup_data(data, params)
+        data
+      },
+      
+      draw_group = function(data, panel_scales, coord) {
+        vp <- grid::viewport(x=data$x, y=data$y)
+        g <- grid::editGrob(data$grob[[1]], vp=vp)
+        ggplot2:::ggname("geom_spatial", g)
+      },
+      
+      required_aes = c("grob","x","y")
+      
+    )
+    
+    ggplot2::layer(
+      geom = GeomCustom,
+      mapping = mapping,
+      data = data,
+      stat = stat,
+      position = position,
+      show.legend = show.legend,
+      inherit.aes = inherit.aes,
+      params = list(na.rm = na.rm, ...)
+    )
+  }
+  
   #ggplot-----------------------------------------------------------------
   spatial_plot<-ggplot2::ggplot(vgm_VDJ, ggplot2::aes(x, y)) +
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::coord_cartesian(expand=FALSE)+
-    ggplot2::xlim(0,max(bcs_merge %>%
-                 filter(sample ==sample_names[1]) %>%
-                 select(width)))+
-    ggplot2::ylim(max(bcs_merge %>%
-               filter(sample ==sample_names[1]) %>%
-               select(height)),0)+
+    ggplot2::xlim(0,max(bcs_merge %>% 
+                 dplyr::filter(sample ==sample_names[1]) %>% 
+                   dplyr::select(width)))+
+    ggplot2::ylim(max(bcs_merge %>% 
+                        dplyr::filter(sample ==sample_names[1]) %>% 
+                        dplyr::select(height)),0)+
     ggplot2::xlab("") +
     ggplot2::ylab("")+
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
     ggplot2::theme_set(ggplot2::theme_bw(base_size = 10))+
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
           panel.grid.minor = ggplot2::element_blank(),
-          panel.background = ggplot2::element_blank(),
+          panel.background = ggplot2::element_blank(), 
           axis.line = ggplot2::element_line(colour = "black"),
           axis.ticks = ggplot2::element_blank())
   #common ggplot structure
   ggobj<-ggplot2::ggplot_build(spatial_plot)
-
+  
   # Extract coordinates --------------------------------------------------
   xr <- ggobj$layout$panel_params[[1]]$x.range
   yr <- ggobj$layout$panel_params[[1]]$y.range
-
+  
   #Several groups selection-----------------------------------------------------------------------
   continuing_selection<-readline("Do you want to select cell on the plot (Yes = 1, No = 0)?")
   continuing_selection <- as.numeric(unlist(strsplit(continuing_selection, ",")))
@@ -74,21 +117,21 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
   vgm_VDJ$selection_group<-rep(0,length(vgm_VDJ$barcode))
   while(continuing_selection == 1){
     readline ("Select cells on the plot (click on enter to access the plot)")
-
+    
     # Variable for selected points -----------------------------------------
     selection <- data.frame(x = as.numeric(), y = as.numeric())
     colnames(selection) <- c(ggobj$plot$mapping$x, ggobj$plot$mapping$y)
-
+    
     # Detect and move to plot area viewport---------------------------------
-    plot.new()
-    dev.new(width=1,height=1)#Define the dimension of the plot
+    graphics::plot.new()
+    grDevices::dev.new(width=1,height=1)#Define the dimension of the plot
     suppressWarnings(print(ggobj$plot))
     panels <- unlist(grid::current.vpTree()) %>%
       grep("panel", ., fixed = TRUE, value = TRUE)
     p_n <- length(panels)
     grid::seekViewport(panels, recording=TRUE)
     grid::pushViewport(grid::viewport(width=1, height=1,xscale = xr,yscale = yr))
-
+    
     # Select point, plot, store and repeat----------------------------------
     for (i in 1:nbpoints){
       tmp <- grid::grid.locator('native')
@@ -98,7 +141,7 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
     }
     grid::grid.polygon(x= grid::unit(selection[,1], "native"), y= grid::unit(selection[,2], "native"), gp=grid::gpar(fill=NA))#to see the selection
     selection<-abs(selection)
-
+    
     # Selected cells---------------------------------------------------------------------------------------------------------
     nb_cell<-length(vgm_VDJ$x)
     point_in_selection<-list()
@@ -127,7 +170,7 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
       remove(value)
       remove(odd)
     }
-    selected_cell_inside_polygon<-vgm_VDJ %>% filter(point_in_selection == 1)
+    selected_cell_inside_polygon<-vgm_VDJ %>% dplyr::filter(point_in_selection == 1)
     for (i in 1:length(selected_cell_inside_polygon$barcode)) {
       for (j in 1:length(vgm_VDJ$barcode)) {
         if (selected_cell_inside_polygon$barcode[[i]]== vgm_VDJ$barcode[[j]]){
@@ -144,20 +187,20 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
     continuing_selection <- as.numeric(unlist(strsplit(continuing_selection, ",")))
     remove(selection)
   }
-  vgm_VDJ_just_selected_cells<-filter(vgm_VDJ, selection_group!=0)
-
+  vgm_VDJ_just_selected_cells<-dplyr::filter(vgm_VDJ, selection_group!=0)
+  
   #Plot of selected groups-------------------------------------------------------------------
   p<-ggplot2::ggplot(data = vgm_VDJ_just_selected_cells, ggplot2::aes(x=x,y=y,fill=factor(selection_group))) +
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::geom_point(shape = 21, colour = "black", size = 1.75, stroke = 0.5)+
     ggplot2::coord_cartesian(expand=FALSE)+
     ggplot2::scale_fill_manual(values = c("#b2df8a","#e41a1c","#377eb8","#4daf4a","#ff7f00","gold", "#a65628", "#999999", "black", "grey", "white", "purple"))+
-    ggplot2::xlim(0,max(bcs_merge %>%
-                 filter(sample ==sample_names[1]) %>%
-                 select(width)))+
-    ggplot2::ylim(max(bcs_merge %>%
-               filter(sample ==sample_names[1]) %>%
-               select(height)),0)+
+    ggplot2::xlim(0,max(bcs_merge %>% 
+                          dplyr::filter(sample ==sample_names[1]) %>% 
+                          dplyr::select(width)))+
+    ggplot2::ylim(max(bcs_merge %>% 
+                        dplyr::filter(sample ==sample_names[1]) %>% 
+                        dplyr::select(height)),0)+
     ggplot2::xlab("") +
     ggplot2::ylab("") +
     ggplot2::ggtitle(sample_names[1], title)+
@@ -167,9 +210,9 @@ Spatial_selection_of_cells_on_image<-function(vgm_VDJ,alpha,bcs_merge,images_tib
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
     ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
     ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
           panel.grid.minor = ggplot2::element_blank(),
-          panel.background = ggplot2::element_blank(),
+          panel.background = ggplot2::element_blank(), 
           axis.line = ggplot2::element_line(colour = "black"),
           axis.text = ggplot2::element_blank(),
           axis.ticks = ggplot2::element_blank())

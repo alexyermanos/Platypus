@@ -1,5 +1,4 @@
-#' Scaling modulation for gene expression on spatial image
-#' @description Scaling of the spatial parameters to be able to express the gene expression on the spatial image.
+#' Scaling of the spatial parameters to be able to express the gene expression on the spatial image.
 #' @param vgm_spatial List containing the output of VDJ_GEX_matrix function from Platypus with at least the gene expression data and the addition of spatial parameters: image, scalefacor, tissue, cluster and matrix.
 #' @param GEX.out.directory.list Path to the filtered feature bc matrix data.
 #' @param sample_names Character vector containing the name of the sample.
@@ -7,30 +6,22 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' scaling_parameters<-Spatial_scaling_parameters(vgm_spatial = vgm_spatial,
-#' GEX.out.directory.list = GEX.out.directory.list,
+#' scaling_parameters<-Spatial_scaling_parameters(vgm_spatial = vgm_spatial, GEX.out.directory.list = GEX.out.directory.list,
 #' sample_names = sample_names)
 #'}
 Spatial_scaling_parameters <- function(vgm_spatial,
                                        GEX.out.directory.list,
                                        sample_names){
-
+  
   if(missing(vgm_spatial)) stop("Please provide vgm_spatial input for this function")
   if(missing(GEX.out.directory.list)) stop("Please provide GEX.out.directory.list input for this function")
   if(missing(sample_names)) stop("Please provide sample_names input for this function")
-  #if (!require("hdf5r", character.only = TRUE)) {
-  #  install.packages("hdf5r")
-  #  library(hdf5r)
-  #}
-  #if (!require("Matrix", character.only = TRUE)) {
-  #  install.packages("Matrix")
-  #  library(Matrix)
-  #}
-  platypus.version <- "v3"
 
+  platypus.version <- "v3"
+  
   images_cl <- list()
   for (i in 1:length(sample_names)) {
-    images_cl[[i]] <- vgm_spatial$spatial$image[[i]]
+    images_cl[[i]] <- vgm_spatial$spatial$image[[i]]    
   }
   height <- list()
   for (i in 1:length(sample_names)) {
@@ -49,19 +40,19 @@ Spatial_scaling_parameters <- function(vgm_spatial,
   images_tibble <- tibble::tibble(sample=factor(sample_names), grob=grobs)
   images_tibble$height <- height$height
   images_tibble$width <- width$width
-
+  
   scales <- list()
   for (i in 1:length(sample_names)) {
-    scales[[i]] <- vgm_spatial$spatial$scalefactor[[i]]
+    scales[[i]] <- vgm_spatial$spatial$scalefactor[[i]]     
   }
   clusters <- list()
   for (i in 1:length(sample_names)) {
-    clusters[[i]] <- vgm_spatial$spatial$cluster[[i]]
+    clusters[[i]] <- vgm_spatial$spatial$cluster[[i]]      
   }
   bcs <- list()
   for (i in 1:length(sample_names)) {
-    bcs[[i]] <- vgm_spatial$spatial$tissue[[i]]
-    bcs[[i]]$imagerow <- bcs[[i]]$imagerow * scales[[i]]$tissue_lowres_scalef
+    bcs[[i]] <- vgm_spatial$spatial$tissue[[i]]  
+    bcs[[i]]$imagerow <- bcs[[i]]$imagerow * scales[[i]]$tissue_lowres_scalef 
     bcs[[i]]$imagecol <- bcs[[i]]$imagecol * scales[[i]]$tissue_lowres_scalef
     bcs[[i]]$tissue <- as.factor(bcs[[i]]$tissue)
     bcs[[i]] <- merge(bcs[[i]], clusters[[i]], by.x = "barcode", by.y = "Barcode", all = TRUE)
@@ -71,16 +62,16 @@ Spatial_scaling_parameters <- function(vgm_spatial,
   names(bcs) <- sample_names
   matrix <- list()
   for (i in 1:length(sample_names)) {
-    matrix[[i]] <- as.data.frame(t(Seurat::Read10X(GEX.out.directory.list[[i]])))
+    matrix[[i]] <- as.data.frame(Matrix::t(Seurat::Read10X(GEX.out.directory.list[[i]])))   
   }
-  umi_sum <- list()
+  umi_sum <- list() 
   for (i in 1:length(sample_names)) {
     umi_sum[[i]] <- data.frame(barcode =  row.names(matrix[[i]]),
                                sum_umi = Matrix::rowSums(matrix[[i]]))
   }
   names(umi_sum) <- sample_names
   umi_sum <- dplyr::bind_rows(umi_sum, .id = "sample")
-  gene_sum <- list()
+  gene_sum <- list() 
   for (i in 1:length(sample_names)) {
     gene_sum[[i]] <- data.frame(barcode =  row.names(matrix[[i]]),
                                 sum_gene = Matrix::rowSums(matrix[[i]] != 0))
