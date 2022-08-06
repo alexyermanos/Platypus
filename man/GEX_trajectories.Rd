@@ -62,9 +62,9 @@ trajectory_output <- GEX_trajectories(GEX = vgm[[2]],
   color.cells.by = "group_id",
    genes = interesting_genes)
 
-##monocle2
-trajectory_output <- GEX_trajectories(GEX = vgm[[2]],
- monocle.version = "monocle2",
- ordering.cells.method = "high.dispersion")
+##monocle2 ! DEPRECATED !
+#trajectory_output <- GEX_trajectories(GEX = vgm[[2]],
+#  monocle.version = "monocle2",
+#  ordering.cells.method = "high.dispersion")
  }
 }

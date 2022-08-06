@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_selection_of_cells_on_image.R
 \name{Spatial_selection_of_cells_on_image}
 \alias{Spatial_selection_of_cells_on_image}
-\title{Selecion of cells by area}
+\title{Allows to select an area on the spatial image and to isolate the cells expressed on this part and repeat this process several times.}
 \usage{
 Spatial_selection_of_cells_on_image(
   vgm_VDJ,
@@ -43,11 +43,10 @@ Allows to select an area on the spatial image and to isolate the cells expressed
 }
 \examples{
 \dontrun{
-test<-Spatial_selection_of_cells_on_image(vgm_VDJ =
-vgm_spatial_simulated$VDJ$B_cells$random_BCR_assignment,
+test<-Spatial_selection_of_cells_on_image(
+vgm_VDJ = vgm_spatial_simulated$VDJ$B_cells$random_BCR_assignment,
 images_tibble = scaling_parameters[[5]],
-bcs_merge = scaling_parameters[[10]],
-sample_names = sample_names,
+bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
 plotting = TRUE)
 }
 }

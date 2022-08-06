@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_selection_expanded_clonotypes.R
 \name{Spatial_selection_expanded_clonotypes}
 \alias{Spatial_selection_expanded_clonotypes}
-\title{Selection of expanded clones}
+\title{Selection of VGM[[1]]/VDJ data of the x more expanded clonotypes.}
 \usage{
 Spatial_selection_expanded_clonotypes(nb_clonotype, vgm_VDJ)
 }

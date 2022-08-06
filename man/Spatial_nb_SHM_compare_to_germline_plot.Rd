@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_nb_SHM_compare_to_germline_plot.R
 \name{Spatial_nb_SHM_compare_to_germline_plot}
 \alias{Spatial_nb_SHM_compare_to_germline_plot}
-\title{Compating and plotting SHMs}
+\title{Plotting number of somatic hypermutation of clones compare to the germline sequence of the clonotype.}
 \usage{
 Spatial_nb_SHM_compare_to_germline_plot(
   simulation = c(TRUE, FALSE),
@@ -51,8 +51,8 @@ Plotting number of somatic hypermutation of clones compare to the germline seque
 \dontrun{
 Spatial_nb_SHM_compare_to_germline_plot(simulation = FALSE,
 AbForest_output=forest[[1]][[2]], vgm_VDJ = vgm$VDJ,
-images_tibble = scaling_parameters[[5]],
-bcs_merge = scaling_parameters[[10]],sample_names = sample_names,
+images_tibble = scaling_parameters[[5]],bcs_merge = scaling_parameters[[10]],
+sample_names = sample_names,
 title = "Number of SHM of clonotype 10", legend_title = "nb of SHM")
 }
 }

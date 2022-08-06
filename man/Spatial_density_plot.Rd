@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_density_plot.R
 \name{Spatial_density_plot}
 \alias{Spatial_density_plot}
-\title{Contour plots for spatial image}
+\title{Plotting the contour density of selected cells or of all cells.}
 \usage{
 Spatial_density_plot(
   sample_names,
@@ -35,8 +35,8 @@ Plotting the contour density of selected cells or of all cells.
 \examples{
 \dontrun{
 #Assignment density-based
-density_BCR_assignment<-Spatial_VDJ_assignment(
-GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+density_BCR_assignment<-Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,
+vgm = vgm_with_simulated_VDJ,
 vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
 simulated_VDJ = simulated_B_cells_VDJ,
 method = "density")

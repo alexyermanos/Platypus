@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_celltype_plot.R
 \name{Spatial_celltype_plot}
 \alias{Spatial_celltype_plot}
-\title{Plotting assigned celltype on spatial image}
+\title{Plotting celltype assign to cell according to their phenotype on the spatial image.}
 \usage{
 Spatial_celltype_plot(
   sample_names,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_vgm_formation.R
 \name{Spatial_vgm_formation}
 \alias{Spatial_vgm_formation}
-\title{Utility to add spatial information to VGM}
+\title{Addition of the spatial information to the VGM matrix, output of VDJ_GEX_matrix()}
 \usage{
 Spatial_vgm_formation(
   vgm,

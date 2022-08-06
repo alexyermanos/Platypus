@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_module_expression.R
 \name{Spatial_module_expression}
 \alias{Spatial_module_expression}
-\title{Gene modules in spatial image}
+\title{Plotting the expression of a gene module on the spatial image with or without a threshold.}
 \usage{
 Spatial_module_expression(
   sample_names,
@@ -43,16 +43,16 @@ Plotting the expression of a gene module on the spatial image with or without a 
 }
 \examples{
 \dontrun{
-gene.set <- list() # make empty list
+gene.set <- list() # make empty list 
 gene.set[[1]] <- c("CD19","XBP1","SDC1") # put gene set in list
 
 #Without expression threshold
-Spatial_module_expression(sample_names = sample_names,gene.set = gene.set,
+Spatial_module_expression(sample_names = sample_names,gene.set = gene.set, 
 GEX.out.directory.list = GEX.out.directory.list[[1]],bcs_merge = scaling_parameters[[10]],
 images_tibble = scaling_parameters[[5]], threshold = "No")
 
 #With expression threshold
-Spatial_module_expression(sample_names = sample_names,gene.set = gene.set,
+Spatial_module_expression(sample_names = sample_names,gene.set = gene.set, 
 GEX.out.directory.list = GEX.out.directory.list[[1]],bcs_merge = scaling_parameters[[10]],
 images_tibble = scaling_parameters[[5]], threshold = 1)
 }

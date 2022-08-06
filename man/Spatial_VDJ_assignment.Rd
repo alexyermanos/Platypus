@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_VDJ_assignment.R
 \name{Spatial_VDJ_assignment}
 \alias{Spatial_VDJ_assignment}
-\title{Spatial assignment for simulated data}
+\title{Assign simulated immune repertoire sequences (BCR or TCR) simulated by Echidna to transcriptome and location in a spatial image in function of cell type.}
 \usage{
 Spatial_VDJ_assignment(
   GEX_matrix,
@@ -35,20 +35,20 @@ Assign simulated immune repertoire sequences (BCR or TCR) simulated by Echidna t
 \examples{
 \dontrun{
 #1)Assignment random to GEX
-random_BCR_assignment <- Spatial_VDJ_assignment(
-GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
-vgm_VDJ = vgm_with_simulated_VDJ$VDJ,
-celltype = "B", simulated_VDJ = simulated_B_cells_VDJ, method = "random")
+random_BCR_assignment <- Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,
+vgm = vgm_with_simulated_VDJ,
+vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
+simulated_VDJ = simulated_B_cells_VDJ, method = "random")
 
 #2)Assignment density-based
-density_BCR_assignment<-Spatial_VDJ_assignment(
-GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+density_BCR_assignment<-Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,
+vgm = vgm_with_simulated_VDJ,
 vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
 simulated_VDJ = simulated_B_cells_VDJ, method = "density")
 
 #3)Assignment germline-based
-germline_BCR_assignment<-Spatial_VDJ_assignment(
-GEX_matrix = GEX_matrix,vgm = vgm_with_simulated_VDJ,
+germline_BCR_assignment<-Spatial_VDJ_assignment(GEX_matrix = GEX_matrix,
+vgm = vgm_with_simulated_VDJ,
 vgm_VDJ = vgm_with_simulated_VDJ$VDJ, celltype = "B",
 simulated_VDJ = simulated_B_cells_VDJ, method = "germline")
 }

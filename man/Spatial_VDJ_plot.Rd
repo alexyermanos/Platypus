@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_VDJ_plot.R
 \name{Spatial_VDJ_plot}
 \alias{Spatial_VDJ_plot}
-\title{Spatial VDJ plotting utility}
+\title{Plotting immune repertoire data as clonotype or isotype for cells on a spatial image.}
 \usage{
 Spatial_VDJ_plot(
   sample_names,

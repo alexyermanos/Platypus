@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_marker_expression.R
 \name{Spatial_marker_expression}
 \alias{Spatial_marker_expression}
-\title{Plotting marker on spatial image}
+\title{Plotting a gene of interest in selected cells on the spatial image.}
 \usage{
 Spatial_marker_expression(
   sample_names,

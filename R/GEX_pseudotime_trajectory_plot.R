@@ -47,13 +47,16 @@ GEX_pseudotime_trajectory_plot <- function(cds,
 
 
   }else if(monocle.version == "monocle2"){
-    if(missing(root.state)){ root.state <- "1" }
 
-    pseudotime.plot <- monocle::plot_cell_trajectory(cds, color_by = "Pseudotime", root_state = root.state)
+    stop("Monocle2 is deprecated. Please use monocle3")
 
-    #monocle2 uses CellDataSet object (monocle3 uses cell data set object). Here, pseudotime is already as a column integrated in cds
+    #if(missing(root.state)){ root.state <- "1" }
 
-    return(list(cds, pseudotime.plot))
+    #pseudotime.plot <- monocle::plot_cell_trajectory(cds, color_by = "Pseudotime", root_state = root.state)
+
+      #monocle2 uses CellDataSet object (monocle3 uses cell data set object). Here, pseudotime is already as a column integrated in cds
+
+    #return(list(cds, pseudotime.plot))
   }
 
 }

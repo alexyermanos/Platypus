@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_scaling_parameters.R
 \name{Spatial_scaling_parameters}
 \alias{Spatial_scaling_parameters}
-\title{Scaling modulation for gene expression on spatial image}
+\title{Scaling of the spatial parameters to be able to express the gene expression on the spatial image.}
 \usage{
 Spatial_scaling_parameters(vgm_spatial, GEX.out.directory.list, sample_names)
 }

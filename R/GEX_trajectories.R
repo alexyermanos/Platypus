@@ -27,10 +27,10 @@
 #'   color.cells.by = "group_id",
 #'    genes = interesting_genes)
 #'
-#' ##monocle2
-#' trajectory_output <- GEX_trajectories(GEX = vgm[[2]],
-#'  monocle.version = "monocle2",
-#'  ordering.cells.method = "high.dispersion")
+#' ##monocle2 ! DEPRECATED !
+#' #trajectory_output <- GEX_trajectories(GEX = vgm[[2]],
+#' #  monocle.version = "monocle2",
+#' #  ordering.cells.method = "high.dispersion")
 #'  }
 
 GEX_trajectories <- function(GEX,
@@ -136,53 +136,55 @@ GEX_trajectories <- function(GEX,
 
   }else if (monocle.version == "monocle2"){
 
-    if(missing(ordering.cells.method)){ordering.cells.method <- "differ.genes"}
+    stop("Monocle2 is deprecated. Please use monocle3")
 
-    print("converting GEX into a CellDataSet object")
-    cds <- Seurat::as.CellDataSet(GEX)
-    #Size factor and dispersion will be used to normalize data and select genes for clustering
-    cds <- BiocGenerics::estimateSizeFactors(cds)
-    cds <- BiocGenerics::estimateDispersions(cds)
+    #if(missing(ordering.cells.method)){ordering.cells.method <- "differ.genes"}
 
-    if(ordering.cells.method == "high.dispersion" ){
-      disp_table <- monocle::dispersionTable(cds)
-      clustering_genes <- subset(disp_table, mean_expression >= 0.5& dispersion_empirical >= 1 * dispersion_fit)$gene_id
-      cds <- monocle::setOrderingFilter(cds, clustering_genes)
-    }
-    else if (ordering.cells.method == "differ.genes"){
-      cds <- monocle::detectGenes(cds, min_expr = 0.1)
-      Biobase::fData(cds)$use_for_ordering <-
-        Biobase::fData(cds)$num_cells_expressed > 0.05 * ncol(cds)
-    }
+    #print("converting GEX into a CellDataSet object")
+    #cds <- Seurat::as.CellDataSet(GEX)
+      #Size factor and dispersion will be used to normalize data and select genes for clustering
+    #cds <- BiocGenerics::estimateSizeFactors(cds)
+    #cds <- BiocGenerics::estimateDispersions(cds)
+
+    #if(ordering.cells.method == "high.dispersion" ){
+    #  disp_table <- monocle::dispersionTable(cds)
+    #  clustering_genes <- subset(disp_table, mean_expression >= 0.5& dispersion_empirical >= 1 * dispersion_fit)$gene_id
+    #  cds <- monocle::setOrderingFilter(cds, clustering_genes)
+    #}
+    #else if (ordering.cells.method == "differ.genes"){
+    #  cds <- monocle::detectGenes(cds, min_expr = 0.1)
+    #  Biobase::fData(cds)$use_for_ordering <-
+    #    Biobase::fData(cds)$num_cells_expressed > 0.05 * ncol(cds)
+    #}
 
 
-    print("reduce dimensions and cluster cells...")
-    cds <- monocle::reduceDimension(cds,
-                           max_components = 2,
-                           norm_method = 'log',
-                           num_dim = 3,
-                           reduction_method = 'tSNE',
-                           verbose = T)
+    #print("reduce dimensions and cluster cells...")
+    #cds <- monocle::reduceDimension(cds,
+    #                       max_components = 2,
+    #                       norm_method = 'log',
+    #                       num_dim = 3,
+    #                       reduction_method = 'tSNE',
+    #                       verbose = T)
 
-    cds <- monocle::clusterCells(cds, verbose = F)
+    #cds <- monocle::clusterCells(cds, verbose = F)
 
-    print("print clustered cells")
-    plot.clusters <- monocle::plot_cell_clusters(cds, color_by = color.cells.by)
+    #print("print clustered cells")
+    #plot.clusters <- monocle::plot_cell_clusters(cds, color_by = color.cells.by)
 
-    print("Order cells and inferre trajectory. This step might take a while... ")
+    #print("Order cells and inferre trajectory. This step might take a while... ")
 
-    #this function only worked for me when I loaded the DDRTree or monocle library before using the function
-    cds <- monocle::reduceDimension(cds, reduction_method = 'DDRTree')
+      #this function only worked for me when I loaded the DDRTree or monocle library before using the function
+    #cds <- monocle::reduceDimension(cds, reduction_method = 'DDRTree')
 
-    cds <- monocle::orderCells(cds)
+    #cds <- monocle::orderCells(cds)
 
-    print("print trajectory plot")
-    if(missing(color.cells.by)){color.cells.by <- "State"}
-    trajectory.plot.state <- monocle::plot_cell_trajectory(cds, color_by = "State")
-    trajectory.plot <- monocle::plot_cell_trajectory(cds, color_by = color.cells.by)
+    #print("print trajectory plot")
+    #if(missing(color.cells.by)){color.cells.by <- "State"}
+    #trajectory.plot.state <- monocle::plot_cell_trajectory(cds, color_by = "State")
+    #trajectory.plot <- monocle::plot_cell_trajectory(cds, color_by = color.cells.by)
 
-    print("DONE")
-    return(list(cds,plot.clusters, trajectory.plot.state, trajectory.plot))
+    #print("DONE")
+    #return(list(cds,plot.clusters, trajectory.plot.state, trajectory.plot))
 
   }
 

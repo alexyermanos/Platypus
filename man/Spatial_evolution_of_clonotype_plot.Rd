@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spatial_evolution_of_clonotype_plot.R
 \name{Spatial_evolution_of_clonotype_plot}
 \alias{Spatial_evolution_of_clonotype_plot}
-\title{Phylogentic trees on spatial image}
+\title{Plotting the phylogenetic network of a clonotype based on the somatic hypermutations of the immune repertoire sequences on a spatial image.}
 \usage{
 Spatial_evolution_of_clonotype_plot(
   simulation = c(TRUE, FALSE),
@@ -52,29 +52,26 @@ Plotting the phylogenetic network of a clonotype based on the somatic hypermutat
 }
 \examples{
 \dontrun{
-Spatial_evolution_of_clonotype_plot(
-simulation = FALSE,tracking_type = "closest",
-AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
-sample_names = sample_names,
-images_tibble = scaling_parameters[[5]],
+Spatial_evolution_of_clonotype_plot(simulation = FALSE,
+tracking_type = "closest",AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
+sample_names = sample_names, images_tibble = scaling_parameters[[5]],
 bcs_merge = scaling_parameters[[10]],
 title = "Tracking evolution of clonotype 10", legend_title = "nb of SHM" )
 
-Spatial_evolution_of_clonotype_plot(
-simulation = FALSE,tracking_type = "all",
+Spatial_evolution_of_clonotype_plot(simulation = FALSE,tracking_type = "all",
 AbForest_output = forest$s1$clonotype10,VDJ=vgm$VDJ,
-sample_names = sample_names,
-images_tibble = scaling_parameters[[5]], bcs_merge = scaling_parameters[[10]],
+sample_names = sample_names, images_tibble = scaling_parameters[[5]],
+bcs_merge = scaling_parameters[[10]],
 title = "Tracking evolution of clonotype 10", legend_title = "nb of SHM" )
 
-Spatial_evolution_of_clonotype_plot(simulation = TRUE,
-tracking_type = "closest",nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
+Spatial_evolution_of_clonotype_plot(simulation = TRUE,tracking_type = "closest",
+nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
 VDJ =vgm_with_simulated_VDJ$VDJ,bcs_merge = bcs_merge,
 images_tibble = scaling_parameters[[5]],title = "B cell density",
 legend_title = "nb_of_SHM",sample_names=sample_names)
 
-Spatial_evolution_of_clonotype_plot(simulation = TRUE,
-tracking_type = "all",nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
+Spatial_evolution_of_clonotype_plot(simulation = TRUE,tracking_type = "all",
+nb_clonotype = 11 ,simulated_VDJ = simulated_B_cells_VDJ,
 VDJ =vgm_with_simulated_VDJ$VDJ,bcs_merge = bcs_merge,
 images_tibble = scaling_parameters[[5]],title = "B cell density",
 legend_title = "nb_of_SHM",sample_names=sample_names)
