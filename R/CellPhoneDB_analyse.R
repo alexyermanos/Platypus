@@ -155,7 +155,7 @@ CellPhoneDB_analyse<-function(vgm.input, #mandatory  #the function takes vgm as 
 
   #set default value for install.cellphonedb
   if(missing(install.cellphonedb)){
-    install.cellphonedb=TRUE
+    install.cellphonedb=FALSE
   }
 
 

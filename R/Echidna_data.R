@@ -227,18 +227,16 @@
 
 #' mus_b_trans
 #' A data frame contains mouse B cell average gene expression for multiple cell types, with the rows representing the gene names, column names representing the cell type names.
-#' The original single cell sequencing data is retrieved from 10xgenomics and combined with experimental data from.#?
+#' The original single cell sequencing data is retrieved from 10xgenomics and combined with experimental data
 #' The expression level for different cell types are obtained by calculating the average expression after sorting the original data by markers as shown below.
+#' @format A data frame with 26538 rows and 4 variables, with the rows representing the gene names, column names representing the cell type names.
 #' \describe{
 #' \item{NaiveBcell}{Cd19+;Cd27-;Cd38-}
 #' \item{GerminalcenterBcell}{Fas+;Cd19+}
 #' \item{Plasmacell}{Sdc1+}
 #' \item{MemoryBcell}{Cd38+;Fas-}
 #' }
-#' @format A data frame with 26538 rows and 4 variables, with the rows representing the gene names, column names representing the cell type names.
-#' @source
-#' https://support.10xgenomics.com/single-cell-vdj/datasets/3.0.0/vdj_v1_mm_c57bl6_pbmc_5gex
-#' https://support.10xgenomics.com/single-cell-vdj/datasets/3.0.0/vdj_v1_mm_balbc_pbmc_5gex
+#' @source https://support.10xgenomics.com/single-cell-vdj/datasets/3.0.0/vdj_v1_mm_c57bl6_pbmc_5gex; https://support.10xgenomics.com/single-cell-vdj/datasets/3.0.0/vdj_v1_mm_balbc_pbmc_5gex
 #' @usage data("mus_b_trans")
 "mus_b_trans"
 
@@ -278,6 +276,7 @@
 
 #' vdj_length_prob
 #' A list dataframe specifying lengths and probabilities of bases deleted or inserted at each junction site of VDJ recombination event.
+#' @format a dataframe:
 #' \describe{
 #' \item{v3_deletion}{length and probability of deleted bases at 3' end of V segment}
 #' \item{d5_deletion}{length and probability of deleted bases at 5' end of D segment}
