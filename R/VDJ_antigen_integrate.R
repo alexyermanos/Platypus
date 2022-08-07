@@ -10,6 +10,7 @@
 #' @param match.by string, represents the method by which to match the antigen data and integrate it into the VDJ/VDJ.GEX.matrix[[1]] object. 'clonotype' will match by 'clonotype_id' (needs to be present in the antigen data), 'clonotype.v3' will match by v3 cellranger clonotypes (you need a v3_clonotypes column in the VDJ/VDJ.GEX.matrix[[1]], 'cdr3.aa' by VDJ and VJ cdr3s amino acid sequences, 'cdrh3.aa' by VDJ cdr3s amino acid sequences, 'VDJ.VJ.aa' by full VDJ and VJ aa sequences, 'VDJ.VJ.nt' by trimmed nt VDJ and VJ sequences (must run VDJ_call_MIXCR first on the VDJ),'cdr3.nt' by VDJ and VJ cdr3s as nucleotides, 'cdrh3.nt.' by VDJ cdr3s as nucleotides, 'absolut' will match the VDJ_cdr3s_aa with the CDR3 column in Absolut! datasets.
 #' @param matching.type string, either 'exact' for exact sequence matching if the match.by parameter is a sequence type, or 'homology' for homology matching (matches if the Levehnstein distance is less than the distance.threshold parameter).
 #' @param distance.threshold integer, maximum string distance value by which to match sequences in the antigen data and sequences in the VDJ object (to further integrate the antigen data).
+#' @param cores Number of cores to use for parallel computations. Defaults to number of available cores. Setting this parameter is good practice on clusters.
 #' @param sample.id boolean, if T then will also match by the 'sample_id' column in the antigen dataframes.
 #' @param aberrant.chosen.sequences boolean, if T will add a column of the chosen aberrant sequences (which matched a sequence in the antigen data) if matching by sequence (and VDJ.VJ.1chain=F).
 #' @param output.format string, 'vgm' - returns the full VDJ object, 'dataframe.per.sample' - list of VDJ dataframes for each sample.
@@ -32,6 +33,7 @@ VDJ_antigen_integrate <- function(VDJ,
                                  match.by,
                                  matching.type,
                                  distance.threshold,
+                                 cores,
                                  sample.id,
                                  aberrant.chosen.sequences,
                                  output.format){
@@ -48,6 +50,21 @@ VDJ_antigen_integrate <- function(VDJ,
   if(missing(sample.id)) sample.id <- T
   if(missing(aberrant.chosen.sequences)) aberrant.chosen.sequences <- T
   if(missing(output.format)) output.format <- 'vgm'
+  if(missing(cores))  cores <- parallel::detectCores()
+
+
+
+  #Detecting operating system for correct parallel apply function
+  operating.system <- "Windows" #setting default to Windows as parlapply will work on all systems, but will only be time efficient on windows.
+    switch(Sys.info()[['sysname']],
+           Windows= {message("Windows system detected")
+             operating.system <- "Windows"},
+           Linux  = {message("Linux system detected")
+             operating.system <- "Linux"},
+           Darwin = {message("MAC system detected")
+             operating.system <- "Darwin"})
+
+
 
   get_sequence_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';'){
    if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
@@ -151,8 +168,13 @@ VDJ_antigen_integrate <- function(VDJ,
 
     if(matching_type=='exact'){
       #requireNamespace('parallel')
-      cores <- parallel::detectCores()
+      if(operating.system %in% c("Darwin", "Linux")){
       matched_indices <- parallel::mclapply(sample_sequences, mc.cores = cores, FUN = function(x) {if(any(antigen_sequences==x)) which(antigen_sequences==x) else NA})
+      } else if(operating.system == "Windows"){
+        doParallel::stopImplicitCluster() #close any open clusters
+        cl <- parallel::makeCluster(cores)  #open cluster for parallel computing
+        matched_indices <- parallel::parLapply(cl = cl, sample_sequences, fun = function(x) {if(any(antigen_sequences==x)) which(antigen_sequences==x) else NA})
+      }
       distance_matrix <- stringdist::stringdistmatrix(sample_sequences, antigen_sequences, method='lv')
 
     }else if(matching_type=='homology'){
