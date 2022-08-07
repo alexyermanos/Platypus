@@ -12,7 +12,7 @@
 
 <meta name="author" content="Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis" />
 
-<meta name="date" content="2022-03-31" />
+<meta name="date" content="2022-08-07" />
 
 <title>PlatypusV3 AgedCNS vignette</title>
 
@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -334,7 +335,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">PlatypusV3 AgedCNS vignette</h1>
 <h4 class="author">Alexander Yermanos, Victor Kreiner, Andreas
 Agrafiotis</h4>
-<h4 class="date">2022-03-31</h4>
+<h4 class="date">2022-08-07</h4>
 
 
 
@@ -705,51 +706,55 @@ same antigen that are officially part of different clonal families. To
 address this, we have added a function that allows for various heuristic
 clonotyping strategies. This involves clonotyping by identical amino
 acid CDRH3 + CDRL3 seuqence, identical germline usage, or seqeunce
-homology requirements. This function works both for V3 and V2 of
-platypus. The version needs to be specified. For V3 (vgm)
-platypus.version should be set to “v3” and the whole vgm object should
-be supplied as VDJ.GEX.matrix. Two important parameters have been added:
-1. global.clonotype If set to TRUE, clonotypes will be generated across
+homology requirements. This function works both for V3 of platypus.</p>
+<p>global.clonotype If set to TRUE, clonotypes will be generated across
 all samples of the vgm. This may be useful if more than one sample has
-been taken from the same animal (e.g. spleen and bone marrow) 2.
-output.format The function can export either a vgm format (set to “vgm”)
-of a list of dataframes, one for each sample both at cell and clonotype
-resolution (set to “dataframe.per.sample”, “clone.level.dataframes” or
-“dataframe.per.clone”) If output.format is set to “vgm” the function
-will update the clonotype_id column (not the clonotype_id_10x) and add a
-new columns containing new clonotype frequencies and the determining
-motives</p>
+been taken from the same animal (e.g. spleen and bone marrow)</p>
 <p>A note for cells with aberrant numbers of VDJ and VJ chains: the
 functions implements a hierarchical clonotyping strategy for such cells.
 In brief, clonotypes are determined based on all cells with exactly 1VDJ
 and 1VJ chain. Other cells are then “joined in” in post. Two examples
-for illustration: 1. A cell with 0VDJ and 1VJ chain is joined to an
-existing clonotype containing the same or a homologous VJ chain,
-depending of the clonotyping strategy. 2. A cell with 1VDJ and 2VJ chain
-will be matched to a clonotype that contains either of the two possible
-combinations of the chains of that aberrant cell. In case that no
-existing clonotype matches the abberant cell in question, a new
-clonotype will be assigned In case of multiple matching clonotypes,
-abberant cells will be assigned to the most frequent of them. Cells with
-2VDJ and 2VJ chains are excluded as these most likely correspond to
-doublets.</p>
+for illustration of the hierarchical mode “single.chains”: 1. A cell
+with 0VDJ and 1VJ chain is joined to an existing clonotype containing
+the same or a homologous VJ chain, depending of the clonotyping
+strategy. 2. A cell with 1VDJ and 2VJ chain will be matched to a
+clonotype that contains either of the two possible combinations of the
+chains of that aberrant cell. In case that no existing clonotype matches
+the abberant cell in question, a new clonotype will be assigned In case
+of multiple matching clonotypes, abberant cells will be assigned to the
+most frequent of them. Cells with 2VDJ and 2VJ chains are excluded as
+these most likely correspond to doublets. Further the function
+implements the hierarchical mode “double.and.single.chains” Here the
+function will proceed as if set to “single.chains” but include two more
+steps 3. Check the frequency of each cell 1 VDJ 2 VJ chain exact clone
+(by exact nucleotide CDR3 matching). Only if this count exceeds the
+triple.chain.count.threshold, the clone is used as a “hub clone”. This
+protects from merging clonotypes on the basis of rare doublets. 4. Merge
+existing clonotypes into the 1 VDJ 2 VJ clonotypes as they match with
+the assumption that e.g. a cell with 1 VDJ 1 VJ is part of that same
+clonotype, but missing a VJ chain due to stochastical sampling</p>
 <p>In the example that follows, we use VDJ_clonotype to group cells into
 clones based on identical CDRH3 + CDRL3 amino acid sequence. We will
 compare this to the case in which we group B cells by using the same
 germline genes (both heavy chain and light chain).</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>vgm[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">VDJ_clonotype</span>(<span class="at">platypus.version =</span> <span class="st">&quot;v3&quot;</span>, <span class="at">VDJ =</span> vgm[[<span class="dv">1</span>]], <span class="at">clone.strategy =</span> <span class="st">&quot;cdr3.aa&quot;</span>, <span class="at">global.clonotype =</span> F, <span class="at">output.format =</span> <span class="st">&quot;vgm&quot;</span>, <span class="at">VDJ.VJ.1chain =</span> F, <span class="at">hierarchical =</span> T) <span class="co">#Not filtering cells with counts other than 1VDJ 1VJ chain and integrating these cells hierarchically into clonotypes</span></span>
+<p>The function adds new columns containing clonotype ids, features and
+frequencies, named based on the clonotyping strategy. This allows
+multiple clonotyping strategy outputs to be stored in the same VGM
+object</p>
+<p>The columns clonotype_frequency and clonotype_id are considered the
+“active” slot, as functions downstream pull from them. These two columns
+are updated every time the VDJ_clonotype function is run</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>vgm[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">VDJ_clonotype</span>(<span class="at">VDJ =</span> vgm[[<span class="dv">1</span>]], <span class="at">clone.strategy =</span> <span class="st">&quot;cdr3.aa&quot;</span>, <span class="at">global.clonotype =</span> F, <span class="at">VDJ.VJ.1chain =</span> F, <span class="at">hierarchical =</span> <span class="st">&quot;single.chains&quot;</span>) <span class="co">#Not filtering cells with counts other than 1VDJ 1VJ chain and integrating these cells hierarchically into clonotypes</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot; Nr and distribution of clonotypes using exact CDR3.aa matching </span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">length</span>(<span class="fu">unique</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>new_clonal_feature)))</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>new_clonal_frequency)) <span class="co">#Check distribution of clonotypes with identical CDR3 aa sequences</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">length</span>(<span class="fu">unique</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>clonotype_id_cdr3.aa)))</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>clonotype_frequency_cdr3.aa)) <span class="co">#Check distribution of clonotypes with identical CDR3 aa sequences</span></span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>vgm[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">VDJ_clonotype</span>(<span class="at">platypus.version =</span> <span class="st">&quot;v3&quot;</span>, <span class="at">VDJ =</span> vgm[[<span class="dv">1</span>]], <span class="at">clone.strategy =</span> <span class="st">&quot;hvj.lvj&quot;</span>, <span class="at">global.clonotype =</span> F, <span class="at">output.format =</span> <span class="st">&quot;vgm&quot;</span>, <span class="at">VDJ.VJ.1chain =</span> F, <span class="at">hierarchical =</span> T)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>vgm[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">VDJ_clonotype</span>(<span class="at">VDJ =</span> vgm[[<span class="dv">1</span>]], <span class="at">clone.strategy =</span> <span class="st">&quot;hvj.lvj&quot;</span>, <span class="at">global.clonotype =</span> F, <span class="at">output.format =</span> <span class="st">&quot;vgm&quot;</span>, <span class="at">VDJ.VJ.1chain =</span> F, <span class="at">hierarchical =</span> <span class="st">&quot;single.chains&quot;</span>)</span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st"> Nr and distribution of clonotypes using germline gene matching </span><span class="sc">\n</span><span class="st"> &quot;</span>)</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">length</span>(<span class="fu">unique</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>new_clonal_feature)))</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>new_clonal_frequency)) <span class="co">#Check distribution of clonotypes with identical germline genes</span></span></code></pre></div>
-<p>Clonotyping based on germline genes resulted in less clonotypes (175
-vs. 201).</p>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">length</span>(<span class="fu">unique</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>clonotype_id_hvj.lvj)))</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(vgm[[<span class="dv">1</span>]]<span class="sc">$</span>clonotype_frequency_hvj.lvj)) <span class="co">#Check distribution of clonotypes with identical germline genes</span></span></code></pre></div>
 </div>
 <div id="extracting-full-length-sequences-from-the-vdjregion" class="section level3">
 <h3>6.3 Extracting full-length sequences from the VDJRegion</h3>
@@ -1102,72 +1107,78 @@ components are upregulated in expanded clones.</p>
 <div id="version-information" class="section level2">
 <h2>9 Version information</h2>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
-<pre><code>## R version 4.0.5 (2021-03-31)
+<pre><code>## R version 4.2.1 (2022-06-23 ucrt)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 19044)
 ## 
 ## Matrix products: default
 ## 
 ## locale:
-## [1] LC_COLLATE=C                    LC_CTYPE=German_Germany.1252   
-## [3] LC_MONETARY=German_Germany.1252 LC_NUMERIC=C                   
-## [5] LC_TIME=German_Germany.1252    
+## [1] LC_COLLATE=C                    LC_CTYPE=German_Germany.utf8   
+## [3] LC_MONETARY=German_Germany.utf8 LC_NUMERIC=C                   
+## [5] LC_TIME=German_Germany.utf8    
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] Platypus_3.3.3
+## [1] Platypus_3.3.6
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] plyr_1.8.6            igraph_1.2.6          lazyeval_0.2.2       
-##   [4] splines_4.0.5         listenv_0.8.0         scattermore_0.7      
-##   [7] usethis_2.1.5         ggplot2_3.3.5         digest_0.6.27        
-##  [10] useful_1.2.6          htmltools_0.5.2       fansi_0.5.0          
-##  [13] magrittr_2.0.1        memoise_2.0.1         tensor_1.5           
-##  [16] cluster_2.1.2         ROCR_1.0-11           remotes_2.4.2        
-##  [19] globals_0.14.0        Biostrings_2.58.0     matrixStats_0.59.0   
-##  [22] spatstat.sparse_2.0-0 prettyunits_1.1.1     colorspace_2.0-2     
-##  [25] ggrepel_0.9.1         xfun_0.27             dplyr_1.0.7          
-##  [28] callr_3.7.0           crayon_1.5.0          jsonlite_1.7.2       
-##  [31] roxygen2_7.1.1        spatstat.data_2.1-2   survival_3.2-11      
-##  [34] zoo_1.8-9             glue_1.4.2            polyclip_1.10-0      
-##  [37] gtable_0.3.0          zlibbioc_1.36.0       XVector_0.30.0       
-##  [40] leiden_0.3.9          seqinr_4.2-8          pkgbuild_1.3.1       
-##  [43] future.apply_1.8.1    BiocGenerics_0.36.1   abind_1.4-5          
-##  [46] scales_1.1.1          DBI_1.1.2             miniUI_0.1.1.1       
-##  [49] Rcpp_1.0.7            viridisLite_0.4.0     xtable_1.8-4         
-##  [52] reticulate_1.20       spatstat.core_2.2-0   stats4_4.0.5         
-##  [55] htmlwidgets_1.5.4     httr_1.4.2            RColorBrewer_1.1-2   
-##  [58] ellipsis_0.3.2        Seurat_4.1.0          ica_1.0-2            
-##  [61] pkgconfig_2.0.3       sass_0.4.0            uwot_0.1.10          
-##  [64] deldir_0.2-10         utf8_1.2.1            tidyselect_1.1.1     
-##  [67] rlang_0.4.10          reshape2_1.4.4        later_1.2.0          
-##  [70] munsell_0.5.0         tools_4.0.5           cachem_1.0.6         
-##  [73] cli_3.1.1             generics_0.1.2        ade4_1.7-18          
-##  [76] devtools_2.4.3        ggridges_0.5.3        evaluate_0.14        
-##  [79] stringr_1.4.0         fastmap_1.1.0         yaml_2.2.1           
-##  [82] goftest_1.2-2         processx_3.5.2        knitr_1.37           
-##  [85] fs_1.5.2              fitdistrplus_1.1-6    purrr_0.3.4          
-##  [88] RANN_2.6.1            pbapply_1.5-0         future_1.23.0        
-##  [91] nlme_3.1-152          mime_0.11             xml2_1.3.3           
-##  [94] brio_1.1.3            compiler_4.0.5        rstudioapi_0.13      
-##  [97] plotly_4.10.0         png_0.1-7             testthat_3.1.2       
-## [100] spatstat.utils_2.2-0  tibble_3.1.2          bslib_0.3.1          
-## [103] stringi_1.7.4         ps_1.6.0              desc_1.4.0           
-## [106] lattice_0.20-44       Matrix_1.3-4          vctrs_0.3.8          
-## [109] pillar_1.7.0          lifecycle_1.0.1       jquerylib_0.1.4      
-## [112] spatstat.geom_2.2-0   lmtest_0.9-38         RcppAnnoy_0.0.18     
-## [115] data.table_1.14.0     cowplot_1.1.1         irlba_2.3.3          
-## [118] httpuv_1.6.1          patchwork_1.1.1       R6_2.5.1             
-## [121] promises_1.2.0.1      KernSmooth_2.23-20    gridExtra_2.3        
-## [124] IRanges_2.24.1        parallelly_1.30.0     sessioninfo_1.2.2    
-## [127] codetools_0.2-18      MASS_7.3-54           assertthat_0.2.1     
-## [130] pkgload_1.2.4         rprojroot_2.0.2       withr_2.4.3          
-## [133] SeuratObject_4.0.4    sctransform_0.3.3     S4Vectors_0.28.1     
-## [136] mgcv_1.8-36           parallel_4.0.5        grid_4.0.5           
-## [139] rpart_4.1-15          tidyr_1.1.3           rmarkdown_2.11       
-## [142] Rtsne_0.15            shiny_1.7.1</code></pre>
+##   [1] plyr_1.8.7             igraph_1.3.4           lazyeval_0.2.2        
+##   [4] sp_1.5-0               splines_4.2.1          listenv_0.8.0         
+##   [7] scattermore_0.8        usethis_2.1.6          GenomeInfoDb_1.32.2   
+##  [10] ggplot2_3.3.6          digest_0.6.29          useful_1.2.6          
+##  [13] yulab.utils_0.0.5      htmltools_0.5.3        fansi_1.0.3           
+##  [16] magrittr_2.0.3         memoise_2.0.1          tensor_1.5            
+##  [19] cluster_2.1.3          ROCR_1.0-11            remotes_2.4.2         
+##  [22] globals_0.15.1         Biostrings_2.64.0      matrixStats_0.62.0    
+##  [25] spatstat.sparse_2.1-1  prettyunits_1.1.1      colorspace_2.0-3      
+##  [28] ggrepel_0.9.1          xfun_0.31              dplyr_1.0.9           
+##  [31] callr_3.7.1            crayon_1.5.1           RCurl_1.98-1.7        
+##  [34] jsonlite_1.8.0         roxygen2_7.1.1         spatstat.data_2.2-0   
+##  [37] progressr_0.10.1       survival_3.3-1         zoo_1.8-10            
+##  [40] ape_5.6-2              glue_1.6.2             polyclip_1.10-0       
+##  [43] gtable_0.3.0           zlibbioc_1.42.0        XVector_0.36.0        
+##  [46] leiden_0.4.2           seqinr_4.2-16          pkgbuild_1.3.1        
+##  [49] future.apply_1.9.0     BiocGenerics_0.42.0    abind_1.4-5           
+##  [52] scales_1.2.0           DBI_1.1.3              spatstat.random_2.2-0 
+##  [55] miniUI_0.1.1.1         Rcpp_1.0.9             viridisLite_0.4.0     
+##  [58] xtable_1.8-4           spatstat.core_2.4-4    gridGraphics_0.5-1    
+##  [61] tidytree_0.3.9         reticulate_1.25        stats4_4.2.1          
+##  [64] profvis_0.3.7          htmlwidgets_1.5.4      httr_1.4.3            
+##  [67] RColorBrewer_1.1-3     ellipsis_0.3.2         Seurat_4.1.1          
+##  [70] ica_1.0-3              urlchecker_1.0.1       pkgconfig_2.0.3       
+##  [73] sass_0.4.2             uwot_0.1.11            deldir_1.0-6          
+##  [76] utf8_1.2.2             ggplotify_0.1.0        tidyselect_1.1.2      
+##  [79] rlang_1.0.4            reshape2_1.4.4         later_1.3.0           
+##  [82] munsell_0.5.0          tools_4.2.1            cachem_1.0.6          
+##  [85] cli_3.3.0              generics_0.1.3         ade4_1.7-19           
+##  [88] devtools_2.4.4         ggridges_0.5.3         evaluate_0.15         
+##  [91] stringr_1.4.0          fastmap_1.1.0          yaml_2.3.5            
+##  [94] goftest_1.2-3          ggtree_3.4.1           processx_3.7.0        
+##  [97] knitr_1.39             fs_1.5.2               fitdistrplus_1.1-8    
+## [100] purrr_0.3.4            RANN_2.6.1             pbapply_1.5-0         
+## [103] future_1.27.0          nlme_3.1-157           mime_0.12             
+## [106] aplot_0.1.6            xml2_1.3.3             compiler_4.2.1        
+## [109] rstudioapi_0.13        plotly_4.10.0          png_0.1-7             
+## [112] spatstat.utils_2.3-1   treeio_1.20.1          tibble_3.1.8          
+## [115] bslib_0.4.0            stringi_1.7.8          ps_1.7.1              
+## [118] desc_1.4.1             rgeos_0.5-9            lattice_0.20-45       
+## [121] Matrix_1.4-1           vctrs_0.4.1            pillar_1.8.0          
+## [124] lifecycle_1.0.1        jquerylib_0.1.4        spatstat.geom_2.4-0   
+## [127] lmtest_0.9-40          RcppAnnoy_0.0.19       data.table_1.14.2     
+## [130] cowplot_1.1.1          bitops_1.0-7           irlba_2.3.5           
+## [133] httpuv_1.6.5           patchwork_1.1.1        R6_2.5.1              
+## [136] promises_1.2.0.1       gridExtra_2.3          KernSmooth_2.23-20    
+## [139] IRanges_2.30.0         parallelly_1.32.1      sessioninfo_1.2.2     
+## [142] codetools_0.2-18       MASS_7.3-57            assertthat_0.2.1      
+## [145] pkgload_1.3.0          rprojroot_2.0.3        withr_2.5.0           
+## [148] SeuratObject_4.1.0     sctransform_0.3.3      S4Vectors_0.34.0      
+## [151] GenomeInfoDbData_1.2.8 mgcv_1.8-40            parallel_4.2.1        
+## [154] rpart_4.1.16           grid_4.2.1             ggfun_0.0.6           
+## [157] tidyr_1.2.0            rmarkdown_2.14         Rtsne_0.16            
+## [160] shiny_1.7.2</code></pre>
 </div>
 
 

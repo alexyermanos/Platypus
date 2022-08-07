@@ -4,7 +4,9 @@
 \name{vdj_length_prob}
 \alias{vdj_length_prob}
 \title{vdj_length_prob
-A list dataframe specifying lengths and probabilities of bases deleted or inserted at each junction site of VDJ recombination event.
+A list dataframe specifying lengths and probabilities of bases deleted or inserted at each junction site of VDJ recombination event.}
+\format{
+a dataframe:
 \describe{
 \item{v3_deletion}{length and probability of deleted bases at 3' end of V segment}
 \item{d5_deletion}{length and probability of deleted bases at 5' end of D segment}
@@ -12,9 +14,7 @@ A list dataframe specifying lengths and probabilities of bases deleted or insert
 \item{j5_deletion}{length and probability of deleted bases at 5' end of J segment}
 \item{dj_insertion}{length and probability of inserted bases between D-J segment}
 \item{vj_insertion}{length and probability of inserted bases between V-J segment for light or alpha chains}
-}}
-\format{
-An object of class \code{list} of length 7.
+}
 }
 \usage{
 data("vdj_length_prob")
@@ -22,13 +22,5 @@ data("vdj_length_prob")
 \description{
 vdj_length_prob
 A list dataframe specifying lengths and probabilities of bases deleted or inserted at each junction site of VDJ recombination event.
-\describe{
-\item{v3_deletion}{length and probability of deleted bases at 3' end of V segment}
-\item{d5_deletion}{length and probability of deleted bases at 5' end of D segment}
-\item{d3_deletion}{length and probability of deleted bases at 3' end of D segment}
-\item{j5_deletion}{length and probability of deleted bases at 5' end of J segment}
-\item{dj_insertion}{length and probability of inserted bases between D-J segment}
-\item{vj_insertion}{length and probability of inserted bases between V-J segment for light or alpha chains}
-}
 }
 \keyword{datasets}

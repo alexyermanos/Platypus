@@ -8,7 +8,7 @@
 
 ## ---- eval = FALSE, include=FALSE---------------------------------------------
 #  #this is for sourcing all functions under development and is not included in the knitting
-#  source_code_dir <- "C:/Dokumente usw/Master/Reddy Lab/1_thesis/3_code/4_DB project/PlatypusDB_admin/R"
+#  source_code_dir <- "C:/Users/vickr/Documents/GitHub/Platypus/vignettes"
 #  file_path_vec <- list.files(source_code_dir, full.names = T)
 #  for(f_path in file_path_vec){
 #    print(f_path)
@@ -286,17 +286,17 @@
 
 ## ---- fig.show='hold', eval = FALSE-------------------------------------------
 #  
-#  vgm[[1]] <- VDJ_clonotype(platypus.version = "v3", VDJ = vgm[[1]], clone.strategy = "cdr3.aa", global.clonotype = F, output.format = "vgm", VDJ.VJ.1chain = F, hierarchical = T) #Not filtering cells with counts other than 1VDJ 1VJ chain and integrating these cells hierarchically into clonotypes
+#  vgm[[1]] <- VDJ_clonotype(VDJ = vgm[[1]], clone.strategy = "cdr3.aa", global.clonotype = F, VDJ.VJ.1chain = F, hierarchical = "single.chains") #Not filtering cells with counts other than 1VDJ 1VJ chain and integrating these cells hierarchically into clonotypes
 #  
 #  cat(" Nr and distribution of clonotypes using exact CDR3.aa matching \n")
-#  print(length(unique(vgm[[1]]$new_clonal_feature)))
-#  print(table(vgm[[1]]$new_clonal_frequency)) #Check distribution of clonotypes with identical CDR3 aa sequences
+#  print(length(unique(vgm[[1]]$clonotype_id_cdr3.aa)))
+#  print(table(vgm[[1]]$clonotype_frequency_cdr3.aa)) #Check distribution of clonotypes with identical CDR3 aa sequences
 #  
-#  vgm[[1]] <- VDJ_clonotype(platypus.version = "v3", VDJ = vgm[[1]], clone.strategy = "hvj.lvj", global.clonotype = F, output.format = "vgm", VDJ.VJ.1chain = F, hierarchical = T)
+#  vgm[[1]] <- VDJ_clonotype(VDJ = vgm[[1]], clone.strategy = "hvj.lvj", global.clonotype = F, output.format = "vgm", VDJ.VJ.1chain = F, hierarchical = "single.chains")
 #  
 #  cat("\n Nr and distribution of clonotypes using germline gene matching \n ")
-#  print(length(unique(vgm[[1]]$new_clonal_feature)))
-#  print(table(vgm[[1]]$new_clonal_frequency)) #Check distribution of clonotypes with identical germline genes
+#  print(length(unique(vgm[[1]]$clonotype_id_hvj.lvj)))
+#  print(table(vgm[[1]]$clonotype_frequency_hvj.lvj)) #Check distribution of clonotypes with identical germline genes
 #  
 
 ## ---- fig.show='hold', message=FALSE,results = 'hide', eval = FALSE-----------

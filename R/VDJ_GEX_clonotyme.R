@@ -615,7 +615,7 @@ VDJ_GEX_clonotyme <- function(method,
         names(x = cell.colors) <- colnames(x = sample)
 
         grDevices::pdf(paste0(velocyto.out.dir,"/",file.name,'.plot.pdf'), height=5, width=6)
-        velocyto::show.velocity.on.embedding.cor(emb = SeuratObject::Embeddings(object = sample, reduction = "umap"), vel = SeuratObject::Tool(object = sample, slot = "RunVelocity"), n = 200, scale = "sqrt", cell.colors = velocyto::ac(x = cell.colors, alpha = 0.5), cex = 0.8, arrow.scale = 3, show.grid.flow = TRUE, min.grid.cell.mass = 0.5, grid.n = 40, arrow.lwd = 1, do.par = FALSE, cell.border.alpha = 0.1)
+        eval(parse(text = 'velocyto::show.velocity.on.embedding.cor(emb = SeuratObject::Embeddings(object = sample, reduction = "umap"), vel = SeuratObject::Tool(object = sample, slot = "RunVelocity"), n = 200, scale = "sqrt", cell.colors = velocyto::ac(x = cell.colors, alpha = 0.5), cex = 0.8, arrow.scale = 3, show.grid.flow = TRUE, min.grid.cell.mass = 0.5, grid.n = 40, arrow.lwd = 1, do.par = FALSE, cell.border.alpha = 0.1)'))
         grDevices::dev.off()
 
         Seurat::FeaturePlot(sample, highlight.genes, order=T)
@@ -639,7 +639,7 @@ VDJ_GEX_clonotyme <- function(method,
 
         grDevices::pdf(paste0(velocyto.out.dir,"/",file.name,"_",sample.name,'_', gene ,'.gene.pdf'), height =7, width=25)
         fit.quantile<-0.02
-        velocyto::gene.relative.velocity.estimates(
+        eval(parse(text = 'velocyto::gene.relative.velocity.estimates(
           SeuratObject::GetAssayData(sample, slot = "data", assay = "spliced"),
           SeuratObject::GetAssayData(sample, slot = "data", assay = "unspliced"),
           cell.emb = SeuratObject::Embeddings(sample, "umap"),
@@ -648,7 +648,7 @@ VDJ_GEX_clonotyme <- function(method,
           old.fit = SeuratObject::Tool(sample, slot = "RunVelocity"),
           do.par=T,
           #cell.colors = cell.colors
-        )
+        )'))
         grDevices::dev.off()
         return(sample)
       }
@@ -701,16 +701,17 @@ VDJ_GEX_clonotyme <- function(method,
         }
 
         t1 <- utils::head(ident.colors,1)
-        t1 <- velocyto::ac(t1, alpha=0.1)
+        t1 <- eval(parse(text = 'velocyto::ac(t1, alpha=0.1)'))
         t2 <- utils::tail(ident.colors,(length(ident.colors)-1))
-        t2 <- velocyto::ac(t2, alpha=1)
+        t2 <- eval(parse(text = 'velocyto::ac(t2, alpha=1)'))
         ident.colors <- append(t1,t2)
         cell.colors <- ident.colors[Seurat::Idents(object = sample)]
 
         names(x = cell.colors) <- colnames(x = sample)
 
         grDevices::pdf(paste0(velocyto.out.dir,"/",file.name,"_",sample.name,'.clonotypes.on.velocyto.plot.pdf'), height=5, width=6)
-        velocyto::show.velocity.on.embedding.cor(emb = SeuratObject::Embeddings(object = sample, reduction = "umap"), vel = SeuratObject::Tool(object = sample, slot = "RunVelocity"), n = 200, scale = "sqrt", cell.colors = cell.colors, cex = 0.8, arrow.scale = 3, show.grid.flow = TRUE, min.grid.cell.mass = 0.5, grid.n = 40, arrow.lwd = 1, do.par = FALSE, cell.border.alpha = 0)
+
+        eval(parse(text = 'velocyto::show.velocity.on.embedding.cor(emb = SeuratObject::Embeddings(object = sample, reduction = "umap"), vel = SeuratObject::Tool(object = sample, slot = "RunVelocity"), n = 200, scale = "sqrt", cell.colors = cell.colors, cex = 0.8, arrow.scale = 3, show.grid.flow = TRUE, min.grid.cell.mass = 0.5, grid.n = 40, arrow.lwd = 1, do.par = FALSE, cell.border.alpha = 0)'))
         grDevices::dev.off()
 
       }
