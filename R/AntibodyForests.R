@@ -1,5 +1,6 @@
 #' Infer B cell evolutionary networks and/or sequence similarity networks
 
+
 #'@description Function to infer immune receptor evolutionary networks (trees) or complex/sequence-similarity networks from a Platypus VDJ object/VGM[[1]] - AntibodyForests objects will be created for each sample and each unique clonotype, if the default parameters are used.
 #' Networks can be created in a tree-building manner (minimum spanning tree algorithm with custom tie solving methods), by linking sequences with a minimal string distance between them iteratively (and solving distance ties in a hierarchical way, with multiple resolve.ties parameters/configurations). Nodes in the network represent unique sequences per clonotype, edges are determined by the string distance between the nodes/sequences. Sequence types are dictated by the sequence.tyoe parameter, allowing networks to be built for most of the sequence types available in a Platypus VDJ object.
 #' Networks can also be created by pruning edges from a fully connected network obtained from all sequences from a specific clonotype - complex similarity networks. Pruning can either be done via a distance threshold (prunes nodes too far apart), a node degree threshold (to prune nodes with a smaller degree/not well connected), or an expansion threshold (to prune nodes for sequences with low expansion/frequency).
@@ -23,7 +24,7 @@
 #' 'mst' will create undirected trees using the minimum spanning tree algorithm from igraph (without specific tie solving mechanisms).
 #' 'global' is a custom option to easily create whole-repertoire/multi-repertoire similarity networks: it defaults to the 'prune.distance' option, while also changing some other parameters to ensure consistency (directed is set to F, include.germline is set to F, network.level is set to 'global')
 #' @param directed boolean, whether networks obtained using network.algorithm='tree' should be directed (from the germline to the leaf nodes) or not. T - directed; F - undirected trees.
-#' @param distance.calculation string, specifying the method for calculating string distances between the sequences. Must be compatible with the method parameter of the stringdist::stringdistmatrix() function. Will default to 'lv' for Levenshtein distances.
+#' @param distance.calculation string or function, specifying the method for calculating string distances between the sequences. Must be compatible with the method parameter of the stringdist::stringdistmatrix() function. Will default to 'lv' for Levenshtein distances. Else, if a function of the form distance(seq1, seq2) must be specified, which should output a float = custom distance metric between the selected sequences.
 #' @param resolve.ties vector of strings, denoting the manner in which ties should be resolved when assembling trees via network.algorithm='tree'. Ties are defined as edges with the same weights=string distances (as determined by the distance matrix for the fully connected network) between nodes already added in the tree and nodes to be added in the tree.
 #' There are multiple default and custom configurations for this parameter:
 #' 'first' will pick the first edge from a pool of edges of equal string distance (between the sequences) - these are ordered based on each node's expansion/cell count (therefore 'first' will try to add the most expanded node first);
@@ -65,10 +66,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed',
-#' include.germline=T, network.algorithm='tree',
-#' resolve.ties=c('close.germline.distance', 'max.expansion'),
-#' node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
+#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed', include.germline=T, network.algorithm='tree', resolve.ties=c('close.germline.distance', 'max.expansion'), node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
 #'}
 
 
@@ -100,9 +98,6 @@ AntibodyForests <- function(VDJ,
                             parallel,
                             as.igraph){
 
-  #For RMD checks
-  adjacency_matrix <- NULL
-
 
   if(missing(VDJ)) stop('Please input your data as VDJ/df per clonotype list')
   if(missing(sequence.type)) sequence.type <- 'VDJ.VJ.nt.trimmed'
@@ -129,7 +124,7 @@ AntibodyForests <- function(VDJ,
   if(missing(network.level)) network.level <- 'intraclonal'
   if(missing(forest.method)) forest.method <- 'multiple.germlines' #join all at germline(single.germline), multiple.germlines, multiple.germlines.joined
   if(missing(random.seed)) random.seed <- 1
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
   if(missing(as.igraph)) as.igraph <- T
 
 
@@ -248,6 +243,31 @@ AntibodyForests <- function(VDJ,
 
    }
   )
+
+  custom_distance_matrix <- function(unique.sequences, distance.metric){
+    #Remember to export %dopar% operator from the doParallel package
+    #requireNamespace('parallel') #Will remove later
+    #requireNamespace('doParallel')
+    #requireNamespace('bigstatsr')
+
+    m <- bigstatsr::FBM(length(unique.sequences), length(unique.sequences))
+    combs <- combn(1:length(unique.sequences), 2)
+    cores <- parallel::detectCores()
+    cl <- parallel::makeCluster(cores)
+
+    doParallel::registerDoParallel(cl)
+    out <- foreach::foreach(d = 1:ncol(combs), .combine = 'c') %dopar% {
+      dist <- distance.metric(unique.sequences[combs[1,d]], unique.sequences[combs[2,d]])
+      m[combs[1,d], combs[2,d]] <- dist
+      m[combs[2,d], combs[1,d]] <- dist
+      NULL
+    }
+    parallel::stopCluster(cl)
+
+    return(m[])
+  }
+
+
   get_sequence_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';'){
     if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
     if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
@@ -473,7 +493,7 @@ AntibodyForests <- function(VDJ,
 
 
       feature_list[[i]] <- feats
-      feature_counts[[i]] <- counts
+      feature_counts[[i]] <- unname(counts)
     }
 
     network_df[[feature]] <- feature_list
@@ -583,7 +603,12 @@ AntibodyForests <- function(VDJ,
     network_df$most_expanded[nrow(network_df)] <- 'germline'
 
     #Add distance from germline before joining networks...more efficient downstream integration into AntibodyForests_metrics (otherwise would have to get unique germlines per clonotypes using the clonotype_ids...but this way it's easier)
-    network_df$distance_from_germline <- stringdist::stringdistmatrix(network_df$network_sequences, germline_seq)
+    if(!is.function(distance.calculation)){
+      network_df$distance_from_germline <- stringdist::stringdistmatrix(network_df$network_sequences, germline_seq, method=distance.calculation)
+    }else{
+      network_df$distance_from_germline <- lapply(network_df$network_sequences, function(x) distance.calculation(x, germline_seq))
+    }
+
   }
 
   #Add sequence ids/labels
@@ -596,7 +621,13 @@ AntibodyForests <- function(VDJ,
  calculate_adjacency_matrix_tree <- function(network_df){
 
    sequences <- network_df$network_sequences
-   distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+
+   if(!is.function(distance.calculation)){
+     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+   }else{
+     distance_matrix <- custom_distance_matrix(sequences, distance.calculation)
+   }
+
    diag(distance_matrix) <- Inf
    final_adjacency_matrix <- matrix(0, nrow(distance_matrix), ncol(distance_matrix))
    diag(final_adjacency_matrix) <- Inf
@@ -883,7 +914,13 @@ AntibodyForests <- function(VDJ,
  calculate_adjacency_matrix_prune <- function(network_df){
 
     sequences <- network_df$network_sequences
-    distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+
+    if(!is.function(distance.calculation)){
+      distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+    }else{
+      distance_matrix <- custom_distance_matrix(sequences, distance.calculation)
+    }
+
     diag(distance_matrix) <- Inf
     final_adjacency_matrix <- distance_matrix
     adjacency_matrix_copy <- final_adjacency_matrix
@@ -1023,8 +1060,8 @@ AntibodyForests <- function(VDJ,
 
 
  create_phylo_trees <- function(network_df){
-   #requireNamespace('phangorn')
-   #requireNamespace('seqinr')
+   requireNamespace('phangorn')
+   requireNamespace('seqinr')
 
    if(nrow(network_df) < 3){
      stop('Ensure you have at least 3 sequences (incl. germline) to create phylogenetic trees - use the node.limits parameter')
@@ -1032,7 +1069,13 @@ AntibodyForests <- function(VDJ,
 
    phylogenetic_method <- unlist(stringr::str_split(network.algorithm, '\\.'))
    sequences <- network_df$network_sequences
-   distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+
+   if(!is.function(distance.calculation)){
+     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+   }else{
+     distance_matrix <- custom_distance_matrix(sequences, distance.calculation)
+   }
+
    phylo_tree <- ape::nj(distance_matrix)
 
    #Roots at the germline node
@@ -1066,7 +1109,7 @@ AntibodyForests <- function(VDJ,
      }else{
        alignment <- network_df$network_sequences %>%
                     matrix() %>%
-                    ape::as.DNAbin() %>%
+                    ape::as.dnabin() %>%
                     ape::clustal()
 
        phylo_data <- phangorn::read.phyDat(alignment, format='fasta')
@@ -1127,7 +1170,13 @@ AntibodyForests <- function(VDJ,
  create_mst_trees <- function(network_df){
 
    sequences <- network_df$network_sequences
-   distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation) #biggest bottleneck currently (for v large graphs)
+
+   if(!is.function(distance.calculation)){
+     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
+   }else{
+     distance_matrix <- custom_distance_matrix(sequences, distance.calculation)
+   }
+
    g <- igraph::graph_from_adjacency_matrix(distance_matrix, mode='undirected', weighted=T, diag=F)
    g <- igraph::mst(g)
 
@@ -1412,7 +1461,7 @@ AntibodyForests <- function(VDJ,
    }
 
    if(!as.igraph){
-     #requireNamespace('tidygraph')
+     requireNamespace('tidygraph')
      g <- tidygraph::as_tbl_graph(g)
    }
 
@@ -1437,12 +1486,12 @@ AntibodyForests <- function(VDJ,
 
  set.seed(random.seed)
 
- if(inherits(VDJ,'data.frame')){
+ if(class(VDJ)=='data.frame'){
    VDJ.GEX.matrix <- list()
    VDJ.GEX.matrix[[1]] <- VDJ
    VDJ <- NULL
 
- }else if(inherits(VDJ,'list')){
+ }else if(class(VDJ)=='list'){
     VDJ.GEX.matrix <- list()
     for(i in 1:length(VDJ)){
       VDJ.GEX.matrix[[i]] <- do.call('rbind', VDJ[[i]])
@@ -1499,7 +1548,7 @@ AntibodyForests <- function(VDJ,
        }
      }
    }
-   if(inherits(clonotype_dfs,'list')){
+   if(class(clonotype_dfs)!='list'){
      temp_list <- list()
      temp_list[[1]] <- clonotype_dfs
      clonotype_dfs <- temp_list
@@ -1507,7 +1556,7 @@ AntibodyForests <- function(VDJ,
    }
 
    if(parallel){
-     #requireNamespace('parallel')
+     requireNamespace('parallel')
      cores <- parallel::detectCores()
 
      network_dfs <- parallel::mclapply(clonotype_dfs, transform_clonotype_to_network_df, mc.cores=cores)
