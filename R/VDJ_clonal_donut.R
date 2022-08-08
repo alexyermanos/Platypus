@@ -41,7 +41,7 @@ if(missing(non.expanded.color)) non.expanded.color <- "black"
 
 platypus.version = "v3"
 
-VDJ <- subset(VDJ, clonotype_id != "") #Filter possible cells with no clonotype. This can cause issues later
+VDJ <- as.data.frame(subset(VDJ, clonotype_id != "")) #Filter possible cells with no clonotype. This can cause issues later
 
 if(!counts.to.use %in% names(VDJ)){
   warning("Column name for counts.to.use was not found in VDJ. Defaulting to 'clonotype_id_10x'")
