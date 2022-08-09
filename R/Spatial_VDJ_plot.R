@@ -61,7 +61,6 @@ Spatial_VDJ_plot<-function(sample_names,bcs_merge,images_tibble,title,size,legen
       draw_group = function(data, panel_scales, coord) {
         vp <- grid::viewport(x=data$x, y=data$y)
         g <- grid::editGrob(data$grob[[1]], vp=vp)
-        ggplot2:::ggname("geom_spatial", g)
       },
       
       required_aes = c("grob","x","y")

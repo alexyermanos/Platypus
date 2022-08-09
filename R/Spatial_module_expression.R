@@ -80,7 +80,6 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
       draw_group = function(data, panel_scales, coord) {
         vp <- grid::viewport(x=data$x, y=data$y)
         g <- grid::editGrob(data$grob[[1]], vp=vp)
-        ggplot2:::ggname("geom_spatial", g)
       },
       
       required_aes = c("grob","x","y")
