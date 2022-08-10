@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -118,7 +118,7 @@
                         <h4 data-toc-skip class="author">Victor Kreiner,
 Tudor-Stefan Cotet, Alexander Yermanos</h4>
             
-            <h4 data-toc-skip class="date">2022-07-27</h4>
+            <h4 data-toc-skip class="date">2022-08-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/alexyermanos/Platypus/tree/mastervignettes/clonotyping.Rmd" class="external-link"><code>vignettes/clonotyping.Rmd</code></a></small>
       <div class="hidden name"><code>clonotyping.Rmd</code></div>
@@ -215,19 +215,19 @@ germline genes (both heavy chain and light chain).</p>
 <p>For this example we download a processed VGM from the Aged CNS
 dataset also used in the quickstart vignettes.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Platypus</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span>
-
-<span class="fu"><a href="../reference/PlatypusDB_fetch.html">PlatypusDB_fetch</a></span><span class="op">(</span>PlatypusDB.links <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yermanos2021a//VDJmatrix"</span><span class="op">)</span>, 
-                                     load.to.enviroment <span class="op">=</span> <span class="cn">T</span>, combine.objects <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "yermanos2021a__VDJmatrix"</span></code></pre>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Platypus</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/PlatypusDB_fetch.html">PlatypusDB_fetch</a></span><span class="op">(</span>PlatypusDB.links <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yermanos2021a//VDJmatrix"</span><span class="op">)</span>, </span>
+<span>                                     load.to.enviroment <span class="op">=</span> <span class="cn">T</span>, combine.objects <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "yermanos2021a__VDJmatrix"</span></span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Checking clonal expansion from 10x default clonotyping</span>
-
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_10x"</span> <span class="co">#Column name of clonotype ids to plot</span>
-                          <span class="op">)</span>
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#Checking clonal expansion from 10x default clonotyping</span></span>
+<span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_10x"</span> <span class="co">#Column name of clonotype ids to plot</span></span>
+<span>                          <span class="op">)</span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p><img src="clonotyping_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
 <p>We see only 6 expanded clones and a total of 16 cells within these
 clones based on 10x default clonotyping.</p>
@@ -242,16 +242,16 @@ cdr3.homology, VDJcdr3.homology</p>
 <p>We therefore assess the effects of a more inclusive clonotyping
 strategy, which is based on homology of VDJ CDR3 regions</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, <span class="co">#Keeping cells with aberrant chain numbers</span>
-  clone.strategy <span class="op">=</span> <span class="st">"VDJcdr3.homology"</span>,
-  homology.threshold <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="co"># corresponds to 80% sequence similarity</span>
-
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_VDJcdr3.homology"</span> <span class="co">#Column name of clonotype ids to plot</span>
-                          <span class="op">)</span>
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, <span class="co">#Keeping cells with aberrant chain numbers</span></span>
+<span>  clone.strategy <span class="op">=</span> <span class="st">"VDJcdr3.homology"</span>,</span>
+<span>  homology.threshold <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="co"># corresponds to 80% sequence similarity</span></span>
+<span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_VDJcdr3.homology"</span> <span class="co">#Column name of clonotype ids to plot</span></span>
+<span>                          <span class="op">)</span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p><img src="clonotyping_files/figure-html/unnamed-chunk-3-1.png" width="672">
 Basing clonotyping only on homology of the VDJ cdr3 region, the number
 of cells in expanded clones increased to 36.</p>
@@ -260,14 +260,14 @@ of cells in expanded clones increased to 36.</p>
 <h2 id="clonotyping-by-v-and-j-gene-matching">2.2 Clonotyping by V and J gene matching<a class="anchor" aria-label="anchor" href="#clonotyping-by-v-and-j-gene-matching"></a>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>,
-  clone.strategy <span class="op">=</span> <span class="st">"VDJJ.VJJ"</span><span class="op">)</span> 
-
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_VDJJ.VJJ"</span><span class="op">)</span>
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  clone.strategy <span class="op">=</span> <span class="st">"VDJJ.VJJ"</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_VDJJ.VJJ"</span><span class="op">)</span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p><img src="clonotyping_files/figure-html/unnamed-chunk-4-1.png" width="672">
 In this small dataset, this yields to a reduction in expanded cells.</p>
 </div>
@@ -278,14 +278,14 @@ In this small dataset, this yields to a reduction in expanded cells.</p>
 results of this can vary from 10x default clonotyping due to the
 handling</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>,
-  clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span><span class="op">)</span> 
-
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_cdr3.aa"</span><span class="op">)</span>
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">yermanos2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_cdr3.aa"</span><span class="op">)</span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p><img src="clonotyping_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
 </div>
 <div class="section level2">
@@ -298,39 +298,42 @@ and “double.and.single.chains”</p>
 the CNS of EAE mice For more information on this dataset see
 (doi.org/10.1101/2022.02.07.479381 Fig.6)</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/PlatypusDB_fetch.html">PlatypusDB_fetch</a></span><span class="op">(</span>PlatypusDB.links <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kreiner2021a//VDJmatrix"</span><span class="op">)</span>, 
-                                     load.to.enviroment <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "kreiner2021a__VDJmatrix"</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/PlatypusDB_fetch.html">PlatypusDB_fetch</a></span><span class="op">(</span>PlatypusDB.links <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kreiner2021a//VDJmatrix"</span><span class="op">)</span>, </span>
+<span>                                     load.to.enviroment <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "kreiner2021a__VDJmatrix"</span></span></code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Checking clonal expansion from 10x default clonotyping</span>
-
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_10x"</span> <span class="co">#Column name of clonotype ids to plot</span>
-                          <span class="op">)</span>
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
-<p><img src="clonotyping_files/figure-html/unnamed-chunk-6-1.png" width="672">
-## 3.1 Filtering out cells with aberrant chain numbers</p>
+<code class="sourceCode R"><span><span class="co">#Checking clonal expansion from 10x default clonotyping</span></span>
+<span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_donut.html">VDJ_clonal_donut</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                          counts.to.use <span class="op">=</span> <span class="st">"clonotype_id_10x"</span> <span class="co">#Column name of clonotype ids to plot</span></span>
+<span>                          <span class="op">)</span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<p><img src="clonotyping_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
+</div>
+<div class="section level2">
+<h2 id="filtering-out-cells-with-aberrant-chain-numbers">3.1 Filtering out cells with aberrant chain numbers<a class="anchor" aria-label="anchor" href="#filtering-out-cells-with-aberrant-chain-numbers"></a>
+</h2>
 <p>It is common practice to disregard cells with aberrant chain numbers.
 The function offers this feature without adding a new clonotyping
 strategy.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">kreiner2021a__VDJmatrix_FILTERED</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">T</span>, <span class="co">#Filtering aberrant cells</span>
-  clone.strategy <span class="op">=</span> <span class="st">"10x.default"</span><span class="op">)</span> <span class="co">#Leaving clonotyping strategy at default </span>
-
-
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Cells before filtering"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "Cells before filtering"</span></code></pre>
+<code class="sourceCode R"><span><span class="va">kreiner2021a__VDJmatrix_FILTERED</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">T</span>, <span class="co">#Filtering aberrant cells</span></span>
+<span>  clone.strategy <span class="op">=</span> <span class="st">"10x.default"</span><span class="op">)</span> <span class="co">#Leaving clonotyping strategy at default </span></span>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Cells before filtering"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "Cells before filtering"</span></span></code></pre>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] 4811</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 4811</span></span></code></pre>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Cells after filtering"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "Cells after filtering"</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Cells after filtering"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "Cells after filtering"</span></span></code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix_FILTERED</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] 3531</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix_FILTERED</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 3531</span></span></code></pre>
 <p>In this case a large number of cells was removed. As this does reduce
 sample size for comparisons, we recommend to keep such cell.</p>
 </div>
@@ -342,24 +345,24 @@ existing clonotypes defined by 1VDJ 1VJ chain cells</p>
 <p>We clonotype again by cd3.aa sequence and visualize this merging of
 clontypes using the flexible VDJ_clonal_expansion function</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, <span class="co">#Not filtering aberrant cells</span>
-  clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span>,
-  hierarchical <span class="op">=</span> <span class="st">"single.chains"</span><span class="op">)</span>
-
-<span class="co">#Moving the new clonotype id column into the standard slot. </span>
-<span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id</span> <span class="op">&lt;-</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_cdr3.aa</span>
-
-<span class="co">#Plotting clonal expansion and coloring bars by the number of VJ chains of each included cell</span>
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, color.by <span class="op">=</span> <span class="st">"Nr_of_VJ_chains"</span><span class="op">)</span>
-
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
-<p><img src="clonotyping_files/figure-html/unnamed-chunk-8-1.png" width="672">
-The green sections indicate that cells with only a single VDJ chain have
-been integrated into existing high confidence clonotypes. Cells with 2VJ
-chains on the other hand were grouped seperately. We suggest this plot
-as a quality control.</p>
+<code class="sourceCode R"><span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, <span class="co">#Not filtering aberrant cells</span></span>
+<span>  clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span>,</span>
+<span>  hierarchical <span class="op">=</span> <span class="st">"single.chains"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Moving the new clonotype id column into the standard slot. </span></span>
+<span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id</span> <span class="op">&lt;-</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_cdr3.aa</span></span>
+<span></span>
+<span><span class="co">#Plotting clonal expansion and coloring bars by the number of VJ chains of each included cell</span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, color.by <span class="op">=</span> <span class="st">"Nr_of_VJ_chains"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<p><img src="clonotyping_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
+<p>The green sections indicate that cells with only a single VDJ chain
+have been integrated into existing high confidence clonotypes. Cells
+with 2VJ chains on the other hand were grouped seperately. We suggest
+this plot as a quality control.</p>
 </div>
 <div class="section level2">
 <h2 id="hierarchical-double-and-single-chains">3.3 hierarchical = “double.and.single.chains”<a class="anchor" aria-label="anchor" href="#hierarchical-double-and-single-chains"></a>
@@ -372,22 +375,22 @@ set a cutoff against contamination.</p>
 <p>We clonotype again by cd3.aa sequence and visualize this merging of
 clontypes using the flexible VDJ_clonal_expansion function</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,
-  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, <span class="co">#Not filtering aberrant cells</span>
-  clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span>,
-  hierarchical <span class="op">=</span> <span class="st">"double.and.single.chains"</span>,
-  triple.chain.count.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co">#This requires the same 1VDJ 2VJ sequence combination to appear in at least 2 cells for it to be considered a hub clonotype. </span>
-
-<span class="co">#Moving the new clonotype id column into the standard slot. </span>
-<span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id</span> <span class="op">&lt;-</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_cdr3.aa</span>
-
-<span class="co">#Plotting clonal expansion and coloring bars by the number of VJ chains of each included cell</span>
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, color.by <span class="op">=</span> <span class="st">"Nr_of_VJ_chains"</span><span class="op">)</span>
-
-<span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
-<p><img src="clonotyping_files/figure-html/unnamed-chunk-9-1.png" width="672">
-As we can appreaciate, cells with 1VDJ 2VJ chains were no used as hub
+<code class="sourceCode R"><span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  VDJ.VJ.1chain <span class="op">=</span> <span class="cn">F</span>, <span class="co">#Not filtering aberrant cells</span></span>
+<span>  clone.strategy <span class="op">=</span> <span class="st">"cdr3.aa"</span>,</span>
+<span>  hierarchical <span class="op">=</span> <span class="st">"double.and.single.chains"</span>,</span>
+<span>  triple.chain.count.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co">#This requires the same 1VDJ 2VJ sequence combination to appear in at least 2 cells for it to be considered a hub clonotype. </span></span>
+<span></span>
+<span><span class="co">#Moving the new clonotype id column into the standard slot. </span></span>
+<span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id</span> <span class="op">&lt;-</span> <span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clonotype_id_cdr3.aa</span></span>
+<span></span>
+<span><span class="co">#Plotting clonal expansion and coloring bars by the number of VJ chains of each included cell</span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/VDJ_clonal_expansion.html">VDJ_clonal_expansion</a></span><span class="op">(</span><span class="va">kreiner2021a__VDJmatrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, color.by <span class="op">=</span> <span class="st">"Nr_of_VJ_chains"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<p><img src="clonotyping_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
+<p>As we can appreciate, cells with 1VDJ 2VJ chains were no used as hub
 clones and integrated. Here, this increases the number of cells in the
 second most expanded clonotype.</p>
 </div>
@@ -395,54 +398,65 @@ second most expanded clonotype.</p>
 <h2 id="conclusion">4 Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
 <p>Following the multitude of available clonotyping and filtering
-strategies, Platypus does aims to provide maximum flexibility to the
-user. We recommend exploring different clonotyping strategies and
-integration methods for aberrant cells, so to choose setting which are
-most suitable for the current dataset and biological query.</p>
+strategies, Platypus aims to provide maximum flexibility to the user. We
+recommend exploring different clonotyping strategies and integration
+methods for aberrant cells, so to choose setting which are most suitable
+for the current dataset and biological query.</p>
 </div>
 <div class="section level2">
 <h2 id="version-information">5 Version information<a class="anchor" aria-label="anchor" href="#version-information"></a>
 </h2>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## R version 4.0.5 (2021-03-31)</span>
-<span class="co">## Platform: x86_64-w64-mingw32/x64 (64-bit)</span>
-<span class="co">## Running under: Windows 10 x64 (build 19044)</span>
-<span class="co">## </span>
-<span class="co">## Matrix products: default</span>
-<span class="co">## </span>
-<span class="co">## locale:</span>
-<span class="co">## [1] LC_COLLATE=German_Germany.1252  LC_CTYPE=German_Germany.1252   </span>
-<span class="co">## [3] LC_MONETARY=German_Germany.1252 LC_NUMERIC=C                   </span>
-<span class="co">## [5] LC_TIME=German_Germany.1252    </span>
-<span class="co">## </span>
-<span class="co">## attached base packages:</span>
-<span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
-<span class="co">## </span>
-<span class="co">## other attached packages:</span>
-<span class="co">##  [1] forcats_0.5.1   stringr_1.4.0   purrr_0.3.4     readr_2.1.2    </span>
-<span class="co">##  [5] tidyr_1.1.3     tibble_3.1.2    ggplot2_3.3.5   tidyverse_1.3.1</span>
-<span class="co">##  [9] Platypus_3.4.0  dplyr_1.0.7    </span>
-<span class="co">## </span>
-<span class="co">## loaded via a namespace (and not attached):</span>
-<span class="co">##  [1] stringdist_0.9.8  Rcpp_1.0.7        lubridate_1.8.0   assertthat_0.2.1 </span>
-<span class="co">##  [5] rprojroot_2.0.2   digest_0.6.27     utf8_1.2.1        R6_2.5.1         </span>
-<span class="co">##  [9] cellranger_1.1.0  backports_1.4.1   reprex_2.0.1      evaluate_0.14    </span>
-<span class="co">## [13] highr_0.9         httr_1.4.2        pillar_1.7.0      rlang_0.4.10     </span>
-<span class="co">## [17] readxl_1.3.1      rstudioapi_0.13   jquerylib_0.1.4   rmarkdown_2.11   </span>
-<span class="co">## [21] pkgdown_2.0.2     labeling_0.4.2    textshaping_0.3.6 desc_1.4.0       </span>
-<span class="co">## [25] munsell_0.5.0     broom_0.7.12      compiler_4.0.5    modelr_0.1.8     </span>
-<span class="co">## [29] xfun_0.27         pkgconfig_2.0.3   systemfonts_1.0.4 htmltools_0.5.2  </span>
-<span class="co">## [33] tidyselect_1.1.1  fansi_0.5.0       crayon_1.5.0      tzdb_0.2.0       </span>
-<span class="co">## [37] dbplyr_2.1.1      withr_2.4.3       grid_4.0.5        jsonlite_1.7.2   </span>
-<span class="co">## [41] gtable_0.3.0      lifecycle_1.0.1   DBI_1.1.2         magrittr_2.0.1   </span>
-<span class="co">## [45] scales_1.1.1      cli_3.1.1         stringi_1.7.4     cachem_1.0.6     </span>
-<span class="co">## [49] farver_2.1.0      fs_1.5.2          xml2_1.3.3        bslib_0.3.1      </span>
-<span class="co">## [53] ellipsis_0.3.2    ragg_1.2.1        generics_0.1.2    vctrs_0.3.8      </span>
-<span class="co">## [57] cowplot_1.1.1     tools_4.0.5       glue_1.4.2        hms_1.1.1        </span>
-<span class="co">## [61] parallel_4.0.5    fastmap_1.1.0     yaml_2.2.1        colorspace_2.0-2 </span>
-<span class="co">## [65] rvest_1.0.2       memoise_2.0.1     knitr_1.37        haven_2.4.3      </span>
-<span class="co">## [69] sass_0.4.0</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## R version 4.2.1 (2022-06-23 ucrt)</span></span>
+<span><span class="co">## Platform: x86_64-w64-mingw32/x64 (64-bit)</span></span>
+<span><span class="co">## Running under: Windows 10 x64 (build 19044)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Matrix products: default</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## locale:</span></span>
+<span><span class="co">## [1] LC_COLLATE=German_Germany.utf8  LC_CTYPE=German_Germany.utf8   </span></span>
+<span><span class="co">## [3] LC_MONETARY=German_Germany.utf8 LC_NUMERIC=C                   </span></span>
+<span><span class="co">## [5] LC_TIME=German_Germany.utf8    </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## attached base packages:</span></span>
+<span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## other attached packages:</span></span>
+<span><span class="co">##  [1] forcats_0.5.1   stringr_1.4.0   purrr_0.3.4     readr_2.1.2    </span></span>
+<span><span class="co">##  [5] tidyr_1.2.0     tibble_3.1.8    ggplot2_3.3.6   tidyverse_1.3.2</span></span>
+<span><span class="co">##  [9] Platypus_3.4.1  dplyr_1.0.9    </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## loaded via a namespace (and not attached):</span></span>
+<span><span class="co">##  [1] nlme_3.1-157        fs_1.5.2            ggtree_3.4.1       </span></span>
+<span><span class="co">##  [4] lubridate_1.8.0     httr_1.4.3          rprojroot_2.0.3    </span></span>
+<span><span class="co">##  [7] tools_4.2.1         backports_1.4.1     bslib_0.4.0        </span></span>
+<span><span class="co">## [10] utf8_1.2.2          R6_2.5.1            DBI_1.1.3          </span></span>
+<span><span class="co">## [13] lazyeval_0.2.2      colorspace_2.0-3    withr_2.5.0        </span></span>
+<span><span class="co">## [16] tidyselect_1.1.2    curl_4.3.2          compiler_4.2.1     </span></span>
+<span><span class="co">## [19] textshaping_0.3.6   cli_3.3.0           rvest_1.0.2        </span></span>
+<span><span class="co">## [22] xml2_1.3.3          desc_1.4.1          labeling_0.4.2     </span></span>
+<span><span class="co">## [25] sass_0.4.2          scales_1.2.0        pkgdown_2.0.6      </span></span>
+<span><span class="co">## [28] systemfonts_1.0.4   digest_0.6.29       yulab.utils_0.0.5  </span></span>
+<span><span class="co">## [31] rmarkdown_2.14      stringdist_0.9.8    pkgconfig_2.0.3    </span></span>
+<span><span class="co">## [34] htmltools_0.5.3     highr_0.9           dbplyr_2.2.1       </span></span>
+<span><span class="co">## [37] fastmap_1.1.0       rlang_1.0.4         readxl_1.4.0       </span></span>
+<span><span class="co">## [40] rstudioapi_0.13     gridGraphics_0.5-1  jquerylib_0.1.4    </span></span>
+<span><span class="co">## [43] generics_0.1.3      farver_2.1.1        jsonlite_1.8.0     </span></span>
+<span><span class="co">## [46] googlesheets4_1.0.0 magrittr_2.0.3      ggplotify_0.1.0    </span></span>
+<span><span class="co">## [49] patchwork_1.1.1     Rcpp_1.0.9          munsell_0.5.0      </span></span>
+<span><span class="co">## [52] fansi_1.0.3         ape_5.6-2           lifecycle_1.0.1    </span></span>
+<span><span class="co">## [55] stringi_1.7.8       yaml_2.3.5          grid_4.2.1         </span></span>
+<span><span class="co">## [58] parallel_4.2.1      crayon_1.5.1        lattice_0.20-45    </span></span>
+<span><span class="co">## [61] haven_2.5.0         cowplot_1.1.1       hms_1.1.1          </span></span>
+<span><span class="co">## [64] knitr_1.39          pillar_1.8.0        reprex_2.0.1       </span></span>
+<span><span class="co">## [67] glue_1.6.2          evaluate_0.15       ggfun_0.0.6        </span></span>
+<span><span class="co">## [70] modelr_0.1.8        vctrs_0.4.1         treeio_1.20.1      </span></span>
+<span><span class="co">## [73] tzdb_0.3.0          cellranger_1.1.0    gtable_0.3.0       </span></span>
+<span><span class="co">## [76] assertthat_0.2.1    cachem_1.0.6        xfun_0.31          </span></span>
+<span><span class="co">## [79] broom_1.0.0         tidytree_0.3.9      ragg_1.2.2         </span></span>
+<span><span class="co">## [82] googledrive_2.0.0   gargle_1.2.0        aplot_0.1.6        </span></span>
+<span><span class="co">## [85] memoise_2.0.1       ellipsis_0.3.2</span></span></code></pre>
 </div>
   </div>
 
@@ -463,8 +477,7 @@ most suitable for the current dataset and biological query.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
