@@ -1182,6 +1182,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         metrics.table <- lapply(VDJ.out.directory.list, function(x) utils::read.csv(paste(x,"/metrics_summary.csv",sep=""),sep=",",header=T))
       } else {
         if(verbose) message("! metrics_summary.csv file not available in at least one of the VDJ input directories. Loading will be skipped \n")
+        metrics.table <- "none"
       }
 
       #NEW in cellranger 6.1 => Loading the contigs independently from the annotations file. This allows to return full contig sequences despite not trimming and aligning
