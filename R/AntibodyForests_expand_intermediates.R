@@ -18,7 +18,7 @@ AntibodyForests_expand_intermediates <- function(trees,
                                                 ){
 
   if(missing(trees)) stop('Please input a nested list of AntibodyForests objects which you want to expand.')
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
 
   #SUBROUTINE 1: expands the intermediate nodes for a single tree/similarity network.

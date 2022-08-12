@@ -71,7 +71,7 @@ AntibodyForests_embeddings <- function(trees,
    if(missing(epochs)) epochs <- 20
    if(missing(tsne.perplexity)) tsne.perplexity <- 5
    if(missing(seed)) seed <- 1
-   if(missing(parallel)) parallel <- T
+   if(missing(parallel)) parallel <- F
 
    X <- NULL
    Y <- NULL

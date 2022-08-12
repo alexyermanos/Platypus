@@ -45,7 +45,7 @@ AntibodyForests_node_transitions <- function(trees,
   if(missing(exclude.intermediates)) exclude.intermediates <- T
   if(missing(n.permutations)) n.permutations <- 10
   if(missing(plot.results)) plot.results <- T
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
   feature_name <- NULL
   counts <- NULL

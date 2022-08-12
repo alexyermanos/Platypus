@@ -40,7 +40,7 @@ AntibodyForests_heterogeneous <- function(trees,
   if(missing(recluster.resolution)) recluster.resolution <- 0.5
   if(missing(snn.threshold)) snn.threshold <- 1/15
   if(missing(keep.largest.cc)) keep.largest.cc <- F
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
 
 

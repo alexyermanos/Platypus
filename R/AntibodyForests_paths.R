@@ -50,7 +50,7 @@ AntibodyForests_paths <- function(trees,
   if(missing(plot.results)) plot.results <- F
   if(missing(color.by)) color.by <- 'VDJ_cgene'
   if(missing(cell.frequency)) cell.frequency <- F
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
   features <- NULL
   counts <- NULL

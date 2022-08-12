@@ -1060,8 +1060,8 @@ AntibodyForests <- function(VDJ,
 
 
  create_phylo_trees <- function(network_df){
-   requireNamespace('phangorn')
-   requireNamespace('seqinr')
+   #requireNamespace('phangorn')
+   #requireNamespace('seqinr')
 
    if(nrow(network_df) < 3){
      stop('Ensure you have at least 3 sequences (incl. germline) to create phylogenetic trees - use the node.limits parameter')
@@ -1461,7 +1461,7 @@ AntibodyForests <- function(VDJ,
    }
 
    if(!as.igraph){
-     requireNamespace('tidygraph')
+     #requireNamespace('tidygraph')
      g <- tidygraph::as_tbl_graph(g)
    }
 
@@ -1556,7 +1556,7 @@ AntibodyForests <- function(VDJ,
    }
 
    if(parallel){
-     requireNamespace('parallel')
+     #requireNamespace('parallel')
      cores <- parallel::detectCores()
 
      network_dfs <- parallel::mclapply(clonotype_dfs, transform_clonotype_to_network_df, mc.cores=cores)

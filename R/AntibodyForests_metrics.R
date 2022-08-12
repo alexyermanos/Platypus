@@ -52,7 +52,7 @@ AntibodyForests_metrics <- function(trees,
   if(missing(exclude.intermediates)) exclude.intermediates <- T
   if(missing(exclude.germline)) exclude.germline <- T
   if(missing(separate.bipartite)) separate.bipartite <- F
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
 
   node_metrics <- c('betweenness', 'closeness', 'eigenvector', 'authority_score',

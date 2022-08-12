@@ -23,7 +23,7 @@ AntibodyForests_phylo <- function(trees,
   if(missing(trees)) stop('Please input your AntibodyForests object or a nested list of AntibodyForests objects!')
   if(missing(output.format)) output.format <- 'phylo'
   if(missing(solve.multichotomies)) solve.multichotomies <- F
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
   #requireNamespace('aphylo')
   #Function taken from the aphylo package as it could not be loaded properly

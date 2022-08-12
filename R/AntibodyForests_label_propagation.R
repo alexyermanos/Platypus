@@ -31,7 +31,7 @@ AntibodyForests_label_propagation <- function(trees,
   if(missing(propagation.algorithm)) propagation.algorithm <- 'diffusion'
   if(missing(diffusion.n.iter)) diffusion.n.iter <- 20
   if(missing(diffusion.threshold)) diffusion.threshold <- 1e-3
-  if(missing(parallel)) parallel <- T
+  if(missing(parallel)) parallel <- F
 
 
 
