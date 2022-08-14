@@ -389,7 +389,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
     VDJ.stats.all <- do.call(rbind, VDJ.stats.list) #Bind dataframes from all samples
 
-    tryCatch({
+    error <- tryCatch({
       VDJ.metrics.all <- "none" #for error catching later
       if(!inherits(vdj.metrics[[1]],"character")){ #10x stats VDJ table provided
 
@@ -477,9 +477,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         VDJ.metrics.all <- "none"
       }
 
-    }, error = function(e){
-      message(paste0("Adding 10x metrix failed"))
-      message(e)
+    }, error = function(err){
+      message(paste0("Adding 10x metrix failed: ", err))
       VDJ.metrics.all <- "none"})
 
     if(!inherits(VDJ.metrics.all,"character")){ #conditional, only if we got at least one of VDJ and GEX 10x metrics
@@ -1597,7 +1596,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       stats.done <- T
       if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Got VDJ GEX stats"))
 
-    }, error = function(e){e
+    }, error = function(e){
       message(paste0("VDJ stats failed: ", e, "\n"))
       message()})
   }
