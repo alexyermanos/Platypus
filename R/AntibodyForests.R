@@ -539,11 +539,12 @@ AntibodyForests <- function(VDJ,
       if(length(include.germline) == 2){
         VDJ <- clonotype_df[[include.germline[1]]]
         VJ <- clonotype_df[[include.germline[2]]]
-        if(VDJ=='' | is.na(VDJ) | is.null(VDJ)){
+
+        if(all(VDJ=='') | all(is.na(VDJ)) | all(is.null(VDJ))){
           return(NULL)
         }
 
-        if(VJ=='' | is.na(VJ) | is.null(VJ)){
+        if(all(VJ=='') | all(is.na(VJ)) | all(is.null(VJ))){
           return(NULL)
         }
         germline_seq <- paste0(VDJ, VJ)
@@ -566,11 +567,11 @@ AntibodyForests <- function(VDJ,
       if(stringr::str_detect(sequence.type, 'VDJ.VJ')){
         VDJ <- clonotype_df$VDJ_trimmed_ref
         VJ <- clonotype_df$VJ_trimmed_ref
-        if(VDJ=='' | is.na(VDJ) | is.null(VDJ)){
+        if(all(VDJ=='') | all(is.na(VDJ)) | all(is.null(VDJ))){
           return(NULL)
         }
 
-        if(VJ=='' | is.na(VJ) | is.null(VJ)){
+        if(all(VJ=='') | all(is.na(VJ)) | all(is.null(VJ))){
           return(NULL)
         }
         germline_seq <- paste0(VDJ,VJ)
@@ -1558,12 +1559,6 @@ AntibodyForests <- function(VDJ,
          clonotype_dfs <- clonotype_dfs[which(clonotype_dfs$clonotype_id %in% selected_clonotypes),]
        }
      }
-   }
-   if(inherits(clonotype_dfs,'list')){
-     temp_list <- list()
-     temp_list[[1]] <- clonotype_dfs
-     clonotype_dfs <- temp_list
-     temp_list <- NULL
    }
 
    if(parallel){

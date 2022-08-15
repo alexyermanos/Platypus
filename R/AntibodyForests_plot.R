@@ -94,7 +94,7 @@ AntibodyForests_plot <- function(network.list,
   if(missing(show.legend)) show.legend <- T
   if(missing(color.gradient)) color.gradient <- NULL
 
-  bulk.gradient <- NULL
+  bulk.gradient <- F
 
   plot_single_network <- function(g){
 
