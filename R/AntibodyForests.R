@@ -1561,6 +1561,10 @@ AntibodyForests <- function(VDJ,
      }
    }
 
+   if(is.data.frame(clonotype_dfs)){
+     clonotype_dfs <- list(clonotype_dfs)
+   }
+
    if(parallel){
      #requireNamespace('parallel')
      cores <- parallel::detectCores()

@@ -40,7 +40,7 @@ AntibodyForests_node_transitions <- function(trees,
   if(missing(features)) features <- NULL
   if(missing(combined)) combined <- F
   if(missing(graph.type)) graph.type <- 'tree'
-  if(missing(permutation.test)) permutation.test <- T
+  if(missing(permutation.test)) permutation.test <- F
   if(missing(exclude.germline)) exclude.germline <- T
   if(missing(exclude.intermediates)) exclude.intermediates <- T
   if(missing(n.permutations)) n.permutations <- 10
@@ -379,5 +379,4 @@ AntibodyForests_node_transitions <- function(trees,
 
 
   return(trees)
-
 }
