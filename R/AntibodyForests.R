@@ -63,10 +63,14 @@
 #' @param as.igraph boolean - if T, the resulting networks will be igraph objects. Otherwise, they are converted to tidygraph tibble objects.
 
 #' @return nested list of AntibodyForests objects for each sample and each clonotype. For example, output[[1]][[2]] denotes the AntibodyForests object of the first sample, second clonotype. If only a single clonotype and sample are available in the VDJ (or if the networks are joined via network.level = 'forest.global'), will output a single AntibodyForests object.
+#' @importFrom foreach %dopar%
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed', include.germline=T, network.algorithm='tree', resolve.ties=c('close.germline.distance', 'max.expansion'), node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
+#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed',
+#' include.germline=T, network.algorithm='tree',
+#' resolve.ties=c('close.germline.distance', 'max.expansion'),
+#' node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
 #'}
 
 
@@ -140,118 +144,124 @@ AntibodyForests <- function(VDJ,
   features_to_select <- c('sample_id', 'clonotype_id')
   features_to_select <- unique(c(features_to_select, node.features))
 
-  methods::setClass('AntibodyForests',
-    slots = c(
-      tree = 'ANY', #in
-      sample_id = 'ANY', #in
-      clonotype_id = 'ANY', #in
-      plot_ready = 'ANY', #f call
-      heterogeneous = 'ANY', #f call
-      reactivity = 'ANY', #f call
-      dynamic = 'ANY', #f call
-      metrics = 'ANY', #f call
-      sequences = 'ANY', #in
-      germline_sequence = 'ANY', #to add
-      barcodes = 'ANY', #in
-      node_features = 'ANY', #in
-      edge_list = 'ANY', #no/f call
-      gex_list = 'ANY', #f call
-      paths = 'ANY', #f call
-      node_transitions = 'ANY', #f call
-      adjacency_matrix = 'ANY', #no/f call
-      phylo = 'ANY', #f call
-      feature_names = 'ANY',
-      network_algorithm = 'ANY',
-      inferred = 'ANY',
-      permuted_transitions = 'ANY'
-    )
-  )
+  #CLASS definition moved to AntibodyForests_class
 
-  methods::setMethod(f='show', signature='AntibodyForests',
-   definition=function(object) {
-    cat('AntibodyForests object', '\n')
-
-    cat(length(which(object@node_features$node_type == 'sequence')), ' sequence nodes across ', length(object@sample_id), ' sample(s) and ', length(object@clonotype_id), ' clonotype(s)', '\n')
-
-    if(any(object@node_features$node_type == 'intermediate')){
-      cat(length(which(object@node_features$node_type == 'intermediate')), ' intermediate nodes', '\n')
-    }
-
-    if(any(object@node_features$node_type == 'inferred')){
-      cat(length(which(object@node_features$node_type == 'inferred')), ' inferred sequence nodes', '\n')
-    }
-
-    if(any(object@node_features$node_type == 'bulk')){
-      cat(length(which(object@node_features$node_type == 'bulk')), ' bulk sequence nodes', '\n')
-    }
-
-    cat(length(which(object@node_features$node_type == 'sequence')) + length(which(object@node_features$node_type == 'intermediate')) + length(which(object@node_features$node_type == 'inferred')) + length(which(object@node_features$node_type == 'bulk')),
-        ' total network nodes', '\n'
-    )
+  # methods::setClass('AntibodyForests',
+  #   slots = c(
+  #     tree = 'ANY', #in
+  #     sample_id = 'ANY', #in
+  #     clonotype_id = 'ANY', #in
+  #     plot_ready = 'ANY', #f call
+  #     heterogeneous = 'ANY', #f call
+  #     reactivity = 'ANY', #f call
+  #     dynamic = 'ANY', #f call
+  #     metrics = 'ANY', #f call
+  #     sequences = 'ANY', #in
+  #     germline_sequence = 'ANY', #to add
+  #     barcodes = 'ANY', #in
+  #     node_features = 'ANY', #in
+  #     edge_list = 'ANY', #no/f call
+  #     gex_list = 'ANY', #f call
+  #     paths = 'ANY', #f call
+  #     node_transitions = 'ANY', #f call
+  #     adjacency_matrix = 'ANY', #no/f call
+  #     phylo = 'ANY', #f call
+  #     feature_names = 'ANY',
+  #     network_algorithm = 'ANY',
+  #     inferred = 'ANY',
+  #     permuted_transitions = 'ANY'
+  #   )
+  # )
 
 
-    cat('Sample id(s): ', paste0(object@sample_id, collapse = ', '), '\n')
 
-    cat('Clonotype id(s): ', paste0(object@clonotype_id, collapse = ', '), '\n')
-
-    networks <- c(object@network_algorithm)
-
-    if(!is.null(object@plot_ready)){
-      networks <- c(networks, 'plot_ready')
-    }
-
-    if(!is.null(object@phylo)){
-      networks <- c(networks, 'phylo')
-    }
-
-    if(!is.null(object@heterogeneous)){
-      networks <- c(networks, 'heterogeneous')
-
-    }
-
-    if(!is.null(object@reactivity)){
-      networks <- c(networks, 'reactivity')
-
-    }
-
-    if(!is.null(object@dynamic)){
-      networks <- c(networks, 'dynamic')
-    }
-
-
-    if(!is.null(object@metrics)){
-      networks <- c(networks, 'metrics')
-
-    }
-
-    if(!is.null(object@node_transitions)){
-      networks <- c(networks, 'node_transitions')
-
-    }
-
-    if(!is.null(object@paths)){
-      networks <- c(networks, 'paths')
-    }
-
-    cat('Networks/analyses available: ', paste0(networks, collapse = ', '))
-
-    cat('\n')
-
-    cat('\n')
-
-    cat('\n')
-
-   }
-  )
+  # methods::setMethod(f='show', signature='AntibodyForests',
+  #  definition=function(object) {
+  #   cat('AntibodyForests object', '\n')
+  #
+  #   cat(length(which(object@node_features$node_type == 'sequence')), ' sequence nodes across ', length(object@sample_id), ' sample(s) and ', length(object@clonotype_id), ' clonotype(s)', '\n')
+  #
+  #   if(any(object@node_features$node_type == 'intermediate')){
+  #     cat(length(which(object@node_features$node_type == 'intermediate')), ' intermediate nodes', '\n')
+  #   }
+  #
+  #   if(any(object@node_features$node_type == 'inferred')){
+  #     cat(length(which(object@node_features$node_type == 'inferred')), ' inferred sequence nodes', '\n')
+  #   }
+  #
+  #   if(any(object@node_features$node_type == 'bulk')){
+  #     cat(length(which(object@node_features$node_type == 'bulk')), ' bulk sequence nodes', '\n')
+  #   }
+  #
+  #   cat(length(which(object@node_features$node_type == 'sequence')) + length(which(object@node_features$node_type == 'intermediate')) + length(which(object@node_features$node_type == 'inferred')) + length(which(object@node_features$node_type == 'bulk')),
+  #       ' total network nodes', '\n'
+  #   )
+  #
+  #
+  #   cat('Sample id(s): ', paste0(object@sample_id, collapse = ', '), '\n')
+  #
+  #   cat('Clonotype id(s): ', paste0(object@clonotype_id, collapse = ', '), '\n')
+  #
+  #   networks <- c(object@network_algorithm)
+  #
+  #   if(!is.null(object@plot_ready)){
+  #     networks <- c(networks, 'plot_ready')
+  #   }
+  #
+  #   if(!is.null(object@phylo)){
+  #     networks <- c(networks, 'phylo')
+  #   }
+  #
+  #   if(!is.null(object@heterogeneous)){
+  #     networks <- c(networks, 'heterogeneous')
+  #
+  #   }
+  #
+  #   if(!is.null(object@reactivity)){
+  #     networks <- c(networks, 'reactivity')
+  #
+  #   }
+  #
+  #   if(!is.null(object@dynamic)){
+  #     networks <- c(networks, 'dynamic')
+  #   }
+  #
+  #
+  #   if(!is.null(object@metrics)){
+  #     networks <- c(networks, 'metrics')
+  #
+  #   }
+  #
+  #   if(!is.null(object@node_transitions)){
+  #     networks <- c(networks, 'node_transitions')
+  #
+  #   }
+  #
+  #   if(!is.null(object@paths)){
+  #     networks <- c(networks, 'paths')
+  #   }
+  #
+  #   cat('Networks/analyses available: ', paste0(networks, collapse = ', '))
+  #
+  #   cat('\n')
+  #
+  #   cat('\n')
+  #
+  #   cat('\n')
+  #
+  #  }
+  # )
 
   custom_distance_matrix <- function(unique.sequences, distance.metric){
-    #Remember to export %dopar% operator from the doParallel package
+    #Remember to export %dopar% operator from the foreach package
     #requireNamespace('parallel') #Will remove later
     #requireNamespace('doParallel')
     #requireNamespace('bigstatsr')
 
+    d <- NULL
+
     m <- bigstatsr::FBM(length(unique.sequences), length(unique.sequences))
-    combs <- combn(1:length(unique.sequences), 2)
+    combs <- utils::combn(1:length(unique.sequences), 2)
     cores <- parallel::detectCores()
     cl <- parallel::makeCluster(cores)
 
@@ -913,6 +923,7 @@ AntibodyForests <- function(VDJ,
 
  calculate_adjacency_matrix_prune <- function(network_df){
 
+    adjacency_matrix <- NULL
     sequences <- network_df$network_sequences
 
     if(!is.function(distance.calculation)){
@@ -1109,7 +1120,7 @@ AntibodyForests <- function(VDJ,
      }else{
        alignment <- network_df$network_sequences %>%
                     matrix() %>%
-                    ape::as.dnabin() %>%
+                    ape::as.DNAbin() %>%
                     ape::clustal()
 
        phylo_data <- phangorn::read.phyDat(alignment, format='fasta')
@@ -1486,12 +1497,12 @@ AntibodyForests <- function(VDJ,
 
  set.seed(random.seed)
 
- if(class(VDJ)=='data.frame'){
+ if(inherits(VDJ,'data.frame')){
    VDJ.GEX.matrix <- list()
    VDJ.GEX.matrix[[1]] <- VDJ
    VDJ <- NULL
 
- }else if(class(VDJ)=='list'){
+ }else if(inherits(VDJ,'list')){
     VDJ.GEX.matrix <- list()
     for(i in 1:length(VDJ)){
       VDJ.GEX.matrix[[i]] <- do.call('rbind', VDJ[[i]])
@@ -1548,7 +1559,7 @@ AntibodyForests <- function(VDJ,
        }
      }
    }
-   if(class(clonotype_dfs)!='list'){
+   if(inherits(clonotype_dfs,'list')){
      temp_list <- list()
      temp_list[[1]] <- clonotype_dfs
      clonotype_dfs <- temp_list
