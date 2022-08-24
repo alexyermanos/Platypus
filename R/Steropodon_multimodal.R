@@ -125,7 +125,7 @@ Steropodon_multimodal <- function(
 
   multimodal_obj <- create_multimodal_object(feature.matrix = feature.matrix,
                                              seurat.obj = seurat_obj,
-                                             n.variable.features = ,
+                                             n.variable.features = n.variable.features,
                                              multimodal.integration = multimodal.integration,
                                              pca.dims = pca.dims,
                                              additional.integration.parameters = additional.integration.parameters,
