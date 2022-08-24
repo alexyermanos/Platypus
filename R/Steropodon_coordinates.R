@@ -4,10 +4,13 @@ Steropodon_coordinates <- function(steropodon.object,
                                    use.pdbs,
                                    feature.imputation,
                                    remove.na,
+                                   scale,
+                                   variable.features,
                                    plot.results,
                                    dim.reduction,
                                    color.by,
                                    VGM,
+                                   cluster.method,
                                    additional.dim.reduction.parameters,
                                    per.cell
                                   ){
@@ -16,11 +19,14 @@ Steropodon_coordinates <- function(steropodon.object,
   if(missing(structure)) structure <- 'structure'
   if(missing(use.pdbs)) use.pdbs <- T #recommended to get aligned coordinates as features (for dim reduction)
   if(missing(feature.imputation)) feature.imputation <- NULL
-  if(missing(remove.na)) remove.na <- F
+  if(missing(remove.na)) remove.na <- T
+  if(missing(scale)) scale <- T
+  if(missing(variable.features)) variable.features <- 100
   if(missing(plot.results)) plot.results <- T
-  if(missing(dim.reduction)) dim.reduction <- 'pca'
+  if(missing(dim.reduction)) dim.reduction <- 'tsne'
   if(missing(color.by)) color.by <- 'sample_id'
   if(missing(VGM)) VGM <- NULL
+  if(missing(cluster.method)) cluster.method <- NULL #will cluster on dim reduced, not on whole features (as opposed to Steropodon_cluster)
   if(missing(additional.dim.reduction.parameters)) additional.dim.reduction.parameters <- list()
   if(missing(per.cell)) per.cell <- F
 
@@ -96,7 +102,7 @@ Steropodon_coordinates <- function(steropodon.object,
      params <- list(X = feature.matrix, check_duplicates = F)
      params <- c(params, additional.dim.reduction.parameters)
      out <- do.call(Rtsne::Rtsne, params)$Y
-     rownames(out) <- colnames(feature.matrix)
+     rownames(out) <- rownames(feature.matrix)
 
     }else if(dim.reduction == 'umap'){
      params <- list(d = feature.matrix)
@@ -150,6 +156,15 @@ Steropodon_coordinates <- function(steropodon.object,
       out_dfs[[i]] <- out
     }
 
+    if(!is.null(cluster.method)){
+      out$color.by <- NULL
+      out$feature.name <- NULL
+      clusters <- bluster::clusterRows(out, cluster.method)
+      out$color.by <- clusters
+      out$feature.name <- 'clusters'
+      out_dfs[[length(out_dfs) + 1]] <- out
+    }
+
     return(out_dfs)
   }
 
@@ -192,6 +207,19 @@ Steropodon_coordinates <- function(steropodon.object,
     rownames(out) <- unname(unlist(barcode_list))
   }
 
+  #Use the Seurat utilities for scaling/ finding variable features
+  if(!is.null(variable.features)){
+    out <- Seurat::CreateAssayObject(counts = t(out))
+    out <- Seurat::FindVariableFeatures(out, nfeatures = variable.features)
+    out <- t(as.matrix(Seurat::GetAssayData(out)))
+  }
+
+  if(scale){
+    out <- Seurat::CreateAssayObject(counts = t(out))
+    out <- Seurat::ScaleData(out)
+    out <- t(as.matrix(Seurat::GetAssayData(out)))
+  }
+
   if(plot.results & !per.cell){
     out <- features_dim_reduction(feature.matrix = out,
                                   steropodon.list = steropodon_list,
@@ -202,6 +230,7 @@ Steropodon_coordinates <- function(steropodon.object,
 
     out <- plot_embeddings(out)
   }
+
 
   return(out)
 }
