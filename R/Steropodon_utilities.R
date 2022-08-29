@@ -483,3 +483,67 @@ sequence_alignment <- function(structure.list,
 
   return(pdbs)
 }
+
+write_steropodon_pdbs <- function(steropodon.object, structure, dir){
+
+  if(!is.null(dir)){
+    if(!dir.exists(dir)) dir.create(dir)
+  }
+
+  if(!inherits(steropodon.object, 'Steropodon')){
+    steropodon_list <- unnest_steropodon(steropodon.object)
+    structure_list <- lapply(steropodon_list, function(x) select_structure(x, structure = structure))
+    file_names <- unlist(lapply(names(steropodon_list), function(x) stringr::str_replace_all(x, '\\.', '_')))
+    if(!is.null(dir)){
+      file_list <- paste0(dir, '/', file_names, '.pdb')
+    }else{
+      file_list <- paste0(file_names, '.pdb')
+    }
+    chains <- unique(structure_list[[1]]$atom$chain)
+    chain_dict <- toupper(letters)[1:length(chains)]
+    names(chain_dict) <- chains
+    mapply(function(x,y) bio3d::write.pdb(xyz = x$xyz,
+                                          type = x$atom$type,
+                                          resno = x$atom$resno,
+                                          resid = x$atom$resid,
+                                          eleno = x$atom$eleno,
+                                          elety = x$atom$elety,
+                                          chain = chain_dict[x$atom$chain],
+                                          o = x$atom$o,
+                                          b = x$atom$b,
+                                          segid = x$atom$segid,
+                                          elesy = x$atom$elesy,
+                                          charge = x$atom$charge,
+                                          file = y),
+                                            structure_list, file_list)
+
+  }else{
+    pdb <- select_structure(steropodon.object, structure = structure)
+    file_names <- paste0(steropodon.object@structure_id, collapse = '_')
+
+    if(!is.null(dir)){
+      file_list <- paste0(dir, '/', file_names, '.pdb')
+    }else{
+      file_list <- paste0(file_names, '.pdb')
+    }
+
+    chains <- unique(pdb$atom$chain)
+    chain_dict <- toupper(letters)[1:length(chains)]
+    names(chain_dict) <- chains
+    bio3d::write.pdb(xyz = pdb$xyz,
+                        type = pdb$atom$type,
+                        resno = pdb$atom$resno,
+                        resid = pdb$atom$resid,
+                        eleno = pdb$atom$eleno,
+                        elety = pdb$atom$elety,
+                        chain = chain_dict[pdb$atom$chain],
+                        o = pdb$atom$o,
+                        b = pdb$atom$b,
+                        segid = pdb$atom$segid,
+                        elesy = pdb$atom$elesy,
+                        charge = pdb$atom$charge,
+                        file = file_list)
+  }
+
+  return(list(chain_dict = chain_dict, file_list = file_list))
+}
