@@ -1,8 +1,9 @@
 #' MiXCR wrapper for Platypus V3 VDJ object
 #'
-#'@description Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.
+#'@description Extracts information on the VDJRegion level using MiXCR on WINDOWS, MAC and UNIX systems for input from both Platypus v2 (VDJ.per.clone) or v3 (Output of VDJ_GEX_matrix) This function assumes the user can run an executable instance of MiXCR and is elgible to use MiXCR as determined by license agreements. ! FOR WINDOWS USERS THE EXECUTABLE MIXCR.JAR HAS TO PRESENT IN THE CURRENT WORKING DIRECTORY ! In case the function is not able to call mixcr in "Windows" mode, please try setting the operating.system to "Linux".  The VDJRegion corresponds to the recombined heavy and light chain loci starting from framework region 1 (FR1) and extending to frame work region 4 (FR4). This can be useful for extracting full-length sequences ready to clone and further calculating somatic hypermutation occurrences.
 #' @param VDJ For platypus.version = "v2" the output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell. For platypus.version = "v3" the VDJ dataframe output of the VDJ_GEX_matrix function (VDJ.GEX.matri.output[[1]])
 #' @param operating.system Can be either "Windows", "Darwin" (for MAC) or "Linux". If left empty this is detected automatically
+#' @param custom.cmd.call This function calls Mixcr via a terminal. The commands are build as follows: FOR DARWIN and LINUX machines: paste0(custom.cmd.call," ", mixcr.directory,"/mixcr.jar ... {mixcr parameters assembled by function}"). FOR WINDOWS machines: paste0(custom.cmd.call," mixcr.jar ... {mixcr parameters assembled by function}") custom.cmd.call defaults to "java -jar". In case different MIXCR installations, changing this to meet your systems requirements may be necessary.
 #' @param mixcr.directory The directory containing an executable version of MiXCR. FOR WINDOWS USERS THIS IS SET TO THE CURRENT WORKING DIRECTORY (please paste the content of the MIXCR folder after unzipping into your working directory. Make sure, that mixcr.jar is not within any subfolders.)
 #' @param species Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR. Defaults to "hsa"
 #' @param simplify Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns
@@ -24,6 +25,7 @@
 
 VDJ_call_MIXCR <- function(VDJ,
                            operating.system,
+                           custom.cmd.call,
                            mixcr.directory,
                            species,
                            simplify,
@@ -35,6 +37,7 @@ VDJ_call_MIXCR <- function(VDJ,
     if(missing(simplify)) simplify <- T
     if(missing(species)) species <- "hsa"
     if(missing(platypus.version)) platypus.version <- "v3"
+    if(missing(custom.cmd.call)) custom.cmd.call <- "java -jar"
 
     if(missing(operating.system)){
       switch(Sys.info()[['sysname']],
@@ -90,18 +93,23 @@ VDJ_call_MIXCR <- function(VDJ,
 
     seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
 
-    system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
+    system("cmd.exe", input = paste0("echo Hello world"))
 
+    print(paste0(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
 
-    system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
+    system("cmd.exe", input = paste0(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
 
-    system("cmd.exe",input =  paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"'),sep=""))
+           system("cmd.exe", input = paste0("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
+
+    system("cmd.exe", input = paste0(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
+
+    system("cmd.exe",input =  paste0(custom.cmd.call, " ", "mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"')))
 
     seqinr::write.fasta(sequences = as.list(temp.seq.lc_unlist),names = temp.name.lc_unlist,file.out = "templc.fasta")
 
-    system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.vdjca",'"'),sep=""))
+    system("cmd.exe", input = paste0(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.vdjca",'"')))
 
-    system("cmd.exe", input = paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.txt",'"'),sep=""))
+    system("cmd.exe", input = paste0(custom.cmd.call, " ", "mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.txt",'"')))
 
     temp.mixcr.hc <- utils::read.table(file ="tempmixcrhc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
     temp.mixcr.lc <- utils::read.table(file ="tempmixcrlc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
@@ -216,19 +224,19 @@ VDJ_call_MIXCR <- function(VDJ,
 
         seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
 
-        system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
+        system("cmd.exe", input = paste(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
 
 
-        system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
+        system("cmd.exe", input = paste(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"'),sep=""))
 
 
-        system("cmd.exe",input =  paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"'),sep=""))
+        system("cmd.exe",input =  paste(custom.cmd.call, " ", "mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.txt",'"'),sep=""))
 
         seqinr::write.fasta(sequences = as.list(temp.seq.lc_unlist),names = temp.name.lc_unlist,file.out = "templc.fasta")
 
-        system("cmd.exe", input = paste("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.vdjca",'"'),sep=""))
+        system("cmd.exe", input = paste(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.vdjca",'"'),sep=""))
 
-        system("cmd.exe", input = paste("java -jar mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.txt",'"'),sep=""))
+        system("cmd.exe", input = paste(custom.cmd.call, " ", "mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrlc.out.txt",'"'),sep=""))
 
         temp.mixcr.hc <- utils::read.table(file ="tempmixcrhc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
         temp.mixcr.lc <- utils::read.table(file ="tempmixcrlc.out.txt", sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
@@ -384,11 +392,11 @@ VDJ_call_MIXCR <- function(VDJ,
       temp.name.lc_unlist <- c(unlist(normals$barcode),bcs_VJ)
 
       seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = paste0("temphc.fasta"))
-      system(paste("java -jar ", mixcr.directory,"/mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta tempmixcrhc.out.vdjca",sep=""))
-      system(paste("java -jar ", mixcr.directory,"/mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca tempmixcrhc.out.txt",sep=""))
+      system(paste0(custom.cmd.call, " ", mixcr.directory,"/mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta tempmixcrhc.out.vdjca",sep=""))
+      system(paste0(custom.cmd.call, " ", mixcr.directory,"/mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrhc.out.vdjca tempmixcrhc.out.txt",sep=""))
       seqinr::write.fasta(sequences = as.list(temp.seq.lc_unlist),names = temp.name.lc_unlist,file.out = paste0("templc.fasta"))
-      system(paste("java -jar ", mixcr.directory,"/mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta tempmixcrlc.out.vdjca",sep=""))
-      system(paste("java -jar ", mixcr.directory,"/mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca tempmixcrlc.out.txt",sep=""))
+      system(paste0(custom.cmd.call, " ", mixcr.directory,"/mixcr.jar align -OsaveOriginalReads=true -s ", species," templc.fasta tempmixcrlc.out.vdjca",sep=""))
+      system(paste0(custom.cmd.call, " ", mixcr.directory,"/mixcr.jar exportAlignments --preset full -descrsR1 -vAlignment -dAlignment -jAlignment -aaMutations VRegion -aaMutations JRegion -nMutations VRegion -nMutations JRegion tempmixcrlc.out.vdjca tempmixcrlc.out.txt",sep=""))
       temp.mixcr.hc <- utils::read.table(file =paste0("tempmixcrhc.out.txt"), sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
       temp.mixcr.lc <- utils::read.table(file =paste0("tempmixcrlc.out.txt"), sep="\t", header = T, stringsAsFactors=FALSE, fill=TRUE)
 
