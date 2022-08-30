@@ -93,10 +93,6 @@ VDJ_call_MIXCR <- function(VDJ,
 
     seqinr::write.fasta(sequences = as.list(temp.seq.hc_unlist),names = temp.name.hc_unlist,file.out = "temphc.fasta")
 
-    system("cmd.exe", input = paste0("echo Hello world"))
-
-    print(paste0(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
-
     system("cmd.exe", input = paste0(custom.cmd.call, " ", "mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
 
            system("cmd.exe", input = paste0("java -jar mixcr.jar align -OsaveOriginalReads=true -s ", species," temphc.fasta ",paste0('"',gsub("\\\\","/",mixcr.directory),"/tempmixcrhc.out.vdjca",'"')))
