@@ -187,6 +187,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   seurat.loaded <- F
   data.in.loaded <- F
 
+  #### Function def: Helper for Barcode intersect ####
+  #source: Stackoverflow user A5C1D2H2I1M1N2O1R2T1 Issue: 24614391
+  listIntersect <- function(inList) {
+    X <- crossprod(table(stack(inList)))
+    X[lower.tri(X)] <- NA
+    diag(X) <- NA
+    out <- na.omit(data.frame(as.table(X)))
+    out[order(out$ind), ]
+  }
 
   #### Function def: pick_max_feature_barcode ####
 
@@ -1019,7 +1028,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(n.variable.features)) n.variable.features <- 2000
   if(missing(cluster.resolution)) cluster.resolution <- .5
   if(missing(neighbor.dim)) neighbor.dim <- 1:10
-  if(missing(mds.dim)) mds.dim <- 1:10
+  if(missing(mds.dim )) mds.dim <- 1:10
   #FB
   if(missing(FB.ratio.threshold)) FB.ratio.threshold <- 2
   if(missing(FB.count.threshold)) FB.count.threshold <- 10
@@ -1640,6 +1649,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         if(verbose) message(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX cells that were not present in VDJ"))
       }
     }
+
+    #Print intersect table
+    bc_list <- c(barcodes_VDJ_raw, barcodes_GEX_raw)
+    names(bc_list) <- c(paste0("VDJ s", 1:length(barcodes_VDJ_raw)), paste0("GEX s", 1:length(barcodes_GEX_raw)))
+    if(verbose) message("\n Overlap matrix of barcodes in GEX and VDJ: ")
+    if(verbose) print(listIntersect(bc_list))
+
   }
 
   if(gex.loaded == F & vdj.loaded == T & seurat.loaded == T){ #If VDJ is available and GEX is loaded from Seurat.in
@@ -1659,9 +1675,22 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #raw barcodes VDJ
       barcodes_VDJ_raw[[i]] <- sub("(^_)|(-\\d+.*$)","",barcodes_VDJ[[i]])
     }
-    barcodes_VDJ_raw <- unlist(barcodes_VDJ_raw) #reducing to a single vector
 
+    #Print intersect table
+    bc_sample_GEX <- as.data.frame(gex.list[[1]]@meta.data[,c("orig_barcode","sample_id")])
+    barcodes_GEX_raw_list <- list()
+    for(i in 1:length(unique(bc_sample_GEX$sample_id))){
+      barcodes_GEX_raw_list[[i]] <- bc_sample_GEX$orig_barcode[bc_sample_GEX$sample_id == unique(bc_sample_GEX$sample_id)[i]]
+    }
+
+    bc_list <- c(barcodes_VDJ_raw, barcodes_GEX_raw_list)
+    names(bc_list) <- c(paste0("VDJ s", 1:length(barcodes_VDJ_raw)), paste0("GEX s", 1:length(barcodes_GEX_raw_list)))
+    if(verbose) message("\n Overlap matrix of barcodes in GEX and VDJ: ")
+    if(verbose) print(listIntersect(bc_list))
+
+    barcodes_VDJ_raw <- unlist(barcodes_VDJ_raw) #reducing to a single vector
     if(verbose) message(paste0("\n For input Seurat object: ", length(barcodes_GEX)," cells assigned barcodes in GEX"))
+
 
     vdj.gex.available <- barcodes_GEX_raw %in% barcodes_VDJ_raw
     if(verbose) message(paste0("For input Seurat object GEX and VDJ barcode overlap is: ", sum(vdj.gex.available)))
