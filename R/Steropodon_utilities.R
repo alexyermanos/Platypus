@@ -484,6 +484,8 @@ sequence_alignment <- function(structure.list,
   return(pdbs)
 }
 
+
+
 write_steropodon_pdbs <- function(steropodon.object, structure, dir){
 
   if(!is.null(dir)){
@@ -546,4 +548,22 @@ write_steropodon_pdbs <- function(steropodon.object, structure, dir){
   }
 
   return(list(chain_dict = chain_dict, file_list = file_list))
+}
+
+remove_na_steropodon <- function(steropodon.object, structure){
+  remove_na_pdb <- function(pdb){
+    na_residues <- unique(pdb$atom$resno[is.na(pdb$atom$chain)])
+    if(length(na_residues) > 0){
+      pdb <- bio3d::trim(pdb, inds = bio3d::atom.select(pdb, resno = na_residues))
+    }
+
+    return(pdb)
+  }
+
+  steropodon_list <- unnest_steropodon(steropodon.object)
+  pdbs <- lapply(steropodon_list, function(x) select_structure(x, structure = structure))
+  pdbs <- lapply(pdbs, function(x) remove_na_pdb(x))
+  steropodon_list <- mapply(function(x,y) modify_structure(x, structure = structure, pdb = y), steropodon_list, pdbs)
+
+  steropodon_object <- nest_steropodon(steropodon_list)
 }
