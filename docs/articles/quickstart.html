@@ -863,7 +863,7 @@ contain aligned and reference sequences. The clonotype_frequency column
 takes input from the clonotyping output of cellranger, which is saved
 int the clonotype_id_10x column.</p>
 <p>This object contains both cells with less than 2 V(D)J chains as well
-as with more than 2 To show how this is done the VDJ_cgene column is
+as with more than 2. To show how this is done the VDJ_cgene column is
 taken as an example</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">VDJ_cgene</span><span class="op">)</span><span class="op">)</span></code></pre></div>
