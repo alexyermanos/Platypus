@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,69 +93,92 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_clonal_expansion</span><span class="op">(</span>
-  <span class="va">VDJ</span>,
-  <span class="va">celltype</span>,
-  <span class="va">clones</span>,
-  <span class="va">subtypes</span>,
-  <span class="va">isotypes.to.plot</span>,
-  <span class="va">species</span>,
-  <span class="va">treat.incomplete.clones</span>,
-  <span class="va">treat.incomplete.cells</span>,
-  <span class="va">group.by</span>,
-  <span class="va">color.by</span>,
-  <span class="va">variant.plot</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_clonal_expansion</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ</span>,</span>
+<span>  <span class="va">celltype</span>,</span>
+<span>  <span class="va">clones</span>,</span>
+<span>  <span class="va">subtypes</span>,</span>
+<span>  <span class="va">isotypes.to.plot</span>,</span>
+<span>  <span class="va">species</span>,</span>
+<span>  <span class="va">treat.incomplete.clones</span>,</span>
+<span>  <span class="va">treat.incomplete.cells</span>,</span>
+<span>  <span class="va">group.by</span>,</span>
+<span>  <span class="va">color.by</span>,</span>
+<span>  <span class="va">variant.plot</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ</dt>
 <dd><p>VDJ dataframe generated using the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])</p></dd>
+
+
 <dt>celltype</dt>
 <dd><p>Character. Either "Tcells" or "Bcells". If set to Tcells bars will not be colored by default and the parameters treat_incomplete_cells, treat_incomplete_clones, subtypes and species are ignored. The color.by and group.by arguments work identically for both celltypes. If none provided it will detect this param from the celltype column.</p></dd>
+
+
 <dt>clones</dt>
 <dd><p>numeric value indicating the number of clones to be considered for the clonal expansion plot. Default value is 50. For a standard plot more than 50 is discouraged. When showing only one - possibly rare - isotype via isotypes.to.plot it may be useful to set this number higher (e.g. 100-200)</p></dd>
+
+
 <dt>subtypes</dt>
 <dd><p>Logical indicating whether to display isotype subtypes or not.</p></dd>
+
+
 <dt>isotypes.to.plot</dt>
 <dd><p>Character vector. Defaults to "all". This can be set to any number of specific Isotypes, that are to be shown exclusively. For example, to show only clones containing IgG, input "IGHG". If only wanting to check clones with IgA and IgD input c("IGHA","IGHD"). Works equally if subtypes are set to TRUE. Is ignored if color.by is not set to "isotype"</p></dd>
+
+
 <dt>species</dt>
 <dd><p>Character indicating whether the samples are from "Mouse" or "Human". Default is "Human".</p></dd>
+
+
 <dt>treat.incomplete.clones</dt>
 <dd><p>Character indicating how to proceed with clonotypes lacking a VDJC (in other words, no cell within the clonotype has a VDJC). "exclude" removes these clonotypes from the analysis. "include" keeps these clonotypes in the analysis. In the plot they will appear has having an unknown isotype.</p></dd>
+
+
 <dt>treat.incomplete.cells</dt>
 <dd><p>Character indicating how to proceed with cells assigned to a clonotype but missing a VDJC. "proportional" to fill in the VDJ isotype according to the proportions present in of clonotype (in case present proportions are not replicable in the total number of cells e.g. 1/3 in 10 cells, values are rounded to the next full integer and if the new counts exceed the total number of cells, 1 is subtracted from the isotype of highest frequency. If the number is below the number of cell, 1 is added to the isotype with lowest frequency to preserve diversity), "exclude" to exclude them from analysis and rank clonotypes only by the number of cells with a heavy chain. This ranking may deviate from the frequency column in the clonotype table. CAVE: if treat_incomplete_cells is set to "exclude", clonotypes lacking a VDJC entierly will be removed from the analysis. This results in a similar but not identical output as when treat_incomplete_clones is set to true. The two parameters are thereby non-redundant.</p></dd>
+
+
 <dt>group.by</dt>
 <dd><p>Character. Defaults to "sample_id". Column name of VDJ to split VDJ by. For each unique entry in that column a plot will be generated. Therefore plots can be generated by sample_id, group_id or any other metadata item.To get plots for the whole repertoire set to "none"</p></dd>
+
+
 <dt>color.by</dt>
 <dd><p>Character. Defaults to "isotype". If set to "isotype" bars are colored by the respective IgH chain or in grey for T cells. This can alternatively be set to any column name of the VDJ. This allows coloring clones by their V_gene usage or by GEX clusters</p></dd>
+
+
 <dt>variant.plot</dt>
 <dd><p>Logical indicating whether to plot the output showing the variants or not.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing also barcode and CDR3 information</p>
+    
+
+<p>Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing also barcode and CDR3 information</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#Standard B cell plot for platypus version v3</span></span>
-<span class="r-in"><span class="co">#Will generate one plot per sample (from sample_id column)</span></span>
-<span class="r-in"><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_clonal_expansion</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in"> celltype <span class="op">=</span> <span class="st">"Bcells"</span>, clones <span class="op">=</span> <span class="fl">30</span>,subtypes <span class="op">=</span> <span class="cn">FALSE</span>, species <span class="op">=</span> <span class="st">"Mouse"</span></span>
-<span class="r-in"> ,treat.incomplete.clones <span class="op">=</span> <span class="st">"exclude"</span></span>
-<span class="r-in"> ,treat.incomplete.cells <span class="op">=</span> <span class="st">"proportional"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Regrouped and recolored plot in v3</span></span>
-<span class="r-in"><span class="co">#Will generate a plot for each sample.</span></span>
-<span class="r-in"><span class="co">#Bars are filled by the sample with the highest proportion of cells in a given clonotype</span></span>
-<span class="r-in"><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_clonal_expansion</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span class="r-in">, celltype <span class="op">=</span> <span class="st">"Bcells"</span>, clones <span class="op">=</span> <span class="fl">30</span>,subtypes <span class="op">=</span> <span class="cn">FALSE</span>, species <span class="op">=</span> <span class="st">"Mouse"</span></span>
-<span class="r-in">,treat.incomplete.clones <span class="op">=</span> <span class="st">"exclude"</span></span>
-<span class="r-in">,treat.incomplete.cells <span class="op">=</span> <span class="st">"proportional"</span></span>
-<span class="r-in">,color.by <span class="op">=</span> <span class="st">"seurat_clusters"</span><span class="op">)</span> <span class="co">#change grouping with group.by = "column name"</span></span>
-<span class="r-in"><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="co">#list of plots</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Standard B cell plot for platypus version v3</span></span></span>
+<span class="r-in"><span><span class="co">#Will generate one plot per sample (from sample_id column)</span></span></span>
+<span class="r-in"><span><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_clonal_expansion</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span> celltype <span class="op">=</span> <span class="st">"Bcells"</span>, clones <span class="op">=</span> <span class="fl">30</span>,subtypes <span class="op">=</span> <span class="cn">FALSE</span>, species <span class="op">=</span> <span class="st">"Mouse"</span></span></span>
+<span class="r-in"><span> ,treat.incomplete.clones <span class="op">=</span> <span class="st">"exclude"</span></span></span>
+<span class="r-in"><span> ,treat.incomplete.cells <span class="op">=</span> <span class="st">"proportional"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Regrouped and recolored plot in v3</span></span></span>
+<span class="r-in"><span><span class="co">#Will generate a plot for each sample.</span></span></span>
+<span class="r-in"><span><span class="co">#Bars are filled by the sample with the highest proportion of cells in a given clonotype</span></span></span>
+<span class="r-in"><span><span class="va">clonal_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_clonal_expansion</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>, celltype <span class="op">=</span> <span class="st">"Bcells"</span>, clones <span class="op">=</span> <span class="fl">30</span>,subtypes <span class="op">=</span> <span class="cn">FALSE</span>, species <span class="op">=</span> <span class="st">"Mouse"</span></span></span>
+<span class="r-in"><span>,treat.incomplete.clones <span class="op">=</span> <span class="st">"exclude"</span></span></span>
+<span class="r-in"><span>,treat.incomplete.cells <span class="op">=</span> <span class="st">"proportional"</span></span></span>
+<span class="r-in"><span>,color.by <span class="op">=</span> <span class="st">"seurat_clusters"</span><span class="op">)</span> <span class="co">#change grouping with group.by = "column name"</span></span></span>
+<span class="r-in"><span><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="co">#list of plots</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-plt img"><img src="VDJ_clonal_expansion-1.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -165,7 +188,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
 <span class="r-plt img"><img src="VDJ_clonal_expansion-3.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="co">#list of source dataframes</span></span>
+<span class="r-in"><span><span class="va">clonal_out</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="co">#list of source dataframes</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $s1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Counts Color ClonalRank  clonotype_id         VDJ_cdr3s_aa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       1  None          1 clonotype1243             CVRSWDYW</span>
@@ -246,24 +269,24 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10 s3_TCTCTAACATGGTCTA-1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11 s3_GGTGCGTTCGGCCGAT-1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#T cell plot with recoloring by vgene</span></span>
-<span class="r-in"><span class="co">#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]</span></span>
-<span class="r-in"><span class="co">#,celltype = "Tcells", clones = 30, group.by = "sample_id"</span></span>
-<span class="r-in"><span class="co">#,color_by = "VDJ_vgene")</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Plotting only IgD clones. Increased the value for clones to scan more of the dataset</span></span>
-<span class="r-in"><span class="co">#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]</span></span>
-<span class="r-in"><span class="co">#,celltype = "Bcells", clones = 150,subtypes = FALSE</span></span>
-<span class="r-in"><span class="co">#,species = "Mouse",treat.incomplete.clones = "include"</span></span>
-<span class="r-in"><span class="co">#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)</span></span>
-<span class="r-in"><span class="co">#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]</span></span>
-<span class="r-in"><span class="co">#,celltype = "Bcells", clones = 150,subtypes = TRUE, species = "Mouse"</span></span>
-<span class="r-in"><span class="co">#,treat.incomplete.clones = "exclude"</span></span>
-<span class="r-in"><span class="co">#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#T cell plot with recoloring by vgene</span></span></span>
+<span class="r-in"><span><span class="co">#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]</span></span></span>
+<span class="r-in"><span><span class="co">#,celltype = "Tcells", clones = 30, group.by = "sample_id"</span></span></span>
+<span class="r-in"><span><span class="co">#,color_by = "VDJ_vgene")</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Plotting only IgD clones. Increased the value for clones to scan more of the dataset</span></span></span>
+<span class="r-in"><span><span class="co">#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]</span></span></span>
+<span class="r-in"><span><span class="co">#,celltype = "Bcells", clones = 150,subtypes = FALSE</span></span></span>
+<span class="r-in"><span><span class="co">#,species = "Mouse",treat.incomplete.clones = "include"</span></span></span>
+<span class="r-in"><span><span class="co">#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)</span></span></span>
+<span class="r-in"><span><span class="co">#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]</span></span></span>
+<span class="r-in"><span><span class="co">#,celltype = "Bcells", clones = 150,subtypes = TRUE, species = "Mouse"</span></span></span>
+<span class="r-in"><span><span class="co">#,treat.incomplete.clones = "exclude"</span></span></span>
+<span class="r-in"><span><span class="co">#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -278,8 +301,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

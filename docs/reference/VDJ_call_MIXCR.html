@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,34 +93,47 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_call_MIXCR</span><span class="op">(</span>
-  <span class="va">VDJ</span>,
-  <span class="va">operating.system</span>,
-  <span class="va">mixcr.directory</span>,
-  <span class="va">species</span>,
-  <span class="va">simplify</span>,
-  <span class="va">platypus.version</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_call_MIXCR</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ</span>,</span>
+<span>  <span class="va">operating.system</span>,</span>
+<span>  <span class="va">mixcr.directory</span>,</span>
+<span>  <span class="va">species</span>,</span>
+<span>  <span class="va">simplify</span>,</span>
+<span>  <span class="va">platypus.version</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ</dt>
 <dd><p>For platypus.version = "v2" the output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell. For platypus.version = "v3" the VDJ dataframe output of the VDJ_GEX_matrix function (VDJ.GEX.matri.output[[1]])</p></dd>
+
+
 <dt>operating.system</dt>
 <dd><p>Can be either "Windows", "Darwin" (for MAC) or "Linux". If left empty this is detected automatically</p></dd>
+
+
 <dt>mixcr.directory</dt>
 <dd><p>The directory containing an executable version of MiXCR. FOR WINDOWS USERS THIS IS SET TO THE CURRENT WORKING DIRECTORY (please paste the content of the MIXCR folder after unzipping into your working directory. Make sure, that mixcr.jar is not within any subfolders.)</p></dd>
+
+
 <dt>species</dt>
 <dd><p>Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR. Defaults to "hsa"</p></dd>
+
+
 <dt>simplify</dt>
 <dd><p>Only relevant when platypus.version = "v3". Boolean. Defaults to TRUE. If FALSE the full MIXCR output and computed SHM column is appended to the VDJ If TRUE only the framework and CDR3 region columns and computed SHM column is appended. To discriminate between VDJ and VJ chains, prefixes are added to all MIXCR output columns</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>For platypus.version = "v3" returns input VDJ dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.</p>
+    
+
+<p>For platypus.version = "v3" returns input VDJ dataframe supplemented with MIXCR output information. For platypus.version = "v2" returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -129,16 +142,16 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">#For platypus version 2</span></span>
-<span class="r-in"><span class="fu">VDJ_call_MIXCR</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">VDJ.per.clone.output</span>,</span>
-<span class="r-in">mixcr.directory <span class="op">=</span> <span class="st">"~/Downloads/mixcr-3.0.12/mixcr"</span>,species <span class="op">=</span> <span class="st">"mmu"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#For platypus version 3 on a Windows system</span></span>
-<span class="r-in"><span class="fu">VDJ_call_MIXCR</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">VDJ_GEX_matrix.output</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in">mixcr.directory <span class="op">=</span> <span class="st">"WILL BE SET TO CURRENT WORKING DIRECTORY"</span>,</span>
-<span class="r-in">species <span class="op">=</span> <span class="st">"mmu"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span>, simplify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co">#For platypus version 2</span></span></span>
+<span class="r-in"><span><span class="fu">VDJ_call_MIXCR</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">VDJ.per.clone.output</span>,</span></span>
+<span class="r-in"><span>mixcr.directory <span class="op">=</span> <span class="st">"~/Downloads/mixcr-3.0.12/mixcr"</span>,species <span class="op">=</span> <span class="st">"mmu"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#For platypus version 3 on a Windows system</span></span></span>
+<span class="r-in"><span><span class="fu">VDJ_call_MIXCR</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="va">VDJ_GEX_matrix.output</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>mixcr.directory <span class="op">=</span> <span class="st">"WILL BE SET TO CURRENT WORKING DIRECTORY"</span>,</span></span>
+<span class="r-in"><span>species <span class="op">=</span> <span class="st">"mmu"</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span>, simplify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -153,8 +166,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

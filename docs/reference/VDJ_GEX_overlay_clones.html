@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,93 +93,118 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span>
-  <span class="va">GEX</span>,
-  <span class="va">reduction</span>,
-  <span class="va">n.clones</span>,
-  <span class="va">clones.to.plot</span>,
-  <span class="va">by.sample</span>,
-  <span class="va">by.other.group</span>,
-  <span class="va">ncol.facet</span>,
-  <span class="va">pt.size</span>,
-  <span class="va">clone.colors</span>,
-  <span class="va">others.color</span>,
-  <span class="va">split.plot.and.legend</span>,
-  <span class="va">platypus.version</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span>
+<span>  <span class="va">GEX</span>,</span>
+<span>  <span class="va">reduction</span>,</span>
+<span>  <span class="va">n.clones</span>,</span>
+<span>  <span class="va">clones.to.plot</span>,</span>
+<span>  <span class="va">by.sample</span>,</span>
+<span>  <span class="va">by.other.group</span>,</span>
+<span>  <span class="va">ncol.facet</span>,</span>
+<span>  <span class="va">pt.size</span>,</span>
+<span>  <span class="va">clone.colors</span>,</span>
+<span>  <span class="va">others.color</span>,</span>
+<span>  <span class="va">split.plot.and.legend</span>,</span>
+<span>  <span class="va">platypus.version</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>A single seurat object from VDJ_GEX_matrix, which also includes VDJ information in the metadata (set integrate.VDJ.to.GEX to TRUE in the VDJ_GEX_matrix function) (VDJ_GEX_matrix.output[[2]]) ! Clone ids and frequencies are drawn from the columns "clonotype_id" and "clonotype_frequency"</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>Character. Defaults to "umap". Name of the reduction to overlay clones on. Can be "pca", "umap", "tsne"</p></dd>
+
+
 <dt>n.clones</dt>
 <dd><p>Integer. Defaults to 5. To PLOT TOP N CLONES. Number of Top clones to plot. If either by.sample or by.group is TRUE, n.clones clones from each sample or group will be overlayed</p></dd>
+
+
 <dt>clones.to.plot</dt>
 <dd><p>Character. Alternative to n.clones. TO PLOT SPECIFIC CLONES. Must reference a column in the GEX@meta.data filled with TRUE and FALSE. Entries with TRUE label are plotted. Such a column may be generated using GEX@metadata$clones_to_plot_column &lt;- GEX@metadata$Some_cell_identifier == "Interesting"</p></dd>
+
+
 <dt>by.sample</dt>
 <dd><p>Boolean. Defaults to FALSE. Whether to overlay clones by sample. If set to TRUE this will generate a facet_wrap plot with as many facets as samples.</p></dd>
+
+
 <dt>by.other.group</dt>
 <dd><p>Character string. Defaults to "none". Must be a valid column name of the metadata of the input seurat object. If so, this will generate a facet_wrap plot with as many facets unique entries in the specified column. This may be useful to plot cell type specific clones</p></dd>
+
+
 <dt>ncol.facet</dt>
 <dd><p>Integer. Defaults to 2. Number of columns in the facet_wrap plot if by.sample or by.group is TRUE</p></dd>
+
+
 <dt>pt.size</dt>
 <dd><p>Numeric. Defaults to 1. Size of points in DimPlot. Passed to Seurat::DimPlot</p></dd>
+
+
 <dt>clone.colors</dt>
 <dd><p>Character vector. Defaults to rainbow(n.clones). Colors to use for individual clones. One can provide either a vector of length n.clones or a of length Nr. of samples/groups \* n.clones. In case that a vector of length n.clones is provided and by.group or by.sample is TRUE, colors are repeated for each sample/group</p></dd>
+
+
 <dt>others.color</dt>
 <dd><p>Character. Color for cells that are not selected i.e. not part of the overlayed clonotypes. Defaults to "grey80". To hide the rest of the umap set to "white"</p></dd>
+
+
 <dt>split.plot.and.legend</dt>
 <dd><p>Boolean. Defaults to FALSE. Whether to return the plot and the legend separately as a list. This can be useful if legends get large and distort the actual plots. The packages gridExtra and cowplot are required for this. If set to TRUE a list is returned where out[[1]] is the plot which can be printed just by executing out[[1]]; out[[2]] is the legend, which can be printed either using plot(out[[2]]) or grid.arrange(out[[2]])</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Character. At the moment this function runs only on the output of the VDJ_GEX_matrix function meaning that it is exclusively part of Platypus "v3". With further updates the functionality will be extended.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A ggplot object or a list of a ggplot and a gtable legend (if split.plot.and.legend \=\= TRUE). Theme, colors etc. may be changed directly by adding new elements to this output (e.g. out \+ theme_minimal())</p>
+    
+
+<p>A ggplot object or a list of a ggplot and a gtable legend (if split.plot.and.legend \=\= TRUE). Theme, colors etc. may be changed directly by adding new elements to this output (e.g. out \+ theme_minimal())</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co">#To return a single plot with top clones across samples</span></span>
-<span class="r-in"><span class="va">overlay_clones_plot</span> <span class="op">&lt;-</span> <span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span>
-<span class="r-in">GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span></span>
-<span class="r-in">,n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span class="r-in">,by.other.group <span class="op">=</span> <span class="st">"none"</span>, pt.size <span class="op">=</span> <span class="fl">1</span>,split.plot.and.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#To return a single plot with top clones across samples</span></span></span>
+<span class="r-in"><span><span class="va">overlay_clones_plot</span> <span class="op">&lt;-</span> <span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span></span>
+<span class="r-in"><span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span></span></span>
+<span class="r-in"><span>,n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>,by.other.group <span class="op">=</span> <span class="st">"none"</span>, pt.size <span class="op">=</span> <span class="fl">1</span>,split.plot.and.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using clonotype_id_10x column</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Scale for 'colour' is already present. Adding another scale for 'colour',</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> which will replace the existing scale.</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#To return a facet plot with top clones for each sample</span></span>
-<span class="r-in"><span class="va">overlay_clones_plot</span> <span class="op">&lt;-</span> <span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span>
-<span class="r-in">GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span></span>
-<span class="r-in">,n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">TRUE</span>, by.other.group <span class="op">=</span> <span class="st">"none"</span></span>
-<span class="r-in">,pt.size <span class="op">=</span> <span class="fl">1</span>,ncol.facet <span class="op">=</span> <span class="fl">2</span>, split.plot.and.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#To return a facet plot with top clones for each sample</span></span></span>
+<span class="r-in"><span><span class="va">overlay_clones_plot</span> <span class="op">&lt;-</span> <span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span></span>
+<span class="r-in"><span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span></span></span>
+<span class="r-in"><span>,n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">TRUE</span>, by.other.group <span class="op">=</span> <span class="st">"none"</span></span></span>
+<span class="r-in"><span>,pt.size <span class="op">=</span> <span class="fl">1</span>,ncol.facet <span class="op">=</span> <span class="fl">2</span>, split.plot.and.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using clonotype_id_10x column</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#To return a facet plot and the legend separately with top clones for each group</span></span>
-<span class="r-in"><span class="va">overlay_clones_plot</span> <span class="op">&lt;-</span> <span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span>
-<span class="r-in">GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span></span>
-<span class="r-in">,n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">TRUE</span>, by.other.group <span class="op">=</span> <span class="st">"group_id"</span>, pt.size <span class="op">=</span> <span class="fl">1</span></span>
-<span class="r-in">,ncol.facet <span class="op">=</span> <span class="fl">2</span>, split.plot.and.legend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#To return a facet plot and the legend separately with top clones for each group</span></span></span>
+<span class="r-in"><span><span class="va">overlay_clones_plot</span> <span class="op">&lt;-</span> <span class="fu">VDJ_GEX_overlay_clones</span><span class="op">(</span></span></span>
+<span class="r-in"><span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap"</span></span></span>
+<span class="r-in"><span>,n.clones <span class="op">=</span> <span class="fl">5</span>, by.sample <span class="op">=</span> <span class="cn">TRUE</span>, by.other.group <span class="op">=</span> <span class="st">"group_id"</span>, pt.size <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span>,ncol.facet <span class="op">=</span> <span class="fl">2</span>, split.plot.and.legend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using clonotype_id_10x column</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#To print both:</span></span>
-<span class="r-in"><span class="co">#overlay_clones_plot[[1]] #Plot</span></span>
-<span class="r-in"><span class="co">#gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend</span></span>
-<span class="r-in"><span class="co">#To save, ggsave() is applicable to both</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#To return a single plot with selected clones</span></span>
-<span class="r-in"><span class="co">#add a clonotype_to_plot column</span></span>
-<span class="r-in"><span class="co">#GEX@meta.data$clonotype_to_plot &lt;- GEX$VJ_vgene == "TRAV5-1"</span></span>
-<span class="r-in"><span class="co">#Column with TRUE for all clones with a particular V gene</span></span>
-<span class="r-in"><span class="co">#overlay_clones_plot &lt;- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"</span></span>
-<span class="r-in"><span class="co">#, clones.to.plot = "clonotype_to_plot", by.sample = TRUE, by.other.group = "none"</span></span>
-<span class="r-in"><span class="co">#, split.plot.and.legend = FALSE, pt.size = 1.5)</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#To print both:</span></span></span>
+<span class="r-in"><span><span class="co">#overlay_clones_plot[[1]] #Plot</span></span></span>
+<span class="r-in"><span><span class="co">#gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend</span></span></span>
+<span class="r-in"><span><span class="co">#To save, ggsave() is applicable to both</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#To return a single plot with selected clones</span></span></span>
+<span class="r-in"><span><span class="co">#add a clonotype_to_plot column</span></span></span>
+<span class="r-in"><span><span class="co">#GEX@meta.data$clonotype_to_plot &lt;- GEX$VJ_vgene == "TRAV5-1"</span></span></span>
+<span class="r-in"><span><span class="co">#Column with TRUE for all clones with a particular V gene</span></span></span>
+<span class="r-in"><span><span class="co">#overlay_clones_plot &lt;- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"</span></span></span>
+<span class="r-in"><span><span class="co">#, clones.to.plot = "clonotype_to_plot", by.sample = TRUE, by.other.group = "none"</span></span></span>
+<span class="r-in"><span><span class="co">#, split.plot.and.legend = FALSE, pt.size = 1.5)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -194,8 +219,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,35 +93,44 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VGM_expanded_clones</span><span class="op">(</span><span class="va">VGM</span>, <span class="va">add.to.VDJ</span>, <span class="va">add.to.GEX</span>, <span class="va">expansion.threshold</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VGM_expanded_clones</span><span class="op">(</span><span class="va">VGM</span>, <span class="va">add.to.VDJ</span>, <span class="va">add.to.GEX</span>, <span class="va">expansion.threshold</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VGM</dt>
 <dd><p>Output object from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output)</p></dd>
+
+
 <dt>add.to.VDJ</dt>
 <dd><p>Boolean. Whether to add expanded columns to VDJ matrix. Defaults to TRUE</p></dd>
+
+
 <dt>add.to.GEX</dt>
 <dd><p>Boolean. Whether to add expanded columns to GEX matrix. Defaults to TRUE</p></dd>
+
+
 <dt>expansion.threshold</dt>
 <dd><p>Integer. Defaults to 1. Cells in clonotypes above this threshold will be marked as expanded = TRUE.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An output object from the VDJ_GEX_matrix function with added columns containing TRUE / FALSE values based on clonotype frequency.</p>
+    
+
+<p>An output object from the VDJ_GEX_matrix function with added columns containing TRUE / FALSE values based on clonotype frequency.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co">#Add info to whole VGM object</span></span>
-<span class="r-in"><span class="va">VGM</span> <span class="op">&lt;-</span> <span class="fu">VGM_expanded_clones</span><span class="op">(</span></span>
-<span class="r-in">VGM <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span>, add.to.VDJ <span class="op">=</span> <span class="cn">TRUE</span>, add.to.GEX <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">expansion.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Add info to whole VGM object</span></span></span>
+<span class="r-in"><span><span class="va">VGM</span> <span class="op">&lt;-</span> <span class="fu">VGM_expanded_clones</span><span class="op">(</span></span></span>
+<span class="r-in"><span>VGM <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span>, add.to.VDJ <span class="op">=</span> <span class="cn">TRUE</span>, add.to.GEX <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>expansion.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Added new columns to VDJ: expanded_clonotype_frequency</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Added new columns to GEX: expanded_clonotype_frequency</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -136,8 +145,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

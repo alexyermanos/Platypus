@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,48 +93,67 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_clonal_donut</span><span class="op">(</span>
-  <span class="va">VDJ</span>,
-  <span class="va">counts.to.use</span>,
-  <span class="va">label.size</span>,
-  <span class="va">not.expanded.label.vjust</span>,
-  <span class="va">not.expanded.label.hjust</span>,
-  <span class="va">total.label.vjust</span>,
-  <span class="va">total.label.hjust</span>,
-  <span class="va">expanded.colors</span>,
-  <span class="va">non.expanded.color</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_clonal_donut</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ</span>,</span>
+<span>  <span class="va">counts.to.use</span>,</span>
+<span>  <span class="va">label.size</span>,</span>
+<span>  <span class="va">not.expanded.label.vjust</span>,</span>
+<span>  <span class="va">not.expanded.label.hjust</span>,</span>
+<span>  <span class="va">total.label.vjust</span>,</span>
+<span>  <span class="va">total.label.hjust</span>,</span>
+<span>  <span class="va">expanded.colors</span>,</span>
+<span>  <span class="va">non.expanded.color</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ</dt>
 <dd><p>VDJ dataframe generated using the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]). Plots will be made by sample and using the clonal frequencies specified by counts.to.use</p></dd>
+
+
 <dt>counts.to.use</dt>
 <dd><p>How to count clonotypes and cells. A column name of the VDJ matrix containing clonotype IDs. This defaults to "clonotype_id_10x", which reflects clonotypes by Cellranger in an unaltered VGM. To use counts from the VDJ_clonotype_v3 function set this parameter to the relevant column e.g. "clonotype_id_cdr.aa" or   "global_clonotype_id_cdr.aa" are two examples.</p></dd>
+
+
 <dt>label.size</dt>
 <dd><p>Size of text labels. All parameters below are purely for graphical purposes and optional. If necessary changes should be made in small (0.1) increments. ! It is recommended to optimize these ONLY once a format for saving the plot is set.</p></dd>
+
+
 <dt>not.expanded.label.vjust</dt>
 <dd><p>Numeric. Regulates the vertical position of the label for non expanded cells</p></dd>
+
+
 <dt>not.expanded.label.hjust</dt>
 <dd><p>Numeric. Regulates the horizontal position of the label for non expanded cells</p></dd>
+
+
 <dt>total.label.vjust</dt>
 <dd><p>Numeric. Regulates the vertical position of the center label</p></dd>
+
+
 <dt>total.label.hjust</dt>
 <dd><p>Numeric. Regulates the horizontal position of the center label</p></dd>
+
+
 <dt>expanded.colors</dt>
 <dd><p>Character vector. Colors to use for expanded clones. Should be more than 3 for better visibility. Defaults to a "darkorchid3"-based palette.</p></dd>
+
+
 <dt>non.expanded.color</dt>
 <dd><p>Character. Color to use for non expanded clones. Defaults to "black"</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a list of circular plots showing proportions of expanded clones and non-expanded clones. One plot is generated for each sample in the sample_id column</p>
+    
+
+<p>Returns a list of circular plots showing proportions of expanded clones and non-expanded clones. One plot is generated for each sample in the sample_id column</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">VDJ_clonal_donut</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">VDJ_clonal_donut</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using column clonotype_id_10x for counting clones</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Clones: Expanded: 0 / 0%; 1 cell 28 / 100%; total: 28</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Cells: Expanded: 0 / 0%; 1 cell 28 / 100%; Total: 28</span>
@@ -151,7 +170,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
 <span class="r-plt img"><img src="VDJ_clonal_donut-3.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -166,8 +185,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

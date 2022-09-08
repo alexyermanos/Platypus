@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,43 +93,61 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_network</span><span class="op">(</span>
-  <span class="va">VDJ</span>,
-  <span class="va">distance.cutoff</span>,
-  <span class="va">per.sample</span>,
-  <span class="va">platypus.version</span>,
-  <span class="va">known.binders</span>,
-  <span class="va">hcdr3.only</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_network</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ</span>,</span>
+<span>  <span class="va">distance.cutoff</span>,</span>
+<span>  <span class="va">per.sample</span>,</span>
+<span>  <span class="va">platypus.version</span>,</span>
+<span>  <span class="va">known.binders</span>,</span>
+<span>  <span class="va">hcdr3.only</span>,</span>
+<span>  <span class="va">is.bulk</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ</dt>
 <dd><p>Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (VDJ.GEX.matrix.output[[1]])</p></dd>
+
+
 <dt>distance.cutoff</dt>
 <dd><p>The threshold Levenshtein distance for which two nodes will be connected on the similarity network.</p></dd>
+
+
 <dt>per.sample</dt>
 <dd><p>logical value indicating if a single networks should be produced for each mouse.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format</p></dd>
+
+
 <dt>known.binders</dt>
 <dd><p>Either a character vector with cdr3s of known binders or a data frame with cdr3s in the first and the corresponding specificity in the second column. If this parameter is defined, the output will be a network with only edges between known binders and the repertoire nodes and edges between the known binders that have at least one edge to a repertoire node</p></dd>
+
+
 <dt>hcdr3.only</dt>
 <dd><p>logical value indicating if the network is based on heavy chain cdr3s (hcdr3.only = T) or pasted heavy and light chain cdr3s (hcdr3.only = F), works for platypus.version 3 only</p></dd>
+
+
+<dt>is.bulk</dt>
+<dd><p>logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_network function is compatible for use with bulk data. Defaults to False (F).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] &lt;- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.</p>
+    
+
+<p>returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] &lt;- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#Platypus v2</span></span>
-<span class="r-in"><span class="co">#network_out &lt;- VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = TRUE,distance.cutoff = 2)</span></span>
-<span class="r-in"><span class="co">#Platypus v3</span></span>
-<span class="r-in"><span class="va">network_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_network</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,per.sample <span class="op">=</span> <span class="cn">FALSE</span>,distance.cutoff <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Platypus v2</span></span></span>
+<span class="r-in"><span><span class="co">#network_out &lt;- VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = TRUE,distance.cutoff = 2)</span></span></span>
+<span class="r-in"><span><span class="co">#Platypus v3</span></span></span>
+<span class="r-in"><span><span class="va">network_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_network</span><span class="op">(</span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,per.sample <span class="op">=</span> <span class="cn">FALSE</span>,distance.cutoff <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -144,8 +162,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

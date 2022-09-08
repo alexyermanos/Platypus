@@ -19,7 +19,7 @@ The name of the column containing the metric has to be declared via the input me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -46,7 +46,7 @@ The name of the column containing the metric has to be declared via the input me
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -97,70 +97,93 @@ The name of the column containing the metric has to be declared via the input me
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_GSEA</span><span class="op">(</span>
-  <span class="va">GEX.cluster.genes.output</span>,
-  <span class="va">MT.Rb.filter</span>,
-  <span class="va">filter</span>,
-  <span class="va">path.to.pathways</span>,
-  <span class="va">metric.colname</span>,
-  <span class="va">pval.adj.cutoff</span>,
-  <span class="va">Enrichment.Plots</span>,
-  <span class="va">my.own.geneset</span>,
-  <span class="va">eps</span>,
-  <span class="va">platypus.version</span>,
-  <span class="va">verbose</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_GSEA</span><span class="op">(</span></span>
+<span>  <span class="va">GEX.cluster.genes.output</span>,</span>
+<span>  <span class="va">MT.Rb.filter</span>,</span>
+<span>  <span class="va">filter</span>,</span>
+<span>  <span class="va">path.to.pathways</span>,</span>
+<span>  <span class="va">metric.colname</span>,</span>
+<span>  <span class="va">pval.adj.cutoff</span>,</span>
+<span>  <span class="va">Enrichment.Plots</span>,</span>
+<span>  <span class="va">my.own.geneset</span>,</span>
+<span>  <span class="va">eps</span>,</span>
+<span>  <span class="va">platypus.version</span>,</span>
+<span>  <span class="va">verbose</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX.cluster.genes.output</dt>
 <dd><p>Data frame containing the list of gene symbols and a metric. Function works directly with GEX_cluster_genes output.</p></dd>
+
+
 <dt>MT.Rb.filter</dt>
 <dd><p>Logical, should Mitotic and Ribosomal genes be filtered out of the geneset. True by default.</p></dd>
+
+
 <dt>filter</dt>
 <dd><p>Character vector containing the identifying symbol sequence for the genes which should be filtered out, if MT.Rb.filter == T. By default set to c("MT-", "RPL", "RPS").</p></dd>
+
+
 <dt>path.to.pathways</dt>
 <dd><p>Either a path to gmt file containing the gene sets (can be downloaded from MSigDB) or vector where first element specifies species and second element specifies the MSigDB collection abbreviation. E.g.: c("Homo sapiens", "H"). Mouse C7 (immunologic signature) gene set will be used by default.</p></dd>
+
+
 <dt>metric.colname</dt>
 <dd><p>Name of column which contains the metric used for the ranking of the submitted genelist. "avg_logFC" is used by default.</p></dd>
+
+
 <dt>pval.adj.cutoff</dt>
 <dd><p>Only genes with a more significant adjusted pvalue are considered. Default: 0.001</p></dd>
+
+
 <dt>Enrichment.Plots</dt>
 <dd><p>List of Gene-set names which should be plotted as Enrichment plots in addition to the top 10 Up and Downregulated Genesets.</p></dd>
+
+
 <dt>my.own.geneset</dt>
 <dd><p>A list, where each element contains a gene list and is named with the corresponding pathway name. Default is set to FALSE, so that gene sets from MSigDB are used. Should not contain ".gmt" in name.</p></dd>
+
+
 <dt>eps</dt>
 <dd><p>Numeric, specifying boundary for calculating the p value in the GSEA.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Function works with V2 and V3, no need to set this parameter.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Print run parameters and status to console</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.</p>
+    
+
+<p>Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="GEX_cluster_genes.html">GEX_cluster_genes</a></span><span class="op">(</span><span class="va">gex_combined</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Using gmt file to perform gsea</span></span>
-<span class="r-in"><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">GEX_GSEA</span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span>  <span class="va">df</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in">, path.to.pathways <span class="op">=</span> <span class="st">"./c5.go.bp.v7.2.symbols.gmt"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span>plotlist<span class="op">=</span><span class="va">output</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, ncol<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="va">gex_gsea</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Directly downloading gene set collection from MSigDB to perform gsea</span></span>
-<span class="r-in"><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">GEX_GSEA</span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span>  <span class="va">df</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in">, path.to.pathways <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mus musculus"</span>, <span class="st">"C7"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Using your own gene list to perform gsea</span></span>
-<span class="r-in"><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">GEX_GSEA</span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span>  <span class="va">df</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in">, my.own.geneset <span class="op">=</span> <span class="va">my_geneset</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="GEX_cluster_genes.html">GEX_cluster_genes</a></span><span class="op">(</span><span class="va">gex_combined</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Using gmt file to perform gsea</span></span></span>
+<span class="r-in"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">GEX_GSEA</span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span>  <span class="va">df</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>, path.to.pathways <span class="op">=</span> <span class="st">"./c5.go.bp.v7.2.symbols.gmt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span>plotlist<span class="op">=</span><span class="va">output</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, ncol<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="va">gex_gsea</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Directly downloading gene set collection from MSigDB to perform gsea</span></span></span>
+<span class="r-in"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">GEX_GSEA</span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span>  <span class="va">df</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>, path.to.pathways <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mus musculus"</span>, <span class="st">"C7"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Using your own gene list to perform gsea</span></span></span>
+<span class="r-in"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">GEX_GSEA</span><span class="op">(</span>GEX.cluster.genes.output <span class="op">=</span>  <span class="va">df</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>, my.own.geneset <span class="op">=</span> <span class="va">my_geneset</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -175,8 +198,7 @@ The name of the column containing the metric has to be declared via the input me
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -45,7 +45,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -95,38 +95,54 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_phylogenetic_trees_plot</span><span class="op">(</span>
-  <span class="va">tree.dfs</span>,
-  <span class="va">color.by</span>,
-  <span class="va">size.by</span>,
-  <span class="va">shape.by</span>,
-  <span class="va">specific.leaf.colors</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_phylogenetic_trees_plot</span><span class="op">(</span></span>
+<span>  <span class="va">tree.dfs</span>,</span>
+<span>  <span class="va">color.by</span>,</span>
+<span>  <span class="va">size.by</span>,</span>
+<span>  <span class="va">shape.by</span>,</span>
+<span>  <span class="va">specific.leaf.colors</span>,</span>
+<span>  <span class="va">specific.leaf.shapes</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>tree.dfs</dt>
 <dd><p>nested list of tidytree dataframes obtained from VDJ_phylogenetic_trees with output.format='tree.df.list'. tree.dfs[[1]][[2]] represent a tree dataframe for the first sample, second clonotype.</p></dd>
+
+
 <dt>color.by</dt>
 <dd><p>string - VDJ or tree df column name which will be used to color the tree nodes.</p></dd>
+
+
 <dt>size.by</dt>
 <dd><p>string or NULL - VDJ or tree df column name which determines the node size. If NULL, node sizes will be equal.</p></dd>
+
+
 <dt>shape.by</dt>
 <dd><p>string or NULL - VDJ or tree df column name which determines the node shape. If NULL, node sizes will be equal.</p></dd>
+
+
 <dt>specific.leaf.colors</dt>
 <dd><p>named list or NULL - if NULL, colors will be automatically selected for each node according to its color.by value.</p></dd>
+
+
+<dt>specific.leaf.shapes</dt>
+<dd><p>named list or NULL - if NULL, shapes will be automatically selected for each node according to its shape.by value.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>nested list of ggtree plot objects for each sample and each clonotype.</p>
+    
+
+<p>nested list of ggtree plot objects for each sample and each clonotype.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">VDJ_phylogenetic_trees_plot</span><span class="op">(</span><span class="va">tree.dfs</span>,color.by<span class="op">=</span><span class="st">'clonotype_id'</span>, size.by<span class="op">=</span><span class="st">'sequence_frequency'</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">VDJ_phylogenetic_trees_plot</span><span class="op">(</span><span class="va">tree.dfs</span>,color.by<span class="op">=</span><span class="st">'clonotype_id'</span>, size.by<span class="op">=</span><span class="st">'sequence_frequency'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -141,8 +157,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

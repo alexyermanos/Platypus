@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,56 +93,73 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_cluster_genes_heatmap</span><span class="op">(</span>
-  <span class="va">GEX</span>,
-  <span class="va">GEX_cluster_genes.output</span>,
-  <span class="va">n.genes.per.cluster</span>,
-  <span class="va">metric</span>,
-  <span class="va">max.cell</span>,
-  <span class="va">group.colors</span>,
-  <span class="va">slot</span>,
-  <span class="va">platypus.version</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_cluster_genes_heatmap</span><span class="op">(</span></span>
+<span>  <span class="va">GEX</span>,</span>
+<span>  <span class="va">GEX_cluster_genes.output</span>,</span>
+<span>  <span class="va">n.genes.per.cluster</span>,</span>
+<span>  <span class="va">metric</span>,</span>
+<span>  <span class="va">max.cell</span>,</span>
+<span>  <span class="va">group.colors</span>,</span>
+<span>  <span class="va">slot</span>,</span>
+<span>  <span class="va">platypus.version</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>Output Seurat object of either automate_GEX for platypus.version v2 or of VDJ_GEX_matrix for platypus.version v3 (usually VDJ_GEX_matrix.output[[2]])</p></dd>
+
+
 <dt>GEX_cluster_genes.output</dt>
 <dd><p>The output from the GEX_cluster_genes function - this should be a list with each list element corresponding to the genes, p values, logFC, pct expression for the genes deferentially regulated for each cluster.</p></dd>
+
+
 <dt>n.genes.per.cluster</dt>
 <dd><p>An integer value determining how many genes per cluster to display in the output heatmap. This number should be adjusted based on the number of clusters. Too many genes per cluster and clusters may cause a problem with the heatmap function in Seurat.</p></dd>
+
+
 <dt>metric</dt>
 <dd><p>The metric that dictates which are the top n genes returned. Possible options are "p.value" (default), "avg_logFC", "top_logFC", "bottom_logFC". "top_logFC" returns the top expressed genes for each cluster, whereas "bottom_logFC" returns the least expressed genes per cluster-both by log fold change.</p></dd>
+
+
 <dt>max.cell</dt>
 <dd><p>The max number of cells to display in the heatmap for each cluster, which corresponds to the number of columns. Default is set to 100 cells per cluster.</p></dd>
+
+
 <dt>group.colors</dt>
 <dd><p>Optional character vector. Array of colors with the same length as GEX_cluster_genes.output to color bars above the heatmap. Defaults to rainbow palette</p></dd>
+
+
 <dt>slot</dt>
 <dd><p>Seurat object slot from which to plot gene expression data.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>is set automatically</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a heatmap from the function DoHeatmap from the package Seurat, which is a ggplot object that can be modified or plotted. The number of genes is determined by the n.genes parameter and the number of cells per cluster is determined by the max.cell argument. This function gives a visual description of the top genes differentially expressed in each cluster.</p>
+    
+
+<p>Returns a heatmap from the function DoHeatmap from the package Seurat, which is a ggplot object that can be modified or plotted. The number of genes is determined by the n.genes parameter and the number of cells per cluster is determined by the max.cell argument. This function gives a visual description of the top genes differentially expressed in each cluster.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">#For Platypus version 2</span></span>
-<span class="r-in"><span class="va">cluster_defining_gene_heatmap</span> <span class="op">&lt;-</span> <span class="fu">GEX_cluster_genes_heatmap</span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">automate_GEX_output</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
-<span class="r-in">,GEX_cluster_genes.output<span class="op">=</span><span class="va">GEX_cluster_genes_output</span></span>
-<span class="r-in">,n.genes.per.cluster<span class="op">=</span><span class="fl">5</span>,metric<span class="op">=</span><span class="st">"p.value"</span>,max.cell<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#For Platypus version 3</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">cluster_defining_gene_heatmap</span> <span class="op">&lt;-</span> <span class="fu">GEX_cluster_genes_heatmap</span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">VDJ_GEX_matrix.output</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
-<span class="r-in">,GEX_cluster_genes.output<span class="op">=</span><span class="va">GEX_cluster_genes_output</span></span>
-<span class="r-in">,n.genes.per.cluster<span class="op">=</span><span class="fl">5</span>,metric<span class="op">=</span><span class="st">"p.value"</span>,max.cell<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co">#For Platypus version 2</span></span></span>
+<span class="r-in"><span><span class="va">cluster_defining_gene_heatmap</span> <span class="op">&lt;-</span> <span class="fu">GEX_cluster_genes_heatmap</span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">automate_GEX_output</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>,GEX_cluster_genes.output<span class="op">=</span><span class="va">GEX_cluster_genes_output</span></span></span>
+<span class="r-in"><span>,n.genes.per.cluster<span class="op">=</span><span class="fl">5</span>,metric<span class="op">=</span><span class="st">"p.value"</span>,max.cell<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#For Platypus version 3</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">cluster_defining_gene_heatmap</span> <span class="op">&lt;-</span> <span class="fu">GEX_cluster_genes_heatmap</span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">VDJ_GEX_matrix.output</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>,GEX_cluster_genes.output<span class="op">=</span><span class="va">GEX_cluster_genes_output</span></span></span>
+<span class="r-in"><span>,n.genes.per.cluster<span class="op">=</span><span class="fl">5</span>,metric<span class="op">=</span><span class="st">"p.value"</span>,max.cell<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -157,8 +174,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

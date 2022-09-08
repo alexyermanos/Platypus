@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,34 +93,45 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_dottile_plot</span><span class="op">(</span><span class="va">GEX</span>, <span class="va">genes</span>, <span class="va">group.by</span>, <span class="va">threshold.to.plot</span>, <span class="va">platypus.version</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_dottile_plot</span><span class="op">(</span><span class="va">GEX</span>, <span class="va">genes</span>, <span class="va">group.by</span>, <span class="va">threshold.to.plot</span>, <span class="va">platypus.version</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>GEX seurat object generated with VDJ_GEX_matrix</p></dd>
+
+
 <dt>genes</dt>
 <dd><p>Character vector. Genes of those in rownames(GEX) to plot. Can be any number, but more then 30 is discuraged because of cluttering</p></dd>
+
+
 <dt>group.by</dt>
 <dd><p>Character. Name of a column in GEX@meta.data to split the plot by. If set to \"none\", a plot with a single column will be produced.</p></dd>
+
+
 <dt>threshold.to.plot</dt>
 <dd><p>Integer 1-100. % of cells which must be expressing the feature to plot a point. If below, the field will be left empty</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>This is coded for \"v3\" only, but in practice any Seurat Object can be fed in</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.</p>
+    
+
+<p>Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#To return a plot detailing the expression of common genes by seurat cluster</span></span>
-<span class="r-in"><span class="fu">GEX_dottile_plot</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>,<span class="st">"CD83"</span><span class="op">)</span>,</span>
-<span class="r-in">group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, threshold.to.plot <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#To return a plot detailing the expression of common genes by seurat cluster</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_dottile_plot</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>,<span class="st">"CD83"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>group.by <span class="op">=</span> <span class="st">"seurat_clusters"</span>, threshold.to.plot <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="GEX_dottile_plot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -135,8 +146,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

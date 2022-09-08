@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,40 +93,51 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_analyze</span><span class="op">(</span>
-  <span class="va">VDJ.out.directory</span>,
-  <span class="va">filter.1HC.1LC</span>,
-  <span class="va">clonotype.list</span>,
-  <span class="va">contig.list</span>,
-  <span class="va">filtered.contigs</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_analyze</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ.out.directory</span>,</span>
+<span>  <span class="va">filter.1HC.1LC</span>,</span>
+<span>  <span class="va">clonotype.list</span>,</span>
+<span>  <span class="va">contig.list</span>,</span>
+<span>  <span class="va">filtered.contigs</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ.out.directory</dt>
 <dd><p>Character vector with each element containing the path to the output of cellranger vdj runs. Multiple repertoires to be integrated in a single transcriptome should be supplied as multiple elements of the character vector. This can be left blank if supplying the clonotypes and contig files directly as input. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).</p></dd>
+
+
 <dt>filter.1HC.1LC</dt>
 <dd><p>Logical indicating whether only those clones containing 1 VH/TRB and VL/TRA should be maintined for furhter analysis. Default is set to TRUE, which restricts the analysis to only clones with exactly 1 heavy chain and 1 light chain (or 1 beta + 1 alpha in the case of T cells).</p></dd>
+
+
 <dt>clonotype.list</dt>
 <dd><p>List of dataframes containing clonotyping information for each repertoire. The column names should correspond to the clonotypes.csv file from cellranger vdj output.</p></dd>
+
+
 <dt>contig.list</dt>
 <dd><p>List of dataframes containing the contig information for each repertoire.  The column names should correspond to the all_contigs.csv file from cellranger vdj output.</p></dd>
+
+
 <dt>filtered.contigs</dt>
 <dd><p>Logical indicating if the filtered contigs file should be used. TRUE will read VDJ information from only the filtered output of cellranger. FALSE will read the all contigs file from cellranger. Default set to TRUE (filtered output)</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a list of dataframes where each dataframe corresponds to one input directory. If only one file is supplied, the output list will only contain one element. This output can be supplied as input to other functions including VDJ_per_clone, VDJ_network, VDJ_germline_genes, VDJ_expansion, visualize_clones_GEX, VDJ_phylo, VDJ_clonotype. Germline gene information is based on the majority of cells within each clonotype. For example, if the majority of cells in clonotype1 have the IGHG1 isotype then then entire clonal family will be determined as IGHG1. For a cell-specific investigation, the output of this function can be supplied to the function VDJ_per_clone, which will provide isotype, sequence, germline gene, etc information for each cell within the each clone.</p>
+    
+
+<p>Returns a list of dataframes where each dataframe corresponds to one input directory. If only one file is supplied, the output list will only contain one element. This output can be supplied as input to other functions including VDJ_per_clone, VDJ_network, VDJ_germline_genes, VDJ_expansion, visualize_clones_GEX, VDJ_phylo, VDJ_clonotype. Germline gene information is based on the majority of cells within each clonotype. For example, if the majority of cells in clonotype1 have the IGHG1 isotype then then entire clonal family will be determined as IGHG1. For a cell-specific investigation, the output of this function can be supplied to the function VDJ_per_clone, which will provide isotype, sequence, germline gene, etc information for each cell within the each clone.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">example.vdj.analyze</span> <span class="op">&lt;-</span> <span class="fu">VDJ_analyze</span><span class="op">(</span></span>
-<span class="r-in">VDJ.out.directory <span class="op">=</span> <span class="st">"~/path/to/cellranger/vdj/outs/"</span>, filter.1HC.1LC <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">example.vdj.analyze</span> <span class="op">&lt;-</span> <span class="fu">VDJ_analyze</span><span class="op">(</span></span></span>
+<span class="r-in"><span>VDJ.out.directory <span class="op">=</span> <span class="st">"~/path/to/cellranger/vdj/outs/"</span>, filter.1HC.1LC <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -141,8 +152,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

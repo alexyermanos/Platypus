@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,40 +93,57 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_per_clone</span><span class="op">(</span>
-  <span class="va">clonotype.list</span>,
-  <span class="va">VDJ.out.directory</span>,
-  <span class="va">contig.list</span>,
-  <span class="va">fasta.list</span>,
-  <span class="va">reference.list</span>,
-  <span class="va">filtered.contigs</span>,
-  <span class="va">annotations.json</span>,
-  <span class="va">JSON</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_per_clone</span><span class="op">(</span></span>
+<span>  <span class="va">clonotype.list</span>,</span>
+<span>  <span class="va">VDJ.out.directory</span>,</span>
+<span>  <span class="va">contig.list</span>,</span>
+<span>  <span class="va">fasta.list</span>,</span>
+<span>  <span class="va">reference.list</span>,</span>
+<span>  <span class="va">filtered.contigs</span>,</span>
+<span>  <span class="va">annotations.json</span>,</span>
+<span>  <span class="va">JSON</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>clonotype.list</dt>
 <dd><p>Output from either VDJ_analyze or VDJ_clonotype functions. This list should correspond to a single GEX.list object, in which each list element in clonotype.list is found in the GEX.object. Furthermore, the i'th entry in the directory supplied to GEX.list should correspond to the i'th element in the clonotype.list object.</p></dd>
+
+
 <dt>VDJ.out.directory</dt>
 <dd><p>Character vector with each element containing the path to the output of cellranger vdj runs. This corresponds to the same object used for the VDJ_analyze function. Multiple repertoires to be integrated in a single transcriptome should be supplied as multiple elements of the character vector. This can be left blank if supplying the clonotypes and contig files directly as input. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires (both separately and simultaneously).</p></dd>
+
+
 <dt>contig.list</dt>
 <dd><p>List of dataframe based on the all_contigs.csv file from cellranger vdj output. If 10x sequencing was not used then this object should be formatted with the same columns as the 10x object.</p></dd>
+
+
 <dt>fasta.list</dt>
 <dd><p>Contains the full-length sequence information in the same format as filtered_contig.fasta file from the output of cellranger.</p></dd>
+
+
 <dt>reference.list</dt>
 <dd><p>Contains the reference sequence information in the same format as concat_ref.fasta file from the output of cellranger.</p></dd>
+
+
 <dt>filtered.contigs</dt>
 <dd><p>Logical indicating if the filtered contigs file should be used. TRUE will read VDJ information from only the filtered output of cellranger. FALSE will read the all contigs file from cellranger. Default set to TRUE (filtered output)</p></dd>
+
+
 <dt>annotations.json</dt>
 <dd><p>Optional input from loaded all_contig_annotations.json. Will be read in automatically if not provided</p></dd>
+
+
 <dt>JSON</dt>
 <dd><p>Boolean. Defaults to FALSE. Whether to load all_contig_annotations.json</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a list of dataframes containing</p>
+    
+
+<p>Returns a list of dataframes containing</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -135,10 +152,10 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">VDJ_per_clone_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_per_clone</span><span class="op">(</span>clonotype.list <span class="op">=</span> <span class="va">output.from.VDJ_analyze</span></span>
-<span class="r-in">,VDJ.out.directory <span class="op">=</span> <span class="st">"path/to/cellranger/outs/"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">VDJ_per_clone_out</span> <span class="op">&lt;-</span> <span class="fu">VDJ_per_clone</span><span class="op">(</span>clonotype.list <span class="op">=</span> <span class="va">output.from.VDJ_analyze</span></span></span>
+<span class="r-in"><span>,VDJ.out.directory <span class="op">=</span> <span class="st">"path/to/cellranger/outs/"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -153,8 +170,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

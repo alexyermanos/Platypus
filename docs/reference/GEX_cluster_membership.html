@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,29 +93,36 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_cluster_membership</span><span class="op">(</span><span class="va">GEX</span>, <span class="va">by.group</span>, <span class="va">platypus.version</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_cluster_membership</span><span class="op">(</span><span class="va">GEX</span>, <span class="va">by.group</span>, <span class="va">platypus.version</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>Output Seurat object containing gene expression data from automate_GEX (platypus.version = "v2") or VDJ_GEX_matrix (platypus.version = "v3", usually VDJ_GEX_matrix.output[[2]])function that contained at least two distinct biological samples. The different biological samples correspond to integer values (v2) or factor values (v3) in the order of the working directories initially supplied to the automate_GEX function.</p></dd>
+
+
 <dt>by.group</dt>
 <dd><p>Logical indicating whether to look at the cluster distribution per group (using the group_id column). Default is set to FALSE.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Version of platypus to use. Defaults to "v2". If an output of the GEX_automate function is supplied, set to "v2". If an output of the VDJ_GEX_matrix function is supplied set to "v3"</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a ggplot object in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.</p>
+    
+
+<p>Returns a ggplot object in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#Platypus v2</span></span>
-<span class="r-in"><span class="co">#GEX_cluster_membership(GEX=automate_GEX_out[[2]], platypus.version = "v2")</span></span>
-<span class="r-in"><span class="co">#Platypus v3</span></span>
-<span class="r-in"><span class="fu">GEX_cluster_membership</span><span class="op">(</span>GEX<span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Platypus v2</span></span></span>
+<span class="r-in"><span><span class="co">#GEX_cluster_membership(GEX=automate_GEX_out[[2]], platypus.version = "v2")</span></span></span>
+<span class="r-in"><span><span class="co">#Platypus v3</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_cluster_membership</span><span class="op">(</span>GEX<span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="GEX_cluster_membership-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
@@ -131,8 +138,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,22 +93,22 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">automate_GEX</span><span class="op">(</span>
-  <span class="va">GEX.outs.directory.list</span>,
-  <span class="va">GEX.list</span>,
-  <span class="va">integration.method</span>,
-  <span class="va">VDJ.gene.filter</span>,
-  <span class="va">mito.filter</span>,
-  <span class="va">norm.scale.factor</span>,
-  <span class="va">n.feature.rna</span>,
-  <span class="va">n.count.rna.min</span>,
-  <span class="va">n.count.rna.max</span>,
-  <span class="va">n.variable.features</span>,
-  <span class="va">cluster.resolution</span>,
-  <span class="va">neighbor.dim</span>,
-  <span class="va">mds.dim</span>,
-  <span class="va">groups</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">automate_GEX</span><span class="op">(</span></span>
+<span>  <span class="va">GEX.outs.directory.list</span>,</span>
+<span>  <span class="va">GEX.list</span>,</span>
+<span>  <span class="va">integration.method</span>,</span>
+<span>  <span class="va">VDJ.gene.filter</span>,</span>
+<span>  <span class="va">mito.filter</span>,</span>
+<span>  <span class="va">norm.scale.factor</span>,</span>
+<span>  <span class="va">n.feature.rna</span>,</span>
+<span>  <span class="va">n.count.rna.min</span>,</span>
+<span>  <span class="va">n.count.rna.max</span>,</span>
+<span>  <span class="va">n.variable.features</span>,</span>
+<span>  <span class="va">cluster.resolution</span>,</span>
+<span>  <span class="va">neighbor.dim</span>,</span>
+<span>  <span class="va">mds.dim</span>,</span>
+<span>  <span class="va">groups</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -116,48 +116,77 @@
     <dl><dt>GEX.outs.directory.list</dt>
 <dd><p>The path to the output of cellranger vdj runs. Multiple repertoires to be integrated together should be supplied as a character vector in the first element of a list. For example, if two separate VDJ repertoires should be integrated together (e.g. on the same tSNE plot), GEX.outs.directory.list[[1]] &lt;- c("my.VDJ1.path/outs/","my.VDJ2.path/outs/") should be stored as input. If these repertoires should be analyzed separately, &gt;GEX.outs.directory.list[[1]] &lt;-  "my.VDJ1.path/outs/"  &gt;GEX.outs.directory.list[[2]] &lt;-  "my.VDJ2.path/outs/"  should be supplied..
 This can be left blank if supplying the clonotypes and all_contig files diretly as input. Multiple analyses can be stored</p></dd>
+
+
 <dt>GEX.list</dt>
 <dd><p>List containing the output from Seurat Read10x. This must be supplied if GEX.out.directory is not provided.</p></dd>
+
+
 <dt>integration.method</dt>
 <dd><p>String specifying which data normalization and integration pipeline should be used. Default is "scale.data", which correspondings to the ScaleData function internal to harmony package. 'sct'specifies SCTransform from the Seurat package. "harmony" should be specificied to perform harmony integration. This method requires the harmony package from bioconductor.</p></dd>
+
+
 <dt>VDJ.gene.filter</dt>
 <dd><p>Logical indicating if variable genes from the b cell receprot and t cell receptor should be removed from the analysis. True is highly recommended to avoid clonal families clustering together.</p></dd>
+
+
 <dt>mito.filter</dt>
 <dd><p>Numeric specifying which percent of genes are allowed to be composed of mitochondrial genes. This value may require visual inspection and can be specific to each sequencing experiment. Users can visualize the percentage of genes corresponding to mitochondrial genes using the function "investigate_mitochondial_genes".</p></dd>
+
+
 <dt>norm.scale.factor</dt>
 <dd><p>Scaling factor for the standard Seurat pipeline. Default is set to 10000 as reported in Seurat documentation.</p></dd>
+
+
 <dt>n.feature.rna</dt>
 <dd><p>Numeric that specifies which cells should be filtered out due to low number of detected genes. Default is set to 0. Seurat standard pipeline uses 2000.</p></dd>
+
+
 <dt>n.count.rna.min</dt>
 <dd><p>Numeric that specifies which cells should be filtered out due to low RNA count.Default is set to 0. Seurat standard pipeline without VDJ information uses 200.</p></dd>
+
+
 <dt>n.count.rna.max</dt>
 <dd><p>Numeric that specifies which cells should be filtered out due to high RNA count.Default is set to infinity. Seurat standard pipeline without VDJ information uses 2500.</p></dd>
+
+
 <dt>n.variable.features</dt>
 <dd><p>Numeric specifying the number of variable features. Default set to 2000 as specified in Seurat standard pipeline.</p></dd>
+
+
 <dt>cluster.resolution</dt>
 <dd><p>Numeric specifying the resolution that will be supplied to Seurat's FindClusters function. Default is set to 0.5. Increasing this number will increase the number of distinct Seurat clusters. Suggested to examine multiple parameters to ensure gene signatures differentiating clusters remains constant.</p></dd>
+
+
 <dt>neighbor.dim</dt>
 <dd><p>Numeric vector specifying which dimensions should be supplied in the FindNeighbors function from Seurat. Default input is '1:10'.</p></dd>
+
+
 <dt>mds.dim</dt>
 <dd><p>Numeric vector specifying which dimensions should be supplied into dimensional reduction techniques in Seurat and Harmony. Default input is '1:10'.</p></dd>
+
+
 <dt>groups</dt>
 <dd><p>Integer specifying the groups of the different samples. This is needed if there are multiple biological replicates for a given condition sequenced and aligned through cellranger separately.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a processed Seurat object containing transcriptional information from all samples which can be supplied to the VDJ_GEX_integrate function.</p>
+    
+
+<p>Returns a processed Seurat object containing transcriptional information from all samples which can be supplied to the VDJ_GEX_integrate function.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">automate_GEX</span><span class="op">(</span>out_directory<span class="op">=</span><span class="va">fullRepertoire.output</span>,</span>
-<span class="r-in"> rep.size<span class="op">=</span><span class="fl">3</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">fullRepertoire.output</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in"> distribution<span class="op">=</span><span class="st">"identical"</span>,</span>
-<span class="r-in"> with.germline<span class="op">=</span><span class="st">"FALSE"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">automate_GEX</span><span class="op">(</span>out_directory<span class="op">=</span><span class="va">fullRepertoire.output</span>,</span></span>
+<span class="r-in"><span> rep.size<span class="op">=</span><span class="fl">3</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">fullRepertoire.output</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> distribution<span class="op">=</span><span class="st">"identical"</span>,</span></span>
+<span class="r-in"><span> with.germline<span class="op">=</span><span class="st">"FALSE"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -172,8 +201,7 @@ This can be left blank if supplying the clonotypes and all_contig files diretly 
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

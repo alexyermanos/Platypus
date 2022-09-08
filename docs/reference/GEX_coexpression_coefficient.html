@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,34 +93,43 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_coexpression_coefficient</span><span class="op">(</span><span class="va">GEX</span>, <span class="va">genes</span>, <span class="va">subsample.n</span>, <span class="va">plot.dotmap</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_coexpression_coefficient</span><span class="op">(</span><span class="va">GEX</span>, <span class="va">genes</span>, <span class="va">subsample.n</span>, <span class="va">plot.dotmap</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>GEX seurat object generated with VDJ_GEX_matrix (VDJ_GEX_matrix.output\[\[2\]\])</p></dd>
+
+
 <dt>genes</dt>
 <dd><p>Character vector. At least 2 genes present in rownames(GEX). Use "all" to include all genes. The number of comparisons to make is the length(genes)! (factorial). More than 100 genes are not recommended.</p></dd>
+
+
 <dt>subsample.n</dt>
 <dd><p>Interger. Number of cells to subsample. If set to 100, 100 cells will be randomly sampled for the calculation</p></dd>
+
+
 <dt>plot.dotmap</dt>
 <dd><p>Boolean. Whether to return a plot</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T detailing the coexpression levels of selected genes within the given cell population</p>
+    
+
+<p>Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T detailing the coexpression levels of selected genes within the given cell population</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#To return a dataframe with coefficients</span></span>
-<span class="r-in"><span class="co">#GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]</span></span>
-<span class="r-in"><span class="co">#, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = FALSE)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#To return a dotplot detailing coexpression and overall expression</span></span>
-<span class="r-in"><span class="fu">GEX_coexpression_coefficient</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
-<span class="r-in">, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>, <span class="st">"CD83"</span><span class="op">)</span>, subsample.n <span class="op">=</span> <span class="st">"none"</span>, plot.dotmap <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#To return a dataframe with coefficients</span></span></span>
+<span class="r-in"><span><span class="co">#GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]</span></span></span>
+<span class="r-in"><span><span class="co">#, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = FALSE)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#To return a dotplot detailing coexpression and overall expression</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_coexpression_coefficient</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>, genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>, <span class="st">"CD83"</span><span class="op">)</span>, subsample.n <span class="op">=</span> <span class="st">"none"</span>, plot.dotmap <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating coexpression for 2 genes with 21 cells</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   col.1 col.2 gene.1 gene.2 coex.coef perc.single.positive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1     1     2   CD19   CD83  41.93548             41.93548</span>
@@ -138,8 +147,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

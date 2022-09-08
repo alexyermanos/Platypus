@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,61 +93,69 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VGM_integrate</span><span class="op">(</span><span class="va">VGM</span>, <span class="va">columns.to.transfer</span>, <span class="va">genes.to.VDJ</span>, <span class="va">seurat.slot</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VGM_integrate</span><span class="op">(</span><span class="va">VGM</span>, <span class="va">columns.to.transfer</span>, <span class="va">genes.to.VDJ</span>, <span class="va">seurat.slot</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VGM</dt>
 <dd><p>Output object from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output)</p></dd>
+
+
 <dt>columns.to.transfer</dt>
 <dd><p>Optional. Character Vector. Column names of either the VDJ matrix or GEX meta.data that should be transferred to the corresponding other matrix. if not provided all columns missing from one will be integrated into the other matrix</p></dd>
+
+
 <dt>genes.to.VDJ</dt>
 <dd><p>Character vector of gene names in GEX. In many cases it is useful to extract expression values for a gene to metadata. This is done via SeuratObject::FetchData(vars  = genes,slot = seurat.slot) function. The VGM integrate takes gene ids, extracts these and adds them to the VDJ dataframe. If provided, no other columns are integrated between VDJ and GEX and columns.to.transfer is ignored.</p></dd>
+
+
 <dt>seurat.slot</dt>
 <dd><p>GEX object data slot to pull from. Can be 'counts', 'data', or 'scale.data'</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An output object from the VDJ_GEX_matrix function with added columns in VDJ or GEX</p>
+    
+
+<p>An output object from the VDJ_GEX_matrix function with added columns in VDJ or GEX</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co">#Adding a new clonotyping method to VDJ</span></span>
-<span class="r-in"><span class="va">small_vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="VDJ_clonotype_v3.html">VDJ_clonotype_v3</a></span><span class="op">(</span>VDJ<span class="op">=</span><span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in">clone.strategy<span class="op">=</span><span class="st">"cdr3.nt"</span>,</span>
-<span class="r-in">hierarchical <span class="op">=</span> <span class="st">"single.chains"</span>, global.clonotype <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Adding a new clonotyping method to VDJ</span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="VDJ_clonotype.html">VDJ_clonotype</a></span><span class="op">(</span>VDJ<span class="op">=</span><span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>clone.strategy<span class="op">=</span><span class="st">"cdr3.nt"</span>,</span></span>
+<span class="r-in"><span>hierarchical <span class="op">=</span> <span class="st">"single.chains"</span>, global.clonotype <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Clonotyping strategy: cdr3.nt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Hierarchical clonotyping is specifically designed to incorporate cells with abberand numbers of chains. Filtering for 1VDJ 1VJ chain thereby defeats its purpose. Function will continue without filtering.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Filtered out 1 cells containing more than one VDJ AND VJ chain or two VDJ chains, as these likely correspond to doublets</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Processing sample 1 of 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attempting to merge in 17 aberrant cells</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Backing up 10x default clonotyping in columns clonotype_id_10x and clonotype_frequency_10x before updating clonotype_id and clonotype_frequency columns</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">VGM_integrate</span><span class="op">(</span></span>
-<span class="r-in">VGM <span class="op">=</span> <span class="va">small_vgm</span>,</span>
-<span class="r-in">columns.to.transfer <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#transfer all new columns</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">VGM_integrate</span><span class="op">(</span></span></span>
+<span class="r-in"><span>VGM <span class="op">=</span> <span class="va">small_vgm</span>,</span></span>
+<span class="r-in"><span>columns.to.transfer <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#transfer all new columns</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Cells in GEX: 21; cells in VDJ: 49</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Overlap: 20 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Integrating all VDJ columns which are not in GEX to GEX</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Added columns to GEX: barcode; GEX_available; clonotype_id; global_clonotype_frequency_cdr3.nt; global_clonotype_id_cdr3.nt; global_clonal_feature_cdr3.nt; clonotype_frequency_10x</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Integrating all VDJ columns which are not in GEX to GEX</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Added columns to VDJ: nCount_RNA; nFeature_RNA; VDJ_available; percent.mt; RNA_snn_res.0.5</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">VGM_integrate</span><span class="op">(</span></span>
-<span class="r-in">VGM <span class="op">=</span> <span class="va">small_vgm</span>,</span>
-<span class="r-in">columns.to.transfer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"global_clonotype_id_cdr3.nt"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Added columns to GEX: clonotype_id; global_clonotype_frequency_cdr3.nt; global_clonotype_id_cdr3.nt; global_clonal_feature_cdr3.nt; clonotype_frequency_10x; clonotype_id; clonotype_frequency</span>
+<span class="r-in"><span><span class="co">#and update clonotype_id and clonotype_frequency column</span></span></span>
+<span class="r-in"><span><span class="co">#(as does VDJ_clonotype_v3 in VDJ)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">VGM_integrate</span><span class="op">(</span></span></span>
+<span class="r-in"><span>VGM <span class="op">=</span> <span class="va">small_vgm</span>,</span></span>
+<span class="r-in"><span>columns.to.transfer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"global_clonotype_id_cdr3.nt"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Cells in GEX: 21; cells in VDJ: 49</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Overlap: 20 </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Added columns to GEX: global_clonotype_id_cdr3.nt</span>
-<span class="r-in"><span class="co">#transfer only selected columns</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Pull genes from GEX and add as metadata column to VDJ</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">VGM_integrate</span><span class="op">(</span></span>
-<span class="r-in"><span class="va">small_vgm</span>, genes.to.VDJ <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>,<span class="st">"CD24A"</span><span class="op">)</span>,seurat.slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co">#transfer only selected columns</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Pull genes from GEX and add as metadata column to VDJ</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">VGM_integrate</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span>, genes.to.VDJ <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD19"</span>,<span class="st">"CD24A"</span><span class="op">)</span>,seurat.slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Cells in GEX: 21; cells in VDJ: 49</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  Overlap: 20 </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Added columns to VDJ: CD19; CD24A</span>
@@ -165,8 +173,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

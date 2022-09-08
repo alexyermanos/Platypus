@@ -1,2 +1,0 @@
-cd C:\Dokumente usw\Master\Reddy Lab\1_thesis\3_code\4_DB project\PlatypusDB_dev_VK\docs\dev
-python3 -m http.server

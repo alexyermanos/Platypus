@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,43 +93,62 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_assemble_for_PnP</span><span class="op">(</span>
-  <span class="va">VDJ.mixcr.matrix</span>,
-  <span class="va">id.column</span>,
-  <span class="va">species</span>,
-  <span class="va">manual_IgKC</span>,
-  <span class="va">manual_2A</span>,
-  <span class="va">manual_VDJLeader</span>,
-  <span class="va">write.to.disk</span>,
-  <span class="va">filename</span>,
-  <span class="va">verbose</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_assemble_for_PnP</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ.mixcr.matrix</span>,</span>
+<span>  <span class="va">id.column</span>,</span>
+<span>  <span class="va">species</span>,</span>
+<span>  <span class="va">manual_IgKC</span>,</span>
+<span>  <span class="va">manual_2A</span>,</span>
+<span>  <span class="va">manual_VDJLeader</span>,</span>
+<span>  <span class="va">write.to.disk</span>,</span>
+<span>  <span class="va">filename</span>,</span>
+<span>  <span class="va">verbose</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ.mixcr.matrix</dt>
 <dd><p>Output dataframe from the VDJ_call_MIXCR function or a dataframe generated using the VDJ_GEX_matrix function and supplemented with MIXCR information (Needed columns: All Framework and CDR sequences)</p></dd>
+
+
 <dt>id.column</dt>
 <dd><p>Character. Column name of VDJ.mixcr.matrix to use as ID for the assembled sequences. Defaults to "barcode"</p></dd>
+
+
 <dt>species</dt>
 <dd><p>Character. Which IgKC sequence to use. Can be "human" or "mouse". Defaults to "mouse"</p></dd>
+
+
 <dt>manual_IgKC</dt>
 <dd><p>Character. Manual overwrite for sequence used as IgKC.</p></dd>
+
+
 <dt>manual_2A</dt>
 <dd><p>Character. Manual overwrite for sequence used as Furine 2A site.</p></dd>
+
+
 <dt>manual_VDJLeader</dt>
 <dd><p>Character. Manual overwrite for sequence used as VDJ Leader and signal peptide.</p></dd>
+
+
 <dt>write.to.disk</dt>
 <dd><p>Boolean. Defaults to TRUE. Whether to save assembled sequences to working directory</p></dd>
+
+
 <dt>filename</dt>
 <dd><p>Character. Output file name for .fasta and .csv files if write.to.disk == T. Defaults to PnP_assembled_seqs.fasta/.csv</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Print runtime message to console. Defaults to FALSE</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns the input VGM matrix with one additional column containing the assembles sequences. If write.to.disk == T writes a CSV containing key columns of the VGM as well as a .FASTA file to the current working director (getwd())
+    
+
+<p>Returns the input VGM matrix with one additional column containing the assembles sequences. If write.to.disk == T writes a CSV containing key columns of the VGM as well as a .FASTA file to the current working director (getwd())
 ! Important notes on column content:
 1. The column "seq_length_check" contains either "passed" or "FAILED". If FAILED, this means that at least one of the sequences (e.g. FRL1) was shorter than 9NTs and therefore considered invalid. Please check for missing sequences if you find any warnings
 2. The column "seq_codon_check" is deemed "passed" if all CDR and FR input sequences of a cell contain only full codons (i.e. are divisible by 3)
@@ -144,13 +163,13 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">VGM_with_PnP_seq</span> <span class="op">&lt;-</span> <span class="fu">VDJ_assemble_for_PnP</span><span class="op">(</span>VDJ.mixcr.matrix <span class="op">=</span> <span class="va">VDJ_call_MIXCR.output</span></span>
-<span class="r-in">, id.column <span class="op">=</span> <span class="st">"barcode"</span>,species <span class="op">=</span> <span class="st">"mouse"</span>, manual_IgKC <span class="op">=</span> <span class="st">"none"</span>, manual_2A <span class="op">=</span> <span class="st">"none"</span></span>
-<span class="r-in">, manual_VDJLeader <span class="op">=</span> <span class="st">"none"</span>, write.to.disk <span class="op">=</span> <span class="cn">TRUE</span>, filename <span class="op">=</span> <span class="st">"PnP_seq_example"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">VGM_with_PnP_seq</span> <span class="op">&lt;-</span> <span class="fu">VDJ_assemble_for_PnP</span><span class="op">(</span>VDJ.mixcr.matrix <span class="op">=</span> <span class="va">VDJ_call_MIXCR.output</span></span></span>
+<span class="r-in"><span>, id.column <span class="op">=</span> <span class="st">"barcode"</span>,species <span class="op">=</span> <span class="st">"mouse"</span>, manual_IgKC <span class="op">=</span> <span class="st">"none"</span>, manual_2A <span class="op">=</span> <span class="st">"none"</span></span></span>
+<span class="r-in"><span>, manual_VDJLeader <span class="op">=</span> <span class="st">"none"</span>, write.to.disk <span class="op">=</span> <span class="cn">TRUE</span>, filename <span class="op">=</span> <span class="st">"PnP_seq_example"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -165,8 +184,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

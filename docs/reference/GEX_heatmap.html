@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,34 +93,47 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_heatmap</span><span class="op">(</span>
-  <span class="va">GEX</span>,
-  <span class="va">b.or.t</span>,
-  <span class="va">sample.index</span>,
-  <span class="va">clone.rank.threshold</span>,
-  <span class="va">custom.array</span>,
-  <span class="va">slot</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_heatmap</span><span class="op">(</span></span>
+<span>  <span class="va">GEX</span>,</span>
+<span>  <span class="va">b.or.t</span>,</span>
+<span>  <span class="va">sample.index</span>,</span>
+<span>  <span class="va">clone.rank.threshold</span>,</span>
+<span>  <span class="va">custom.array</span>,</span>
+<span>  <span class="va">slot</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>A single seurat object from clonotype_GEX function corresponding to all of the samples in a single VDJ_analyze object. This will likely be supplied as clonotype_GEX.output[[i]] if there were multiple, distinct transcriptomes.</p></dd>
+
+
 <dt>b.or.t</dt>
 <dd><p>Logical indicating if B or T cell gene panel should be used.</p></dd>
+
+
 <dt>sample.index</dt>
 <dd><p>Corresponds to which repertoire should be used in the case that the length of clonotype.list has a length greater than 1. The transcriptional profiles from only one repertoire can be plotted at a time.</p></dd>
+
+
 <dt>clone.rank.threshold</dt>
 <dd><p>A numeric that specifies the threshold clonal rank that specifies which clonotypes to extract transcriptome information from. For example, if 10 is supplied then the gene expression for the top ten clones included on the heatmap, separated by clonotype.</p></dd>
+
+
 <dt>custom.array</dt>
 <dd><p>Corresponds to which repertoire should be used in the case that the length of clonotype.list has a length greater than 1. The transcriptional profiles from only one repertoire can be plotted at a time.</p></dd>
+
+
 <dt>slot</dt>
 <dd><p>Seurat data slot from which to plot values. Can be "raw.data", "data" or "scale.data"</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a heatmap via Seurat::DoHeatmap of gene expression per clonotype</p>
+    
+
+<p>Returns a heatmap via Seurat::DoHeatmap of gene expression per clonotype</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -129,14 +142,14 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#prep the small_vgm sample dataset</span></span>
-<span class="r-in"><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span></span>
-<span class="r-in"><span class="va">small_vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clone_rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">small_vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">meta.data</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">GEX_heatmap</span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">small_vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,b.or.t <span class="op">=</span> <span class="st">"custom"</span></span>
-<span class="r-in">,clone.rank.threshold <span class="op">=</span> <span class="fl">1</span>,sample.index <span class="op">=</span> <span class="st">"s1"</span></span>
-<span class="r-in">,custom.array <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD24A"</span>,<span class="st">"CD83"</span><span class="op">)</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#prep the small_vgm sample dataset</span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span> <span class="op">&lt;-</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span></span></span>
+<span class="r-in"><span><span class="va">small_vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">clone_rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">small_vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">meta.data</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_heatmap</span><span class="op">(</span>GEX <span class="op">=</span> <span class="va">small_vgm</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,b.or.t <span class="op">=</span> <span class="st">"custom"</span></span></span>
+<span class="r-in"><span>,clone.rank.threshold <span class="op">=</span> <span class="fl">1</span>,sample.index <span class="op">=</span> <span class="st">"s1"</span></span></span>
+<span class="r-in"><span>,custom.array <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD24A"</span>,<span class="st">"CD83"</span><span class="op">)</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="GEX_heatmap-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -151,8 +164,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

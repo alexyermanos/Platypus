@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,114 +93,141 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_DEgenes</span><span class="op">(</span>
-  <span class="va">GEX</span>,
-  <span class="va">FindMarkers.out</span>,
-  <span class="va">grouping.column</span>,
-  <span class="va">group1</span>,
-  <span class="va">group2</span>,
-  <span class="va">min.pct</span>,
-  <span class="va">filter</span>,
-  <span class="va">return.plot</span>,
-  <span class="va">logFC</span>,
-  <span class="va">color.p.threshold</span>,
-  <span class="va">color.log.threshold</span>,
-  <span class="va">color.by.threshold</span>,
-  <span class="va">up.genes</span>,
-  <span class="va">down.genes</span>,
-  <span class="va">base</span>,
-  <span class="va">label.n.top.genes</span>,
-  <span class="va">genes.to.label</span>,
-  <span class="va">platypus.version</span>,
-  <span class="va">size_top_colorbar</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_DEgenes</span><span class="op">(</span></span>
+<span>  <span class="va">GEX</span>,</span>
+<span>  <span class="va">FindMarkers.out</span>,</span>
+<span>  <span class="va">grouping.column</span>,</span>
+<span>  <span class="va">group1</span>,</span>
+<span>  <span class="va">group2</span>,</span>
+<span>  <span class="va">min.pct</span>,</span>
+<span>  <span class="va">filter</span>,</span>
+<span>  <span class="va">return.plot</span>,</span>
+<span>  <span class="va">logFC</span>,</span>
+<span>  <span class="va">color.p.threshold</span>,</span>
+<span>  <span class="va">color.log.threshold</span>,</span>
+<span>  <span class="va">color.by.threshold</span>,</span>
+<span>  <span class="va">up.genes</span>,</span>
+<span>  <span class="va">down.genes</span>,</span>
+<span>  <span class="va">base</span>,</span>
+<span>  <span class="va">label.n.top.genes</span>,</span>
+<span>  <span class="va">genes.to.label</span>,</span>
+<span>  <span class="va">platypus.version</span>,</span>
+<span>  <span class="va">size.top.colorbar</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>Output Seurat object from automate_GEX or VDJ_GEX_matrix_function (VDJ_GEX_matrix.output[[2]]) function that contained at least two distinct biological groups.</p></dd>
+
+
 <dt>FindMarkers.out</dt>
 <dd><p>OPTIONAL: the output of the FindMarkers function. This skips the DEG calculation step and outputs desired plots. All plotting parameters function as normal. Grouping parameters and min.pct are ignored.</p></dd>
+
+
 <dt>grouping.column</dt>
 <dd><p>Character. A column name of GEX@meta.data. In this column, group1 and group2 should be found. Defaults to "sample_id". Could also be set to "seurat_clusters" to generate DEGs between cells of 2 chosen clusters.</p></dd>
+
+
 <dt>group1</dt>
 <dd><p>either character or integer specifying the first group of cells that should be compared. (e.g. "s1" if sample_id is used as grouping.column)</p></dd>
+
+
 <dt>group2</dt>
 <dd><p>either character or integer specifying the first group of cells that should be compared. (e.g. "s2" if sample_id is used as grouping.column)</p></dd>
+
+
 <dt>min.pct</dt>
 <dd><p>The minimum percentage of cells expressing a gene in either of the two groups to be compared.</p></dd>
+
+
 <dt>filter</dt>
 <dd><p>Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.</p></dd>
+
+
 <dt>return.plot</dt>
 <dd><p>Character specifying if a "heatmap", "heatmap" or a "volcano" or "none" is to be returned. If not "none" then @return is a list where the first element is a dataframe and the second a plot (see @return). Defaults to none</p></dd>
+
+
 <dt>logFC</dt>
 <dd><p>Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).</p></dd>
+
+
 <dt>color.p.threshold</dt>
 <dd><p>numeric specifying the adjusted p-value threshold for geom_points to be colored. Default is set to 0.01.</p></dd>
+
+
 <dt>color.log.threshold</dt>
 <dd><p>numeric specifying the absolute logFC threshold for geom_points to be colored. Default is set to 0.25.</p></dd>
+
+
 <dt>color.by.threshold</dt>
 <dd><p>Boolean. Set to TRUE to color by color.p.threshold and color.log.threshold. Set to FALSE for a continuous color scale by fold change.</p></dd>
+
+
 <dt>up.genes</dt>
 <dd><p>FOR HEATMAP Integer specifying the number of upregulated genes to be shown.</p></dd>
+
+
 <dt>down.genes</dt>
 <dd><p>FOR HEATMAP Integer specifying the number of downregulated genes to be shown.</p></dd>
+
+
 <dt>base</dt>
 <dd><p>The base with respect to which logarithms are computed. Default: 2</p></dd>
+
+
 <dt>label.n.top.genes</dt>
 <dd><p>FOR VOLCANO Interger. How many top genes to label either by Fold change (if logFC == TRUE) or by p.value (if logFC == FALSE). More than 50 are not recommended. Also works in conjunction with genes.to.label</p></dd>
+
+
 <dt>genes.to.label</dt>
 <dd><p>FOR VOLCANO Character vector of genes to label irregardless of their p value.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Function works with V2 and V3, no need to set this parameter</p></dd>
-<dt>size_top_colorbar</dt>
+
+
+<dt>size.top.colorbar</dt>
 <dd><p>Integer. Size of the top colorbar for heatmap plot.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.</p>
+    
+
+<p>Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#Basic run between two samples</span></span>
-<span class="r-in"><span class="fu">GEX_DEgenes</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,min.pct <span class="op">=</span> <span class="fl">.25</span>,</span>
-<span class="r-in">group1 <span class="op">=</span> <span class="st">"s1"</span>,group2 <span class="op">=</span> <span class="st">"s2"</span>, return.plot <span class="op">=</span> <span class="st">"volcano"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Basic run between two samples</span></span></span>
+<span class="r-in"><span><span class="va">DEGs</span> <span class="op">&lt;-</span> <span class="fu">GEX_DEgenes</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,min.pct <span class="op">=</span> <span class="fl">.25</span>,</span></span>
+<span class="r-in"><span>group1 <span class="op">=</span> <span class="st">"s1"</span>,group2 <span class="op">=</span> <span class="st">"s2"</span>, return.plot <span class="op">=</span> <span class="st">"volcano"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                  | 0 % ~calculating    |+++++++++++++++++                                 | 33% ~00s            |++++++++++++++++++++++++++++++++++                | 67% ~00s            |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           p_val  avg_logFC pct.1 pct.2 p_val_adj SYMBOL signif_pval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD19  0.6151259 -0.3196211 0.714 0.833 1.0000000   CD19       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD24A 0.3930155 -0.8896529 0.429 0.500 1.0000000  CD24A       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD83  0.1723594 -1.0511537 0.714 0.833 0.5170782   CD83       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       signif_logfc color_threshold</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD19          TRUE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD24A         TRUE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CD83          TRUE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 27 rows containing missing values (geom_text_repel).</span>
-<span class="r-plt img"><img src="GEX_DEgenes-1.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Getting DEGs between two seurat clusters</span></span>
-<span class="r-in"><span class="co">#GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,</span></span>
-<span class="r-in"><span class="co">#grouping.column = "seurat_clusters",group1 = "0",group2 = "1")</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Plotting a heatmap by foldchange of sample markers</span></span>
-<span class="r-in"><span class="co">#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]</span></span>
-<span class="r-in"><span class="co">#,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"</span></span>
-<span class="r-in"><span class="co">#, up.genes = 10, down.genes = 10, logFC = TRUE)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Plotting volcano by p value of sample markers. Label additional genes of interest</span></span>
-<span class="r-in"><span class="co">#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25</span></span>
-<span class="r-in"><span class="co">#,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE</span></span>
-<span class="r-in"><span class="co">#, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Generate a heatmap from an already existing FindMarkers output</span></span>
-<span class="r-in"><span class="co">#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]</span></span>
-<span class="r-in"><span class="co">#, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"</span></span>
-<span class="r-in"><span class="co">#, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")</span></span>
+<span class="r-in"><span><span class="co">#DEGs[[1]] =&gt; Table of DEGs</span></span></span>
+<span class="r-in"><span><span class="co">#DEGs[[2]] =&gt; Volcano plot</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Getting DEGs between two seurat clusters</span></span></span>
+<span class="r-in"><span><span class="co">#GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,</span></span></span>
+<span class="r-in"><span><span class="co">#grouping.column = "seurat_clusters",group1 = "0",group2 = "1")</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Plotting a heatmap by foldchange of sample markers</span></span></span>
+<span class="r-in"><span><span class="co">#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]</span></span></span>
+<span class="r-in"><span><span class="co">#,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"</span></span></span>
+<span class="r-in"><span><span class="co">#, up.genes = 10, down.genes = 10, logFC = TRUE)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Plotting volcano by p value of sample markers. Label additional genes of interest</span></span></span>
+<span class="r-in"><span><span class="co">#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25</span></span></span>
+<span class="r-in"><span><span class="co">#,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE</span></span></span>
+<span class="r-in"><span><span class="co">#, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Generate a heatmap from an already existing FindMarkers output</span></span></span>
+<span class="r-in"><span><span class="co">#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]</span></span></span>
+<span class="r-in"><span><span class="co">#, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"</span></span></span>
+<span class="r-in"><span><span class="co">#, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -215,8 +242,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

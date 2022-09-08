@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,42 +93,53 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_visualize_clones</span><span class="op">(</span>
-  <span class="va">GEX.list</span>,
-  <span class="va">VDJ.GEX.integrate.list</span>,
-  <span class="va">highlight.type</span>,
-  <span class="va">highlight.number</span>,
-  <span class="va">reduction</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_visualize_clones</span><span class="op">(</span></span>
+<span>  <span class="va">GEX.list</span>,</span>
+<span>  <span class="va">VDJ.GEX.integrate.list</span>,</span>
+<span>  <span class="va">highlight.type</span>,</span>
+<span>  <span class="va">highlight.number</span>,</span>
+<span>  <span class="va">reduction</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX.list</dt>
 <dd><p>list of Seurat objects, output of the automate_GEX function.</p></dd>
+
+
 <dt>VDJ.GEX.integrate.list</dt>
 <dd><p>Output of the VDJ_GEX_integrate function.</p></dd>
+
+
 <dt>highlight.type</dt>
 <dd><p>(Optional) either "None" if representation highlighted by cluster, "clonotype" if want to highlight most expanded clonotypes, or "sample" if several samples are within the same Seurat object. Default is None.</p></dd>
+
+
 <dt>highlight.number</dt>
 <dd><p>(Optional) an integer or list of integers representing the number of most expanded clonotypes or samples one wants to select eg 4 to highlight the 4th most expanded clonotype or 2:5 to highlight the top 2 to top 5 most expanded clonotype. Only compatible with highlight.type "clonotype" or "sample", will be ignored if type is "None". Default is 1.</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>(Optional) Reduction to plot, either "tsne", "umap", or "harmony". Default is "tsne".</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>concatenated ggplot2 plot with selected clonotypes highlighted (if None, the coloring is according to the clustering).</p>
+    
+
+<p>concatenated ggplot2 plot with selected clonotypes highlighted (if None, the coloring is according to the clustering).</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">GEX_visualize_clones</span><span class="op">(</span>GEX.list<span class="op">=</span><span class="va">automate_GEX.output</span>,</span>
-<span class="r-in"> VDJ.per.clone<span class="op">=</span><span class="va">VDJ_per_clone.output</span>,</span>
-<span class="r-in"> highlight.type<span class="op">=</span><span class="st">"clonotype"</span>,</span>
-<span class="r-in"> highlight.number<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,</span>
-<span class="r-in"> reduction<span class="op">=</span><span class="st">"umap"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_visualize_clones</span><span class="op">(</span>GEX.list<span class="op">=</span><span class="va">automate_GEX.output</span>,</span></span>
+<span class="r-in"><span> VDJ.per.clone<span class="op">=</span><span class="va">VDJ_per_clone.output</span>,</span></span>
+<span class="r-in"><span> highlight.type<span class="op">=</span><span class="st">"clonotype"</span>,</span></span>
+<span class="r-in"><span> highlight.number<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,</span></span>
+<span class="r-in"><span> reduction<span class="op">=</span><span class="st">"umap"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -143,8 +154,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

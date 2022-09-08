@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,38 +93,47 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_extract_germline</span><span class="op">(</span>
-  <span class="va">VDJ.per.clone</span>,
-  <span class="va">mixcr.directory</span>,
-  <span class="va">extract.VDJRegion</span>,
-  <span class="va">species</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_extract_germline</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ.per.clone</span>,</span>
+<span>  <span class="va">mixcr.directory</span>,</span>
+<span>  <span class="va">extract.VDJRegion</span>,</span>
+<span>  <span class="va">species</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ.per.clone</dt>
 <dd><p>The output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell.</p></dd>
+
+
 <dt>mixcr.directory</dt>
 <dd><p>The directory containing an executable version of MiXCR. This must be downloaded separately and is under a separate license.</p></dd>
+
+
 <dt>extract.VDJRegion</dt>
 <dd><p>Default is TRUE. Future iterations will allow for distinct gene regions to be extracted.</p></dd>
+
+
 <dt>species</dt>
 <dd><p>Either "mus" or "hsa" for mouse and human respectively. Default is set to mouse.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate</p>
+    
+
+<p>Returns a dataframe containing repertoire information, such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to furhter packages VDJ_extract_sequences and VDJ_GEX_integrate</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">VDJ_extract_germline</span><span class="op">(</span>VDJ.per.clone<span class="op">=</span><span class="va">VDJ.per.clone.output</span></span>
-<span class="r-in">,mixcr.directory<span class="op">=</span><span class="st">"~/Downloads/mixcr-3.0.12/mixcr"</span></span>
-<span class="r-in">,extract.VDJRegion<span class="op">=</span><span class="cn">T</span>,species <span class="op">=</span> <span class="st">"mmu"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">VDJ_extract_germline</span><span class="op">(</span>VDJ.per.clone<span class="op">=</span><span class="va">VDJ.per.clone.output</span></span></span>
+<span class="r-in"><span>,mixcr.directory<span class="op">=</span><span class="st">"~/Downloads/mixcr-3.0.12/mixcr"</span></span></span>
+<span class="r-in"><span>,extract.VDJRegion<span class="op">=</span><span class="cn">T</span>,species <span class="op">=</span> <span class="st">"mmu"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -139,8 +148,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

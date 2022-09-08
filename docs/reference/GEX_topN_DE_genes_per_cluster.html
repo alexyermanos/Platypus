@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,31 +93,40 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_topN_DE_genes_per_cluster</span><span class="op">(</span><span class="va">GEX_cluster_genes.output</span>, <span class="va">n.genes</span>, <span class="va">by_FC</span>, <span class="va">filter</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_topN_DE_genes_per_cluster</span><span class="op">(</span><span class="va">GEX_cluster_genes.output</span>, <span class="va">n.genes</span>, <span class="va">by_FC</span>, <span class="va">filter</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX_cluster_genes.output</dt>
 <dd><p>The output from the GEX_cluster_genes function - this should be a list with each list element corresponding to the genes, p values, logFC, pct expression for the genes differentially regulated for each cluster.</p></dd>
+
+
 <dt>n.genes</dt>
 <dd><p>The number of genes to be selected from each cluster. If n.genes is higher than the number of cells in a cluster then it is silently adjusted to be</p></dd>
+
+
 <dt>by_FC</dt>
 <dd><p>Logical indicating if the top n genes are selected based on the logFC value instead of p value. Default is FALSE.</p></dd>
+
+
 <dt>filter</dt>
 <dd><p>Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a dataframe in which the top N genes defining each cluster based on differential expression are selected.</p>
+    
+
+<p>Returns a dataframe in which the top N genes defining each cluster based on differential expression are selected.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">GEX_topDE_genes_per_cluster</span><span class="op">(</span>GEX_cluster_genes.output<span class="op">=</span><span class="va">list_of_genes_per_cluster</span></span>
-<span class="r-in">, n.genes<span class="op">=</span><span class="fl">20</span>, by_FC<span class="op">=</span><span class="cn">FALSE</span>, filter<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MT-"</span>, <span class="st">"RPS"</span>, <span class="st">"RPL"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_topDE_genes_per_cluster</span><span class="op">(</span>GEX_cluster_genes.output<span class="op">=</span><span class="va">list_of_genes_per_cluster</span></span></span>
+<span class="r-in"><span>, n.genes<span class="op">=</span><span class="fl">20</span>, by_FC<span class="op">=</span><span class="cn">FALSE</span>, filter<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MT-"</span>, <span class="st">"RPS"</span>, <span class="st">"RPL"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -132,8 +141,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

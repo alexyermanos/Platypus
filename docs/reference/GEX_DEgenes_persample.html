@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,57 +93,80 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_DEgenes_persample</span><span class="op">(</span>
-  <span class="va">automate.GEX</span>,
-  <span class="va">min.pct</span>,
-  <span class="va">sample1</span>,
-  <span class="va">sample2</span>,
-  <span class="va">by.group</span>,
-  <span class="va">filter</span>,
-  <span class="va">return.plot</span>,
-  <span class="va">logFC</span>,
-  <span class="va">up.genes</span>,
-  <span class="va">down.genes</span>,
-  <span class="va">base</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_DEgenes_persample</span><span class="op">(</span></span>
+<span>  <span class="va">automate.GEX</span>,</span>
+<span>  <span class="va">min.pct</span>,</span>
+<span>  <span class="va">sample1</span>,</span>
+<span>  <span class="va">sample2</span>,</span>
+<span>  <span class="va">by.group</span>,</span>
+<span>  <span class="va">filter</span>,</span>
+<span>  <span class="va">return.plot</span>,</span>
+<span>  <span class="va">logFC</span>,</span>
+<span>  <span class="va">up.genes</span>,</span>
+<span>  <span class="va">down.genes</span>,</span>
+<span>  <span class="va">base</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>automate.GEX</dt>
 <dd><p>Output Seurat object from automate_GEX function that contained at least two distinct biological samples. The differential biological samples correspond to integer values in the order of the working directories initially supplied to the automate_GEX function.</p></dd>
+
+
 <dt>min.pct</dt>
 <dd><p>The minimum percentage of cells expressing a gene in either of the two groups to be compared.</p></dd>
+
+
 <dt>sample1</dt>
 <dd><p>either character or integer specifying the first sample that should be compared.</p></dd>
+
+
 <dt>sample2</dt>
 <dd><p>either character or integer specifying the first sample that should be compared.</p></dd>
+
+
 <dt>by.group</dt>
 <dd><p>Logical specifying if groups should be used instead of samples. If TRUE, then the argument in sample1 and sample2 will correspond to cells found in the groups from sample1 or sample2.</p></dd>
+
+
 <dt>filter</dt>
 <dd><p>Character vector of initials of the genes to be filtered. Default is c("MT-", "RPL", "RPS"), which filters mitochondrial and ribosomal genes.</p></dd>
+
+
 <dt>return.plot</dt>
 <dd><p>Logical specifying if a heatmap of the DEX genes is to be returned. If TRUE then @return is a list where the first element is a dataframe and the second a heatmap (see @return)</p></dd>
+
+
 <dt>logFC</dt>
 <dd><p>Logical specifying whether the genes will be displayed based on logFC (TRUE) or pvalue (FALSE).</p></dd>
+
+
 <dt>up.genes</dt>
 <dd><p>Integer specifying the number of upregulated genes to be shown.</p></dd>
+
+
 <dt>down.genes</dt>
 <dd><p>Integer specifying the number of downregulated genes to be shown.</p></dd>
+
+
 <dt>base</dt>
 <dd><p>The base with respect to which logarithms are computed. Default: 2</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.</p>
+    
+
+<p>Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">GEX_DEgenes_persample</span><span class="op">(</span>automate.GEX<span class="op">=</span><span class="va">automate.GEX.output</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
-<span class="r-in">,min.pct <span class="op">=</span> <span class="fl">.25</span>,sample1 <span class="op">=</span> <span class="st">"1"</span>,sample2 <span class="op">=</span> <span class="st">"2"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_DEgenes_persample</span><span class="op">(</span>automate.GEX<span class="op">=</span><span class="va">automate.GEX.output</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>,min.pct <span class="op">=</span> <span class="fl">.25</span>,sample1 <span class="op">=</span> <span class="st">"1"</span>,sample2 <span class="op">=</span> <span class="st">"2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -158,8 +181,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

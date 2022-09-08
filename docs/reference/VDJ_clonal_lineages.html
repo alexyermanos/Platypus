@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,40 +93,51 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_clonal_lineages</span><span class="op">(</span>
-  <span class="va">VDJ</span>,
-  <span class="va">VDJ_extract_germline.output</span>,
-  <span class="va">as.nucleotide</span>,
-  <span class="va">with.germline</span>,
-  <span class="va">platypus.version</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_clonal_lineages</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ</span>,</span>
+<span>  <span class="va">VDJ_extract_germline.output</span>,</span>
+<span>  <span class="va">as.nucleotide</span>,</span>
+<span>  <span class="va">with.germline</span>,</span>
+<span>  <span class="va">platypus.version</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ</dt>
 <dd><p>For platypus v2 the output of the call_MIXCR function containing the full-length VDJRegion sequences.For v3 the VDJ matrix output of the VDJ_GEX_matrix function ran with trim.and.align = TRUE. (VDJ_GEX_matrix.output[[1]])</p></dd>
+
+
 <dt>VDJ_extract_germline.output</dt>
 <dd><p>The output from the VDJ_extract_germline function. This should have the germline information. This needs to be supplied if the with.germline argument is set to true.</p></dd>
+
+
 <dt>as.nucleotide</dt>
 <dd><p>Logical determining whether the full-length VDJRegion sequence should use nucleotide seqeunce. TRUE indicates nucleotide sequences and FALSE will extract amino acid sequences.</p></dd>
+
+
 <dt>with.germline</dt>
 <dd><p>Logical determining whether the germline sequence as determined by cellranger should be included in the output list of sequences. If so, the germline will be added to the last row of each dataframe object.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Default is "v3".</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns a list containing the sequences for each clonal family as determined by the input clonotyping strategy to call_MIXCR and VDJ_extract_germline. The outer list corresponds to distinct repertoires supplied to the call_MIXCR function (e.g. VDJ.clonal.lineage.output[[i]][[j]] will contain a dataframe of the j'th clone in the i'th repertoire)</p>
+    
+
+<p>returns a list containing the sequences for each clonal family as determined by the input clonotyping strategy to call_MIXCR and VDJ_extract_germline. The outer list corresponds to distinct repertoires supplied to the call_MIXCR function (e.g. VDJ.clonal.lineage.output[[i]][[j]] will contain a dataframe of the j'th clone in the i'th repertoire)</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">clonal_lineages</span> <span class="op">&lt;-</span> <span class="fu">VDJ_clonal_lineages</span><span class="op">(</span>VDJ<span class="op">=</span><span class="va">call_MIXCR_output</span>,</span>
-<span class="r-in">VDJ_extract_germline.output<span class="op">=</span><span class="va">VDJ_extract_germline_output</span>,as.nucleotide<span class="op">=</span><span class="cn">F</span>,with.germline<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">clonal_lineages</span> <span class="op">&lt;-</span> <span class="fu">VDJ_clonal_lineages</span><span class="op">(</span>VDJ<span class="op">=</span><span class="va">call_MIXCR_output</span>,</span></span>
+<span class="r-in"><span>VDJ_extract_germline.output<span class="op">=</span><span class="va">VDJ_extract_germline_output</span>,as.nucleotide<span class="op">=</span><span class="cn">F</span>,with.germline<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -141,8 +152,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

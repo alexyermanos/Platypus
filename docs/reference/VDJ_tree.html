@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,43 +93,56 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_tree</span><span class="op">(</span>
-  <span class="va">clonal.lineages</span>,
-  <span class="va">with.germline</span>,
-  <span class="va">min.sequences</span>,
-  <span class="va">max.sequences</span>,
-  <span class="va">normalize.germline.length</span>,
-  <span class="va">unique.sequences</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_tree</span><span class="op">(</span></span>
+<span>  <span class="va">clonal.lineages</span>,</span>
+<span>  <span class="va">with.germline</span>,</span>
+<span>  <span class="va">min.sequences</span>,</span>
+<span>  <span class="va">max.sequences</span>,</span>
+<span>  <span class="va">normalize.germline.length</span>,</span>
+<span>  <span class="va">unique.sequences</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>clonal.lineages</dt>
 <dd><p>Output from VDJ_clonal_lineages. This should be nested list, with the outer list element corresponding to the individual repertoire and the inner list corresponding to individual clonal lineages based on the initial clonotyping strategy in the form of a dataframe with either Seq or Name.</p></dd>
+
+
 <dt>with.germline</dt>
 <dd><p>Logical specifying if the germline should be set as outgroup. Default is set to TRUE.</p></dd>
+
+
 <dt>min.sequences</dt>
 <dd><p>integer value specifying the minimum number of sequences to be allowed for clonal lineages. Default is 3.</p></dd>
+
+
 <dt>max.sequences</dt>
 <dd><p>integer value specifying the maximum number of sequences to be allowed for clonal lineages. Default is 500</p></dd>
+
+
 <dt>normalize.germline.length</dt>
 <dd><p>Logical determining whether or not the branch length separating the germline from the first internal node should be normalized. Potentially useful for visualization if the remainder tips are far from the root. Default is TRUE.</p></dd>
+
+
 <dt>unique.sequences</dt>
 <dd><p>Logical indicating if those cells containing identical VDJRegion sequences should be merged into single nodes and have their variant added as the tip label. Default is TRUE.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a nested list of phylogenetic trees. The output[[i]][[j]] corresponds to the j'th clone in the i'th input repertoire. plot(output[[i]][[j]]) should display the phylogenetic tree if the ape package is loaded.</p>
+    
+
+<p>Returns a nested list of phylogenetic trees. The output[[i]][[j]] corresponds to the j'th clone in the i'th input repertoire. plot(output[[i]][[j]]) should display the phylogenetic tree if the ape package is loaded.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">vdj.tree</span> <span class="op">&lt;-</span> <span class="fu">VDJ_tree</span><span class="op">(</span>clonal.lineages <span class="op">=</span> <span class="va">VDJ.clonal.lineage.output</span></span>
-<span class="r-in">,with.germline<span class="op">=</span><span class="cn">TRUE</span>,min.sequences <span class="op">=</span> <span class="fl">5</span></span>
-<span class="r-in">,max.sequences <span class="op">=</span> <span class="fl">30</span>,unique.sequences <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">vdj.tree</span> <span class="op">&lt;-</span> <span class="fu">VDJ_tree</span><span class="op">(</span>clonal.lineages <span class="op">=</span> <span class="va">VDJ.clonal.lineage.output</span></span></span>
+<span class="r-in"><span>,with.germline<span class="op">=</span><span class="cn">TRUE</span>,min.sequences <span class="op">=</span> <span class="fl">5</span></span></span>
+<span class="r-in"><span>,max.sequences <span class="op">=</span> <span class="fl">30</span>,unique.sequences <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -144,8 +157,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

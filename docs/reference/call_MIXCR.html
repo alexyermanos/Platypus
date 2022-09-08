@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,21 +93,28 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">call_MIXCR</span><span class="op">(</span><span class="va">VDJ.per.clone</span>, <span class="va">mixcr.directory</span>, <span class="va">species</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">call_MIXCR</span><span class="op">(</span><span class="va">VDJ.per.clone</span>, <span class="va">mixcr.directory</span>, <span class="va">species</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ.per.clone</dt>
 <dd><p>The output from the VDJ_per_clone function. This object should have information regarding the contigs and clonotype_ids for each cell.</p></dd>
+
+
 <dt>mixcr.directory</dt>
 <dd><p>The directory containing an executable version of MiXCR. This must be downloaded separately and is under a separate license.</p></dd>
+
+
 <dt>species</dt>
 <dd><p>Either "mmu" for mouse or "hsa" for human. These use the default germline genes for both species contained in MIXCR.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.</p>
+    
+
+<p>Returns a nested list containing VDJRegion information as determined by MIXCR. The outer list corresponds to the individual repertoires in the same structure as the input  VDJ.per.clone. The inner list corresponds to each clonal family, as determined by either the VDJ_clonotype function or the defaul nucleotide clonotyping produced by cellranger.Each element in the inner list corresponds to a dataframe containing repertoire information such as isotype, CDR sequences, mean number of UMIs. This output can be supplied to further package functions such as VDJ_extract_sequences and VDJ_GEX_integrate.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -116,10 +123,10 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">call_MIXCR</span><span class="op">(</span>VDJ.per.clone <span class="op">=</span> <span class="va">VDJ.per.clone.output</span></span>
-<span class="r-in">,mixcr.directory <span class="op">=</span> <span class="st">"~/Downloads/mixcr-3.0.12/mixcr"</span>,species <span class="op">=</span> <span class="st">"mmu"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">call_MIXCR</span><span class="op">(</span>VDJ.per.clone <span class="op">=</span> <span class="va">VDJ.per.clone.output</span></span></span>
+<span class="r-in"><span>,mixcr.directory <span class="op">=</span> <span class="st">"~/Downloads/mixcr-3.0.12/mixcr"</span>,species <span class="op">=</span> <span class="st">"mmu"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -134,8 +141,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

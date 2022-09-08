@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,79 +93,110 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_volcano</span><span class="op">(</span>
-  <span class="va">DEGs.input</span>,
-  <span class="va">input.type</span>,
-  <span class="va">condition.1</span>,
-  <span class="va">condition.2</span>,
-  <span class="va">explicit.title</span>,
-  <span class="va">RP.MT.filter</span>,
-  <span class="va">color.p.threshold</span>,
-  <span class="va">color.log.threshold</span>,
-  <span class="va">label.p.threshold</span>,
-  <span class="va">label.logfc.threshold</span>,
-  <span class="va">n.label.up</span>,
-  <span class="va">n.label.down</span>,
-  <span class="va">by.logFC</span>,
-  <span class="va">maximum.overlaps</span>,
-  <span class="va">plot.adj.pvalue</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_volcano</span><span class="op">(</span></span>
+<span>  <span class="va">DEGs.input</span>,</span>
+<span>  <span class="va">input.type</span>,</span>
+<span>  <span class="va">condition.1</span>,</span>
+<span>  <span class="va">condition.2</span>,</span>
+<span>  <span class="va">explicit.title</span>,</span>
+<span>  <span class="va">RP.MT.filter</span>,</span>
+<span>  <span class="va">color.p.threshold</span>,</span>
+<span>  <span class="va">color.log.threshold</span>,</span>
+<span>  <span class="va">label.p.threshold</span>,</span>
+<span>  <span class="va">label.logfc.threshold</span>,</span>
+<span>  <span class="va">n.label.up</span>,</span>
+<span>  <span class="va">n.label.down</span>,</span>
+<span>  <span class="va">by.logFC</span>,</span>
+<span>  <span class="va">maximum.overlaps</span>,</span>
+<span>  <span class="va">plot.adj.pvalue</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>DEGs.input</dt>
 <dd><p>Either output data frame from the FindMarkers function from the Seurat package or GEX_cluster_genes list output.</p></dd>
+
+
 <dt>input.type</dt>
 <dd><p>Character specifing the input type as either "findmarkers" or "cluster.genes". Defaults to "cluster.genes"</p></dd>
+
+
 <dt>condition.1</dt>
 <dd><p>either character or integer specifying ident.1 that was used in the FindMarkers function from the Seurat package. Should be left empty when using the GEX_cluster_genes output.</p></dd>
+
+
 <dt>condition.2</dt>
 <dd><p>either character or integer specifying ident.2 that was used in the FindMarkers function from the Seurat package. Should be left empty when using the GEX_cluster_genes output.</p></dd>
+
+
 <dt>explicit.title</dt>
 <dd><p>logical specifying whether the title should include logFC information for each condition.</p></dd>
+
+
 <dt>RP.MT.filter</dt>
 <dd><p>Boolean. Defaults to TRUE. Whether to exclude ribosomal and mitochondrial genes.</p></dd>
+
+
 <dt>color.p.threshold</dt>
 <dd><p>numeric specifying the adjusted p-value threshold for geom_points to be colored. Default is set to 0.01.</p></dd>
+
+
 <dt>color.log.threshold</dt>
 <dd><p>numeric specifying the absolute logFC threshold for geom_points to be colored. Default is set to 0.25.</p></dd>
+
+
 <dt>label.p.threshold</dt>
 <dd><p>numeric specifying the adjusted p-value threshold for genes to be labeled via geom_text_repel. Default is set to 0.001.</p></dd>
+
+
 <dt>label.logfc.threshold</dt>
 <dd><p>numeric specifying the absolute logFC threshold for genes to be labeled via geom_text_repel. Default is set to 0.75.</p></dd>
+
+
 <dt>n.label.up</dt>
 <dd><p>numeric specifying the number of top upregulated genes to be labeled via geom_text_repel. Genes will be ordered by adjusted p-value. Overrides the "label.p.threshold" and "label.logfc.threshold" parameters.</p></dd>
+
+
 <dt>n.label.down</dt>
 <dd><p>numeric specifying the number of top downregulated genes to be labeled via geom_text_repel. Genes will be ordered by adjusted p-value. Overrides the "label.p.threshold" and "label.logfc.threshold" parameters.</p></dd>
+
+
 <dt>by.logFC</dt>
 <dd><p>logical. If set to TRUE n.label.up and n.label.down will label genes ordered by logFC instead of adjusted p-value.</p></dd>
+
+
 <dt>maximum.overlaps</dt>
 <dd><p>integer specifying removal of labels with too many overlaps. Default is set to Inf.</p></dd>
+
+
 <dt>plot.adj.pvalue</dt>
 <dd><p>logical specifying whether adjusted p-value should by plotted on the y-axis.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a volcano plot from the output of the FindMarkers function from the Seurat package, which is a ggplot object that can be modified or plotted. Infinite p-values are set defined value of the highest -log(p) + 100.</p>
+    
+
+<p>Returns a volcano plot from the output of the FindMarkers function from the Seurat package, which is a ggplot object that can be modified or plotted. Infinite p-values are set defined value of the highest -log(p) + 100.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">#using the findmarkers.output</span></span>
-<span class="r-in"><span class="fu">GEX_volcano</span><span class="op">(</span>findmarkers.output <span class="op">=</span> <span class="va">FindMarkers.Output</span></span>
-<span class="r-in">, condition.1 <span class="op">=</span> <span class="st">"cluster1"</span>, condition.2 <span class="op">=</span> <span class="st">"cluster2"</span></span>
-<span class="r-in">, maximum.overlaps <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">GEX_volcano</span><span class="op">(</span>findmarkers.output <span class="op">=</span> <span class="va">FindMarkers.Output</span></span>
-<span class="r-in">, condition.1 <span class="op">=</span> <span class="st">"cluster1"</span>, condition.2 <span class="op">=</span> <span class="st">"cluster2"</span></span>
-<span class="r-in">, n.label.up <span class="op">=</span> <span class="fl">50</span>, n.label.down <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#using the GEX_cluster_genes output</span></span>
-<span class="r-in"><span class="fu">GEX_volcano</span><span class="op">(</span>findmarkers.output <span class="op">=</span> <span class="va">GEX_cluster_genes.Output</span></span>
-<span class="r-in">, cluster.genes.output <span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co">#using the findmarkers.output</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_volcano</span><span class="op">(</span>findmarkers.output <span class="op">=</span> <span class="va">FindMarkers.Output</span></span></span>
+<span class="r-in"><span>, condition.1 <span class="op">=</span> <span class="st">"cluster1"</span>, condition.2 <span class="op">=</span> <span class="st">"cluster2"</span></span></span>
+<span class="r-in"><span>, maximum.overlaps <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">GEX_volcano</span><span class="op">(</span>findmarkers.output <span class="op">=</span> <span class="va">FindMarkers.Output</span></span></span>
+<span class="r-in"><span>, condition.1 <span class="op">=</span> <span class="st">"cluster1"</span>, condition.2 <span class="op">=</span> <span class="st">"cluster2"</span></span></span>
+<span class="r-in"><span>, n.label.up <span class="op">=</span> <span class="fl">50</span>, n.label.down <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#using the GEX_cluster_genes output</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_volcano</span><span class="op">(</span>findmarkers.output <span class="op">=</span> <span class="va">GEX_cluster_genes.Output</span></span></span>
+<span class="r-in"><span>, cluster.genes.output <span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -180,8 +211,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

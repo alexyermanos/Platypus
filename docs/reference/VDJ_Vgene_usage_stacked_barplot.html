@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,47 +93,72 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_Vgene_usage_stacked_barplot</span><span class="op">(</span>
-  <span class="va">VDJ</span>,
-  <span class="va">HC.gene.number</span>,
-  <span class="va">Fraction.HC</span>,
-  <span class="va">LC.Vgene</span>,
-  <span class="va">LC.gene.number</span>,
-  <span class="va">Fraction.LC</span>,
-  <span class="va">platypus.version</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_Vgene_usage_stacked_barplot</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ</span>,</span>
+<span>  <span class="va">group.by</span>,</span>
+<span>  <span class="va">HC.gene.number</span>,</span>
+<span>  <span class="va">Fraction.HC</span>,</span>
+<span>  <span class="va">LC.Vgene</span>,</span>
+<span>  <span class="va">LC.gene.number</span>,</span>
+<span>  <span class="va">Fraction.LC</span>,</span>
+<span>  <span class="va">platypus.version</span>,</span>
+<span>  <span class="va">is.bulk</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ</dt>
 <dd><p>Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (normally VDJ.GEX.matrix.output[[1]])</p></dd>
+
+
+<dt>group.by</dt>
+<dd><p>Character. Defaults to "sample_id". Column name of VDJ to group plot by.</p></dd>
+
+
 <dt>HC.gene.number</dt>
 <dd><p>Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique HC V genes in the VDJ repertoire, then this number is equal to the number of unique HC V genes.</p></dd>
+
+
 <dt>Fraction.HC</dt>
 <dd><p>Numeric value indicating the minimum fraction of clones expressing a particular HC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.</p></dd>
+
+
 <dt>LC.Vgene</dt>
 <dd><p>Logical indicating whether to make a barplot of the LC V gene distribution. Default is set to FALSE.</p></dd>
+
+
 <dt>LC.gene.number</dt>
 <dd><p>Numeric value indicating the top genes to be dispayed. If this number is higher than the total number of unique LC V genes in the VDJ repertoire, then this number is equal to the number of unique LC V genes.</p></dd>
+
+
 <dt>Fraction.LC</dt>
 <dd><p>Numeric value indicating the minimum fraction of clones expressing a particular LC V gene. If the usage of a particular gene is below this value, then this gene is excluded. If the usage of a particular gene is above this value even in one sample, then this gene is included in the analysis. Default value is set to 0, thus all genes are selected.</p></dd>
+
+
 <dt>platypus.version</dt>
 <dd><p>Set according to input format to either "v2" or "v3". Defaults to "v3"</p></dd>
+
+
+<dt>is.bulk</dt>
+<dd><p>logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_Vgene_usage_stacked_barplot function is compatible for use with bulk data. Defaults to False (F).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.</p>
+    
+
+<p>Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">#Platypus v3</span></span>
-<span class="r-in"><span class="va">example.vdj.vgene_usage</span> <span class="op">&lt;-</span> <span class="fu">VDJ_Vgene_usage_stacked_barplot</span><span class="op">(</span></span>
-<span class="r-in">VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, LC.Vgene <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in">,HC.gene.number <span class="op">=</span> <span class="fl">15</span>, Fraction.HC <span class="op">=</span> <span class="fl">1</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Platypus v3</span></span></span>
+<span class="r-in"><span><span class="va">example.vdj.vgene_usage</span> <span class="op">&lt;-</span> <span class="fu">VDJ_Vgene_usage_stacked_barplot</span><span class="op">(</span></span></span>
+<span class="r-in"><span>VDJ <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, LC.Vgene <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>,HC.gene.number <span class="op">=</span> <span class="fl">15</span>, Fraction.HC <span class="op">=</span> <span class="fl">1</span>, platypus.version <span class="op">=</span> <span class="st">"v3"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Sample order: s1 ; s3 ; s2</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -148,8 +173,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,44 +93,59 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_pairwise_DEGs</span><span class="op">(</span>
-  <span class="va">GEX</span>,
-  <span class="va">group.by</span>,
-  <span class="va">min.pct</span>,
-  <span class="va">RP.MT.filter</span>,
-  <span class="va">label.n.top.genes</span>,
-  <span class="va">genes.to.label</span>,
-  <span class="va">save.plot</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_pairwise_DEGs</span><span class="op">(</span></span>
+<span>  <span class="va">GEX</span>,</span>
+<span>  <span class="va">group.by</span>,</span>
+<span>  <span class="va">min.pct</span>,</span>
+<span>  <span class="va">RP.MT.filter</span>,</span>
+<span>  <span class="va">label.n.top.genes</span>,</span>
+<span>  <span class="va">genes.to.label</span>,</span>
+<span>  <span class="va">save.plot</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX</dt>
 <dd><p>Output Seurat object of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[2]])</p></dd>
+
+
 <dt>group.by</dt>
 <dd><p>Character. Defaults to "seurat_clusters" Column name of GEX@meta.data to use for pairwise comparisons. More than 20 groups are discuraged.</p></dd>
+
+
 <dt>min.pct</dt>
 <dd><p>Numeric. Defaults to 0.25 passed to Seurat::FindMarkers</p></dd>
+
+
 <dt>RP.MT.filter</dt>
 <dd><p>Boolean. Defaults to True. If True, mitochondrial and ribosomal genes are filtered out from the output of Seurat::FindMarkers</p></dd>
+
+
 <dt>label.n.top.genes</dt>
 <dd><p>Integer. Defaults to 50. Defines how many genes are labelled via geom_text_repel. Genes are ordered by adjusted p value and the first label.n.genes are labelled</p></dd>
+
+
 <dt>genes.to.label</dt>
 <dd><p>Character vector. Defaults to "none". Vector of gene names to plot indipendently of their p value. Can be used in combination with label.n.genes.</p></dd>
+
+
 <dt>save.plot</dt>
 <dd><p>Boolean. Defaults to True. Whether to save plots as appropriately named .png files</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.</p>
+    
+
+<p>A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">GEX_pairwise_DEGs</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,group.by <span class="op">=</span> <span class="st">"sample_id"</span></span>
-<span class="r-in">,min.pct <span class="op">=</span> <span class="fl">0.25</span>,RP.MT.filter <span class="op">=</span> <span class="cn">TRUE</span>,label.n.top.genes <span class="op">=</span> <span class="fl">2</span>,genes.to.label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD24A"</span><span class="op">)</span></span>
-<span class="r-in">,save.plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">GEX_pairwise_DEGs</span><span class="op">(</span>GEX <span class="op">=</span> <span class="fu">Platypus</span><span class="fu">::</span><span class="va"><a href="small_vgm.html">small_vgm</a></span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,group.by <span class="op">=</span> <span class="st">"sample_id"</span></span></span>
+<span class="r-in"><span>,min.pct <span class="op">=</span> <span class="fl">0.25</span>,RP.MT.filter <span class="op">=</span> <span class="cn">TRUE</span>,label.n.top.genes <span class="op">=</span> <span class="fl">2</span>,genes.to.label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD24A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>,save.plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating pairwise DEGs 1 of 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] s1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: s3 &lt; s2 &lt; s1</span>
@@ -179,7 +194,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD19  0.6015535 -0.2559791 0.833 0.625 1.0000000  CD19</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -194,8 +209,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

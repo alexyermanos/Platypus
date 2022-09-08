@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,32 +93,37 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_GEX_clonal_lineage_clusters</span><span class="op">(</span>
-  <span class="va">VDJ_GEX_integrate.output</span>,
-  <span class="va">VDJ_clonal_lineages.output</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_GEX_clonal_lineage_clusters</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ_GEX_integrate.output</span>,</span>
+<span>  <span class="va">VDJ_clonal_lineages.output</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ_GEX_integrate.output</dt>
 <dd><p>The output from the VDJ_GEX_integrate function that is performed on the VDJ_per_clone level. This involves a nested list where the outer list corresponds to the repertoire and inner lists correspond to specific clones based on the clonotyping strategy.</p></dd>
+
+
 <dt>VDJ_clonal_lineages.output</dt>
 <dd><p>Output from VDJ_clonal_lineages. This should be nested list, with the outer list element corresponding to the individual repertoire and the inner list corresponding to individual clonal lineages based on the initial clonotyping strategy in the form of a dataframe with either Seq or Name. The Name currently contains the barcode following the last "_".</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a nested list in the identical format to the VDJ_clonal_lineages.output but the name of each sequence will have been changed to include the transcriptional cluster corresponding to that barcode from the GEX library. This requires first running the</p>
+    
+
+<p>a nested list in the identical format to the VDJ_clonal_lineages.output but the name of each sequence will have been changed to include the transcriptional cluster corresponding to that barcode from the GEX library. This requires first running the</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">clonal_lineages</span> <span class="op">&lt;-</span> <span class="fu"><a href="VDJ_clonal_lineages.html">VDJ_clonal_lineages</a></span><span class="op">(</span>call_MIXCR.output<span class="op">=</span><span class="va">call_MIXCR_output</span></span>
-<span class="r-in">, VDJ_extract_germline.output<span class="op">=</span><span class="va">VDJ_extract_germline_output</span></span>
-<span class="r-in">,as.nucleotide<span class="op">=</span><span class="cn">FALSE</span>,with.germline<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">clonal_lineages</span> <span class="op">&lt;-</span> <span class="fu"><a href="VDJ_clonal_lineages.html">VDJ_clonal_lineages</a></span><span class="op">(</span>call_MIXCR.output<span class="op">=</span><span class="va">call_MIXCR_output</span></span></span>
+<span class="r-in"><span>, VDJ_extract_germline.output<span class="op">=</span><span class="va">VDJ_extract_germline_output</span></span></span>
+<span class="r-in"><span>,as.nucleotide<span class="op">=</span><span class="cn">FALSE</span>,with.germline<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -133,8 +138,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

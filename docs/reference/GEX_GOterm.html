@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,65 +93,88 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GEX_GOterm</span><span class="op">(</span>
-  <span class="va">GEX.cluster.genes.output</span>,
-  <span class="va">topNgenes</span>,
-  <span class="va">ontology</span>,
-  <span class="va">species</span>,
-  <span class="va">up.or.down</span>,
-  <span class="va">MT.Rb.filter</span>,
-  <span class="va">kegg</span>,
-  <span class="va">go.plots</span>,
-  <span class="va">top.N.go.terms.plots</span>,
-  <span class="va">kegg.plots</span>,
-  <span class="va">top.N.kegg.terms.plots</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GEX_GOterm</span><span class="op">(</span></span>
+<span>  <span class="va">GEX.cluster.genes.output</span>,</span>
+<span>  <span class="va">topNgenes</span>,</span>
+<span>  <span class="va">ontology</span>,</span>
+<span>  <span class="va">species</span>,</span>
+<span>  <span class="va">up.or.down</span>,</span>
+<span>  <span class="va">MT.Rb.filter</span>,</span>
+<span>  <span class="va">kegg</span>,</span>
+<span>  <span class="va">go.plots</span>,</span>
+<span>  <span class="va">top.N.go.terms.plots</span>,</span>
+<span>  <span class="va">kegg.plots</span>,</span>
+<span>  <span class="va">top.N.kegg.terms.plots</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>GEX.cluster.genes.output</dt>
 <dd><p>Either output of Platypus::GEX_cluster_genes or custom character vector containing gene symbols. A custom gene list will not be further filtered or ordered.</p></dd>
+
+
 <dt>topNgenes</dt>
 <dd><p>How many of the most significant up or down regulated genes should be considered for GO term analysis. All genes will be used if left empty.</p></dd>
+
+
 <dt>ontology</dt>
 <dd><p>Ontology used for the GO terms. "MF", "BP" or "CC" possible. Default: "BP"</p></dd>
+
+
 <dt>species</dt>
 <dd><p>The species the genes belong to. Default: "Mm" (requires the package "org.Mm.eg.db"). Set to "Hs" for Human (requires the package "org.Hs.eg.db")</p></dd>
+
+
 <dt>up.or.down</dt>
 <dd><p>Whether up or downregulated genes should be used for GO term analysis if GEX_cluster_genes output is used. Default: "up"</p></dd>
+
+
 <dt>MT.Rb.filter</dt>
 <dd><p>logical, if mitochondrial and ribosomal genes should be filtered out.</p></dd>
+
+
 <dt>kegg</dt>
 <dd><p>logical, if KEGG pathway analysis should be conducted. Requires internet connection. Default: False.</p></dd>
+
+
 <dt>go.plots</dt>
 <dd><p>logical, if top GO-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.GO.terms.plots) Go-terms for each cluster will be plotted to the working directory and saved as a list element. Plots are made both based on padj and ratio.</p></dd>
+
+
 <dt>top.N.go.terms.plots</dt>
 <dd><p>The number of most significant GO-terms to be incluted in the go.plots. Default: 10.</p></dd>
+
+
 <dt>kegg.plots</dt>
 <dd><p>logical, if top KEGG-terms should be visualized. Default: False. If True, for each cluster the  top N (top.N.kegg.terms.plots) KEGG-terms for each cluster will be plotted to the working directory and saved as a list element. Plots are made both based on padj and ratio.</p></dd>
+
+
 <dt>top.N.kegg.terms.plots</dt>
 <dd><p>The number of most significant KEGG-terms to be incluted in the kegg.plots. Default: 10.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a list of data frames and plots containing the TopGO and the TopKEGG output containing the significant GO/KEGG terms and their visualizations.</p>
+    
+
+<p>Returns a list of data frames and plots containing the TopGO and the TopKEGG output containing the significant GO/KEGG terms and their visualizations.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">GEX_GOterm</span><span class="op">(</span><span class="va">DE_genes_cluster</span>,MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span>, ontology <span class="op">=</span> <span class="st">"MF"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">GEX_GOterm</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">DE_genes_cluster</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span>, species<span class="op">=</span> <span class="st">"Mm"</span>,</span>
-<span class="r-in">ontology <span class="op">=</span> <span class="st">"BP"</span>, go.plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">#Install the needed database with</span></span>
-<span class="r-in"><span class="co">#if (!requireNamespace("BiocManager", quietly = TRUE))</span></span>
-<span class="r-in"><span class="co">#install.packages("BiocManager")</span></span>
-<span class="r-in"><span class="co">#BiocManager::install("org.Mm.eg.db")</span></span>
-<span class="r-in"><span class="co">#BiocManager::install("org.Hs.eg.db")</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">GEX_GOterm</span><span class="op">(</span><span class="va">DE_genes_cluster</span>,MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span>, ontology <span class="op">=</span> <span class="st">"MF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">GEX_GOterm</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">DE_genes_cluster</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,MT.Rb.filter <span class="op">=</span> <span class="cn">TRUE</span>, species<span class="op">=</span> <span class="st">"Mm"</span>,</span></span>
+<span class="r-in"><span>ontology <span class="op">=</span> <span class="st">"BP"</span>, go.plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#Install the needed database with</span></span></span>
+<span class="r-in"><span><span class="co">#if (!requireNamespace("BiocManager", quietly = TRUE))</span></span></span>
+<span class="r-in"><span><span class="co">#install.packages("BiocManager")</span></span></span>
+<span class="r-in"><span><span class="co">#BiocManager::install("org.Mm.eg.db")</span></span></span>
+<span class="r-in"><span><span class="co">#BiocManager::install("org.Hs.eg.db")</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -166,8 +189,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

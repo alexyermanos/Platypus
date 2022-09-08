@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Platypus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.4.1</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <a href="../news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -93,35 +93,42 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">VDJ_reclonotype_list_arrange</span><span class="op">(</span>
-  <span class="va">VDJ_clonotype.output</span>,
-  <span class="va">VDJ_analyze.output</span>,
-  <span class="va">Platypus_list.object</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">VDJ_reclonotype_list_arrange</span><span class="op">(</span></span>
+<span>  <span class="va">VDJ_clonotype.output</span>,</span>
+<span>  <span class="va">VDJ_analyze.output</span>,</span>
+<span>  <span class="va">Platypus_list.object</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>VDJ_clonotype.output</dt>
 <dd><p>The output object from the VDJ_clonotype function. The column of the merged nucleotide clonotype IDs will be used to rearrange the new object.</p></dd>
+
+
 <dt>VDJ_analyze.output</dt>
 <dd><p>The output from the initial VDJ_analyze, containing clonotype information based on nucleotide sequence.</p></dd>
+
+
 <dt>Platypus_list.object</dt>
 <dd><p>The new list object from one of Platypus functions (for example, clonal lineages, VDJ_per_clne, etc) that should be merged based on the VDJ_clonotype output structure. nested list structure, where outer list corresponds to repertoire and the inner list corresponds to clones (on the nucleotide level).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a dataframe in which the top N genes defining each cluster based on differential expression are selected.</p>
+    
+
+<p>Returns a dataframe in which the top N genes defining each cluster based on differential expression are selected.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">checking_vdj_reclono</span> <span class="op">&lt;-</span> <span class="fu">VDJ_reclonotype_list_arrange</span><span class="op">(</span></span>
-<span class="r-in">VDJ_clonotype.output <span class="op">=</span> <span class="va">repertoire_reclonotype</span></span>
-<span class="r-in">,VDJ_analyze.output <span class="op">=</span> <span class="va">repertoire_list</span></span>
-<span class="r-in">,Platypus_list.object <span class="op">=</span> <span class="va">repertoire_vdj_per_clone</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">checking_vdj_reclono</span> <span class="op">&lt;-</span> <span class="fu">VDJ_reclonotype_list_arrange</span><span class="op">(</span></span></span>
+<span class="r-in"><span>VDJ_clonotype.output <span class="op">=</span> <span class="va">repertoire_reclonotype</span></span></span>
+<span class="r-in"><span>,VDJ_analyze.output <span class="op">=</span> <span class="va">repertoire_list</span></span></span>
+<span class="r-in"><span>,Platypus_list.object <span class="op">=</span> <span class="va">repertoire_vdj_per_clone</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -136,8 +143,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
