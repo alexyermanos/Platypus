@@ -15,7 +15,8 @@ GEX_GOterm(
   go.plots,
   top.N.go.terms.plots,
   kegg.plots,
-  top.N.kegg.terms.plots
+  top.N.kegg.terms.plots,
+  use.intput.list.as.title
 )
 }
 \arguments{

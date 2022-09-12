@@ -56,7 +56,7 @@ For example, 'prune.distance.degree' with pruning.threshold=c(3,2) will remove e
 
 \item{directed}{boolean, whether networks obtained using network.algorithm='tree' should be directed (from the germline to the leaf nodes) or not. T - directed; F - undirected trees.}
 
-\item{distance.calculation}{string, specifying the method for calculating string distances between the sequences. Must be compatible with the method parameter of the stringdist::stringdistmatrix() function. Will default to 'lv' for Levenshtein distances.}
+\item{distance.calculation}{string or function, specifying the method for calculating string distances between the sequences. Must be compatible with the method parameter of the stringdist::stringdistmatrix() function. Will default to 'lv' for Levenshtein distances. Else, if a function of the form distance(seq1, seq2) must be specified, which should output a float = custom distance metric between the selected sequences.}
 
 \item{resolve.ties}{vector of strings, denoting the manner in which ties should be resolved when assembling trees via network.algorithm='tree'. Ties are defined as edges with the same weights=string distances (as determined by the distance matrix for the fully connected network) between nodes already added in the tree and nodes to be added in the tree.
 There are multiple default and custom configurations for this parameter:

@@ -39,7 +39,8 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
                        go.plots,
                        top.N.go.terms.plots,
                        kegg.plots,
-                       top.N.kegg.terms.plots){
+                       top.N.kegg.terms.plots,
+                       use.intput.list.as.title){
 
   org.Mm.eg.db <- NULL
   p_val_adj <- NULL
@@ -60,6 +61,9 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
   if (missing(top.N.go.terms.plots)){top.N.go.terms.plots <- 10}
   if (missing(top.N.kegg.terms.plots)){top.N.kegg.terms.plots <- 10}
   if (missing(kegg.plots)){kegg.plots <- F}
+  if (missing(use.intput.list.as.title)){use.intput.list.as.title <- F}
+  if(use.intput.list.as.title == T & is.null(names(GEX.cluster.genes.output)) == F) cluster.names <- names(GEX.cluster.genes.output)
+
 
   gene.list <- list()
   list_topGO <- list()
@@ -172,7 +176,12 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
     top_pathways=top.N.go.terms.plots
     for (i in 1:length(list[[1]])){
       dummy_list <- list[[1]][[i]]
-      plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i-1)
+      if(use.intput.list.as.title == F){
+        plot_title<-paste0("GOterm_top",top_pathways,"terms_cluster",i-1)
+      } else {
+        plot_title<-paste0("GOterm_top",top_pathways," ", cluster.names[i])
+      }
+
       if (nrow(list[[1]][[i]])<top_pathways) top_pathways=nrow(dummy_list)
       dummy_list$ratio<-dummy_list$DE/dummy_list$N
       dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
@@ -221,7 +230,11 @@ GEX_GOterm <- function(GEX.cluster.genes.output,
     top_pathways=top.N.kegg.terms.plots
     for (i in 1:length(list[[2]])){
       dummy_list <- list[[2]][[i]]
-      plot_title<-paste0("KEGG_top",top_pathways,"terms_cluster",i-1)
+      if(use.intput.list.as.title == F){
+        plot_title<-paste0("KEGG_top",top_pathways,"terms_cluster",i-1)
+      } else {
+        plot_title<-paste0("KEGG_top",top_pathways," ", cluster.names[i])
+      }
       if (nrow(dummy_list)<top_pathways) top_pathways=nrow(dummy_list)
       dummy_list$ratio<-dummy_list$DE/dummy_list$N
       dummy_list$Term <- paste0(rownames(dummy_list), "_", dummy_list$Term)
