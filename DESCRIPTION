@@ -2,7 +2,7 @@ Package: Platypus
 Type: Package
 Title: Single-Cell Immune Repertoire and Gene Expression Analysis
 Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology (Yermanos A, et al (2021) <doi:10.1093/nargab/lqab023>). 
-Version: 3.3.6
+Version: 3.4.1
 Date: 2022-03-01
 Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ayermanos@gmail.com"),
              person("Andreas", "Agrafiotis", role = "ctb"),

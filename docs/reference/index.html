@@ -63,12 +63,6 @@
   </a>
 </li>
 <li>
-  <a href="https://twitter.com/KreineVic" class="external-link">
-    <span class="fa fa-twitter"></span>
-     
-  </a>
-</li>
-<li>
   <a href="https://github.com/alexyermanos/Platypus" class="external-link">
     <span class="fa fa-github"></span>
      
@@ -512,19 +506,26 @@ A probability dataframe specifying SHM.nuc.prob for cells of different phenotype
       </tr><tr><td>
           <p><code><a href="PlatypusML_balance.html">PlatypusML_balance()</a></code> </p>
         </td>
-        <td><p>Secondary ML for crossvalidation</p></td>
+        <td><p>This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds 
+for different classification models and reports the AUC scores and ROC curves.</p></td>
       </tr><tr><td>
           <p><code><a href="PlatypusML_classification.html">PlatypusML_classification()</a></code> </p>
         </td>
-        <td><p>Core ML for crossvalidation</p></td>
+        <td><p>This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds 
+for different classification models and reports the AUC scores and ROC curves.</p></td>
       </tr><tr><td>
           <p><code><a href="PlatypusML_feature_extraction_GEX.html">PlatypusML_feature_extraction_GEX()</a></code> </p>
         </td>
-        <td><p>Extraction of features from GEX matrix of VGM</p></td>
+        <td><p>This PlatypusML_feature_extraction_GEX function takes as input specified features from the second output of the VDJ_GEX_matrix function and encodes 
+according to the specified strategy. The function returns a matrix containing the encoded extracted features as columns and the different cells as rows. 
+This function should be called as a first step in the process of modeling the VGM data using machine learning.</p></td>
       </tr><tr><td>
           <p><code><a href="PlatypusML_feature_extraction_VDJ.html">PlatypusML_feature_extraction_VDJ()</a></code> </p>
         </td>
-        <td><p>Extraction of features from VDJ table of VGM</p></td>
+        <td><p>This PlatypusML_feature_extraction function takes as input specified features from the first output of the VDJ_GEX_matrix function and encodes 
+according to the specified strategy. The function returns a matrix containing the encoded extracted features in the order specified in 
+the input as columns and the different cells as rows. This function should be called as a first step in the process of modeling the VGM data
+using machine learning.</p></td>
       </tr><tr><td>
           <p><code><a href="select.top.clone.html">select.top.clone()</a></code> </p>
         </td>
@@ -670,6 +671,10 @@ from FR1 all the way to FR2 for both the VDJ and VJ.</p></td>
         </td>
         <td><p>Platypus V3 clonotyping wrapper</p></td>
       </tr><tr><td>
+          <p><code><a href="VDJ_clonotype_v3_w_enclone.html">VDJ_clonotype_v3_w_enclone()</a></code> </p>
+        </td>
+        <td><p>Updated clonotyping function based on implications for cells with different chain numbers than 1 VDJ 1 VJ chains.</p></td>
+      </tr><tr><td>
           <p><code><a href="VDJ_contigs_to_vgm.html">VDJ_contigs_to_vgm()</a></code> </p>
         </td>
         <td><p>Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain</p></td>
@@ -694,10 +699,6 @@ from FR1 all the way to FR2 for both the VDJ and VJ.</p></td>
         </td>
         <td><p>Tracks a specific VDJ column across multiple samples/timepoints.</p></td>
       </tr><tr><td>
-          <p><code><a href="VDJ_enclone.html">VDJ_enclone()</a></code> </p>
-        </td>
-        <td><p>Updated clonotyping function based on implications for cells with different chain numbers than 1 VDJ 1 VJ chains.</p></td>
-      </tr><tr><td>
           <p><code><a href="VDJ_expand_aberrants.html">VDJ_expand_aberrants()</a></code> </p>
         </td>
         <td><p>Expand the aberrant cells in a VDJ dataframe by converting them into additional rows</p></td>
@@ -705,6 +706,10 @@ from FR1 all the way to FR2 for both the VDJ and VJ.</p></td>
           <p><code><a href="VDJ_extract_germline.html">VDJ_extract_germline()</a></code> </p>
         </td>
         <td><p>Platypus V2 utility for full germline sequence via MiXCR</p></td>
+      </tr><tr><td>
+          <p><code><a href="VDJ_germline.html">VDJ_germline()</a></code> </p>
+        </td>
+        <td><p>Infer germline from the desired software/caller</p></td>
       </tr><tr><td>
           <p><code><a href="VDJ_get_public.html">VDJ_get_public()</a></code> </p>
         </td>

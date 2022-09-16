@@ -1,4 +1,8 @@
-# Platypus 3.1
+# Platypus 3.4
+
+## Platypus Ecosystem online
+
+- Explore the wide range of new integrated and intercompatible tools and databases.  
 
 ## New package for B cell phylogeny
 

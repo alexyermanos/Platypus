@@ -67,7 +67,7 @@
   <a href="news/index.html">News</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Other Packages
      
     <span class="caret"></span>
@@ -85,12 +85,6 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://twitter.com/alexyermanos" class="external-link">
-    <span class="fa fa-twitter"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://twitter.com/KreineVic" class="external-link">
     <span class="fa fa-twitter"></span>
      
   </a>
@@ -117,37 +111,19 @@
 <p><img src="https://repository-images.githubusercontent.com/297313954/10e0a180-713e-11eb-9a23-ef93a9d86e8b"></p>
 <div class="section level2">
 <h2 id="-platypus-and-platypusdb-homepage">
-<a href="https://alexyermanos.github.io/Platypus/index.html" title="Platypus and PlatypusDB homepage" class="external-link">==&gt; Platypus and PlatypusDB
-homepage</a><a class="anchor" aria-label="anchor" href="#-platypus-and-platypusdb-homepage"></a>
+<a href="https://alexyermanos.github.io/Platypus/index.html" title="Platypus and PlatypusDB homepage" class="external-link">==&gt; Platypus and PlatypusDB homepage</a><a class="anchor" aria-label="anchor" href="#-platypus-and-platypusdb-homepage"></a>
 </h2>
 </div>
 <div class="section level1">
 <div class="page-header"><h1 id="platypus">Platypus<a class="anchor" aria-label="anchor" href="#platypus"></a>
 </h1></div>
-<p>Platypus is an R toolkit designed to facilitate the data analysis of
-single-cell immune repertoire sequencing experiments. The manuscript
-corresponding to Platypus v2 can be found here at Yermanos et al NARGAB
-2021 <a href="https://doi.org/10.1093/nargab/lqab023" class="external-link uri">https://doi.org/10.1093/nargab/lqab023</a></p>
+<p>Platypus is an R toolkit designed to facilitate the data analysis of single-cell immune repertoire sequencing experiments. The manuscript corresponding to Platypus v2 can be found here at Yermanos et al NARGAB 2021 <a href="https://doi.org/10.1093/nargab/lqab023" class="external-link uri">https://doi.org/10.1093/nargab/lqab023</a></p>
 </div>
 <div class="section level1">
 <h1 id="ongoing-updates-in-the-platypus-pipeline-v3">Ongoing updates in the Platypus pipeline (v3)<a class="anchor" aria-label="anchor" href="#ongoing-updates-in-the-platypus-pipeline-v3"></a>
 </h1>
-<p>Due to the recent changes of the default clonotyping strategy in
-Cellranger (version 5 and version 6) we have rebuild of Platypus to
-revolve around the VDJ_GEX_matrix function. This function integrates
-both repertoire and transcriptome information and will serve as the
-input to all secondary functions in future iterations of the package.
-The advantage of this is having all repertoire and transcriptome
-information at a per-cell level.</p>
-<p>Furthermore we developed PlatypusDB, a publicly available database
-that facilitates the download, integration, and analysis of hundred
-thousands of single-cells that contain GEX information, VDJ information
-or both. With a single line of code, PlatypusDB allows users to either
-download and explore available datasets or integrate existing
-experiments with their own datasets. Collectively, PlatypusDB serves as
-a database for the scientific community interested in exploration of
-single cell immune repertoire sequencing experiments from mouse and
-human.</p>
+<p>Due to the recent changes of the default clonotyping strategy in Cellranger (version 5 and version 6) we have rebuild of Platypus to revolve around the VDJ_GEX_matrix function. This function integrates both repertoire and transcriptome information and will serve as the input to all secondary functions in future iterations of the package. The advantage of this is having all repertoire and transcriptome information at a per-cell level.</p>
+<p>Furthermore we developed PlatypusDB, a publicly available database that facilitates the download, integration, and analysis of hundred thousands of single-cells that contain GEX information, VDJ information or both. With a single line of code, PlatypusDB allows users to either download and explore available datasets or integrate existing experiments with their own datasets. Collectively, PlatypusDB serves as a database for the scientific community interested in exploration of single cell immune repertoire sequencing experiments from mouse and human.</p>
 <p>Stay tuned for updates <a href="https://twitter.com/AlexYermanos" class="external-link uri">https://twitter.com/AlexYermanos</a></p>
 <div class="section level2">
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a>
@@ -158,92 +134,82 @@ human.</p>
 <div class="section level1">
 <h1 id="system-requirements">System requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
 </h1>
-<p>Platypus has been successfully installed on MacOS X (v10.14.6) and
-Windows 10 Pro (v1909), and used on R versions 4.0.0 and 3.6.1</p>
+<p>Platypus has been successfully installed on MacOS X (v10.14.6) and Windows 10 Pro (v1909), and used on R versions 4.0.0 and 3.6.1</p>
 </div>
 <div class="section level1">
 <h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h1>
-<p>Platypus can easily be installed from CRAN or Github. As changes and
-bugfixes are made regularly, the Github version may be more recent.</p>
-<p>Please scroll down for instructions on how to install the necessary
-dependencies.</p>
+<p>Platypus can easily be installed from CRAN or Github. As changes and bugfixes are made regularly, the Github version may be more recent.</p>
+<p>Please scroll down for instructions on how to install the necessary dependencies.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="co">### Removing any previous versions of the package</span>
-<span class="co"># First we will ensure that there is no previous version installed locally</span>
-<span class="co">#detach("package:Platypus", unload=TRUE)</span>
-<span class="co">#remove.packages("Platypus")</span>
-
-<span class="co">### Downloading and installing Platypus from Github</span>
-
-<span class="co"># First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. </span>
-<span class="co"># WARNING: This needs to be replaced with your own directory where the downloaded package is found</span>
-<span class="co"># For MacOS users it may look like this</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"~/Downloads/Platypus_3.3.6.tar.gz"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span>
-<span class="co"># For windows it will likely look something like this. </span>
-<span class="co"># WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. </span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"C:/Users/YourPCName/Downloads/Platypus_3.3.6tar.gz"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span>
-
-<span class="co">### Downloading and installing Platypus from CRAN</span>
-
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Platypus"</span><span class="op">)</span>
-
-<span class="co"># The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in current CRAN version. </span></code></pre></div>
-<p>Platypus uses a number of different R packages, some of which need
-prior installation. These can be installed either from CRAN,
-Bioconductor:</p>
+<code class="sourceCode R"><span></span>
+<span><span class="co">### Removing any previous versions of the package</span></span>
+<span><span class="co"># First we will ensure that there is no previous version installed locally</span></span>
+<span><span class="co">#detach("package:Platypus", unload=TRUE)</span></span>
+<span><span class="co">#remove.packages("Platypus")</span></span>
+<span></span>
+<span><span class="co">### Downloading and installing Platypus from CRAN</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Platypus"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">### Downloading and installing Platypus from Github</span></span>
+<span></span>
+<span><span class="co"># First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. </span></span>
+<span><span class="co"># WARNING: This needs to be replaced with your own directory where the downloaded package is found</span></span>
+<span><span class="co"># For MacOS users it may look like this</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"~/Downloads/Platypus_3.4.1.tar.gz"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span></span>
+<span><span class="co"># For windows it will likely look something like this. </span></span>
+<span><span class="co"># WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"C:/Users/YourPCName/Downloads/Platypus_3.4.1.tar.gz"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in current CRAN version. </span></span></code></pre></div>
+<p>Platypus uses a number of different R packages, some of which need prior installation. These can be installed either from CRAN, Bioconductor:</p>
 <div class="section level2">
 <h2 id="cran">CRAN<a class="anchor" aria-label="anchor" href="#cran"></a>
 </h2>
 <p>Code to install the packages from CRAN:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Essential packages</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"tidyverse"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Seurat"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"utils"</span><span class="op">)</span>
-
-<span class="co">#Optional packages needed for some individual functions</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ape"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"circlize"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"do"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dplyr"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggplot2"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggseqlogo"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"igraph"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"jsonlite"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"phytools"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reshape2"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"seqinr"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"stringdist"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#Essential packages</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"tidyverse"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Seurat"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"utils"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Optional packages needed for some individual functions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ape"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"circlize"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"do"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dplyr"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggplot2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggseqlogo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"igraph"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"jsonlite"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"phytools"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reshape2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"seqinr"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"stringdist"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="github">GitHub<a class="anchor" aria-label="anchor" href="#github"></a>
 </h2>
 <div class="section level3">
-<h3 id="harmony-but-not-required-if-not-using-the-harmony-integration-method">Harmony (but not required if not using the Harmony integration
-method)<a class="anchor" aria-label="anchor" href="#harmony-but-not-required-if-not-using-the-harmony-integration-method"></a>
+<h3 id="harmony-but-not-required-if-not-using-the-harmony-integration-method">Harmony (but not required if not using the Harmony integration method)<a class="anchor" aria-label="anchor" href="#harmony-but-not-required-if-not-using-the-harmony-integration-method"></a>
 </h3>
 <p>Code for installing harmony:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span>
-<span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"immunogenomics/harmony"</span><span class="op">)</span></code></pre></div>
-<p>##Bioconductor Code for installing the packages from
-Bioconductor:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"immunogenomics/harmony"</span><span class="op">)</span></span></code></pre></div>
+<p>##Bioconductor Code for installing the packages from Bioconductor:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
-    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
-    
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"Biostrings"</span><span class="op">)</span>
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"org.Mm.eg.db"</span><span class="op">)</span>
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"edgeR"</span><span class="op">)</span>
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"fgsea"</span><span class="op">)</span>
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"msa"</span><span class="op">)</span></code></pre></div>
-<p>Please post any questions or issues in the respecitve github section:
-<a href="https://github.com/alexyermanos/Platypus/issues" class="external-link uri">https://github.com/alexyermanos/Platypus/issues</a> Please
-reach out to us with any questions or if you would like to
-contribute.</p>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span>    </span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"Biostrings"</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"org.Mm.eg.db"</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"edgeR"</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"fgsea"</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"msa"</span><span class="op">)</span></span></code></pre></div>
+<p>Please post any questions or issues in the respecitve github section: <a href="https://github.com/alexyermanos/Platypus/issues" class="external-link uri">https://github.com/alexyermanos/Platypus/issues</a> Please reach out to us with any questions or if you would like to contribute.</p>
 </div>
 </div>
 </div>
@@ -300,8 +266,7 @@ contribute.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
