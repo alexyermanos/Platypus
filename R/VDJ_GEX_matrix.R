@@ -187,6 +187,16 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   seurat.loaded <- F
   data.in.loaded <- F
 
+  #### Function def: Helper for gene name capitalization ####
+  Cap<-function(x){
+    temp<-c()
+    for (i in 1:length(x)){
+      s <- strsplit(x, ";")[[i]]
+      temp[i]<-paste(toupper(substring(s, 1,1)), tolower(substring(s, 2)), sep="", collapse=";")
+    }
+    return(temp)
+  }
+
   #### Function def: Helper for Barcode intersect ####
   #source: Stackoverflow user A5C1D2H2I1M1N2O1R2T1 Issue: 24614391
   listIntersect <- function(inList) {
@@ -520,7 +530,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
 
     if(GEX.integrate == T & length(GEX.list) > 1 & integration.method != "anchors"){ #combine all GEX into one seurat object and add s%number%_ to the FRONT of the barcode
-      #In case of the ANCORS integration method, we DO NOT combine datasets here. If integration.method == "anchors" this will execute the else condition below
+      #In case of the ANCORS integration method, we DO NOT combine datasets here. If integration.method == "anchors" this will jump to the condition below
+
+
       GEX.merged <- GEX.list[[1]]
       GEX.list[[1]] <- "none"
       GEX.merged <- SeuratObject::RenameCells(GEX.merged, new.names = paste0("s",1,"_",gsub("(^_)|(-\\d+.*$)","",colnames(GEX.merged))))
@@ -1407,9 +1419,19 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
 
       #Continuing with GEX processing. Irregardless of FB data presence, the directory_read10x is a flat list of GEX matrices
-      directory_read10x <- lapply(directory_read10x, function(x){
-        rownames(x) <- toupper(rownames(x))
+      #No toUpper gene names are kept as in 10x input. (murine vs. human). See GEX proc function for additional info
+      #directory_read10x <- lapply(directory_read10x, function(x){rownames(x) <- toupper(rownames(x))
+      #return(x)})
+
+      #checking that gene name capitalization is the same for all samples. This may not be true, if human and murine data is integrated or if public data is downloaded.
+      gex.sample.gene.names <- unlist(lapply(directory_read10x, function(x) return(rownames(x)[1])))
+      if(all(gex.sample.gene.names == toupper(gex.sample.gene.names)) | all(gex.sample.gene.names == Cap(gex.sample.gene.names))){
+        #All gene names are either all CAPS or capitalized
+      } else {
+        GEX.list <- lapply(directory_read10x, function(x){rownames(x) <- toupper(rownames(x))
         return(x)})
+      }
+
       gex.list <- lapply(directory_read10x, function(x) Seurat::CreateSeuratObject(x))
       directory_read10x <- NULL
 
@@ -1434,9 +1456,20 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       gex.list.class <- lapply(samples.in, function(x) return(class(x[[2]][[1]])))
 
       if(!any(gex.list.class == "character")){ #All slots of data in contained GEX info
-      gex.list <- lapply(gex.list, function(x){
-        rownames(x) <- toupper(rownames(x))
-        return(x)})
+      #No toupper gene names are kept as in 10x input. (murine vs. human). See GEX proc function for additional info
+      #gex.list <- lapply(gex.list, function(x){
+      #  rownames(x) <- toupper(rownames(x))
+      #  return(x)})
+
+        #checking that gene name capitalization is the same for all samples. This may not be true, if human and murine data is integrated or if public data is downloaded.
+        gex.sample.gene.names <- unlist(lapply(directory_read10x, function(x) return(rownames(x)[1])))
+        if(all(gex.sample.gene.names == toupper(gex.sample.gene.names)) | all(gex.sample.gene.names == Cap(gex.sample.gene.names))){
+          #All gene names are either all CAPS or capitalized
+        } else {
+          GEX.list <- lapply(directory_read10x, function(x){rownames(x) <- toupper(rownames(x))
+          return(x)})
+        }
+
 
       gex.list <- lapply(gex.list, function(x) Seurat::CreateSeuratObject(x))
       gex.metrics.table <- lapply(samples.in, function(x) return(x[[2]][[2]]))
@@ -1780,15 +1813,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #handlers copied from GEX_phenotype, Thanks Alex!
   if(exclude.on.cell.state.markers[1] != "none" & gex.loaded == T){
 
-    Cap<-function(x){
-      temp<-c()
-      for (i in 1:length(x)){
-        s <- strsplit(x, ";")[[i]]
-        temp[i]<-paste(toupper(substring(s, 1,1)), tolower(substring(s, 2)), sep="", collapse=";")
-      }
-      return(temp)
-    }
-
     #rename to match GEX_phenotype variables
     cell.state.markers <- exclude.on.cell.state.markers
     #check for uppercase genes
@@ -1796,12 +1820,6 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     tryCatch({
       #make user input uppercase in case
-      if(is.hum==F){
-        cell.state.markers<-Cap(cell.state.markers)
-      }
-      else if(is.hum==T){
-        cell.state.markers <- toupper(cell.state.markers)
-      }
 
       cell.state.markers<-gsub(pattern =";", replacement ="&",cell.state.markers)
       cell.state.markers<-gsub(pattern ="\\+", replacement =">0",cell.state.markers)
@@ -1905,7 +1923,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       VDJ.proc[VDJ.proc == ";"] <- "" #fix bug, where if two emtpy strings are concatenated, a ";" is left behind.
       VDJ.proc[is.na(VDJ.proc)] <- "" #Replace NA (empty values) with an empty string for format compatibility
       VDJ.proc <- VDJ.proc[VDJ.proc$barcode != "",] #Bug where an empty line is generated from a missing previous annotation
-      VDJ.proc <- VDJ.proc[!(VDJ.proc$Nr_of_VJ_chains == 0 && VDJ.proc$Nr_of_VDJ_chains == 0),] #Bug where an empty line is generated from a missing previous annotation
+      VDJ.proc <- VDJ.proc[!(VDJ.proc$Nr_of_VJ_chains == 0 & VDJ.proc$Nr_of_VDJ_chains == 0),] #Bug where an empty line is generated from a missing previous annotation
 
       #update barcodes
       VDJ.proc$orig_barcode <- gsub("(^_)|(-\\d+.*$)","",VDJ.proc$barcode)
