@@ -10,7 +10,7 @@
 Platypus is an R toolkit designed to facilitate the data analysis of
 single-cell immune repertoire sequencing experiments. The manuscript
 corresponding to Platypus v2 can be found here at Yermanos et al NARGAB
-2021 <https://doi.org/10.1093/nargab/lqab023>
+2021 <https://doi.org/10.1093/nargab/lqab023> and the updated manuscript concerning the v3 Platypus ecosystem can be found here: <https://www.biorxiv.org/content/10.1101/2022.09.28.509709v1> 
 
 # Ongoing updates in the Platypus pipeline (v3)
 
