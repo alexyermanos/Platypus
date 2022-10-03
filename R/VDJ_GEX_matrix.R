@@ -201,10 +201,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #source: Stackoverflow user A5C1D2H2I1M1N2O1R2T1 Issue: 24614391
   listIntersect <- function(inList) {
     X <- crossprod(table(stack(inList)))
-    X[lower.tri(X)] <- NA
-    diag(X) <- NA
-    out <- na.omit(data.frame(as.table(X)))
-    out[order(out$ind), ]
+    #X[lower.tri(X)] <- NA
+    #diag(X) <- NA
+    #out <- na.omit(data.frame(as.table(X)))
+    #out[order(out$ind), ]
+    return(X)
   }
 
   #### Function def: pick_max_feature_barcode ####
@@ -1462,11 +1463,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #  return(x)})
 
         #checking that gene name capitalization is the same for all samples. This may not be true, if human and murine data is integrated or if public data is downloaded.
-        gex.sample.gene.names <- unlist(lapply(directory_read10x, function(x) return(rownames(x)[1])))
+        gex.sample.gene.names <- unlist(lapply(gex.list, function(x) return(rownames(x)[1])))
         if(all(gex.sample.gene.names == toupper(gex.sample.gene.names)) | all(gex.sample.gene.names == Cap(gex.sample.gene.names))){
           #All gene names are either all CAPS or capitalized
         } else {
-          GEX.list <- lapply(directory_read10x, function(x){rownames(x) <- toupper(rownames(x))
+          gex.list <- lapply(gex.list, function(x){rownames(x) <- toupper(rownames(x))
           return(x)})
         }
 
