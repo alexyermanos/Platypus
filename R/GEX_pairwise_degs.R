@@ -7,13 +7,14 @@
 #' @param RP.MT.filter Boolean. Defaults to True. If True, mitochondrial and ribosomal genes are filtered out from the output of Seurat::FindMarkers
 #' @param label.n.top.genes Integer. Defaults to 50. Defines how many genes are labelled via geom_text_repel. Genes are ordered by adjusted p value and the first label.n.genes are labelled
 #' @param genes.to.label Character vector. Defaults to "none". Vector of gene names to plot indipendently of their p value. Can be used in combination with label.n.genes.
-#' @param save.plot Boolean. Defaults to True. Whether to save plots as appropriately named .png files
+#' @param save.plot Boolean. Defaults to False. Whether to save plots as appropriately named .png files
+#' @param save.csv Boolean. Defaults to False. Whether to save deg tables as appropriately named .csv files
 #' @return A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.
 #' @export
 #' @examples
 #' GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
 #' ,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
-#' ,save.plot = FALSE)
+#' ,save.plot = FALSE, save.csv = TRUE)
 #'
 
 GEX_pairwise_DEGs <- function(GEX,
@@ -22,7 +23,8 @@ GEX_pairwise_DEGs <- function(GEX,
                               RP.MT.filter,
                               label.n.top.genes,
                               genes.to.label,
-                              save.plot){
+                              save.plot,
+                              save.csv){
 
   gene <- NULL
   avg_log2FC <- NULL
@@ -35,6 +37,7 @@ GEX_pairwise_DEGs <- function(GEX,
   if(missing(min.pct)) min.pct <- 0.25
   if(missing(RP.MT.filter)) RP.MT.filter <- T
   if(missing(save.plot)) save.plot <- F
+  if(missing(save.csv)) save.csv <- F
 
   if(!group.by %in% names(GEX@meta.data)){stop("Please enter valid metadata column name")}
 
@@ -82,6 +85,9 @@ GEX_pairwise_DEGs <- function(GEX,
 
     if(save.plot == T){
       ggplot2::ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 300, width = 12, height = 12)
+    }
+    if(save.csv == T){
+      write.csv(degs, file = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".csv"))
     }
     degs.list[[i]] <- degs
     plot.list[[i]] <- plot.out
