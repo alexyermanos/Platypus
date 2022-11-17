@@ -39,7 +39,7 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     NA_cells = TRUE
   }
   if(missing(filtering)){filtering = FALSE}
-  if ("ProjecTILs" %in% rownames(utils::installed.packages())){
+  if (!("ProjecTILs" %in% rownames(utils::installed.packages()))){
     stop("ProjecTILs not installed. Please install via: remotes::install_github('carmonalab/scGate') and remotes::install_github('carmonalab/ProjecTILs')")
   }
 
@@ -61,9 +61,11 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
     meta_data_new<-list()
     for (i in 1:length(query.projected)) {
       tils_prediction <- ProjecTILs::cellstate.predict(ref=ref, query=query.projected[[i]], )
+      print("test1")
       meta_data<-merge(GEX@meta.data, dplyr::select(tils_prediction@meta.data, orig_barcode, functional.cluster,functional.cluster.conf), by = "orig_barcode")
       meta_data_new<-rbind(meta_data_new, meta_data)
     }
+    print("test2")
     #AddMetaData to GEX
     ProjecTILS_assignment <- dplyr::select(tils_prediction@meta.data,"functional.cluster")
     ProjecTILS_assignment<-ProjecTILS_assignment$functional.cluster
@@ -219,6 +221,7 @@ GEX_projecTILS<-function(ref_path, GEX, split_by, filtering=c(TRUE,FALSE),NA_cel
   } else if (NA_cells == FALSE){
     cells<-GEX@meta.data[!is.na(GEX@meta.data$functional.cluster) | !is.na(GEX@meta.data$functional.cluster.conf), ]
   }
+  
   barplots<-ggplot2::ggplot(cells, ggplot2::aes(x = as.character(.data[[split_by]]) , fill = functional.cluster))+ ggplot2::geom_bar(stat = "count", position = "fill", color="black", width = 0.6)  + ggplot2::theme_classic() +
     ggplot2::ylab("Fraction of cells") + ggplot2::xlab(split_by) + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)) + ggplot2::ggtitle("") +
     ggplot2::scale_fill_manual(values = c("CD8_EarlyActiv" = "#F8766D", "CD8_EffectorMemory" = "#53B400", "CD8_NaiveLike" = "#00B6EB",
