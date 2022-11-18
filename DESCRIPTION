@@ -15,8 +15,6 @@ Maintainer: Alexander Yermanos <ayermanos@gmail.com>
 Depends:
     R(>= 3.5.0),
 Imports:
-    BiocGenerics,
-    Biostrings, 
     cowplot,  
     dplyr, 
     ggplot2,
