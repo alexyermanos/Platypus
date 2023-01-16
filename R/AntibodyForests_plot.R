@@ -74,7 +74,7 @@ AntibodyForests_plot <- function(network.list,
   if(missing(graph.type)) graph.type <- 'tree'
   if(missing(node.color)) node.color <- NULL
   if(missing(node.label)) node.label <- 'cells'
-  if(missing(node.shape)) node.shape <- NULL
+  if(missing(node.shape)) node.shape <- 'pie'
   if(missing(node.size)) node.size <- 'scaleByExpansion'
   if(missing(max.node.size)) max.node.size <- 20
   if(missing(node.scale.factor)) node.scale.factor <- 6
