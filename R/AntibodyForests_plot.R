@@ -72,7 +72,7 @@ AntibodyForests_plot <- function(network.list,
 
   if(missing(network.list)) stop('Please input a nested list of networks and their corresponding network dataframe, output of AntibodyForests_parallel')
   if(missing(graph.type)) graph.type <- 'tree'
-  if(missing(node.color)) node.color <- NULL
+  if(missing(node.color)) node.color <- 'VDJ_cgene'
   if(missing(node.label)) node.label <- 'cells'
   if(missing(node.shape)) node.shape <- 'pie'
   if(missing(node.size)) node.size <- 'scaleByExpansion'

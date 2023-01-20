@@ -116,7 +116,7 @@ AntibodyForests <- function(VDJ,
   if(missing(remove.singletons)) remove.singletons <- NULL
   if(missing(keep.largest.cc)) keep.largest.cc <- F
   if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
-  if(missing(node.features)) node.features <- NULL
+  if(missing(node.features)) node.features <- c('VDJ_cgene')
   if(missing(filter.na.features)) filter.na.features <- NULL
   if(missing(filter.specific.features)) filter.specific.features <- NULL
   if(missing(node.limits)) node.limits <- list(NULL, NULL)
