@@ -35,8 +35,22 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'
-#' ADD EXAMPLE CODE HERE
+#' EXAMPLE CODE FOR MORE THAN ONE ANTIGEN TESTED AGAINST 3 DIFFERENT AB SEQUENCES
+#' first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences will be tested against fasta_path_2.fasta antigen.
+AlphaFold_prediction(VDJ.mixcr.out = df,
+    cells.to.predict = 'ALL',
+    euler.user.name = "alsanzgarcia",
+    dir.name = "trial_unequal",
+    antigen.fasta.path = c("fasta_path_1.fasta","fasta_path_2.fasta","fasta_path_2.fasta")
+    )
+
+#' EXAMPLE CODE FOR ONLY ONE ANTIGEN (regardless of how many antibody sequences there are)
+AlphaFold_prediction(VDJ.mixcr.out = df,
+  cells.to.predict = 'ALL',
+  euler.user.name = "alsanzgarcia",
+  dir.name = "trial_unequal",
+  antigen.fasta.path = "fasta_path_1.fasta"
+)
 #'
 #' }
 
