@@ -245,9 +245,14 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
         ssh::ssh_exec_wait(session, command = c(paste0('cd ',"/cluster/scratch/",euler.user.name,"/",OutDir),
                                                 "chmod 755 setup_alphafold_platypus.sh",
                                                 "chmod 755 run_alphafold.sh",
+                                                #make max_template_date.txt file
+                                                "touch $SCRATCH/max_template_date.txt",
+                                                "> $SCRATCH/max_template_date.txt",
+                                                "echo `date +%F` >> $SCRATCH/max_template_date.txt",
                                                 #following two lines allow for Linux EOL conversion
                                                 "sed -i 's/\r//g' setup_alphafold_platypus.sh",
                                                 "sed -i 's/\r//g' run_alphafold.sh",
+                                                paste0("cp /cluster/scratch/",euler.user.name,"/max_template_date.txt /cluster/scratch/",euler.user.name,"/",OutDir,"/max_template_date.txt"),
                                                 "bash run_alphafold.sh"))
         
         #go to scratch on euler
@@ -314,9 +319,14 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
     ssh::ssh_exec_wait(session, command = c(paste0('cd ',"/cluster/scratch/",euler.user.name,"/",OutDir),
                                             "chmod 755 setup_alphafold_platypus.sh",
                                             "chmod 755 run_alphafold.sh",
+                                            #make max_template_date.txt file
+                                            "touch $SCRATCH/max_template_date.txt",
+                                            "> $SCRATCH/max_template_date.txt",
+                                            "echo `date +%F` >> $SCRATCH/max_template_date.txt",
                                             #following two lines allow for Linux EOL conversion
                                             "sed -i 's/\r//g' setup_alphafold_platypus.sh",
                                             "sed -i 's/\r//g' run_alphafold.sh",
+                                            paste0("cp /cluster/scratch/",euler.user.name,"/max_template_date.txt /cluster/scratch/",euler.user.name,"/",OutDir,"/max_template_date.txt"),
                                             "bash run_alphafold.sh"))
     
     
