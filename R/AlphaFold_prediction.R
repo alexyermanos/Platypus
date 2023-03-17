@@ -30,7 +30,10 @@
 #'@param output.path If the data is downloaded from the cluster it is by default stored in a sub folder in the current directory. If the data should be downloaded at a different location this can be specified in the output.path.
 #'@param antigen.fasta.path It can be of interest to predict the antibody structure together with the antigen to see interaction. For this purpose a path to a FASTA file containing the amino acid sequence of the antigen can be specified in the antigen.fasta.path argument. This will add the antigen sequence to every antibody prediction. If every single antibody sequence is tested against one antigen, only one path needs to be provided. If there is more than one antigen tested, the FASTA file path for the antigen will need to be provided as a vector for every single antibody tested (vector needs to be in the same order as the antibody sequences from top to bottom)
 #'@param fasta.directory.path The prediction function can also be used to predict structure directly from amino acid FASTA files without specifying a the VDJ.mixcr.out argument. For this the path to a directory, congaing all the FASTA files of interest can be specified in the fasta.directory.path argument. The files just need to have the .fasta extension. If multiple FASTA files are in the directory, the function will predict all of them separately.
-#'@param shareholder.group This parameter will allow its user to choose from which group you want to use GPUs from. Only options available are "reddy" and "khammash". It will be set to "reddy" by default
+#'@param shareholder.group This parameter will allow its user to choose from which group you want to use GPUs from. All group options are available such as "es_reddy","es_khamm", ... It will be set to "es_reddy" by default
+#'@param runtime This parameter will let the user decide how long he/she wants to let the job running. Will only take effect if submission.of.job is set to "manual". Options are "04:00","24:00","48:00" or "120:00". Default to "24:00"
+#'@param submission.of.job This parameter will let the user decide whether he/she wants to set the runtime automatically by the program, or choose it manually. Default to "automatic"
+#'@param more.cpu This parameter lets you choose if you want more CPU usage or not. This will only work if you set submission.of.job to automatic and runtime at 24:00. Default to "yes"
 #'@return This function returns a list with the VDJ.mixcr.out in the first element and a list of pdb files as a second element
 #' @export
 #' @examples
@@ -38,18 +41,18 @@
 #' EXAMPLE CODE FOR MORE THAN ONE ANTIGEN TESTED AGAINST 3 DIFFERENT AB SEQUENCES
 #' first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences will be tested against fasta_path_2.fasta antigen.
 #AlphaFold_prediction(VDJ.mixcr.out = df,
-    #cells.to.predict = 'ALL',
-    #euler.user.name = "alsanzgarcia",
-    #dir.name = "trial_unequal",
-    #antigen.fasta.path = c("fasta_path_1.fasta","fasta_path_2.fasta","fasta_path_2.fasta")
-    #)
+#cells.to.predict = 'ALL',
+#euler.user.name = "alsanzgarcia",
+#dir.name = "trial_unequal",
+#antigen.fasta.path = c("fasta_path_1.fasta","fasta_path_2.fasta","fasta_path_2.fasta")
+#)
 
 #' EXAMPLE CODE FOR ONLY ONE ANTIGEN (regardless of how many antibody sequences there are)
 #AlphaFold_prediction(VDJ.mixcr.out = df,
-  #cells.to.predict = 'ALL',
-  #euler.user.name = "alsanzgarcia",
-  #dir.name = "trial_unequal",
-  #antigen.fasta.path = "fasta_path_1.fasta"
+#cells.to.predict = 'ALL',
+#euler.user.name = "alsanzgarcia",
+#dir.name = "trial_unequal",
+#antigen.fasta.path = "fasta_path_1.fasta"
 #)
 #'
 #' }
@@ -73,7 +76,10 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
                                  antigen.fasta.path,
                                  fasta.directory.path,
                                  platypus.version,
-                                 shareholder.group
+                                 shareholder.group,
+                                 runtime,
+                                 submission.of.job,
+                                 more.cpu
                                  
 ){
   
@@ -99,7 +105,10 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
   if(missing(rm.local.output)) {rm.local.output <- TRUE }
   if(missing(antigen.fasta.path)) {antigen.fasta.path <- FALSE}
   if(missing(fasta.directory.path)) {fasta.directory.path <- FALSE}
-  if(missing(shareholder.group)) {shareholder.group <- "reddy"}
+  if(missing(shareholder.group)) {shareholder.group <- "es_reddy"}
+  if(missing(runtime)) {runtime <- "24:00"}
+  if(missing(submission.of.job)) {submission.of.job <- "automatic"}
+  if(missing(more.cpu)) {more.cpu <- "yes"}
   
   
   
@@ -220,18 +229,10 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
       if(euler.user.name != FALSE) {
         
         
-        utils::download.file("https://polybox.ethz.ch/index.php/s/UWWx5c86RDNMaha/download",file.path(CurDir,OutDir,"setup_alphafold_platypus.sh"))
-        
-        if (shareholder.group == "reddy") {
-          utils::download.file("https://polybox.ethz.ch/index.php/s/xtQb6c6n7IvIaAd/download", file.path(CurDir,OutDir,"run_alphafold.sh"))
-        }
-        else if (shareholder.group == "khammash") {
-          utils::download.file("https://polybox.ethz.ch/index.php/s/yWMu1zhO6b0MQ5i/download", file.path(CurDir,OutDir,"run_alphafold.sh"))
-        }
+        utils::download.file("https://polybox.ethz.ch/index.php/s/tDIrjLlGrPuTnRF/download",file.path(CurDir,OutDir,"setup_alphafold_platypus.sh"))
         
         
-        
-        
+        utils::download.file("https://polybox.ethz.ch/index.php/s/KXW8YjebG63fgTX/download", file.path(CurDir,OutDir,"run_alphafold.sh"))
         
         ## Establish connection to server; This will ask for a password
         session <- ssh::ssh_connect(paste0(euler.user.name,"@euler.ethz.ch"))
@@ -253,7 +254,7 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
                                                 "sed -i 's/\r//g' setup_alphafold_platypus.sh",
                                                 "sed -i 's/\r//g' run_alphafold.sh",
                                                 paste0("cp /cluster/scratch/",euler.user.name,"/max_template_date.txt /cluster/scratch/",euler.user.name,"/",OutDir,"/max_template_date.txt"),
-                                                "bash run_alphafold.sh"))
+                                                paste0("bash run_alphafold.sh -s ",shareholder.group," --runtime " ,runtime," --submission_of_job ",submission.of.job," --more_cpu ",more.cpu)))
         
         #go to scratch on euler
         #ssh::ssh_exec_wait(session, command = c(paste0('cd ',"/cluster/scratch/",euler.user.name,"/",OutDir),
@@ -296,14 +297,10 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
     write(Fasta.Files,file = file.path(fasta.directory.path,"barcodes.txt"), append = TRUE)
     
     ##Dowload setup and run script to the Fasta directory
-    utils::download.file("https://polybox.ethz.ch/index.php/s/UWWx5c86RDNMaha/download",file.path(fasta.directory.path,"setup_alphafold_platypus.sh"))
+    utils::download.file("https://polybox.ethz.ch/index.php/s/tDIrjLlGrPuTnRF/download",file.path(CurDir,OutDir,"setup_alphafold_platypus.sh"))
     
-    if (shareholder.group == "reddy") {
-      utils::download.file("https://polybox.ethz.ch/index.php/s/xtQb6c6n7IvIaAd/download", file.path(fasta.directory.path,"run_alphafold.sh"))
-    }
-    else if (shareholder.group == "khammash") {
-      utils::download.file("https://polybox.ethz.ch/index.php/s/yWMu1zhO6b0MQ5i/download", file.path(fasta.directory.path,"run_alphafold.sh"))
-    }
+    
+    utils::download.file("https://polybox.ethz.ch/index.php/s/KXW8YjebG63fgTX/download", file.path(CurDir,OutDir,"run_alphafold.sh"))
     
     ## Establish connection to server; This will ask for a password
     session <- ssh::ssh_connect(paste0(euler.user.name,"@euler.ethz.ch"))
@@ -313,9 +310,6 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
     
     # Copy the files to euler on scratch
     ssh::scp_upload(session, file_path, to = paste0("/cluster/scratch/",euler.user.name))
-    
-    
-    #go to scratch on euler
     ssh::ssh_exec_wait(session, command = c(paste0('cd ',"/cluster/scratch/",euler.user.name,"/",OutDir),
                                             "chmod 755 setup_alphafold_platypus.sh",
                                             "chmod 755 run_alphafold.sh",
@@ -327,15 +321,13 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
                                             "sed -i 's/\r//g' setup_alphafold_platypus.sh",
                                             "sed -i 's/\r//g' run_alphafold.sh",
                                             paste0("cp /cluster/scratch/",euler.user.name,"/max_template_date.txt /cluster/scratch/",euler.user.name,"/",OutDir,"/max_template_date.txt"),
-                                            "bash run_alphafold.sh"))
+                                            paste0("bash run_alphafold.sh -s ",shareholder.group," --runtime " ,runtime," --submission_of_job ",submission.of.job," --more_cpu ",more.cpu)))
     
     
     #Dissconnect
     ssh::ssh_disconnect(session)
     
   }
-  
-  
   
   
   ### IMPORT the pdb files of the highst ranked outputs
