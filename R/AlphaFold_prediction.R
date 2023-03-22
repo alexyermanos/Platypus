@@ -149,12 +149,7 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
       VDJ_predict <- dplyr::filter(VDJ_predict, stringr::str_detect(VDJ_aa_mixcr, "[*_]",negate = TRUE))
       
       #Reduce the dataframe to the important columns for structure prediction
-      VDJ_predict <- dplyr::select(VDJ_predict,c("barcode","VDJ_aa_mixcr","VJ_aa_mixcr"))
-      
-      
-      
-      
-      
+      VDJ_predict <- dplyr::select(VDJ_predict,c("barcode","VDJ_aa_mixcr","VJ_aa_mixcr","antigen"))
       
       #Create a directory for the fasta files
       OutDir <- dir.name
@@ -195,8 +190,14 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
         }
         
       }
+      #if there is no FASTA file, create the FASTA files based on the antigen column
       else{
-        antigen.fasta <- rep("",nrow(VDJ_predict))
+        i <- 1
+        antigen.fasta <- c()
+        for (antigen.sequence in VDJ_predict$antigen){
+          antigen.fasta <- c(antigen.fasta,paste0(">ANTIGEN",i,"\n",antigen.sequence))
+          i <- i + 1
+        }
       }
       
       #Write the Fasta files for every cell and antigen and store it in the directory
@@ -242,7 +243,6 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
         
         # Copy the files to euler on scratch
         ssh::scp_upload(session, file_path, to = paste0("/cluster/scratch/",euler.user.name))
-        
         ssh::ssh_exec_wait(session, command = c(paste0('cd ',"/cluster/scratch/",euler.user.name,"/",OutDir),
                                                 "chmod 755 setup_alphafold_platypus.sh",
                                                 "chmod 755 run_alphafold.sh",
@@ -398,9 +398,8 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
       ##Download all the highest ranked outputs to the Output folder
       pdb_list <- list()
       out <- utils::capture.output(ssh::ssh_exec_wait(session, command = c(paste0("ls ",euler.dirpath,"/output"))))
+      
       for(i in 2:length(out)-1 ){
-        
-        
         
         ssh::ssh_exec_wait(session, command = c(paste0("cd ",euler.dirpath,"/output/",out[i],"/",out[i],"/"),paste0("mkdir ",out[i],"_ranked"),paste0("mv ranked* ",out[i],"_ranked")))
         ssh::scp_download(session,paste0(euler.dirpath,"/output/",out[i],"/",out[i],"/",out[i],"_ranked/"), to = paste0(CurDir,"/",OutDir))
@@ -409,7 +408,22 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
         n_list <- list()
         n_name <- c()
         for(n in 1:n.ranked) {
-          n_list[[length(n_list)+1]] <- bio3d::read.pdb(paste0(CurDir,"/",OutDir,"/",out[i],"_ranked/","ranked_",n-1,".pdb"))
+          assign("skip", 0, env=globalenv())
+          #if there are no ranked files, iterate to next element
+          tryCatch(
+            #try to do the following command
+            {
+              n_list[[length(n_list)+1]] <- bio3d::read.pdb(paste0(CurDir,"/",OutDir,"/",out[i],"_ranked/","ranked_",n-1,".pdb"))
+            },
+            #if an error occurs, tell me the error
+            error=function(e) {
+              message(paste0("Structure with the rank ",n-1," will not be saved. ",out[i]," will not have results for this rank"))
+              assign("skip", 1, env=globalenv())
+            }
+            
+          )
+          
+          if (get("skip",env=globalenv())==1){next}
           n_name <- c(n_name,paste0("ranked_",n-1,".pdb"))
         }
         names(n_list) <- n_name
