@@ -8,9 +8,8 @@
 
 
 #' @param VDJ VDJ or vgm[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
-#' @param sequence.type string denoting the sequence types to create the networks for. 'cdr3.aa' - networks for amino-acid CDR3 sequences, 'cdr3.nt' - networks for nucleotide CDR3 sequences, 'VDJ.VJ.nt.trimmed' - full, trimmed VDJ-VJ sequences, as obtained when setting trin.and.align = T for VDJ_GEX_matrix(), 'VDJ.VJ.nt.raw' - full, raw VDJ-VJ sequences, 'VDJ.VJ.aa.mixcr' and 'VDJ.VJ.nt.mixcr' for the VDJ and VJ chains (nt or aa) as inferred by MIXCR, 'VDJ.aa.mixcr' and 'VDJ.nt.mixcr' for the VDJ chain inferred by MIXCR, 'VJ.aa.mixcr' and 'VJ.nt.mixcr' for the VJ chain inferred by MIXCR, 'VDJ.nt.trimmed' for the trimmed VDJ chain as nucleotides, 'VDJ.nt.raw' for the untrimmed VDJ chain as nucleotides, similarly for the VJ chain ('VJ.nt.trimmed' and 'VJ.nt.raw'), 'VDJ.cdr3s.aa' for the CDRH3 region as amino-acids, VDJ.cdr3s.nt' for the CDRH3 region as nucleotides, similarly for the CDRL3 regions ('VJ.cdr3s.aa', 'VJ.cdr3s.nt'), 'VDJ.aa' and 'VJ.aa' for the full VDJ/VJ sequence as amino-acids.
-#' Defaults to 'VDJ.VJ.nt.trimmed'.
-#' @param include.germline string or vector of strings, denoting the germline column(s) to be used (in the c('VDJ_germline', 'VJ_germline') order). 'trimmed.ref' - the networks will include a germline node, obtained by pasting the VDJ_trimmed_ref and VJ_trimmed_ref sequences for each clonotype, obtained by calling VDJ_call_MIXCR on VDJ. As reconstructed germlines as usually available for full VDJ.VJ.nt sequences, use this with sequence.type=VDJ.VJ.nt.trimmed. NULL will not include a germline.
+#' @param sequence.column vector of strings, denoting the sequence columns in the VDJ to be used in the algorithm/tree inference step.
+#' @param germline.column vector of strings, denoting the germline column(s) to be used (in the c('VDJ_germline', 'VJ_germline') order). 'trimmed.ref' - the networks will include a germline node, obtained by pasting the VDJ_trimmed_ref and VJ_trimmed_ref sequences for each clonotype, obtained by calling VDJ_call_MIXCR on VDJ. As reconstructed germlines as usually available for full VDJ.VJ.nt sequences, use this with sequence.column=VDJ.VJ.nt.trimmed. NULL will not include a germline.
 #' @param network.algorithm string denoting the algorithm used in constructing the networks. 'tree' - will use a tree evolutionary inference algorithm: nodes denoting unique sequences per clonotype will be linked iteratively, as long as their string distance is the minimum. Use the resolve.ties parameter to further dictate the tree topology (when there are multiple ties in the minimum links).
 #' 'prune' will create networks by pruning nodes from a fully connected networks. It must always be followed by a pruning method.
 #' For example, 'prune.distance' will prune nodes with a larger string distance than the threshold specified in the pruning.threshold parameter.
@@ -22,7 +21,7 @@
 #' 'phylogenetic.tree.ml' will create phylogenetic (binary) trees using a maximum-likelihood algorithm from the phangorn package (phangorn::ml()).
 #' 'phylogenetic.tree.mp' will create phylogenetic (binary) trees using a maximum-parsimony algorithm from the phangorn package (phangorn::mp()).
 #' 'mst' will create undirected trees using the minimum spanning tree algorithm from igraph (without specific tie solving mechanisms).
-#' 'global' is a custom option to easily create whole-repertoire/multi-repertoire similarity networks: it defaults to the 'prune.distance' option, while also changing some other parameters to ensure consistency (directed is set to F, include.germline is set to F, network.level is set to 'global')
+#' 'global' is a custom option to easily create whole-repertoire/multi-repertoire similarity networks: it defaults to the 'prune.distance' option, while also changing some other parameters to ensure consistency (directed is set to F, germline.column is set to F, network.level is set to 'global')
 #' @param directed boolean, whether networks obtained using network.algorithm='tree' should be directed (from the germline to the leaf nodes) or not. T - directed; F - undirected trees.
 #' @param distance.calculation string or function, specifying the method for calculating string distances between the sequences. Must be compatible with the method parameter of the stringdist::stringdistmatrix() function. Will default to 'lv' for Levenshtein distances. Else, if a function of the form distance(seq1, seq2) must be specified, which should output a float = custom distance metric between the selected sequences.
 #' @param resolve.ties vector of strings, denoting the manner in which ties should be resolved when assembling trees via network.algorithm='tree'. Ties are defined as edges with the same weights=string distances (as determined by the distance matrix for the fully connected network) between nodes already added in the tree and nodes to be added in the tree.
@@ -67,8 +66,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed',
-#' include.germline=T, network.algorithm='tree',
+#' AntibodyForests(VDJ, sequence.column='VDJ.VJ.nt.trimmed',
+#' germline.column=T, network.algorithm='tree',
 #' resolve.ties=c('close.germline.distance', 'max.expansion'),
 #' node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
 #'}
@@ -76,8 +75,8 @@
 
 
 AntibodyForests <- function(VDJ,
-                            sequence.type,
-                            include.germline,
+                            sequence.column,
+                            germline.column,
                             network.algorithm,
                             directed,
                             distance.calculation,
@@ -104,8 +103,8 @@ AntibodyForests <- function(VDJ,
 
 
   if(missing(VDJ)) stop('Please input your data as VDJ/df per clonotype list')
-  if(missing(sequence.type)) sequence.type <- 'VDJ.VJ.nt.trimmed'
-  if(missing(include.germline)) include.germline <- 'trimmed.ref'
+  if(missing(sequence.column)) sequence.column <- c('VDJ_sequence_nt_raw', 'VJ_sequence_nt_raw')
+  if(missing(germline.column)) germline.column <- c('VDJ_germline', 'VJ_germline')
   if(missing(network.algorithm)) network.algorithm <- 'tree'
   if(missing(directed) & network.algorithm != 'mst' & !stringr::str_detect(network.algorithm, 'prune')) directed <- T
   if(missing(directed) & (network.algorithm == 'mst' | stringr::str_detect(network.algorithm, 'prune'))) directed <- F
@@ -135,7 +134,7 @@ AntibodyForests <- function(VDJ,
   #Global repertoire networks option:
   if(network.algorithm == 'global'){
     network.algorithm <- 'prune.distance'
-    include.germline <- NULL
+    germline.column <- NULL
     directed <- F
     network.level <- 'global'
     keep.largest.cc <- T
@@ -338,93 +337,12 @@ AntibodyForests <- function(VDJ,
       }
     }
 
-   if(sequence.type=='cdr3.aa'){
-     combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_cdr3s_aa, clonotype_df$VJ_cdr3s_aa)
+   if(length(sequence.column) == 2){
+     combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df[[sequence.column[1]]], clonotype_df[[sequence.column[2]]])
      clonotype_df$network_sequences <- combined_sequences
-
-   }else if(sequence.type=='cdr3.nt'){
-     combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_cdr3s_nt, clonotype_df$VJ_cdr3s_nt)
-     clonotype_df$network_sequences <- combined_sequences
-
-   }else if(sequence.type=='VDJ.VJ.nt.trimmed'){
-     if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))){
-       stop('Please use trim.and.align=T when creating your VGM object')
-     }
-     combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_trimmed, clonotype_df$VJ_sequence_nt_trimmed)
-     clonotype_df$network_sequences <- combined_sequences
-
-   }else if(sequence.type=='VDJ.VJ.nt.raw'){
-     combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_raw, clonotype_df$VJ_sequence_nt_raw)
-     clonotype_df$network_sequences <- combined_sequences
-
-   }else if(sequence.type=='VDJ.VJ.nt.mixcr'){
-     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ.VJ')
-     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-
-   }else if(sequence.type=='VDJ.nt.mixcr'){
-     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ')
-     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-
-   }else if(sequence.type=='VJ.nt.mixcr'){
-     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VJ')
-     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-
-   }else if(sequence.type=='VDJ.VJ.aa.mixcr'){
-     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ.VJ', as.nucleotide = F)
-     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-
-   }else if(sequence.type=='VDJ.aa.mixcr'){
-     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ', as.nucleotide = F)
-     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-
-   }else if(sequence.type=='VJ.aa.mixcr'){
-     clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VJ', as.nucleotide = F)
-     clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-
-   }else if(sequence.type=='VDJ.nt.trimmed'){
-     network_sequences <- clonotype_df$VDJ_sequence_nt_trimmed
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VDJ.nt.raw'){
-     network_sequences <- clonotype_df$VDJ_sequence_nt_raw
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VDJ.cdr3s.aa'){
-     network_sequences <- clonotype_df$VDJ_cdr3s_aa
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VDJ.cdr3s.nt'){
-     network_sequences <- clonotype_df$VDJ_cdr3s_nt
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VJ.nt.trimmed'){
-     network_sequences <- clonotype_df$VJ_sequence_nt_trimmed
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VJ.nt.raw'){
-     network_sequences <- clonotype_df$VJ_sequence_nt_raw
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VJ.cdr3s.aa'){
-     network_sequences <- clonotype_df$VJ_cdr3s_aa
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VJ.cdr3s.nt'){
-     network_sequences <- clonotype_df$VJ_cdr3s_nt
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VDJ.aa'){
-     network_sequences <- clonotype_df$VDJ_sequence_aa
-     clonotype_df$network_sequences <- network_sequences
-
-   }else if(sequence.type=='VJ.aa'){
-     network_sequences <- clonotype_df$VJ_sequence_aa
-     clonotype_df$network_sequences <- network_sequences
-
    }else{
-     stop('Sequence type unavailable - please check the function documentation for the supported sequence type; or check your spelling :)')
+     clonotype_df$network_sequences <- clonotype_df[[sequence.column]]
    }
-
 
   all_sequences <- unlist(lapply(clonotype_df$network_sequences, function(x) stringr::str_split(x, ';')))
 
@@ -534,11 +452,11 @@ AntibodyForests <- function(VDJ,
   network_df$germline <- 'no'
   network_df$sequence_id <- 1:nrow(network_df)
 
-  if(!is.null(include.germline)){
-    if(any(include.germline != 'trimmed.ref') & any(include.germline != 'cdr3.nt')){
-      if(length(include.germline) == 2){
-        VDJ <- clonotype_df[[include.germline[1]]]
-        VJ <- clonotype_df[[include.germline[2]]]
+  if(!is.null(germline.column)){
+    if(any(germline.column != 'trimmed.ref') & any(germline.column != 'cdr3.nt')){
+      if(length(germline.column) == 2){
+        VDJ <- clonotype_df[[germline.column[1]]]
+        VJ <- clonotype_df[[germline.column[2]]]
 
         if(all(VDJ=='') | all(is.na(VDJ)) | all(is.null(VDJ))){
           return(NULL)
@@ -549,7 +467,7 @@ AntibodyForests <- function(VDJ,
         }
         germline_seq <- paste0(VDJ, VJ)
       }else{
-        germline_seq <- clonotype_df[[include.germline]]
+        germline_seq <- clonotype_df[[germline.column]]
       }
       unique_germline_seq <- unlist(unique(germline_seq))
       germline_seq_frequencies <- unlist(lapply(unique_germline_seq, function(x) length(which(germline_seq==x))))
@@ -559,12 +477,12 @@ AntibodyForests <- function(VDJ,
         return(NULL)
       }
 
-    }else if(include.germline == 'trimmed.ref'){
+    }else if(germline.column == 'trimmed.ref'){
       if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))){
         stop('Please use trim.and.align=T when creating your VGM object')
       }
 
-      if(stringr::str_detect(sequence.type, 'VDJ.VJ')){
+      if(stringr::str_detect(sequence.column, 'VDJ.VJ')){
         VDJ <- clonotype_df$VDJ_trimmed_ref
         VJ <- clonotype_df$VJ_trimmed_ref
         if(all(VDJ=='') | all(is.na(VDJ)) | all(is.null(VDJ))){
@@ -575,7 +493,7 @@ AntibodyForests <- function(VDJ,
           return(NULL)
         }
         germline_seq <- paste0(VDJ,VJ)
-      }else if(stringr::str_detect(sequence.type, 'VDJ')){
+      }else if(stringr::str_detect(sequence.column, 'VDJ')){
         germline_seq <- clonotype_df$VDJ_trimmed_ref
       }else{
         germline_seq <- clonotype_df$VJ_trimmed_ref
@@ -590,7 +508,7 @@ AntibodyForests <- function(VDJ,
         return(NULL)
       }
 
-    }else if(include.germline == 'cdr3.nt'){
+    }else if(germline.column == 'cdr3.nt'){
       VDJ <- clonotype_df$VDJ_cdr3s_nt
       VJ <- clonotype_df$VJ_cdr3s_nt
       germline_seq <- paste0(VDJ,VJ)
@@ -649,7 +567,7 @@ AntibodyForests <- function(VDJ,
    all_nodes <- 1:ncol(distance_matrix)
 
 
-   if(!is.null(include.germline)){
+   if(!is.null(germline.column)){
      germline_node <- ncol(distance_matrix)
 
      if(connect.germline.to=='min.adjacent'){
@@ -732,7 +650,7 @@ AntibodyForests <- function(VDJ,
             sampled_index <- sample(1:length(current_potential_node_pairs), 1)
             current_potential_node_pairs <- current_potential_node_pairs[sampled_index]
 
-          }else if(tie_algorithm=='close.germline.distance' & !is.null(include.germline)){
+          }else if(tie_algorithm=='close.germline.distance' & !is.null(germline.column)){
 
             germline_node <- ncol(distance_matrix)
             avg_distance_per_pair <- unlist(lapply(current_potential_node_pairs, function(x) (distance_matrix_w_germline[x[1], germline_node] + distance_matrix_w_germline[x[2], germline_node])/2 ))
@@ -740,7 +658,7 @@ AntibodyForests <- function(VDJ,
             current_potential_node_pairs <- current_potential_node_pairs[min_index]
 
 
-          }else if(tie_algorithm=='close.germline.edges' & !is.null(include.germline)){
+          }else if(tie_algorithm=='close.germline.edges' & !is.null(germline.column)){
 
             germline_node <- ncol(distance_matrix)
             current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
@@ -752,7 +670,7 @@ AntibodyForests <- function(VDJ,
             min_index <- which(distances_from_germline==min(distances_from_germline))
             current_potential_node_pairs <- current_potential_node_pairs[min_index]
 
-          }else if(tie_algorithm=='close.germline.weighted' & !is.null(include.germline)){
+          }else if(tie_algorithm=='close.germline.weighted' & !is.null(germline.column)){
 
             germline_node <- ncol(distance_matrix)
             current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
@@ -765,7 +683,7 @@ AntibodyForests <- function(VDJ,
             current_potential_node_pairs <- current_potential_node_pairs[min_index]
 
 
-          }else if(tie_algorithm=='far.germline.distance' & !is.null(include.germline)){
+          }else if(tie_algorithm=='far.germline.distance' & !is.null(germline.column)){
 
             germline_node <- ncol(distance_matrix)
             avg_distance_per_pair <- unlist(lapply(current_potential_node_pairs, function(x) (distance_matrix_w_germline[x[1], germline_node] + distance_matrix_w_germline[x[2], germline_node])/2 ))
@@ -773,7 +691,7 @@ AntibodyForests <- function(VDJ,
             current_potential_node_pairs <- current_potential_node_pairs[max_index]
 
 
-          }else if(tie_algorithm=='far.germline.edges' & !is.null(include.germline)){
+          }else if(tie_algorithm=='far.germline.edges' & !is.null(germline.column)){
 
             germline_node <- ncol(distance_matrix)
             current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
@@ -785,7 +703,7 @@ AntibodyForests <- function(VDJ,
             max_index <- which(distances_from_germline==max(distances_from_germline))
             current_potential_node_pairs <- current_potential_node_pairs[max_index]
 
-          }else if (tie_algorithm=='far.germline.weighted' & !is.null(include.germline)){
+          }else if (tie_algorithm=='far.germline.weighted' & !is.null(germline.column)){
 
             germline_node <- ncol(distance_matrix)
             current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
@@ -989,7 +907,7 @@ AntibodyForests <- function(VDJ,
     }
 
 
-    if(!is.null(include.germline)){
+    if(!is.null(germline.column)){
       germline_node <- which(network_df$germline == 'yes')
       if(sum(final_adjacency_matrix[germline_node,]) == 0){
         graph_no_germline <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix[-germline_node, -germline_node], mode='undirected', weighted=T, diag=F)
@@ -1091,7 +1009,7 @@ AntibodyForests <- function(VDJ,
    phylo_tree <- ape::nj(distance_matrix)
 
    #Roots at the germline node
-   if(!is.null(include.germline)){
+   if(!is.null(germline.column)){
      phylo_tree <- phytools::reroot(phylo_tree, node.number=which(network_df$germline=='yes'))
    }
 
@@ -1387,7 +1305,7 @@ AntibodyForests <- function(VDJ,
    g<-igraph::set_vertex_attr(g, name='sample_id', index=1:nrow(network_df), value=unlist(network_df$sample_id))
    g<-igraph::set_vertex_attr(g, name='cell_barcodes', index=1:nrow(network_df), value=network_df$cell_barcodes)
 
-   if(!is.null(include.germline)){
+   if(!is.null(germline.column)){
      g<-igraph::set_vertex_attr(g, name='node_type', index=which(network_df$germline=='yes'), value='germline')
      g<-igraph::set_vertex_attr(g, name='distance_from_germline', index=1:nrow(network_df), value=unlist(network_df$distance_from_germline))
      g<-igraph::set_vertex_attr(g, name='network_sequences', index=which(network_df$germline=='yes'), value=unlist(network_df$network_sequences[which(network_df$germline=='yes')]))
@@ -1419,7 +1337,7 @@ AntibodyForests <- function(VDJ,
          g<-igraph::set_vertex_attr(g, name=paste0(feature, '_counts'), index=i, value=network_df[,paste0(feature, '_counts')][i])
        }
 
-       if(!is.null(include.germline)){
+       if(!is.null(germline.column)){
          germline_node <- which(igraph::V(g)$node_type=='germline')
          g<-igraph::set_vertex_attr(g, name=paste0(feature), index=germline_node, value='germline')
          g<-igraph::set_vertex_attr(g, name=paste0(feature,'_counts'), index=germline_node, value=1)
