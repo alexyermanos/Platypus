@@ -104,7 +104,7 @@ AntibodyForests <- function(VDJ,
 
   if(missing(VDJ)) stop('Please input your data as VDJ/df per clonotype list')
   if(missing(sequence.column)) sequence.column <- c('VDJ_sequence_nt_raw', 'VJ_sequence_nt_raw')
-  if(missing(germline.column)) germline.column <- c('VDJ_germline', 'VJ_germline')
+  if(missing(germline.column)) germline.column <- NULL
   if(missing(network.algorithm)) network.algorithm <- 'tree'
   if(missing(directed) & network.algorithm != 'mst' & !stringr::str_detect(network.algorithm, 'prune')) directed <- T
   if(missing(directed) & (network.algorithm == 'mst' | stringr::str_detect(network.algorithm, 'prune'))) directed <- F
