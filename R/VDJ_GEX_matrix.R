@@ -1924,7 +1924,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       VDJ.proc[VDJ.proc == ";"] <- "" #fix bug, where if two emtpy strings are concatenated, a ";" is left behind.
       VDJ.proc[is.na(VDJ.proc)] <- "" #Replace NA (empty values) with an empty string for format compatibility
       VDJ.proc <- VDJ.proc[VDJ.proc$barcode != "",] #Bug where an empty line is generated from a missing previous annotation
-      VDJ.proc <- VDJ.proc[!(VDJ.proc$Nr_of_VJ_chains == 0 & VDJ.proc$Nr_of_VDJ_chains == 0),] #Bug where an empty line is generated from a missing previous annotation
+      VDJ.proc <- subset(VDJ.proc, Nr_of_VJ_chains != 0 | Nr_of_VDJ_chains != 0) #Bug where an empty line is generated from a missing previous annotation; 28/06/2023 fix for R 4.3
 
       #update barcodes
       VDJ.proc$orig_barcode <- gsub("(^_)|(-\\d+.*$)","",VDJ.proc$barcode)
