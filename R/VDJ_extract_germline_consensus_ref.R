@@ -4,11 +4,11 @@
 #' Based on the ref argument, if TRUE it also returns the returns in the VDJ/VJ_ref.nt/aa the trimmed reference based
 #' on the alignement with the consensus.
 #' @param  VDJ VDJ or vgm[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
-#' @param n_clones integer, denoting the top n clones to get the reference
+#' @param n_clones integer, denoting the top n clones to get the reference. If NA it is performed in all clones
 #' @param sample list of sample names, with the same order as they were accessed to make the VGM
 #' @param ref bool, denoting whether or not we trim the reference of the antibodies.
 #' @param path_tOData str, denoting the folder containing the VDJ folder with VDJ information per sample
-#' @return VDJ containing the VDJ/VJ_ref.nt/aa columns if ref = TRUE and the full_VDJ, full_VJ columns with the fr1-fr4
+#' @return $vdj: VDJ containing the VDJ/VJ_ref.nt/aa columns if ref = TRUE and the full_VDJ, full_VJ columns with the fr1-fr4. $clones: clone_ids for which a reference was made.
 #' @import tidyverse
 #' @import magrittr
 #' @import Biostrings
@@ -18,19 +18,12 @@
 #' vgm = read("VGM.RData")
 #' n_clones = 20
 #' 
-#' vgm$VDJ = VDJ_extract_germline_consensus_ref(vgm$VDJ, n_clones, samples, ref = TRUE, path_toData="../Data/")
+#' result = VDJ_extract_germline_consensus_ref(vgm$VDJ, n_clones, samples, ref = TRUE, path_toData="../Data/")
+#' VDJ = result[1]$vdj
+#' clone_counts = result[2]$clones
 #' }
 #' 
 VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, ref = TRUE, path_toData = "../Data/"){
-  #' @description Function that takes the VDJ and the fr1-fr4 sequence per antibody
-  #' Based on the ref argument, if TRUE it also returns the returns in the VDJ/VJ_ref.nt/aa the trimmed reference based
-  #' on the alignement with the consensus.
-  #' @param  VDJ VDJ or vgm[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
-  #' @param n_clones integer, denoting the top n clones to get the reference
-  #' @param sample list of sample names, with the same order as they were accessed to make the VGM
-  #' @param ref bool, denoting whether or not we trim the reference of the antibodies.
-  #' @return VDJ containing the VDJ/VJ_ref.nt/aa columns if ref = TRUE and the full_VDJ, full_VJ columns with the fr1-fr4
-  
   #SUPLEMENTARY FUNCTIONS
   #1
   trim_ref <- function(consensus, reference){
@@ -223,8 +216,8 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
   VDJ["VDJ_ref.aa"] = "None"
   VDJ["VJ_ref.aa"] = "None"
   VDJ["rank_post_filter"] = -1
+  clone_counts_all = c()
   for (i in samples){
-    print(samples)
     #Path to the sample data
     path = paste(path_toData, "VDJ/",i,"/",sep = "")
     #Examined sample_id
@@ -232,11 +225,12 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     #read the consensus
     consensus = read.csv(paste(path,"consensus_annotations.csv",sep=""), sep=",")
     vgm_subset = VDJ[VDJ$sample_id == paste("s",sample_id,sep = ""),]
-    
     #Filtering for one light one heavy chain
     VDJ <- VDJ[grepl(";",VDJ$VDJ_chain_contig) == FALSE,]
     VDJ <- VDJ[grepl(";",VDJ$VJ_chain_contig) == FALSE,]
+    
     clone_counts = table(vgm_subset$clonotype_id)
+    
     total_clones = length(clone_counts)
     used_clones = n_clones
     if(is.na(n_clones)){
@@ -247,11 +241,11 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
       used_clones = total_clones
     }
     topn_clones = names(clone_counts[order(-clone_counts)][1:used_clones])
-    print(topn_clones)
+    clone_counts_all[[i]] = topn_clones
+    print(clone_counts_all)
     #for each clonotype find the reference
     clone_rank = 1
     for (clone in topn_clones){
-      print(clone)
       VDJ[(VDJ$sample_id == paste("s",sample_id,sep = "") & VDJ$clonotype_id == clone), "rank_post_filter"] = clone_rank
       #Fetching the light and heavy reference IS IT REALLY 2-LIGHT AND 1-HEAVY?
       vgm_clone = vgm_subset[(vgm_subset$clonotype_id == clone),]#CHANGE NOT TO BE DONE ONCE PER ITEM
@@ -275,5 +269,5 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     }
   }
   VDJ = VDJ_merge_chain(VDJ, samples, path_toData)
-  return(list(vdj = VDJ,clone_c = clone_counts))
+  return(list(vdj = VDJ,clones = clone_counts_all))
 }
