@@ -11,7 +11,8 @@ GEX_pairwise_DEGs(
   RP.MT.filter,
   label.n.top.genes,
   genes.to.label,
-  save.plot
+  save.plot,
+  save.csv
 )
 }
 \arguments{
@@ -27,7 +28,9 @@ GEX_pairwise_DEGs(
 
 \item{genes.to.label}{Character vector. Defaults to "none". Vector of gene names to plot indipendently of their p value. Can be used in combination with label.n.genes.}
 
-\item{save.plot}{Boolean. Defaults to True. Whether to save plots as appropriately named .png files}
+\item{save.plot}{Boolean. Defaults to False. Whether to save plots as appropriately named .png files}
+
+\item{save.csv}{Boolean. Defaults to False. Whether to save deg tables as appropriately named .csv files}
 }
 \value{
 A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.
@@ -38,6 +41,6 @@ Produces and saves a list of volcano plots with each showing differentially expr
 \examples{
 GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
 ,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
-,save.plot = FALSE)
+,save.plot = FALSE, save.csv = TRUE)
 
 }

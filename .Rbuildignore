@@ -10,4 +10,6 @@
 ^\.github$
 ^parked_vignettes$
 ^Admin_folders
+^\Platypus.Rproj
+^\.git$
 LICENSE

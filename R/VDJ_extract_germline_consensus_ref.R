@@ -1,5 +1,5 @@
 #' Making the trimmed reference and concatenating fr1-fr4
-#' 
+#'
 #' @description Function that takes the VDJ and the fr1-fr4 sequence per antibody
 #' Based on the ref argument, if TRUE it also returns the returns in the VDJ/VJ_ref.nt/aa the trimmed reference based
 #' on the alignement with the consensus.
@@ -9,20 +9,17 @@
 #' @param ref bool, denoting whether or not we trim the reference of the antibodies.
 #' @param path_tOData str, denoting the folder containing the VDJ folder with VDJ information per sample
 #' @return $vdj: VDJ containing the VDJ/VJ_ref.nt/aa columns if ref = TRUE and the full_VDJ, full_VJ columns with the fr1-fr4. $clones: clone_ids for which a reference was made.
-#' @import tidyverse
-#' @import magrittr
-#' @import Biostrings
 #' @examples
 #' \donttest{
 #' samples = c('LCMV', 'TNFR')
 #' vgm = read("VGM.RData")
 #' n_clones = 20
-#' 
+#'
 #' result = VDJ_extract_germline_consensus_ref(vgm$VDJ, n_clones, samples, ref = TRUE, path_toData="../Data/")
 #' VDJ = result[1]$vdj
 #' clone_counts = result[2]$clones
 #' }
-#' 
+#'
 VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, ref = TRUE, path_toData = "../Data/"){
   #SUPLEMENTARY FUNCTIONS
   #1
@@ -31,7 +28,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     #Arguments:
     #         consensus: Consensus sequence for the clonotype and chain
     #         reference: Full reference sequence for the clonotype and chain
-    
+
     if (is.na(reference) | is.na(consensus)){
       return ("")
     }
@@ -52,11 +49,11 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     #Output
     #         output: A list with [[1]] containing the VDJ.nt VDJ.aa VJ.aa VJ.nt
     #                             [[2]] containing the examined_refs updated with new trimmed references
-    
-    
-    
+
+
+
     #Subset the vgm on one specific cell and extract the barcode, to map the results to the original vgm
-    
+
     vgm_barcode = row
     barcode = vgm_barcode["barcode"]
     #if(nrow(VDJ[VDJ$barcode == barcode,])!=0){
@@ -90,12 +87,12 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
         #VDJ[VDJ$barcode == barcode,paste(chain,"_ref_trimmed_aa",sep = "")] = translate_DNA(reference_n)
       }
     }
-    
+
     #}
     return(list(output, examined_refs))
   }
-  
-  
+
+
   #3
   translate_DNA<- function(sequence){
     #Gets a nucleotide sequence with also "-" and turns it into an aminonacid sequence
@@ -120,9 +117,9 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
       "GAT"="D", "GAC"="D", "GAA"="E", "GAG"="E",
       "GGT"="G", "GGC"="G", "GGA"="G", "GGG"="G"
     )
-    
+
     codons <- strsplit(sequence, "(?<=.{3})", perl=TRUE)[[1]] #Break into codons
-    
+
     for (codon_id in 1:length(codons)){
       if(nchar(codons[codon_id]) < 3){ #If codon is less than 2 chars, ignore it
         codons[codon_id] = ""
@@ -135,10 +132,10 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     sequence <- paste(codons, collapse="")
     return(sequence)
   }
-  
+
   #4
   VDJ_merge_chain <- function(VDJ, samples, path_toData) {
-    #Merges cell entries per chain, into one entry per cell. 
+    #Merges cell entries per chain, into one entry per cell.
     #Author: Aurora
     #Binding all contig annotations files in a unique file
     all_contig_annotations = data.frame()
@@ -158,7 +155,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
              "fwr4", "fwr4_nt", "umis", "VDJ_barcode")
     #Adding prefix to differentiate
     colnames(contigs_HC)[0:15] <- paste('HC', colnames(contigs_HC)[0:15], sep = '_')
-    
+
     #Repeating for light chain
     contigs_LC <- subset(all_contig_annotations, chain %in% c("IGK","IGL")) %>%
       select("fwr1", "fwr1_nt", "cdr1", "cdr1_nt",
@@ -166,15 +163,15 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
              "fwr3", "fwr3_nt", "cdr3", "cdr3_nt",
              "fwr4", "fwr4_nt", "umis", "VDJ_barcode")
     colnames(contigs_LC)[0:15] <- paste('LC', colnames(contigs_LC)[0:15], sep = '_')
-    
+
     #Removing sample nr from barcode from VDJ
     VDJ %<>% mutate(VDJ_barcode = sub(".*_","",barcode))
-    
+
     #Joining columns of interest to the initial VDJ
     VDJ_HC_contigs <- left_join(VDJ, contigs_HC, by="VDJ_barcode")
     VDJ_contigs <- left_join(VDJ_HC_contigs, contigs_LC, by="VDJ_barcode") %>%
       select(-VDJ_barcode)
-    
+
     VDJ_contigs$full_VDJ <- paste0(VDJ_contigs$HC_fwr1_nt,
                                    VDJ_contigs$HC_cdr1_nt,
                                    VDJ_contigs$HC_fwr2_nt,
@@ -182,7 +179,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
                                    VDJ_contigs$HC_fwr3_nt,
                                    VDJ_contigs$HC_cdr3_nt,
                                    VDJ_contigs$HC_fwr4_nt)
-    
+
     VDJ_contigs$full_VJ <- paste0(VDJ_contigs$LC_fwr1_nt,
                                   VDJ_contigs$LC_cdr1_nt,
                                   VDJ_contigs$LC_fwr2_nt,
@@ -190,14 +187,14 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
                                   VDJ_contigs$LC_fwr3_nt,
                                   VDJ_contigs$LC_cdr3_nt,
                                   VDJ_contigs$LC_fwr4_nt)
-    
+
     return(VDJ_contigs)
   }
-  
-  
+
+
   #Master function code
-  
-  
+
+
   if(ref == FALSE){
     #Just keep the 1 light 1 heavy chain and find the FULL VDJ
     VDJ <- VDJ[grepl(";",VDJ$VDJ_chain_contig) == FALSE,]
@@ -210,7 +207,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     return(VDJ)
   }
   sample_id = 0
-  
+
   VDJ["VDJ_ref.nt"] = "None"
   VDJ["VJ_ref.nt"] = "None"
   VDJ["VDJ_ref.aa"] = "None"
@@ -228,9 +225,9 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     #Filtering for one light one heavy chain
     VDJ <- VDJ[grepl(";",VDJ$VDJ_chain_contig) == FALSE,]
     VDJ <- VDJ[grepl(";",VDJ$VJ_chain_contig) == FALSE,]
-    
+
     clone_counts = table(vgm_subset$clonotype_id)
-    
+
     total_clones = length(clone_counts)
     used_clones = n_clones
     if(is.na(n_clones)){

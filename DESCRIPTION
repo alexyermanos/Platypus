@@ -1,28 +1,36 @@
 Package: Platypus
 Type: Package
 Title: Single-Cell Immune Repertoire and Gene Expression Analysis
-Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology (Yermanos A, et al (2021) <doi:10.1093/nargab/lqab023>). 
-Version: 3.4.1
-Date: 2022-03-01
+Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology. This R version of 'Platypus' is part of the 'ePlatypus' ecosystem for computational analysis of immunogenomics data.
+Version: 3.5.0
+Date: 2023-08-07
 Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ayermanos@gmail.com"),
              person("Andreas", "Agrafiotis", role = "ctb"),
+             person("Victor", "Kreiner", role = "ctb"),
+             person("Tudor-Stefan", "Cotet", role = "ctb"),
              person("Raphael", "Kuhn", role = "ctb"),
-	     person("Danielle", "Shlesinger", role = "ctb"),
-             person("Jiami","Han", role = "ctb"),
-             person("Tudor-Stefan","Cotet", role = "ctb"),
-	     person("Victor", "Kreiner", role = "ctb"))
-Maintainer: Alexander Yermanos <ayermanos@gmail.com>
+             person("Danielle", "Shlesinger", role = "ctb"),
+             person("Jiami", "Han", role = "ctb"),
+             person("Vittoria Martinolli", "D'Arcy", role = "ctb"),
+             person("Lucas", "Stalder", role = "ctb"),
+	     person("Daphne", "van Ginneken", role = "ctb"))
+Maintainer: Alexander Yermanos <tc2219@ic.ac.uk>
 Depends:
-    R(>= 3.5.0),
+    R(>= 4.0.0)
+biocViews:
 Imports:
+    Biostrings,
     cowplot,  
     dplyr, 
+    foreach,
     ggplot2,
+    ggtree,
     jsonlite,
     knitr,
     Matrix(>= 1.3-3),
     plyr,
     reshape2, 
+    reticulate,
     seqinr,
     stringr,
     Seurat,
@@ -49,7 +57,6 @@ Suggests:
     ggrepel,
     ggridges,
     ggseqlogo,
-    ggtree,
     graphkernels,
     graphlayouts,
     grid,
@@ -79,13 +86,13 @@ Suggests:
     readbitmap,
     readr,
     readxl,
-    reticulate,
     rstudioapi,
     rlang,
     Rtsne,
     scales,
     scuttle,
     SeuratWrappers,
+    sf,
     SingleCellExperiment,
     slingshot,
     ssh,
@@ -95,15 +102,15 @@ Suggests:
     tidygraph,
     tidytree,
     tidyselect,
+    tidyverse,
     umap,
     vanddraabe,
     vegan,
-    velocyto,
     viridis,
     testthat (>= 3.0.0)
 License: GPL-2
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 LazyData: true
 Config/testthat/edition: 3

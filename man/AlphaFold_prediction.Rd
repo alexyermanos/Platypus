@@ -23,7 +23,11 @@ AlphaFold_prediction(
   output.path,
   antigen.fasta.path,
   fasta.directory.path,
-  platypus.version
+  platypus.version,
+  shareholder.group,
+  runtime,
+  submission.of.job,
+  more.cpu
 )
 }
 \arguments{
@@ -59,11 +63,19 @@ AlphaFold_prediction(
 
 \item{output.path}{If the data is downloaded from the cluster it is by default stored in a sub folder in the current directory. If the data should be downloaded at a different location this can be specified in the output.path.}
 
-\item{antigen.fasta.path}{It can be of interest to predict the antibody structure together with the antigen to see interaction. For this purpose a path to a FASTA file containing the amino acid sequence of the antigen can be specified in the antigen.fasta.path argument. This will add the antigen sequence to every antibody prediction.}
+\item{antigen.fasta.path}{It can be of interest to predict the antibody structure together with the antigen to see interaction. For this purpose a path to a FASTA file containing the amino acid sequence of the antigen can be specified in the antigen.fasta.path argument. This will add the antigen sequence to every antibody prediction. If every single antibody sequence is tested against one antigen, only one path needs to be provided. If there is more than one antigen tested, the FASTA file path for the antigen will need to be provided as a vector for every single antibody tested (vector needs to be in the same order as the antibody sequences from top to bottom)}
 
 \item{fasta.directory.path}{The prediction function can also be used to predict structure directly from amino acid FASTA files without specifying a the VDJ.mixcr.out argument. For this the path to a directory, congaing all the FASTA files of interest can be specified in the fasta.directory.path argument. The files just need to have the .fasta extension. If multiple FASTA files are in the directory, the function will predict all of them separately.}
 
 \item{platypus.version}{This function is not directly depended on other Platypus functions but was developed to be compatible with v3.}
+
+\item{shareholder.group}{This parameter will allow its user to choose from which group you want to use GPUs from. All group options are available such as "es_reddy","es_khamm", ... It will be set to "es_reddy" by default}
+
+\item{runtime}{This parameter will let the user decide how long he/she wants to let the job running. Will only take effect if submission.of.job is set to "manual". Options are "04:00","24:00","48:00" or "120:00". Default to "24:00"}
+
+\item{submission.of.job}{This parameter will let the user decide whether he/she wants to set the runtime automatically by the program, or choose it manually. Default to "automatic"}
+
+\item{more.cpu}{This parameter lets you choose if you want more CPU usage or not. This will only work if you set submission.of.job to automatic and runtime at 24:00. Default to "yes"}
 }
 \value{
 This function returns a list with the VDJ.mixcr.out in the first element and a list of pdb files as a second element
@@ -83,8 +95,9 @@ If running prediction on Euler, the function will create a "AlphaFold_Fasta" dir
 }
 \examples{
 \dontrun{
-
-ADD EXAMPLE CODE HERE
+EXAMPLE CODE FOR MORE THAN ONE ANTIGEN TESTED AGAINST 3 DIFFERENT AB SEQUENCES
+first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences will be tested against fasta_path_2.fasta antigen.
+EXAMPLE CODE FOR ONLY ONE ANTIGEN (regardless of how many antibody sequences there are)
 
 }
 }
