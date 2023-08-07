@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlatypusML_balance.R
 \name{PlatypusML_balance}
 \alias{PlatypusML_balance}
-\title{This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds 
+\title{This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds
 for different classification models and reports the AUC scores and ROC curves.}
 \usage{
 PlatypusML_balance(matrix, label.1, label.2, proportion, random.seed)
@@ -21,12 +21,13 @@ The smaller proportion will be assigned to the minority class by default.}
 }
 \value{
 This function returns a matrix containing equal number of samples for the two classes.
-#' @examples
-\dontrun{
-TODO: example
-}
 }
 \description{
-This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds 
+This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds
 for different classification models and reports the AUC scores and ROC curves.
+}
+\examples{
+\dontrun{
+PlatypusML_balance(matrix, label.1 = a, label.2 = b)
+}
 }

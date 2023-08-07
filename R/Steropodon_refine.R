@@ -211,7 +211,7 @@ Steropodon_refine <- function(steropodon.object,
 
        }else{
          cl <- parallel::makeCluster(cores)
-         pdb_list_refined <- parallel::parlapply(cl, pdb_files, partial_function)
+         pdb_list_refined <- parallel::parLapply(cl, pdb_files, partial_function)
          parallel::stopCluster(cl)
        }
 
@@ -354,7 +354,7 @@ Steropodon_refine <- function(steropodon.object,
 
        }else{
          cl <- parallel::makeCluster(cores)
-         pdb_list_refined <- parallel::parlapply(cl, pdb_files, partial_function)
+         pdb_list_refined <- parallel::parLapply(cl, pdb_files, partial_function)
          parallel::stopCluster(cl)
        }
 

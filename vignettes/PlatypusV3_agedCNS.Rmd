@@ -1,6 +1,6 @@
 ---
 title: "PlatypusV3 AgedCNS vignette"
-author: "Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis"
+author: "Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis, Tudor-Stefan Cotet"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -26,7 +26,7 @@ The change in clonotyping can be found here - https://support.10xgenomics.com/si
 The VDJ_GEX_matrix function will soon be found in the newest version of the R package (v3.0) with special thanks to Victor Kreiner. The current functions and documentation can be found already at https://github.com/alexyermanos/Platypus/blob/Functions/R/VDJ_GEX_matrix.R
 All other functions are already or in the process of being updated. A function which is available for V3 as a new parameter "platypus.version" which can be set to either "v2", for backcompatibility or "v3". Some new functions are only compatible with "v3"
 
-Can stay tuned for updates https://twitter.com/AlexYermanos
+Can stay tuned for updates https://twitter.com/alexyermanos
 ```{r setup, include=FALSE, eval = FALSE}
 #to avoid of the dplyr summarise warnings
 library(dplyr, warn.conflicts = FALSE)

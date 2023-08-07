@@ -19,7 +19,12 @@ The smaller proportion will be assigned to the minority class by default. Defaul
 }
 \value{
 This function returns a list containing [["combined"]] summary plot with ROC & confusion matrices, [["ROC"]] the ROC curve, [["confusion"]] confusion matrices for each classifier.
-#' @examples
+}
+\description{
+This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds
+for different classification models and reports the AUC scores and ROC curves.
+}
+\examples{
 \dontrun{
 To classify and obtain the performance of different models, using extracted and encoded features.
 
@@ -38,8 +43,4 @@ balancing = TRUE)
 #view summary
 classifier_GP33_binder$combined
 }
-}
-\description{
-This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds
-for different classification models and reports the AUC scores and ROC curves.
 }

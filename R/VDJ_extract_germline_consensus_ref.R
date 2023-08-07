@@ -14,8 +14,9 @@
 #' samples = c('LCMV', 'TNFR')
 #' vgm = read("VGM.RData")
 #' n_clones = 20
-#'
-#' result = VDJ_extract_germline_consensus_ref(vgm$VDJ, n_clones, samples, ref = TRUE, path_toData="../Data/")
+#' result = VDJ_extract_germline_consensus_ref(vgm$VDJ, n_clones,
+#' samples, ref = TRUE,
+#' path_toData="../Data/")
 #' VDJ = result[1]$vdj
 #' clone_counts = result[2]$clones
 #' }

@@ -12,4 +12,5 @@
 ^Admin_folders
 ^\Platypus.Rproj
 ^\.git$
+^\vignette_index.html
 LICENSE

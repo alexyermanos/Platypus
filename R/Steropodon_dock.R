@@ -174,7 +174,7 @@ Steropodon_dock <- function(steropodon.object,
 
        }else{
          cl <- parallel::makeCluster(cores)
-         parallel::parlapply(cl, receptor_files, partial_function)
+         parallel::parLapply(cl, receptor_files, partial_function)
          parallel::stopCluster(cl)
        }
 

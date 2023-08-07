@@ -10,7 +10,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta name="author" content="Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis" />
+<meta name="author" content="Alexander Yermanos, Victor Kreiner, Andreas Agrafiotis, Tudor-Stefan Cotet" />
 
 <meta name="date" content="2022-08-07" />
 
@@ -240,7 +240,7 @@ pre, code {
 background-color: #f7f7f7;
 border-radius: 3px;
 color: #333;
-white-space: pre-wrap; 
+white-space: pre-wrap;
 }
 pre {
 border-radius: 3px;
@@ -308,18 +308,18 @@ text-decoration: underline; }
 a[href^="https:"] {
 text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.kw { color: #555; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #d14; }
+code > span.fl { color: #d14; }
+code > span.ch { color: #d14; }
+code > span.st { color: #d14; }
+code > span.co { color: #888888; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #900; font-weight: bold; }
+code > span.er { color: #a61717; background-color: #e3d2d2; }
 </style>
 
 
@@ -334,7 +334,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">PlatypusV3 AgedCNS vignette</h1>
 <h4 class="author">Alexander Yermanos, Victor Kreiner, Andreas
-Agrafiotis</h4>
+Agrafiotis, Tudor-Stefan Cotet</h4>
 <h4 class="date">2022-08-07</h4>
 
 
@@ -374,7 +374,7 @@ All other functions are already or in the process of being updated. A
 function which is available for V3 as a new parameter “platypus.version”
 which can be set to either “v2”, for backcompatibility or “v3”. Some new
 functions are only compatible with “v3”</p>
-<p>Can stay tuned for updates <a href="https://twitter.com/AlexYermanos" class="uri">https://twitter.com/AlexYermanos</a></p>
+<p>Can stay tuned for updates <a href="https://twitter.com/alexyermanos" class="uri">https://twitter.com/alexyermanos</a></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Removing any previous versions of the package</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#First can ensure that there is no previous version installed locally</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#detach(&quot;package:Platypus&quot;, unload=TRUE)</span></span>
@@ -1110,74 +1110,74 @@ components are upregulated in expanded clones.</p>
 <pre><code>## R version 4.2.1 (2022-06-23 ucrt)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 19044)
-## 
+##
 ## Matrix products: default
-## 
+##
 ## locale:
-## [1] LC_COLLATE=C                    LC_CTYPE=German_Germany.utf8   
-## [3] LC_MONETARY=German_Germany.utf8 LC_NUMERIC=C                   
-## [5] LC_TIME=German_Germany.utf8    
-## 
+## [1] LC_COLLATE=C                    LC_CTYPE=German_Germany.utf8
+## [3] LC_MONETARY=German_Germany.utf8 LC_NUMERIC=C
+## [5] LC_TIME=German_Germany.utf8
+##
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
+## [1] stats     graphics  grDevices utils     datasets  methods   base
+##
 ## other attached packages:
 ## [1] Platypus_3.3.6
-## 
+##
 ## loaded via a namespace (and not attached):
-##   [1] plyr_1.8.7             igraph_1.3.4           lazyeval_0.2.2        
-##   [4] sp_1.5-0               splines_4.2.1          listenv_0.8.0         
-##   [7] scattermore_0.8        usethis_2.1.6          GenomeInfoDb_1.32.2   
-##  [10] ggplot2_3.3.6          digest_0.6.29          useful_1.2.6          
-##  [13] yulab.utils_0.0.5      htmltools_0.5.3        fansi_1.0.3           
-##  [16] magrittr_2.0.3         memoise_2.0.1          tensor_1.5            
-##  [19] cluster_2.1.3          ROCR_1.0-11            remotes_2.4.2         
-##  [22] globals_0.15.1         Biostrings_2.64.0      matrixStats_0.62.0    
-##  [25] spatstat.sparse_2.1-1  prettyunits_1.1.1      colorspace_2.0-3      
-##  [28] ggrepel_0.9.1          xfun_0.31              dplyr_1.0.9           
-##  [31] callr_3.7.1            crayon_1.5.1           RCurl_1.98-1.7        
-##  [34] jsonlite_1.8.0         roxygen2_7.1.1         spatstat.data_2.2-0   
-##  [37] progressr_0.10.1       survival_3.3-1         zoo_1.8-10            
-##  [40] ape_5.6-2              glue_1.6.2             polyclip_1.10-0       
-##  [43] gtable_0.3.0           zlibbioc_1.42.0        XVector_0.36.0        
-##  [46] leiden_0.4.2           seqinr_4.2-16          pkgbuild_1.3.1        
-##  [49] future.apply_1.9.0     BiocGenerics_0.42.0    abind_1.4-5           
-##  [52] scales_1.2.0           DBI_1.1.3              spatstat.random_2.2-0 
-##  [55] miniUI_0.1.1.1         Rcpp_1.0.9             viridisLite_0.4.0     
-##  [58] xtable_1.8-4           spatstat.core_2.4-4    gridGraphics_0.5-1    
-##  [61] tidytree_0.3.9         reticulate_1.25        stats4_4.2.1          
-##  [64] profvis_0.3.7          htmlwidgets_1.5.4      httr_1.4.3            
-##  [67] RColorBrewer_1.1-3     ellipsis_0.3.2         Seurat_4.1.1          
-##  [70] ica_1.0-3              urlchecker_1.0.1       pkgconfig_2.0.3       
-##  [73] sass_0.4.2             uwot_0.1.11            deldir_1.0-6          
-##  [76] utf8_1.2.2             ggplotify_0.1.0        tidyselect_1.1.2      
-##  [79] rlang_1.0.4            reshape2_1.4.4         later_1.3.0           
-##  [82] munsell_0.5.0          tools_4.2.1            cachem_1.0.6          
-##  [85] cli_3.3.0              generics_0.1.3         ade4_1.7-19           
-##  [88] devtools_2.4.4         ggridges_0.5.3         evaluate_0.15         
-##  [91] stringr_1.4.0          fastmap_1.1.0          yaml_2.3.5            
-##  [94] goftest_1.2-3          ggtree_3.4.1           processx_3.7.0        
-##  [97] knitr_1.39             fs_1.5.2               fitdistrplus_1.1-8    
-## [100] purrr_0.3.4            RANN_2.6.1             pbapply_1.5-0         
-## [103] future_1.27.0          nlme_3.1-157           mime_0.12             
-## [106] aplot_0.1.6            xml2_1.3.3             compiler_4.2.1        
-## [109] rstudioapi_0.13        plotly_4.10.0          png_0.1-7             
-## [112] spatstat.utils_2.3-1   treeio_1.20.1          tibble_3.1.8          
-## [115] bslib_0.4.0            stringi_1.7.8          ps_1.7.1              
-## [118] desc_1.4.1             rgeos_0.5-9            lattice_0.20-45       
-## [121] Matrix_1.4-1           vctrs_0.4.1            pillar_1.8.0          
-## [124] lifecycle_1.0.1        jquerylib_0.1.4        spatstat.geom_2.4-0   
-## [127] lmtest_0.9-40          RcppAnnoy_0.0.19       data.table_1.14.2     
-## [130] cowplot_1.1.1          bitops_1.0-7           irlba_2.3.5           
-## [133] httpuv_1.6.5           patchwork_1.1.1        R6_2.5.1              
-## [136] promises_1.2.0.1       gridExtra_2.3          KernSmooth_2.23-20    
-## [139] IRanges_2.30.0         parallelly_1.32.1      sessioninfo_1.2.2     
-## [142] codetools_0.2-18       MASS_7.3-57            assertthat_0.2.1      
-## [145] pkgload_1.3.0          rprojroot_2.0.3        withr_2.5.0           
-## [148] SeuratObject_4.1.0     sctransform_0.3.3      S4Vectors_0.34.0      
-## [151] GenomeInfoDbData_1.2.8 mgcv_1.8-40            parallel_4.2.1        
-## [154] rpart_4.1.16           grid_4.2.1             ggfun_0.0.6           
-## [157] tidyr_1.2.0            rmarkdown_2.14         Rtsne_0.16            
+##   [1] plyr_1.8.7             igraph_1.3.4           lazyeval_0.2.2
+##   [4] sp_1.5-0               splines_4.2.1          listenv_0.8.0
+##   [7] scattermore_0.8        usethis_2.1.6          GenomeInfoDb_1.32.2
+##  [10] ggplot2_3.3.6          digest_0.6.29          useful_1.2.6
+##  [13] yulab.utils_0.0.5      htmltools_0.5.3        fansi_1.0.3
+##  [16] magrittr_2.0.3         memoise_2.0.1          tensor_1.5
+##  [19] cluster_2.1.3          ROCR_1.0-11            remotes_2.4.2
+##  [22] globals_0.15.1         Biostrings_2.64.0      matrixStats_0.62.0
+##  [25] spatstat.sparse_2.1-1  prettyunits_1.1.1      colorspace_2.0-3
+##  [28] ggrepel_0.9.1          xfun_0.31              dplyr_1.0.9
+##  [31] callr_3.7.1            crayon_1.5.1           RCurl_1.98-1.7
+##  [34] jsonlite_1.8.0         roxygen2_7.1.1         spatstat.data_2.2-0
+##  [37] progressr_0.10.1       survival_3.3-1         zoo_1.8-10
+##  [40] ape_5.6-2              glue_1.6.2             polyclip_1.10-0
+##  [43] gtable_0.3.0           zlibbioc_1.42.0        XVector_0.36.0
+##  [46] leiden_0.4.2           seqinr_4.2-16          pkgbuild_1.3.1
+##  [49] future.apply_1.9.0     BiocGenerics_0.42.0    abind_1.4-5
+##  [52] scales_1.2.0           DBI_1.1.3              spatstat.random_2.2-0
+##  [55] miniUI_0.1.1.1         Rcpp_1.0.9             viridisLite_0.4.0
+##  [58] xtable_1.8-4           spatstat.core_2.4-4    gridGraphics_0.5-1
+##  [61] tidytree_0.3.9         reticulate_1.25        stats4_4.2.1
+##  [64] profvis_0.3.7          htmlwidgets_1.5.4      httr_1.4.3
+##  [67] RColorBrewer_1.1-3     ellipsis_0.3.2         Seurat_4.1.1
+##  [70] ica_1.0-3              urlchecker_1.0.1       pkgconfig_2.0.3
+##  [73] sass_0.4.2             uwot_0.1.11            deldir_1.0-6
+##  [76] utf8_1.2.2             ggplotify_0.1.0        tidyselect_1.1.2
+##  [79] rlang_1.0.4            reshape2_1.4.4         later_1.3.0
+##  [82] munsell_0.5.0          tools_4.2.1            cachem_1.0.6
+##  [85] cli_3.3.0              generics_0.1.3         ade4_1.7-19
+##  [88] devtools_2.4.4         ggridges_0.5.3         evaluate_0.15
+##  [91] stringr_1.4.0          fastmap_1.1.0          yaml_2.3.5
+##  [94] goftest_1.2-3          ggtree_3.4.1           processx_3.7.0
+##  [97] knitr_1.39             fs_1.5.2               fitdistrplus_1.1-8
+## [100] purrr_0.3.4            RANN_2.6.1             pbapply_1.5-0
+## [103] future_1.27.0          nlme_3.1-157           mime_0.12
+## [106] aplot_0.1.6            xml2_1.3.3             compiler_4.2.1
+## [109] rstudioapi_0.13        plotly_4.10.0          png_0.1-7
+## [112] spatstat.utils_2.3-1   treeio_1.20.1          tibble_3.1.8
+## [115] bslib_0.4.0            stringi_1.7.8          ps_1.7.1
+## [118] desc_1.4.1             rgeos_0.5-9            lattice_0.20-45
+## [121] Matrix_1.4-1           vctrs_0.4.1            pillar_1.8.0
+## [124] lifecycle_1.0.1        jquerylib_0.1.4        spatstat.geom_2.4-0
+## [127] lmtest_0.9-40          RcppAnnoy_0.0.19       data.table_1.14.2
+## [130] cowplot_1.1.1          bitops_1.0-7           irlba_2.3.5
+## [133] httpuv_1.6.5           patchwork_1.1.1        R6_2.5.1
+## [136] promises_1.2.0.1       gridExtra_2.3          KernSmooth_2.23-20
+## [139] IRanges_2.30.0         parallelly_1.32.1      sessioninfo_1.2.2
+## [142] codetools_0.2-18       MASS_7.3-57            assertthat_0.2.1
+## [145] pkgload_1.3.0          rprojroot_2.0.3        withr_2.5.0
+## [148] SeuratObject_4.1.0     sctransform_0.3.3      S4Vectors_0.34.0
+## [151] GenomeInfoDbData_1.2.8 mgcv_1.8-40            parallel_4.2.1
+## [154] rpart_4.1.16           grid_4.2.1             ggfun_0.0.6
+## [157] tidyr_1.2.0            rmarkdown_2.14         Rtsne_0.16
 ## [160] shiny_1.7.2</code></pre>
 </div>
 

@@ -84,6 +84,11 @@ Spatial_evolution_of_clonotype_plot<-function(simulation =c(TRUE,FALSE),
   x1 = NULL
   y1 = NULL
 
+  ggname <- function(prefix, grob) {
+    grob$name <- grid::grobName(grob, prefix)
+    grob
+  }
+
   geom_spatial <-  function(mapping = NULL,
                             data = NULL,
                             stat = "identity",
@@ -104,7 +109,7 @@ Spatial_evolution_of_clonotype_plot<-function(simulation =c(TRUE,FALSE),
       draw_group = function(data, panel_scales, coord) {
         vp <- grid::viewport(x=data$x, y=data$y)
         g <- grid::editGrob(data$grob[[1]], vp=vp)
-        ggplot2:::ggname("geom_spatial", g)
+        ggname("geom_spatial", g)
       },
 
       required_aes = c("grob","x","y")

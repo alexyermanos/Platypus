@@ -39,22 +39,14 @@
 #' @examples
 #' \dontrun{
 #' EXAMPLE CODE FOR MORE THAN ONE ANTIGEN TESTED AGAINST 3 DIFFERENT AB SEQUENCES
-#' first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences will be tested against fasta_path_2.fasta antigen.
+#' first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences
+#' will be tested against fasta_path_2.fasta antigen.
 #AlphaFold_prediction(VDJ.mixcr.out = df,
 #cells.to.predict = 'ALL',
 #euler.user.name = "alsanzgarcia",
 #dir.name = "trial_unequal",
 #antigen.fasta.path = c("fasta_path_1.fasta","fasta_path_2.fasta","fasta_path_2.fasta")
 #)
-
-#' EXAMPLE CODE FOR ONLY ONE ANTIGEN (regardless of how many antibody sequences there are)
-#AlphaFold_prediction(VDJ.mixcr.out = df,
-#cells.to.predict = 'ALL',
-#euler.user.name = "alsanzgarcia",
-#dir.name = "trial_unequal",
-#antigen.fasta.path = "fasta_path_1.fasta"
-#)
-#'
 #' }
 
 AlphaFold_prediction <- function(VDJ.mixcr.out,
@@ -408,7 +400,9 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
         n_list <- list()
         n_name <- c()
         for(n in 1:n.ranked) {
-          assign("skip", 0, envir=globalenv())
+          pos <- 1
+          envir = as.environment(pos)
+          assign("skip", 0, envir=envir)
           #if there are no ranked files, iterate to next element
           tryCatch(
             #try to do the following command
@@ -418,7 +412,9 @@ AlphaFold_prediction <- function(VDJ.mixcr.out,
             #if an error occurs, tell me the error
             error=function(e) {
               message(paste0("Structure with the rank ",n-1," will not be saved. ",out[i]," will not have results for this rank"))
-              assign("skip", 1, envir=globalenv())
+              pos <- 1
+              envir = as.environment(pos)
+              assign("skip", 1, envir=envir)
             }
 
           )

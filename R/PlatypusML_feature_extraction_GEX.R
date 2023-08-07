@@ -23,23 +23,15 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' To return the encoded gene expression in form of the 20 PCs at the clone level (average expression per clone).
+#' To return the encoded gene expression in form of
+#' the 20 PCs at the clone level
+#' (average expression per clone).
 #' Attaching the "GP33_binder" label to be used in downstream ML models.
-#'
 #' features_PCs_GP33_binder <- PlatypusML_feature_extraction_GEX(
 #' VGM = VGM,
 #' encoding.level = "clone.avg",
 #' which.features = "PCs",
 #' n.PCs = 20,
-#' which.label = "GP33_binder")
-#'
-#' To return the encoded gene expression in form of the 1000 most variable features (genes) at the clone level.
-#' Attaching the "GP33_binder" label to be used in downstream ML models.
-#'
-#' features_varFeatures_GP33_binder <- PlatypusML_features_extraction_GEX(
-#' VGM = VGM,
-#' encoding.level = "clone",
-#' which.features = "varFeatures",
 #' which.label = "GP33_binder")
 #'}
 

@@ -26,7 +26,7 @@ GEX_pairwise_DEGs(
 
 \item{label.n.top.genes}{Integer. Defaults to 50. Defines how many genes are labelled via geom_text_repel. Genes are ordered by adjusted p value and the first label.n.genes are labelled}
 
-\item{genes.to.label}{Character vector. Defaults to "none". Vector of gene names to plot indipendently of their p value. Can be used in combination with label.n.genes.}
+\item{genes.to.label}{Character vector. Defaults to "none". Vector of gene names to plot independently of their p value. Can be used in combination with label.n.genes.}
 
 \item{save.plot}{Boolean. Defaults to False. Whether to save plots as appropriately named .png files}
 
@@ -39,8 +39,9 @@ A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] be
 Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3
 }
 \examples{
+\dontrun{
 GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
 ,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
-,save.plot = FALSE, save.csv = TRUE)
-
+,save.plot = FALSE, save.csv = FALSE)
+}
 }

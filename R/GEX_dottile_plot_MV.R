@@ -12,14 +12,10 @@
 #' @examples
 #' \dontrun{
 #' #To return a plot detailing the expression of common genes by seurat cluster
-#'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
-#'group.by = "seurat_clusters", threshold.to.plot = 5)
-#'
-#'
-#'# EXAMPLE CODE for getting dottile plot for B cell types
-#'
-#'
-#'dottile <- GEX_dottile_plot_MV(GEX = VGM[[2]], genes = c('CD19'), group.by = 'seurat_clusters', threshold.to.plot = 5, gene_module = 'mathew')
+#'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]],
+#'genes = c("CD19","CD83"),
+#'group.by = "seurat_clusters",
+#'threshold.to.plot = 5)
 #'}
 GEX_dottile_plot_MV <- function(GEX,
                              genes,
@@ -137,7 +133,7 @@ GEX_dottile_plot_MV <- function(GEX,
       features = gene_list,
       name = paste0(names(gene_list), "_module"))
     #Plotting
-    plot2 <- Seurat::DotPlot(GEX, features = paste0(names(gene_list), "_module", 1:length(gene_list))) + ggplot2::coord_flip() + ggplot2::RotatedAxis()
+    plot2 <- Seurat::DotPlot(GEX, features = paste0(names(gene_list), "_module", 1:length(gene_list))) + ggplot2::coord_flip() + Seurat::RotatedAxis()
     plot_out <- plot2 + ggplot2::theme(axis.title.y = ggplot2::element_blank(), axis.text.y = ggplot2::element_text(angle = 45, hjust = 1, vjust = 0.1), legend.position = "bottom", legend.direction = "vertical")
 
     return(plot_out)

@@ -6,16 +6,17 @@
 #' @param min.pct Numeric. Defaults to 0.25 passed to Seurat::FindMarkers
 #' @param RP.MT.filter Boolean. Defaults to True. If True, mitochondrial and ribosomal genes are filtered out from the output of Seurat::FindMarkers
 #' @param label.n.top.genes Integer. Defaults to 50. Defines how many genes are labelled via geom_text_repel. Genes are ordered by adjusted p value and the first label.n.genes are labelled
-#' @param genes.to.label Character vector. Defaults to "none". Vector of gene names to plot indipendently of their p value. Can be used in combination with label.n.genes.
+#' @param genes.to.label Character vector. Defaults to "none". Vector of gene names to plot independently of their p value. Can be used in combination with label.n.genes.
 #' @param save.plot Boolean. Defaults to False. Whether to save plots as appropriately named .png files
 #' @param save.csv Boolean. Defaults to False. Whether to save deg tables as appropriately named .csv files
 #' @return A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.
 #' @export
 #' @examples
+#' \dontrun{
 #' GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
 #' ,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
-#' ,save.plot = FALSE, save.csv = TRUE)
-#'
+#' ,save.plot = FALSE, save.csv = FALSE)
+#'}
 
 GEX_pairwise_DEGs <- function(GEX,
                               group.by,

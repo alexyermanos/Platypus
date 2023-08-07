@@ -12,22 +12,22 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' gene.set <- list() # make empty list 
+#' gene.set <- list() # make empty list
 #' gene.set[[1]] <- c("CD19","XBP1","SDC1") # put gene set in list
-#' 
+#'
 #' #Without expression threshold
-#' Spatial_module_expression(sample_names = sample_names,gene.set = gene.set, 
+#' Spatial_module_expression(sample_names = sample_names,gene.set = gene.set,
 #' GEX.out.directory.list = GEX.out.directory.list[[1]],bcs_merge = scaling_parameters[[10]],
 #' images_tibble = scaling_parameters[[5]], threshold = "No")
-#' 
+#'
 #' #With expression threshold
-#' Spatial_module_expression(sample_names = sample_names,gene.set = gene.set, 
+#' Spatial_module_expression(sample_names = sample_names,gene.set = gene.set,
 #' GEX.out.directory.list = GEX.out.directory.list[[1]],bcs_merge = scaling_parameters[[10]],
 #' images_tibble = scaling_parameters[[5]], threshold = 1)
 #' }
 
 Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list,bcs_merge,images_tibble,title,size,threshold,legend_title){
-  
+
   if (missing(threshold)){
     threshold = "No"
   }
@@ -45,9 +45,9 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
   if(missing(bcs_merge)) stop("Please provide bcs_merge input for this function")
   if(missing(gene.set)) stop("Please provide gene.set input for this function")
   if(missing(GEX.out.directory.list)) stop("Please provide GEX.out.directory.list input for this function")
-  
-  platypus.version <- "v3" 
-  
+
+  platypus.version <- "v3"
+
   barcode = NULL
   module = NULL
   imagerow = NULL
@@ -59,7 +59,12 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
   seurat_data_frame<-NULL
   coordinates<-NULL
   module_data_frame<-NULL
-  
+
+  ggname <- function(prefix, grob) {
+    grob$name <- grid::grobName(grob, prefix)
+    grob
+  }
+
   geom_spatial <-  function(mapping = NULL,
                             data = NULL,
                             stat = "identity",
@@ -68,7 +73,7 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
                             show.legend = NA,
                             inherit.aes = FALSE,
                             ...) {
-    
+
     GeomCustom <- ggplot2::ggproto(
       "GeomCustom",
       ggplot2::Geom,
@@ -76,17 +81,17 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
         data <- ggplot2::ggproto_parent(ggplot2::Geom, self)$setup_data(data, params)
         data
       },
-      
+
       draw_group = function(data, panel_scales, coord) {
         vp <- grid::viewport(x=data$x, y=data$y)
         g <- grid::editGrob(data$grob[[1]], vp=vp)
-        ggplot2:::ggname("geom_spatial", g)
+        ggname("geom_spatial", g)
       },
-      
+
       required_aes = c("grob","x","y")
-      
+
     )
-    
+
     ggplot2::layer(
       geom = GeomCustom,
       mapping = mapping,
@@ -98,10 +103,10 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
       params = list(na.rm = na.rm, ...)
     )
   }
-  
+
   #Seurat object
   seurat_object<-Seurat::CreateSeuratObject(Seurat::Read10X(GEX.out.directory.list))
-  #this Adds the module score to your object as a Feature 
+  #this Adds the module score to your object as a Feature
   seurat_object <- Seurat::AddModuleScore(object = seurat_object,features = list(gene.set[[1]]))
   seurat_data_frame<-seurat_object@meta.data
   seurat_data_frame$barcode <- row.names(seurat_data_frame)
@@ -110,7 +115,7 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
   coordinates<-bcs_merge
   coordinates<-dplyr::select(coordinates, imagerow, imagecol, barcode)
   module_data_frame<-merge(seurat_data_frame, coordinates, by="barcode")
-  
+
   if (threshold == "No"){
     #Colors
     myPalette <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))
@@ -120,11 +125,11 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
       ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::scale_fill_gradientn(colours = myPalette(100))+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                            dplyr::filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                            dplyr::filter(sample ==sample_names[1]) %>%
                             dplyr::select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                          dplyr::filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                          dplyr::filter(sample ==sample_names[1]) %>%
                           dplyr::select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -133,9 +138,9 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
             axis.title=ggplot2::element_text(size=size))+
       ggplot2::labs(fill = legend_title)+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())
@@ -154,11 +159,11 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
       ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                            dplyr::filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                            dplyr::filter(sample ==sample_names[1]) %>%
                             dplyr::select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                          dplyr::filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                          dplyr::filter(sample ==sample_names[1]) %>%
                           dplyr::select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -169,9 +174,9 @@ Spatial_module_expression<-function(sample_names,gene.set,GEX.out.directory.list
       ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
       ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())

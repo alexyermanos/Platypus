@@ -6,7 +6,7 @@
 #' @param proportion. Vector of size 2 (floats between 0 and 1 that need to sum up to 1). Specifies the proportions for the two classes.
 #' The smaller proportion will be assigned to the minority class by default. Defaults to c(0.5,0.5).
 #' @return This function returns a list containing [["combined"]] summary plot with ROC & confusion matrices, [["ROC"]] the ROC curve, [["confusion"]] confusion matrices for each classifier.
-#' #' @examples
+#' @examples
 #' \dontrun{
 #' To classify and obtain the performance of different models, using extracted and encoded features.
 #'

@@ -66,7 +66,10 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests(VDJ, sequence.type='VDJ.VJ.nt.trimmed', include.germline=T, network.algorithm='tree', resolve.ties=c('close.germline.distance', 'max.expansion'), node.features='OVA_binder', expand.intermediates=T, network.level='intraclonal')
+#' AntibodyForests_MV(VDJ, sequence.type='VDJ.VJ.nt.trimmed',
+#' include.germline=T,
+#' resolve.ties=c('close.germline.distance', 'max.expansion'),
+#' node.features='OVA_binder')
 #'}
 
 
@@ -1010,7 +1013,7 @@ AntibodyForests_MV <- function(VDJ,
       }else{
         alignment <- network_df$network_sequences %>%
           matrix() %>%
-          ape::as.dnabin() %>%
+          ape::as.DNAbin() %>%
           ape::clustal()
 
         phylo_data <- phangorn::read.phyDat(alignment, format='fasta')
@@ -1381,12 +1384,12 @@ AntibodyForests_MV <- function(VDJ,
 
   set.seed(random.seed)
 
-  if(class(VDJ)=='data.frame'){
+  if(inherits(VDJ,'data.frame')){
     VDJ.GEX.matrix <- list()
     VDJ.GEX.matrix[[1]] <- VDJ
     VDJ <- NULL
 
-  }else if(class(VDJ)=='list'){
+  }else if(inherits(VDJ,'list')){
     VDJ.GEX.matrix <- list()
     for(i in 1:length(VDJ)){
       VDJ.GEX.matrix[[i]] <- do.call('rbind', VDJ[[i]])
@@ -1443,7 +1446,7 @@ AntibodyForests_MV <- function(VDJ,
         }
       }
     }
-    if(class(clonotype_dfs)!='list'){
+    if(inherits(clonotype_dfs, 'list') == FALSE){
       temp_list <- list()
       temp_list[[1]] <- clonotype_dfs
       clonotype_dfs <- temp_list

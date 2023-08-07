@@ -267,7 +267,7 @@ Steropodon_properties <- function(steropodon.object,
 
       }else{
         cl <- parallel::makeCluster(cores)
-        steropodon_list <- parallel::parlapply(cl, steropodon_list, partial_function)
+        steropodon_list <- parallel::parLapply(cl, steropodon_list, partial_function)
         parallel::stopCluster(cl)
       }
 

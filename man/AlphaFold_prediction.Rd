@@ -96,8 +96,7 @@ If running prediction on Euler, the function will create a "AlphaFold_Fasta" dir
 \examples{
 \dontrun{
 EXAMPLE CODE FOR MORE THAN ONE ANTIGEN TESTED AGAINST 3 DIFFERENT AB SEQUENCES
-first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences will be tested against fasta_path_2.fasta antigen.
-EXAMPLE CODE FOR ONLY ONE ANTIGEN (regardless of how many antibody sequences there are)
-
+first Ab sequence will be tested against fasta_path_1.fasta and last two Ab sequences
+will be tested against fasta_path_2.fasta antigen.
 }
 }

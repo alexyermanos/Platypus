@@ -42,9 +42,9 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
   if (missing(density)){
     density = FALSE
   }
-  
-  platypus.version <- "v3" 
-  
+
+  platypus.version <- "v3"
+
   x = NULL
   y = NULL
   cell.state = NULL
@@ -55,7 +55,12 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
   width = NULL
   height = NULL
   ..level.. = NULL
-  
+
+  ggname <- function(prefix, grob) {
+    grob$name <- grid::grobName(grob, prefix)
+    grob
+  }
+
   geom_spatial <-  function(mapping = NULL,
                             data = NULL,
                             stat = "identity",
@@ -64,7 +69,7 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
                             show.legend = NA,
                             inherit.aes = FALSE,
                             ...) {
-    
+
     GeomCustom <- ggplot2::ggproto(
       "GeomCustom",
       ggplot2::Geom,
@@ -72,17 +77,17 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
         data <- ggplot2::ggproto_parent(ggplot2::Geom, self)$setup_data(data, params)
         data
       },
-      
+
       draw_group = function(data, panel_scales, coord) {
         vp <- grid::viewport(x=data$x, y=data$y)
         g <- grid::editGrob(data$grob[[1]], vp=vp)
-        ggplot2:::ggname("geom_spatial", g)
+        ggname("geom_spatial", g)
       },
-      
+
       required_aes = c("grob","x","y")
-      
+
     )
-    
+
     ggplot2::layer(
       geom = GeomCustom,
       mapping = mapping,
@@ -94,7 +99,7 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
       params = list(na.rm = na.rm, ...)
     )
   }
-  
+
   GEX_celltype<-bcs_merge
   names(GEX_celltype)[6]<-"y"
   names(GEX_celltype)[7]<-"x"
@@ -119,17 +124,17 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
   } else if(unclassified_cells == FALSE){
     GEX_celltype <- dplyr::filter(GEX_celltype, cell.state != "Unclassified")
   }
-  
+
   plot<-ggplot2::ggplot(data = GEX_celltype, ggplot2::aes(x=x,y=y, fill = as.factor(cell.state)))+
     geom_spatial(data=images_tibble[1,], ggplot2::aes(grob=grob), x=0.5, y=0.5)+
     ggplot2::geom_point(shape=21, colour = "black", size = 1.75, stroke = 0.5)+
     ggplot2::coord_cartesian(expand=FALSE)+
     ggplot2::scale_fill_discrete(guide = ggplot2::guide_legend(reverse=TRUE))+
-    ggplot2::xlim(0,max(bcs_merge %>% 
-                          dplyr::filter(sample ==sample_names[1]) %>% 
+    ggplot2::xlim(0,max(bcs_merge %>%
+                          dplyr::filter(sample ==sample_names[1]) %>%
                           dplyr::select(width)))+
-    ggplot2::ylim(max(bcs_merge %>% 
-                        dplyr::filter(sample ==sample_names[1]) %>% 
+    ggplot2::ylim(max(bcs_merge %>%
+                        dplyr::filter(sample ==sample_names[1]) %>%
                         dplyr::select(height)),0)+
     ggplot2::xlab("") +
     ggplot2::ylab("") +
@@ -140,13 +145,13 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
     ggplot2::guides(fill = ggplot2::guide_legend(override.aes = list(size=3)))+
     ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
     ggplot2::theme(legend.key = ggplot2::element_rect(fill = "white"))+
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
-          panel.background = ggplot2::element_blank(), 
+          panel.background = ggplot2::element_blank(),
           axis.line = ggplot2::element_line(colour = "black"),
           axis.text = ggplot2::element_blank(),
           axis.ticks = ggplot2::element_blank())
-  
+
   if (density == FALSE){
     return(plot)
   } else if (density == TRUE){
@@ -155,11 +160,11 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
       ggplot2::coord_cartesian(expand=FALSE)+
       ggplot2::stat_density_2d(ggplot2::aes(fill = ..level..), alpha = 0.2, geom = "polygon", colour="white")+
       ggplot2::scale_fill_viridis_c()+
-      ggplot2::xlim(0,max(bcs_merge %>% 
-                            dplyr::filter(sample ==sample_names[1]) %>% 
+      ggplot2::xlim(0,max(bcs_merge %>%
+                            dplyr::filter(sample ==sample_names[1]) %>%
                             dplyr::select(width)))+
-      ggplot2::ylim(max(bcs_merge %>% 
-                          dplyr::filter(sample ==sample_names[1]) %>% 
+      ggplot2::ylim(max(bcs_merge %>%
+                          dplyr::filter(sample ==sample_names[1]) %>%
                           dplyr::select(height)),0)+
       ggplot2::xlab("") +
       ggplot2::ylab("") +
@@ -168,9 +173,9 @@ Spatial_celltype_plot<-function(sample_names,bcs_merge,images_tibble, vgm_GEX,  
             axis.title=ggplot2::element_text(size=size))+
       ggplot2::labs(fill = "Density")+
       ggplot2::theme_set(ggplot2::theme_bw(base_size = size))+
-      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
             panel.grid.minor = ggplot2::element_blank(),
-            panel.background = ggplot2::element_blank(), 
+            panel.background = ggplot2::element_blank(),
             axis.line = ggplot2::element_line(colour = "black"),
             axis.text = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank())

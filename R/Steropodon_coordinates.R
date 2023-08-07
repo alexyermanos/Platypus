@@ -75,10 +75,6 @@ Steropodon_coordinates <- function(steropodon.object,
       nPCs <- missMDA::estim_ncpPCA(feature.matrix)
       feature.matrix <- missMDA::imputePCA(feature.matrix, method = 'EM', ncp = nPCs$ncp, scale = FALSE)
 
-    }else if(feature.imputation == 'nipals'){
-      nPCs <- missMDA::estim_ncpPCA(feature.matrix)
-      ade4::nipals(feature.matrix)
-
     }else{
       stop('More feature imputation method will be added in the next updates!')
     }

@@ -42,8 +42,8 @@ public_cell_analysis <- function(normalize_y_n,find_public_cells_output,
 
 
   #To create plots load packages
-  library(viridis)
-  library(hrbrthemes)
+  #library(viridis)
+  #library(hrbrthemes)
 
   vgm <- find_public_cells_output[[1]]
   vdj <- vgm[[1]]
@@ -77,14 +77,14 @@ public_cell_analysis <- function(normalize_y_n,find_public_cells_output,
 
 
     #Create a plot of the public cell counts split by sample id
-    overlap_types_barplot <- ggplot(overlap_type_counts, aes(fill = `Overlap Type`, y = counts, x = `sample`)) + geom_bar(position="stack", stat="identity") +ggtitle("Overlap Type Counts - Single Cell Level")+ xlab("") + ylab("") + scale_fill_viridis(discrete = T) + theme_ipsum() + theme(plot.title = element_text(hjust = 0.5))  + geom_text(aes(label=counts), position = position_stack(vjust= 0.8),colour = "red", size = 4) #Add cell numbers
+    overlap_types_barplot <- ggplot(overlap_type_counts, ggplot2::aes(fill = `Overlap Type`, y = counts, x = `sample`)) + ggplot2::geom_bar(position="stack", stat="identity") +ggtitle("Overlap Type Counts - Single Cell Level")+ xlab("") + ylab("") + viridis::scale_fill_viridis(discrete = T) + theme_ipsum() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))  + ggplot2::geom_text(aes(label=counts), position = position_stack(vjust= 0.8),colour = "red", size = 4) #Add cell numbers
 
     #Create a plot of the public cell frequency split by sample id
-    overlap_types_scaled_barplot <- ggplot(overlap_type_counts, aes(fill = `Overlap Type`, y = scaled_counts, x = `sample`)) + geom_bar(position="stack", stat="identity") +ggtitle("Overlap Type Frequency - Single Cell Level")+ xlab("") + ylab("") + scale_fill_viridis(discrete = T) + theme_ipsum() + theme(plot.title = element_text(hjust = 0.5)) + geom_text(aes(label=paste0(scaled_counts, "%")), position = position_stack(vjust= 0.8),colour = "red", size = 4) #
+    overlap_types_scaled_barplot <- ggplot(overlap_type_counts, ggplot2::aes(fill = `Overlap Type`, y = scaled_counts, x = `sample`)) + ggplot2::geom_bar(position="stack", stat="identity") +ggtitle("Overlap Type Frequency - Single Cell Level")+ xlab("") + ylab("") + viridis::scale_fill_viridis(discrete = T) + theme_ipsum() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::geom_text(aes(label=paste0(scaled_counts, "%")), position = ggplot2::position_stack(vjust= 0.8),colour = "red", size = 4) #
 
     if(save.plot == TRUE){
-      ggsave(overlap_types_barplot, filename = "overlap_types_barplot.png", dpi = 400, width = 12.0, height = 9.48)
-      ggsave(overlap_types_scaled_barplot, filename = "overlap_types_scaled_barplot.png", dpi = 400, width = 12.0, height = 9.48)
+      ggplot2::ggsave(overlap_types_barplot, filename = "overlap_types_barplot.png", dpi = 400, width = 12.0, height = 9.48)
+      ggplot2::ggsave(overlap_types_scaled_barplot, filename = "overlap_types_scaled_barplot.png", dpi = 400, width = 12.0, height = 9.48)
     }
 
     tmp <- list(overlap_types_barplot, overlap_types_scaled_barplot)

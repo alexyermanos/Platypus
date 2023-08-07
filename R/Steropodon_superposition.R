@@ -85,7 +85,7 @@ Steropodon_superposition <- function(steropodon.object,
 
         }else{
           cl <- parallel::makeCluster(cores)
-          pdb_list <- parallel::parlapply(cl, pdb_list, partial_function)
+          pdb_list <- parallel::parLapply(cl, pdb_list, partial_function)
           parallel::stopCluster(cl)
         }
 
@@ -107,7 +107,7 @@ Steropodon_superposition <- function(steropodon.object,
 
         }else{
           cl <- parallel::makeCluster(cores)
-          pdb_list <- parallel::parlapply(cl, pdb_list, partial_function)
+          pdb_list <- parallel::parLapply(cl, pdb_list, partial_function)
           parallel::stopCluster(cl)
         }
 

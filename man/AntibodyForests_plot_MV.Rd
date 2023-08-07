@@ -91,7 +91,9 @@ AntibodyForests_plot takes the input of AntibodyForests and outputs a list of pl
 }
 \examples{
 \dontrun{
-AntibodyForests_plot(graphs, node.color='clonotype_id', node.size='scaleByExpansion', network.layout='tree', save.pdf=T)
+AntibodyForests_plot_MV(graphs, node.color='clonotype_id',
+node.size='scaleByExpansion',
+network.layout='tree', save.pdf=FALSE)
 }
 }
 \seealso{

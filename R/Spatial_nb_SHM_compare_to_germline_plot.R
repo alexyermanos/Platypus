@@ -48,6 +48,11 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
   width <- NULL
   height <- NULL
 
+  ggname <- function(prefix, grob) {
+    grob$name <- grid::grobName(grob, prefix)
+    grob
+  }
+
   geom_spatial <-  function(mapping = NULL,
                             data = NULL,
                             stat = "identity",
@@ -68,7 +73,7 @@ Spatial_nb_SHM_compare_to_germline_plot<-function(simulation = c(TRUE,FALSE),vgm
       draw_group = function(data, panel_scales, coord) {
         vp <- grid::viewport(x=data$x, y=data$y)
         g <- grid::editGrob(data$grob[[1]], vp=vp)
-        ggplot2:::ggname("geom_spatial", g)
+        ggname("geom_spatial", g)
       },
 
       required_aes = c("grob","x","y")

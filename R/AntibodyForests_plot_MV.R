@@ -38,7 +38,9 @@
 #' @seealso AntibodyForests, AntibodyForests_metrics
 #' @examples
 #' \dontrun{
-#' AntibodyForests_plot(graphs, node.color='clonotype_id', node.size='scaleByExpansion', network.layout='tree', save.pdf=T)
+#' AntibodyForests_plot_MV(graphs, node.color='clonotype_id',
+#' node.size='scaleByExpansion',
+#' network.layout='tree', save.pdf=FALSE)
 #'}
 
 
@@ -403,7 +405,7 @@ AntibodyForests_plot_MV <- function(network.list,
 
       }else{
         breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-        pal <- dichromat::colorRampPalette(c('cornflowerblue','darkblue'))
+        pal <- grDevices::colorRampPalette(c('cornflowerblue','darkblue'))
         unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
       }
 
@@ -419,7 +421,7 @@ AntibodyForests_plot_MV <- function(network.list,
 
       }else{
         breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-        pal <- dichromat::colorRampPalette(c('cornflowerblue','darkblue'))
+        pal <- grDevices::colorRampPalette(c('cornflowerblue','darkblue'))
         unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
       }
 
@@ -448,7 +450,7 @@ AntibodyForests_plot_MV <- function(network.list,
         }
 
         breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-        pal <- dichromat::colorRampPalette(c(c1, c2))
+        pal <- grDevices::colorRampPalette(c(c1, c2))
         unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
         names(unique_feature_colors) <- unique_features
         specific.node.colors <- unique_feature_colors
@@ -546,7 +548,7 @@ AntibodyForests_plot_MV <- function(network.list,
 
           }else{
             breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-            pal <- dichromat::colorRampPalette(c('darkolivegreen1','darkolivegreen4'))
+            pal <- grDevices::colorRampPalette(c('darkolivegreen1','darkolivegreen4'))
             unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
           }
 
@@ -574,7 +576,7 @@ AntibodyForests_plot_MV <- function(network.list,
             }
 
             breaks <- length(unique_features) #Could try per-clonotype breaks instead of global breaks (or default to ggraph plotting)
-            pal <- dichromat::colorRampPalette(c(c1, c2))
+            pal <- grDevices::colorRampPalette(c(c1, c2))
             unique_feature_colors <- pal(breaks)[as.numeric(cut(unique_features, breaks = breaks))]
             names(unique_feature_colors) <- unique_features
             specific.cell.colors <- unique_feature_colors
