@@ -87,7 +87,7 @@ GEX_pairwise_DEGs <- function(GEX,
       ggplot2::ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 300, width = 12, height = 12)
     }
     if(save.csv == T){
-      write.csv(degs, file = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".csv"))
+      utils::write.csv(degs, file = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".csv"))
     }
     degs.list[[i]] <- degs
     plot.list[[i]] <- plot.out

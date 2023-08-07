@@ -97,8 +97,8 @@ AntibodyForests_MV <- function(VDJ,
                             random.seed,
                             parallel,
                             as.igraph){
-  
-  
+
+  adjacency_matrix <- NULL
   if(missing(VDJ)) stop('Please input your data as VDJ/df per clonotype list')
   if(missing(sequence.type)) sequence.type <- 'VDJ.VJ.nt.trimmed'
   if(missing(include.germline)) include.germline <- 'trimmed.ref'
@@ -126,8 +126,8 @@ AntibodyForests_MV <- function(VDJ,
   if(missing(random.seed)) random.seed <- 1
   if(missing(parallel)) parallel <- T
   if(missing(as.igraph)) as.igraph <- T
-  
-  
+
+
   #Global repertoire networks option:
   if(network.algorithm == 'global'){
     network.algorithm <- 'prune.distance'
@@ -136,13 +136,13 @@ AntibodyForests_MV <- function(VDJ,
     network.level <- 'global'
     keep.largest.cc <- T
   }
-  
-  
+
+
   features_to_select <- c('sample_id', 'clonotype_id')
   features_to_select <- unique(c(features_to_select, node.features))
-  
-  
-  setClass('AntibodyForests',
+
+
+  methods::setClass('AntibodyForests',
            slots = c(
              tree = 'ANY', #in
              sample_id = 'ANY', #in
@@ -168,112 +168,112 @@ AntibodyForests_MV <- function(VDJ,
              permuted_transitions = 'ANY'
            )
   )
-  
-  setMethod(f='show', signature='AntibodyForests',
+
+  methods::setMethod(f='show', signature='AntibodyForests',
             definition=function(object) {
               cat('AntibodyForests object', '\n')
-              
+
               cat(length(which(object@node_features$node_type == 'sequence')), ' sequence nodes across ', length(object@sample_id), ' sample(s) and ', length(object@clonotype_id), ' clonotype(s)', '\n')
-              
+
               if(any(object@node_features$node_type == 'intermediate')){
                 cat(length(which(object@node_features$node_type == 'intermediate')), ' intermediate nodes', '\n')
               }
-              
+
               if(any(object@node_features$node_type == 'inferred')){
                 cat(length(which(object@node_features$node_type == 'inferred')), ' inferred sequence nodes', '\n')
               }
-              
+
               if(any(object@node_features$node_type == 'bulk')){
                 cat(length(which(object@node_features$node_type == 'bulk')), ' bulk sequence nodes', '\n')
               }
-              
+
               cat(length(which(object@node_features$node_type == 'sequence')) + length(which(object@node_features$node_type == 'intermediate')) + length(which(object@node_features$node_type == 'inferred')) + length(which(object@node_features$node_type == 'bulk')),
                   ' total network nodes', '\n'
               )
-              
-              
+
+
               cat('Sample id(s): ', paste0(object@sample_id, collapse = ', '), '\n')
-              
+
               cat('Clonotype id(s): ', paste0(object@clonotype_id, collapse = ', '), '\n')
-              
+
               networks <- c(object@network_algorithm)
-              
+
               if(!is.null(object@plot_ready)){
                 networks <- c(networks, 'plot_ready')
               }
-              
+
               if(!is.null(object@phylo)){
                 networks <- c(networks, 'phylo')
               }
-              
+
               if(!is.null(object@heterogeneous)){
                 networks <- c(networks, 'heterogeneous')
-                
+
               }
-              
+
               if(!is.null(object@reactivity)){
                 networks <- c(networks, 'reactivity')
-                
+
               }
-              
+
               if(!is.null(object@dynamic)){
                 networks <- c(networks, 'dynamic')
               }
-              
-              
+
+
               if(!is.null(object@metrics)){
                 networks <- c(networks, 'metrics')
-                
+
               }
-              
+
               if(!is.null(object@node_transitions)){
                 networks <- c(networks, 'node_transitions')
-                
+
               }
-              
+
               if(!is.null(object@paths)){
                 networks <- c(networks, 'paths')
               }
-              
+
               cat('Networks/analyses available: ', paste0(networks, collapse = ', '))
-              
+
               cat('\n')
-              
+
               cat('\n')
-              
+
               cat('\n')
-              
+
             }
   )
   get_sequence_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';'){
     if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
     if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
-    
+
     ccombs <- expand.grid(x,y)
     ccombs<-paste0(ccombs[,1], ccombs[,2])
     ccombs <- paste0(ccombs, collapse=collapse.by)
-    
+
     return(ccombs)
   }
-  
+
   extract_MIXCR <- function(VDJ.matrix, chain.to.extract, as.nucleotide, regions.to.extract){
     if(missing(VDJ.matrix)) stop('Input the VDJ dataframe obtained after calling VDJ_call_MIXCR')
     if(missing(chain.to.extract)) chain.to.extract <- 'VDJ.VJ'
     if(missing(as.nucleotide)) as.nucleotide <- T
     if(missing(regions.to.extract)) regions.to.extract <- list('FR1', 'CDR1', 'FR2', 'CDR2', 'FR3', 'CDR3', 'FR4')
-    
-    
+
+
     VDJ.matrix$mixcr_assembled <- rep('', nrow(VDJ.matrix))
-    
+
     if(!('VDJ_SHM' %in% colnames(VDJ.matrix))) stop('Please use the output of the VDJ_call_MIXCR function')
-    
+
     if(chain.to.extract!='VDJ.VJ'){
       if(as.nucleotide){
         col_name <- paste0(chain.to.extract, '_nSeq')
       }else{
         col_name <- paste0(chain.to.extract, '_aaSeq')
       }
-      
+
       for(region in regions.to.extract){
         VDJ.matrix$mixcr_assembled <- paste0(VDJ.matrix$mixcr_assembled, gsub('_', '', VDJ.matrix[, paste0(col_name, region)]))
       }
@@ -285,18 +285,18 @@ AntibodyForests_MV <- function(VDJ,
       }
       extracted_VDJ <- rep('', nrow(VDJ.matrix))
       extracted_VJ <- rep('', nrow(VDJ.matrix))
-      
+
       for(region in regions.to.extract){
         extracted_VDJ <- paste0(extracted_VDJ, gsub('_', '', VDJ.matrix[,paste0('VDJ',col_name, region)]))
         extracted_VJ <- paste0(extracted_VJ, gsub('_', '', VDJ.matrix[,paste0('VJ',col_name, region)]))
       }
-      
+
       VDJ.matrix$mixcr_assembled <- paste0(extracted_VDJ, extracted_VJ)
-      
+
     }
     return(VDJ.matrix)
   }
-  
+
   transform_clonotype_to_network_df <- function(clonotype_df){
     if(VDJ.VJ.1chain){
       clonotype_df <- clonotype_df[which(clonotype_df$Nr_of_VDJ_chains==1 & clonotype_df$Nr_of_VJ_chains==1),]
@@ -304,166 +304,166 @@ AntibodyForests_MV <- function(VDJ,
         return(NULL)
       }
     }
-    
+
     if(sequence.type=='cdr3.aa'){
       combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_cdr3s_aa, clonotype_df$VJ_cdr3s_aa)
       clonotype_df$network_sequences <- combined_sequences
-      
+
     }else if(sequence.type=='cdr3.nt'){
       combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_cdr3s_nt, clonotype_df$VJ_cdr3s_nt)
       clonotype_df$network_sequences <- combined_sequences
-      
+
     }else if(sequence.type=='VDJ.VJ.nt.trimmed'){
       if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))){
         stop('Please use trim.and.align=T when creating your VGM object')
       }
       combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_trimmed, clonotype_df$VJ_sequence_nt_trimmed)
       clonotype_df$network_sequences <- combined_sequences
-      
+
     }else if(sequence.type=='VDJ.VJ.nt.raw'){
       combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_raw, clonotype_df$VJ_sequence_nt_raw)
       clonotype_df$network_sequences <- combined_sequences
-      
+
     }else if(sequence.type=='mixcr.VDJ.VJ'){
       clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ.VJ')
       clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-      
+
     }else if(sequence.type=='mixcr.VDJ'){
       clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VDJ')
       clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-      
+
     }else if(sequence.type=='mixcr.VJ'){
       clonotype_df <- extract_MIXCR(clonotype_df, chain.to.extract = 'VJ')
       clonotype_df$network_sequences <- clonotype_df$mixcr_assembled
-      
+
     }else if(sequence.type=='VDJ.nt.trimmed'){
       network_sequences <- clonotype_df$VDJ_sequence_nt_trimmed
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VDJ.nt.raw'){
       network_sequences <- clonotype_df$VDJ_sequence_nt_raw
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VDJ.cdr3s.aa'){
       network_sequences <- clonotype_df$VDJ_cdr3s_aa
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VDJ.cdr3s.nt'){
       network_sequences <- clonotype_df$VDJ_cdr3s_nt
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VJ.nt.trimmed'){
       network_sequences <- clonotype_df$VJ_sequence_nt_trimmed
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VJ.nt.raw'){
       network_sequences <- clonotype_df$VJ_sequence_nt_raw
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VJ.cdr3s.aa'){
       network_sequences <- clonotype_df$VJ_cdr3s_aa
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VJ.cdr3s.nt'){
       network_sequences <- clonotype_df$VJ_cdr3s_nt
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VDJ.aa'){
       network_sequences <- clonotype_df$VDJ_sequence_aa
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else if(sequence.type=='VJ.aa'){
       network_sequences <- clonotype_df$VJ_sequence_aa
       clonotype_df$network_sequences <- network_sequences
-      
+
     }else{
       stop('Sequence type unavailable - please check the function documentation for the supported sequence type; or check your spelling :)')
     }
-    
-    
+
+
     all_sequences <- unlist(lapply(clonotype_df$network_sequences, function(x) stringr::str_split(x, ';')))
-    
+
     unique_sequences <- unlist(unique(all_sequences))
     #cell_number <- unlist(lapply(unique_sequences, function(x) length(all_sequences[all_sequences==x])))
     cell_barcodes <- lapply(unique_sequences, function(x) clonotype_df$barcode[which(stringr::str_detect(clonotype_df$network_sequences, x))])
     cell_number <- unlist(lapply(cell_barcodes, function(x) length(x)))
-    
-    
+
+
     network_df <- data.frame(network_sequences = unique_sequences,
                              cell_number = cell_number,
                              cell_barcodes = matrix(cell_barcodes))
-    
+
     minimum.cells <- cell.limits[[1]]
     maximum.cells <- cell.limits[[2]]
-    
+
     if(!is.null(minimum.cells)){
       network_df <- network_df[network_df$cell_number >= minimum.cells,]
     }
-    
+
     if(!is.null(maximum.cells)){
       network_df <- network_df[network_df$cell_number <= minimum.cells,]
     }
-    
+
     if(nrow(network_df) == 0){
       return(NULL)
     }
-    
+
     minimum.sequences <- node.limits[[1]]
     maximum.sequences <- node.limits[[2]]
-    
+
     if(!is.null(minimum.sequences)){
       if(nrow(network_df)<minimum.sequences) {
         return(NULL)
       }
     }
-    
+
     if(!is.null(maximum.sequences)){
       if(nrow(network_df)>maximum.sequences) network_df <- network_df[1:maximum.sequences,]
     }
-    
+
     network_df <- network_df[order(network_df$cell_number, decreasing = T),]
-    
-    
+
+
     for(feature in features_to_select){
       feature_list <- list()
       feature_counts <- list()
       #clonotype_df[[feature]][is.na(clonotype_df[[feature]]) | is.null(clonotype_df[[feature]]) | clonotype_df[[feature]] == ''] <- 'unknown'
-      
+
       for(i in 1:length(network_df$network_sequences)){
         seq <- network_df$network_sequences[i]
         #counts <- lapply(network_df$cell_barcodes[[i]], function(x) clonotype_df[feature][which(clonotype_df$barcode==x),]) %>%
         #          unlist() %>%
         #          table() %>%
         #          c()
-        
+
         counts <- clonotype_df[feature][which(clonotype_df$network_sequences==seq),] %>%
           unlist() %>%
           table() %>%
           c()
-        
+
         feats <- names(counts)
-        
+
         feats <- feats[counts != 0]
         counts <- counts[counts != 0]
-        
+
         if(length(feats) == 0){
           feats <- 'unknown'
         }
-        
+
         if(length(counts) == 0){
           counts <- 1
         }
-        
-        
+
+
         feature_list[[i]] <- feats
         feature_counts[[i]] <- unname(counts)
       }
-      
+
       network_df[[feature]] <- feature_list
-      
+
       network_df[[paste0(feature, '_counts')]] <- feature_counts
     }
-    
+
     if(!is.null(filter.na.features)){
       for(col in filter.na.features){
         if(all(is.na(unlist(network_df[,col])))){
@@ -471,22 +471,22 @@ AntibodyForests_MV <- function(VDJ,
         }
       }
     }
-    
+
     if(!is.null(filter.specific.features)){
       if( !(filter.specific.features[[2]] %in% unlist(network_df[,filter.specific.features[[1]]]))  ) {
         return(NULL)
       }
     }
-    
+
     #Also highlight the most_expanded sequences before joining (otherwise harder to distinguish per unique clonotype)
     network_df$most_expanded <- 'no'
     network_df$most_expanded[1] <- 'yes' #As we prev ordered the sequence frequencies, the most_expandeds are always the first row in a our networks dfs
     #To decide if most expanded should be 1 (and pick the first seq) or multiple (and pick via==max())
-    
+
     #Add this before as it will be used to determine where the sequence and intermediate nodes are in the network dataframe
     network_df$germline <- 'no'
     network_df$sequence_id <- 1:nrow(network_df)
-    
+
     if(!is.null(include.germline)){
       if(include.germline == 'trimmed.ref'){
         if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))){
@@ -499,7 +499,7 @@ AntibodyForests_MV <- function(VDJ,
         unique_germline_seq <- unlist(unique(germline_seq))
         germline_seq_frequencies <- unlist(lapply(unique_germline_seq, function(x) length(which(germline_seq==x))))
         germline_seq <- unique_germline_seq[which.max(germline_seq_frequencies)]
-        
+
         if(germline_seq=='' | is.na(germline_seq) | is.null(germline_seq)){
           return(NULL)
         }
@@ -511,12 +511,12 @@ AntibodyForests_MV <- function(VDJ,
         unique_germline_seq <- unlist(unique(germline_seq))
         germline_seq_frequencies <- unlist(lapply(unique_germline_seq, function(x) length(which(germline_seq==x))))
         germline_seq <- unique_germline_seq[which.max(germline_seq_frequencies)]
-        
+
         if(germline_seq=='' | is.na(germline_seq) | is.null(germline_seq)){
           return(NULL)
         }
       }
-      
+
       network_df <- rbind(network_df, rep(NA, ncol(network_df)))
       network_df$germline[nrow(network_df)] <- 'yes'
       network_df$network_sequences[nrow(network_df)] <- germline_seq
@@ -525,53 +525,53 @@ AntibodyForests_MV <- function(VDJ,
       network_df$cell_number[nrow(network_df)] <- NA
       network_df$cell_barcodes[nrow(network_df)] <- 'germline'
       network_df$most_expanded[nrow(network_df)] <- 'germline'
-      
+
       #Add distance from germline before joining networks...more efficient downstream integration into AntibodyForests_metrics (otherwise would have to get unique germlines per clonotypes using the clonotype_ids...but this way it's easier)
       network_df$distance_from_germline <- stringdist::stringdistmatrix(network_df$network_sequences, germline_seq)
     }
-    
+
     #Add sequence ids/labels
     network_df$sequence_id <- 1:nrow(network_df)
-    
+
     return(network_df)
   }
-  
-  
+
+
   calculate_adjacency_matrix_tree <- function(network_df){
-    
+
     sequences <- network_df$network_sequences
     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
     diag(distance_matrix) <- Inf
     final_adjacency_matrix <- matrix(0, nrow(distance_matrix), ncol(distance_matrix))
     diag(final_adjacency_matrix) <- Inf
-    
-    
+
+
     nodes_in_network <- NULL
     nodes_not_in_network <- 1:ncol(distance_matrix)
     all_nodes <- 1:ncol(distance_matrix)
-    
-    
+
+
     if(!is.null(include.germline)){
       germline_node <- ncol(distance_matrix)
-      
+
       if(connect.germline.to=='min.adjacent'){
         adjacent_nodes <- which(distance_matrix[germline_node,]==min(distance_matrix[germline_node,]))
-        
+
       }else if(connect.germline.to=='threshold.adjacent' & !is.null(pruning.threshold[1])){
         adjacent_nodes <- which(distance_matrix[germline_node,]<=pruning.threshold[1])
       }
-      
+
       for(node in adjacent_nodes){
         if(!weighted.germline) { edge_weight <- 1 }
         else { edge_weight <-  distance_matrix[node,germline_node] }
-        
+
         final_adjacency_matrix[germline_node, node] <- edge_weight
-        
+
         if(!directed){
           final_adjacency_matrix[node, germline_node] <- edge_weight
         }
       }
-      
+
       nodes_not_in_network <- 1:(ncol(distance_matrix)-1)
       all_nodes <- 1:(ncol(distance_matrix)-1)
       distance_matrix_w_germline <- distance_matrix
@@ -580,25 +580,25 @@ AntibodyForests_MV <- function(VDJ,
       nodes_in_network <- unique(c(nodes_in_network, adjacent_nodes))
       nodes_not_in_network <- nodes_not_in_network[-nodes_in_network]
     }
-    
+
     while(length(nodes_not_in_network)>0){
       distance_matrix_copy <-  distance_matrix
-      
+
       if(length(nodes_not_in_network)!=length(all_nodes)){
         distance_matrix_copy[nodes_not_in_network,] <- Inf
         distance_matrix_copy[,nodes_in_network] <- Inf
       }
-      
-      
+
+
       current_edge_weight <- min(distance_matrix_copy)
       current_potential_node_pairs <- which(distance_matrix_copy==min(distance_matrix_copy), arr.ind=T)
-      
+
       if(weighted.edges){
         edge_weight <- current_edge_weight
       }else{
         edge_weight <- 1
       }
-      
+
       if(nrow(current_potential_node_pairs)!=1){
         current_potential_node_pairs <- c(as.data.frame(t(current_potential_node_pairs)))
         if(is.null(resolve.ties)){
@@ -606,188 +606,188 @@ AntibodyForests_MV <- function(VDJ,
           for(node_pair in current_potential_node_pairs){
             in_network <- node_pair[which(node_pair %in% nodes_in_network)]
             not_in_network <- node_pair[which(!(node_pair %in% nodes_in_network))]
-            
+
             final_adjacency_matrix[in_network, not_in_network] <- edge_weight
-            
+
             if(!directed){
               final_adjacency_matrix[not_in_network, in_network] <- edge_weight
             }
             just_added <- unique(c(just_added, in_network, not_in_network))
           }
-          
+
           nodes_in_network <- unique(c(nodes_in_network, just_added))
           nodes_not_in_network <- all_nodes[-nodes_in_network]
           next
-          
+
         }else{
           for(tie_algorithm in resolve.ties){
             if(length(current_potential_node_pairs)==1){
               break
             }
-            
+
             if(tie_algorithm=='first'){
-              
+
               current_potential_node_pairs <- current_potential_node_pairs[1]
-              
+
             }else if(tie_algorithm=='random'){
-              
+
               sampled_index <- sample(1:length(current_potential_node_pairs), 1)
               current_potential_node_pairs <- current_potential_node_pairs[sampled_index]
-              
+
             }else if(tie_algorithm=='close.germline.distance' & !is.null(include.germline)){
-              
+
               germline_node <- ncol(distance_matrix)
               avg_distance_per_pair <- unlist(lapply(current_potential_node_pairs, function(x) (distance_matrix_w_germline[x[1], germline_node] + distance_matrix_w_germline[x[2], germline_node])/2 ))
               min_index <- which(avg_distance_per_pair==min(avg_distance_per_pair))
               current_potential_node_pairs <- current_potential_node_pairs[min_index]
-              
-              
+
+
             }else if(tie_algorithm=='close.germline.edges' & !is.null(include.germline)){
-              
+
               germline_node <- ncol(distance_matrix)
               current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(x%in%nodes_in_network)])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               distances_from_germline <- igraph::distances(current_graph, v=unique_nodes, to=germline_node, weights=NA, algorithm='unweighted')
-              
+
               min_index <- which(distances_from_germline==min(distances_from_germline))
               current_potential_node_pairs <- current_potential_node_pairs[min_index]
-              
+
             }else if(tie_algorithm=='close.germline.weighted' & !is.null(include.germline)){
-              
+
               germline_node <- ncol(distance_matrix)
               current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(x%in%nodes_in_network)])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               distances_from_germline <- igraph::distances(current_graph, v=unique_nodes, to=germline_node, weights=NA, algorithm='dijkstra')
-              
+
               min_index <- which(distances_from_germline==min(distances_from_germline))
               current_potential_node_pairs <- current_potential_node_pairs[min_index]
-              
-              
+
+
             }else if(tie_algorithm=='far.germline.distance' & !is.null(include.germline)){
-              
+
               germline_node <- ncol(distance_matrix)
               avg_distance_per_pair <- unlist(lapply(current_potential_node_pairs, function(x) (distance_matrix_w_germline[x[1], germline_node] + distance_matrix_w_germline[x[2], germline_node])/2 ))
               max_index <- which(avg_distance_per_pair==max(avg_distance_per_pair))
               current_potential_node_pairs <- current_potential_node_pairs[max_index]
-              
-              
+
+
             }else if(tie_algorithm=='far.germline.edges' & !is.null(include.germline)){
-              
+
               germline_node <- ncol(distance_matrix)
               current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(x%in%nodes_in_network)])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               distances_from_germline <- igraph::distances(current_graph, v=unique_nodes, to=germline_node, weights=NA, algorithm='unweighted')
-              
+
               max_index <- which(distances_from_germline==max(distances_from_germline))
               current_potential_node_pairs <- current_potential_node_pairs[max_index]
-              
+
             }else if (tie_algorithm=='far.germline.weighted' & !is.null(include.germline)){
-              
+
               germline_node <- ncol(distance_matrix)
               current_graph <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=T, diag=F)
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(x%in%nodes_in_network)])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               distances_from_germline <- igraph::distances(current_graph, v=unique_nodes, to=germline_node, weights=NA, algorithm='dijkstra')
-              
+
               max_index <- which(distances_from_germline==max(distances_from_germline))
               current_potential_node_pairs <- current_potential_node_pairs[max_index]
-              
+
             }else if(tie_algorithm=='max.degree'){
-              
+
               if(is.null(pruning.threshold)){
                 stop('Please input a valid pruning distance threshold to resolve ties; otherwise, all nodes will have the same degree')
               }
-              
+
               pruned_distance_matrix <- distance_matrix_copy
               pruned_distance_matrix[pruned_distance_matrix!=Inf & pruned_distance_matrix>pruning.threshold] <- 0
-              
+
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(!(x%in%nodes_in_network))])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               degree_per_node <- unlist(lapply(unique_nodes, function(x) length(which(pruned_distance_matrix[,x]!= Inf & pruned_distance_matrix[,x]!=0))))
               max_index <- which(degree_per_node==max(degree_per_node))
               current_potential_node_pairs <- current_potential_node_pairs[max_index]
-              
-              
+
+
             }else if(tie_algorithm=='min.degree'){
-              
+
               pruned_distance_matrix <- distance_matrix_copy
               pruned_distance_matrix[pruned_distance_matrix!=Inf & pruned_distance_matrix>pruning.threshold] <- 0
-              
+
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(!(x%in%nodes_in_network))])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               degree_per_node <- unlist(lapply(unique_nodes, function(x) length(which(pruned_distance_matrix[,x]!= Inf & pruned_distance_matrix[,x]!=0))))
-              
+
               min_index <- which(degree_per_node==min(degree_per_node))
-              
+
               current_potential_node_pairs <- current_potential_node_pairs[min_index]
-              
-              
+
+
             }else if(tie_algorithm=='max.expansion'){
-              
+
               expansion_list <- network_df$cell_number
-              
+
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(!(x%in%nodes_in_network))])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               expansion_list <- expansion_list[unique_nodes]
-              
+
               max_index <- which(expansion_list==max(expansion_list))
-              
+
               current_potential_node_pairs <- current_potential_node_pairs[max_index]
-              
-              
+
+
             }else if(tie_algorithm=='min.expansion'){
-              
+
               expansion_list <- network_df$cell_number
-              
+
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(!(x%in%nodes_in_network))])
               unique_nodes <- unname(unlist(unique_nodes))
-              
+
               expansion_list <- expansion_list[unique_nodes]
-              
+
               min_index <- which(expansion_list==min(expansion_list))
-              
+
               current_potential_node_pairs <- current_potential_node_pairs[min_index]
-              
-              
+
+
             }else if(stringr::str_detect(tie_algorithm, '-')){
               tie_algorithm <- unlist(stringr::str_split(tie_algorithm, '-'))
               if(!(tie_algorithm[2] %in% colnames(network_df))){
                 stop('Please input a valid column name for the custom tie-breaking algorithm')
               }
-              
+
               tie_values <- network_df[,tie_algorithm[2]]
               unique_nodes <- lapply(current_potential_node_pairs, function(x) x[which(!(x%in%nodes_in_network))])
               unique_nodes <- unname(unlist(unique_nodes))
               tie_values <- tie_values[unique_nodes]
-              
+
               if(tie_algorithm[1]=='max' & is.numeric(tie_values)){
                 max_index <- which(tie_values==max(tie_values))
                 current_potential_node_pairs <- current_potential_node_pairs[max_index]
-                
+
               }else if(tie_algorithm[1]=='min' & is.numeric(tie_values)){
                 min_index <- which(tie_values==min(tie_values))
                 current_potential_node_pairs <- current_potential_node_pairs[min_index]
-                
+
               }else{
-                
+
                 index <- which(tie_values==tie_algorithm[1])
-                
+
                 if(length(index)==0){
                   index <- 1:length(current_potential_node_pairs)
                 }
-                
+
                 current_potential_node_pairs <- current_potential_node_pairs[index]
-                
+
               }
             }else{
               stop('Not implemented yet')
@@ -795,60 +795,60 @@ AntibodyForests_MV <- function(VDJ,
           }
         }
       }
-      
+
       node_pair <- unname(unlist(current_potential_node_pairs))
-      
+
       in_network <- node_pair[which(node_pair %in% nodes_in_network)]
       not_in_network <- node_pair[which(!(node_pair %in% nodes_in_network))]
-      
+
       if(length(in_network)==0){
         in_network <- node_pair[1]
         not_in_network <- node_pair[2]
       }
-      
+
       final_adjacency_matrix[in_network, not_in_network] <- edge_weight
-      
+
       if(!directed){
         final_adjacency_matrix[not_in_network, in_network] <- edge_weight
       }
-      
+
       nodes_in_network <- unique(c(nodes_in_network, in_network, not_in_network))
       nodes_not_in_network <- all_nodes[-nodes_in_network]
     }
-    
+
     diag(final_adjacency_matrix) <- 0
     distance_matrix <- NULL
     distance_matrix_copy <- NULL
-    
+
     return(final_adjacency_matrix)
   }
-  
-  
+
+
   calculate_adjacency_matrix_prune <- function(network_df){
-    
+
     sequences <- network_df$network_sequences
     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
     diag(distance_matrix) <- Inf
     final_adjacency_matrix <- distance_matrix
     adjacency_matrix_copy <- final_adjacency_matrix
-    
+
     pruning.methods <- unlist(stringr::str_split(network.algorithm, '\\.'))[-1]
-    
+
     for(i in 1:length(pruning.methods)){
       if(pruning.methods[i]=='distance'){
         final_adjacency_matrix[final_adjacency_matrix>pruning.threshold[i]] <- 0
       }else if(pruning.methods[i]=='degree'){
         adjacency_matrix_copy[adjacency_matrix_copy>pruning.threshold[i-1]] <- 0
-        
+
         for(j in 1:ncol(adjacency_matrix_copy)){
           if(length(adjacency_matrix[j,][adjacency_matrix[j,]!=0])<pruning.threshold[i]){
             final_adjacency_matrix[j,] <- 0
             final_adjacency_matrix[,j] <- 0
           }
         }
-        
+
         adjacency_matrix_copy <- NULL
-        
+
       }else if(pruning.methods[i]=='expansion'){
         sequence_counts <- network_df$cell_number
         pruned_nodes <- which(sequence_counts < pruning.threshold[3])
@@ -858,11 +858,11 @@ AntibodyForests_MV <- function(VDJ,
         }
       }
     }
-    
+
     if(!weighted.edges){
       final_adjacency_matrix[final_adjacency_matrix!=0] <- 1
     }
-    
+
     #Post-processing - remove singleton nodes
     if(!is.null(remove.singletons)){
       g <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=TRUE, diag=F)
@@ -872,7 +872,7 @@ AntibodyForests_MV <- function(VDJ,
       g <- igraph::delete_vertices(g, vertices_to_remove)
       final_adjacency_matrix <- as.matrix(igraph::as_adjacency_matrix(g, attr = 'weight'))
     }
-    
+
     if(keep.largest.cc){
       g <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix, mode='undirected', weighted=TRUE, diag=F)
       connected_components <- igraph::components(g)
@@ -882,58 +882,58 @@ AntibodyForests_MV <- function(VDJ,
       g <- igraph::delete_vertices(g, vertices_to_remove)
       final_adjacency_matrix <- as.matrix(igraph::as_adjacency_matrix(g, attr = 'weight'))
     }
-    
-    
+
+
     if(!is.null(include.germline)){
       germline_node <- which(network_df$germline == 'yes')
       if(sum(final_adjacency_matrix[germline_node,]) == 0){
         graph_no_germline <- igraph::graph_from_adjacency_matrix(final_adjacency_matrix[-germline_node, -germline_node], mode='undirected', weighted=T, diag=F)
         connected_components <- igraph::components(graph_no_germline)
-        
+
         if(connect.germline.to=='min.adjacent'){
           adjacent_nodes <- which(distance_matrix[germline_node,]==min(distance_matrix[germline_node,]))
-          
+
           for(node in adjacent_nodes){
             if(!weighted.germline) { edge_weight <- 1 }
             else { edge_weight <-  distance_matrix[node,germline_node] }
-            
+
             final_adjacency_matrix[node, germline_node] <- edge_weight
             final_adjacency_matrix[germline_node, node] <- edge_weight
           }
-          
+
         }else if(connect.germline.to!='min.adjacent'){
           if(connect.germline.to=='largest.connected.component'){
             largest_components <- which(connected_components$csize==max(connected_components$csize))
-            
+
             for(component in largest_components){
               nodes_in_component <- which(connected_components$membership==component)
               adjacent_nodes <- which(distance_matrix[germline_node,nodes_in_component]==min(distance_matrix[germline_node,nodes_in_component]))
-              
+
               for(node in adjacent_nodes){
                 if(weighted.germline){
                   edge_weight <- distance_matrix[node, germline_node]
                 }else{
                   edge_weight <- 1
                 }
-                
+
                 final_adjacency_matrix[node,germline_node] <- edge_weight
                 final_adjacency_matrix[germline_node,node] <- edge_weight
               }
             }
           }else if(connect.germline.to=='all.connected.components'){
             all_components <- unique(connected_components$membership)
-            
+
             for(component in all_components){
               nodes_in_component <- which(connected_components$membership==component)
               adjacent_nodes <- which(distance_matrix[germline_node,nodes_in_component]==min(distance_matrix[germline_node,nodes_in_component]))
-              
+
               for(node in adjacent_nodes){
                 if(weighted.germline){
                   edge_weight <- distance_matrix[node, germline_node]
                 }else{
                   edge_weight <- 1
                 }
-                
+
                 final_adjacency_matrix[node,germline_node] <- edge_weight
                 final_adjacency_matrix[germline_node,node] <- edge_weight
               }
@@ -943,14 +943,14 @@ AntibodyForests_MV <- function(VDJ,
             for(component in all_components){
               nodes_in_component <- which(connected_components$membership==component)
               adjacent_nodes <- which(distance_matrix[germline_node,nodes_in_component]==min(distance_matrix[germline_node,nodes_in_component]))
-              
+
               for(node in adjacent_nodes){
                 if(weighted.germline){
                   edge_weight <- distance_matrix[node, germline_node]
                 }else{
                   edge_weight <- 1
                 }
-                
+
                 final_adjacency_matrix[node,germline_node] <- edge_weight
                 final_adjacency_matrix[germline_node,node] <- edge_weight
               }
@@ -961,151 +961,151 @@ AntibodyForests_MV <- function(VDJ,
         }
       }
     }
-    
+
     return(final_adjacency_matrix)
   }
-  
-  
+
+
   create_phylo_trees <- function(network_df){
     requireNamespace('phangorn')
     requireNamespace('seqinr')
-    
+
     if(nrow(network_df) < 3){
       stop('Ensure you have at least 3 sequences (incl. germline) to create phylogenetic trees - use the node.limits parameter')
     }
-    
+
     phylogenetic_method <- unlist(stringr::str_split(network.algorithm, '\\.'))
     sequences <- network_df$network_sequences
     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation)
     phylo_tree <- ape::nj(distance_matrix)
-    
+
     #Roots at the germline node
     if(!is.null(include.germline)){
       phylo_tree <- phytools::reroot(phylo_tree, node.number=which(network_df$germline=='yes'))
     }
-    
+
     #Algorithms for mp and ml tree reconstruction - must include the mafft directory to perform multiple sequence alignment
     if(phylogenetic_method[3]!='nj'){
-      
+
       if(Sys.which('mafft')!=''){
-        
+
         dir <- './tempdir'
         if(!dir.exists(dir)) dir.create(dir)
-        
+
         #Unique network id to avoid clashes during parallel computation
         network_id <- paste0(unique(network_df$sample_id), '-', unique(network_df$clonotype_id))
         fasta_file <- paste0(dir, '/', network_id, '_', 'tempseq.fasta')
         fasta_aligned <- paste0(dir, '/', network_id, '_', 'tempseq_aligned.fasta')
-        
+
         seqinr::write.fasta(as.list(sequences), names=1:nrow(network_df), file.out=fasta_file)
-        
+
         system(paste0('mafft ', fasta_file, ' > ', fasta_aligned))
-        
+
         phylo_data <- phangorn::read.phyDat(fasta_aligned, format='fasta')
-        
+
         system(paste0('rm -r ', fasta_file))
         system(paste0('rm -r ', fasta_aligned))
-        
-        
+
+
       }else{
         alignment <- network_df$network_sequences %>%
           matrix() %>%
           ape::as.dnabin() %>%
           ape::clustal()
-        
+
         phylo_data <- phangorn::read.phyDat(alignment, format='fasta')
-        
+
       }
-      
+
       if(phylogenetic_method[3]=='mp'){
         phylo_tree <- phangorn::optim.parsimony(phylo_tree, phylo_data)
-        
+
       }else if(phylogenetic_method[3]=='ml'){
         fit <- phangorn::pml(phylo_tree, data=phylo_data)
         fit <- phangorn::optim.pml(fit, TRUE)
         phylo_tree <- fit$tree
-        
+
       }
     }
-    
+
     germline <- which(network_df$germline == 'yes')
-    
+
     if(length(germline) > 0){
       phylo_tree <- phytools::reroot(phylo_tree, node.number = germline)
       phylo_tree <- ape::reorder.phylo(phylo_tree, 'postorder')
-      
+
       edges <- phylo_tree$edge
       mrca_to_germline <- which(edges[, 2] == germline)
       mrca <- edges[mrca_to_germline, 1]
-      
+
       mrca_to_interm <- which(edges[, 1] == mrca & edges[, 2] != germline)
-      
+
       phylo_tree$edge <- phylo_tree$edge[-mrca_to_germline,]
       phylo_tree$edge.length <- phylo_tree$edge.length[-mrca_to_germline]
       phylo_tree$edge[mrca_to_interm][1] <- germline
-      
+
       phylo_tree$edge[,1][phylo_tree$edge[,1] > mrca] <- phylo_tree$edge[,1][phylo_tree$edge[,1] > mrca] - 1
       phylo_tree$edge[,2][phylo_tree$edge[,2] > mrca] <- phylo_tree$edge[,2][phylo_tree$edge[,2] > mrca] - 1
       phylo_tree$Nnode <- phylo_tree$Nnode - 1
     }
-    
+
     g <- igraph::graph_from_edgelist(phylo_tree$edge, directed = directed)
-    
+
     igraph::E(g)$weight <- phylo_tree$edge.length
-    
+
     clonotype_id <- unique(network_df$clonotype_id)
     sample_id <- unique(network_df$sample_id)
-    
+
     for(i in 1:phylo_tree$Nnode){
       network_df <- rbind(network_df, NA)
       network_df$sequence_id[nrow(network_df)] <- 'intermediate'
       network_df$clonotype_id[nrow(network_df)] <- clonotype_id
       network_df$sample_id[nrow(network_df)] <- sample_id
     }
-    
+
     adjacency_matrix <- igraph::as_adjacency_matrix(g, sparse = F, attr = 'weight')
-    
+
     return(list(adjacency_matrix=adjacency_matrix, network_df=network_df))
   }
-  
+
   create_mst_trees <- function(network_df){
-    
+
     sequences <- network_df$network_sequences
     distance_matrix <- stringdist::stringdistmatrix(sequences, sequences, method=distance.calculation) #biggest bottleneck currently (for v large graphs)
     g <- igraph::graph_from_adjacency_matrix(distance_matrix, mode='undirected', weighted=T, diag=F)
     g <- igraph::mst(g)
-    
+
     adjacency_matrix <- igraph::as_adjacency_matrix(g, attr = 'weight')
     return(list(adjacency_matrix=adjacency_matrix, network_df=network_df))
-    
+
   }
-  
+
   expand_intermediates <- function(adjacency.network.list){
     network_df <- adjacency.network.list$network_df
     adjacency_matrix <- adjacency.network.list$adjacency_matrix
-    
+
     if(!directed){
       node_number <- sum(adjacency_matrix)/2 + nrow(adjacency_matrix) - length(which(adjacency_matrix!=0))/2
     }else{
       node_number <- sum(adjacency_matrix) + nrow(adjacency_matrix) - length(which(adjacency_matrix!=0))
     }
-    
+
     added_intermediates <- node_number - nrow(adjacency_matrix)
-    
+
     final_adjacency_matrix <- matrix(0, node_number, node_number)
     final_adjacency_matrix[1:nrow(adjacency_matrix), 1:nrow(adjacency_matrix)] <- adjacency_matrix
-    
+
     new_node <- nrow(adjacency_matrix) + 1
     for(i in 1:nrow(adjacency_matrix)){
       neighbours_to_expand <- which(adjacency_matrix[i, ]>1)
       if(length(neighbours_to_expand)==0){
         next
       }
-      
+
       for(neighbour in neighbours_to_expand){
         edge_weight <- adjacency_matrix[i, neighbour]
         prev_added_node <- i
-        
+
         while(edge_weight>1){
           final_adjacency_matrix[prev_added_node, new_node] <- 1
           if(!directed){
@@ -1115,22 +1115,22 @@ AntibodyForests_MV <- function(VDJ,
           new_node <- new_node + 1
           edge_weight <- edge_weight - 1
         }
-        
+
         final_adjacency_matrix[i, neighbour] <- 0
         final_adjacency_matrix[neighbour, i] <- 0
         adjacency_matrix[i, neighbour] <- 0
         adjacency_matrix[neighbour, i] <- 0
         final_adjacency_matrix[new_node-1, neighbour] <- 1
-        
+
         if(!directed){
           final_adjacency_matrix[neighbour, new_node-1] <- 1
         }
       }
     }
-    
+
     clonotype_id <- unique(network_df$clonotype_id)
     sample_id <- unique(network_df$sample_id)
-    
+
     #Add the intermediate rows into the network_df
     for(i in 1:added_intermediates){
       network_df <- rbind(network_df, NA)
@@ -1138,22 +1138,22 @@ AntibodyForests_MV <- function(VDJ,
       network_df$clonotype_id[nrow(network_df)] <- clonotype_id
       network_df$sample_id[nrow(network_df)] <- sample_id
     }
-    
-    
+
+
     return(list(adjacency_matrix=final_adjacency_matrix, network_df=network_df))
   }
-  
+
   join_trees <- function(adjacency.network.list){ #Tried to parallelize it...but no parallel methods on array chunks (also unsure how to recombine the chunks afterwards)
     adjacency.matrix.list <- lapply(adjacency.network.list, function(x) x$adjacency_matrix)
     network.dfs.list <- lapply(adjacency.network.list, function(x) x$network_df)
-    
+
     if(forest.method=='multiple.germlines' | forest.method=='multiple.germlines.joined'){
       output_df <- do.call('rbind', network.dfs.list)
       nodes_per_network <- unname(lapply(adjacency.matrix.list, function(x) nrow(x)))
       output_matrix_nodes <- sum(unlist(nodes_per_network))
       output_matrix <- matrix(0, output_matrix_nodes, output_matrix_nodes)
       #output_df$sequence_id <- 1:nrow(output_df)
-      
+
       germline_nodes <- which(output_df$germline=='yes')
       m1 <- adjacency.matrix.list[[1]]
       prev_added_node <- 1
@@ -1161,59 +1161,59 @@ AntibodyForests_MV <- function(VDJ,
       output_matrix[prev_added_node:current_node, prev_added_node:current_node] <- m1[1:nrow(m1), 1:nrow(m1)]
       prev_added_node <- current_node + 1
       m1 <- NULL
-      
+
       for(m in adjacency.matrix.list[-1]){
         current_node <- prev_added_node + nrow(m) - 1
         output_matrix[prev_added_node:current_node, prev_added_node:current_node] <- m
         prev_added_node <- current_node + 1
         m<-NULL
       }
-      
+
       if(forest.method=='multiple.germlines.joined'){
         germline_nodes <- which(output_df$germline=='yes')
         germlines <- output_df$network_sequences[germline_nodes]
-        
+
         distance_matrix <- stringdist::stringdistmatrix(germlines, germlines, method='lv')
-        
+
         for(i in 1:(length(germline_nodes)-1)){
           if(!weighted.germline){
             edge_weight <- distance_matrix[i,i+1]
           }else{
             edge_weight <- 1
           }
-          
+
           output_matrix[germline_nodes[i], germline_nodes[i+1]] <- edge_weight
           if(!directed){
             output_matrix[germline_nodes[i+1], germline_nodes[i]] <- edge_weight
           }
         }
       }
-      
+
     }else if(forest.method=='single.germline'){
       output_df <- do.call('rbind', network.dfs.list)
-      
+
       nodes_per_network <- lapply(adjacency.matrix.list, function(x) nrow(x))
       germlines_per_network <- lapply(network.dfs.list, function(x) any(x$germline=='yes'))
-      
+
       output_matrix_nodes <- sum(unlist(nodes_per_network)) - length(which(germlines_per_network==T)) + 1
       output_matrix <- matrix(0, output_matrix_nodes, output_matrix_nodes)
-      
+
       germline_nodes_new <- which(output_df$germline=='yes')
       germline_nodes_original <- as.integer(output_df$sequence_id[germline_nodes_new])
-      
+
       germline_row <- output_df[germline_nodes_new[1], ]
       rownames(germline_row) <- NULL
       output_df <- output_df[which(output_df$germline=='no' | is.na(output_df$germline)),]
       rownames(output_df) <- NULL
       output_df <- rbind(output_df, germline_row)
-      
+
       new_germline_node <- nrow(output_matrix)
       new_germline_sequence <- output_df$network_sequences[new_germline_node]
-      
+
       nodes_connected_to_germline <- mapply(function(x,y) which(x[y,]!=0), adjacency.matrix.list, germline_nodes_original)
       sequences_connected_to_germline <- mapply(function(x,y) x$network_sequences[y], network.dfs.list, nodes_connected_to_germline)
       new_edge_weights <- lapply(sequences_connected_to_germline, function(x) stringdist::stringdistmatrix(unlist(x), new_germline_sequence))
-      
+
       nodes_connected_to_germline
       m1 <- adjacency.matrix.list[[1]]
       prev_added_node <- 1
@@ -1224,7 +1224,7 @@ AntibodyForests_MV <- function(VDJ,
       m1 <- NULL
       matrices <- adjacency.matrix.list[-1]
       output_matrix[new_germline_node,nodes_connected_to_germline[[1]]] <- new_edge_weights[[1]]
-      
+
       if(!directed){
         output_matrix[nodes_connected_to_germline[[1]], new_germline_node] <- new_edge_weights[[1]]
       }
@@ -1233,7 +1233,7 @@ AntibodyForests_MV <- function(VDJ,
         current_node <- prev_added_node + nrow(matrices[[i]]) - 1
         current_node <- current_node - 1
         output_matrix[prev_added_node:current_node, prev_added_node:current_node] <-  matrices[[i]][1:(nrow(matrices[[i]])-1), 1:(nrow(matrices[[i]])-1)]
-        
+
         output_matrix[new_germline_node, unlist(nodes_connected_to_germline[i+1]) + prev_added_node - 1] <- new_edge_weights[[i+1]]
         if(!directed){
           output_matrix[unlist(nodes_connected_to_germline[i+1]) + prev_added_node - 1, new_germline_node] <- new_edge_weights[[i+1]]
@@ -1241,10 +1241,10 @@ AntibodyForests_MV <- function(VDJ,
         prev_added_node <- current_node + 1
       }
     }
-    
+
     return(list(adjacency_matrix = output_matrix, network_df = output_df))
   }
-  
+
   create_network <- function(adjacency.network.list){
     adjacency_matrix <- adjacency.network.list$adjacency_matrix
     network_df <- adjacency.network.list$network_df
@@ -1253,9 +1253,9 @@ AntibodyForests_MV <- function(VDJ,
     }else{
       g<-igraph::graph_from_adjacency_matrix(adjacency_matrix, mode='directed', weighted=T, diag=F)
     }
-    
+
     degrees <- igraph::degree(g, mode='all')
-    
+
     g<-igraph::set_vertex_attr(g, name='label', index=1:nrow(network_df), value=as.factor(1:nrow(network_df)))
     g<-igraph::set_vertex_attr(g, name='network_sequences', index=which(network_df$germline=='no'), value=unlist(network_df$network_sequences[which(network_df$germline=='no')]))
     g<-igraph::set_vertex_attr(g, name='cell_number', index=1:nrow(network_df), value=unlist(network_df$cell_number))
@@ -1263,104 +1263,104 @@ AntibodyForests_MV <- function(VDJ,
     g<-igraph::set_vertex_attr(g, name='most_expanded', index=1:nrow(network_df), value=unlist(network_df$most_expanded))
     g<-igraph::set_vertex_attr(g, name='hub', index=which.max(degrees), value='yes')
     g<-igraph::set_vertex_attr(g, name='hub', index=which(is.na(igraph::V(g)$hub)), value='no')
-    
-    
+
+
     #Also add cell numbers (will see if adding cell_barcodes is necessary)
     g<-igraph::set_vertex_attr(g, name='clonotype_id', index=1:nrow(network_df), value=unlist(network_df$clonotype_id))
     g<-igraph::set_vertex_attr(g, name='sample_id', index=1:nrow(network_df), value=unlist(network_df$sample_id))
     g<-igraph::set_vertex_attr(g, name='cell_barcodes', index=1:nrow(network_df), value=network_df$cell_barcodes)
-    
+
     if(!is.null(include.germline)){
       g<-igraph::set_vertex_attr(g, name='node_type', index=which(network_df$germline=='yes'), value='germline')
       g<-igraph::set_vertex_attr(g, name='distance_from_germline', index=1:nrow(network_df), value=unlist(network_df$distance_from_germline))
       g<-igraph::set_vertex_attr(g, name='network_sequences', index=which(network_df$germline=='yes'), value=unlist(network_df$network_sequences[which(network_df$germline=='yes')]))
       g<-igraph::set_vertex_attr(g, name='cell_number', index=which(network_df$germline=='yes'), value=1)
-      
-      
+
+
     }
-    
+
     if(any(network_df$sequence_id == 'intermediate')){
       g<-igraph::set_vertex_attr(g, name='node_type', index=which(network_df$sequence_id=='intermediate'), value='intermediate')
       g<-igraph::set_vertex_attr(g, name='label', index=which(igraph::V(g)$node_type=='intermediate'), value=NA)
       g<-igraph::set_vertex_attr(g, name='cell_number', index=which(igraph::V(g)$node_type=='intermediate'), value=1)
-      
+
     }
-    
+
     #Add leaf annotation
     if(network.algorithm=='tree'){
       g<-igraph::set_vertex_attr(g, name='leaf', index=which(degrees==1), value='leaf')
       g<-igraph::set_vertex_attr(g, name='leaf', index=which(igraph::V(g)$node_type=='germline'), value='germline')
       g<-igraph::set_vertex_attr(g, name='leaf', index=which(is.na(igraph::V(g)$leaf)), value='internal')
     }
-    
-    
-    
+
+
+
     for(feature in features_to_select){
       if(!(feature %in% c('sample_id', 'clonotype_id'))){
         for(i in 1:nrow(network_df)){
           g<-igraph::set_vertex_attr(g, name=feature, index=i, value=network_df[,feature][i])
           g<-igraph::set_vertex_attr(g, name=paste0(feature, '_counts'), index=i, value=network_df[,paste0(feature, '_counts')][i])
         }
-        
+
         if(!is.null(include.germline)){
           germline_node <- which(igraph::V(g)$node_type=='germline')
           g<-igraph::set_vertex_attr(g, name=paste0(feature), index=germline_node, value='germline')
           g<-igraph::set_vertex_attr(g, name=paste0(feature,'_counts'), index=germline_node, value=1)
-          
+
         }
-        
+
         if(expand.intermediates){
           g<-igraph::set_vertex_attr(g, name=paste0(feature), index=which(igraph::V(g)$node_type=='intermediate'), value='intermediate')
           g<-igraph::set_vertex_attr(g, name=paste0(feature, '_counts'), index=which(igraph::V(g)$node_type=='intermediate'), value=1)
         }
       }
     }
-    
-    
+
+
     return(g)
   }
-  
+
   instantiate_tree_object <- function(g){
-    
+
     node_df <- igraph::as_data_frame(g, what = 'vertices')
     germline_sequence <- node_df$network_sequences[node_df$node_type == 'germline']
     node_df_subset <- node_df[node_df$node_type == 'sequence',]
     #edge_df <- igraph::as_data_frame(g, what = 'edges')
-    
+
     labels <- node_df$labels
-    
+
     network_sequences <- node_df_subset$network_sequences
     names(network_sequences) <- labels
-    
+
     cell_barcodes <- node_df_subset$cell_barcodes
     names(cell_barcodes) <- labels
-    
+
     sample_id <- unlist(unique(node_df$sample_id))
     sample_id <- sample_id[order(nchar(sample_id), sample_id)]
     clonotype_id <- unlist(unique(node_df$clonotype_id))
     clonotype_id <- clonotype_id[order(nchar(clonotype_id), clonotype_id)]
-    
+
     ####optional
     node_df$network_sequences <- NULL
     node_df$cell_barcodes <- NULL
     node_df$sample_id <- NULL
     node_df$clonotype_id <- NULL
     #node_df$node_type <- NULL
-    
+
     list_column_names <- names(sapply(node_df, class)[which(sapply(node_df, class)=='list')])
     list_column_names <- list_column_names[stringr::str_detect(list_column_names, '_counts')]
     list_column_names <- stringr::str_remove(list_column_names, pattern='_counts')
-    
+
     for(col in list_column_names){
       node_df <- node_df[,!(names(node_df) %in% paste0(col, '_counts'))]
     }
-    
+
     if(!as.igraph){
       requireNamespace('tidygraph')
       g <- tidygraph::as_tbl_graph(g)
     }
-    
-    final_object <- new('AntibodyForests',
+
+    final_object <- methods::new('AntibodyForests',
                         tree = g,
                         sample_id = sample_id,
                         clonotype_id = clonotype_id,
@@ -1373,19 +1373,19 @@ AntibodyForests_MV <- function(VDJ,
                         network_algorithm = network.algorithm,
                         feature_names = unlist(node.features)
     )
-    
-    
+
+
     return(final_object)
-    
+
   }
-  
+
   set.seed(random.seed)
-  
+
   if(class(VDJ)=='data.frame'){
     VDJ.GEX.matrix <- list()
     VDJ.GEX.matrix[[1]] <- VDJ
     VDJ <- NULL
-    
+
   }else if(class(VDJ)=='list'){
     VDJ.GEX.matrix <- list()
     for(i in 1:length(VDJ)){
@@ -1393,50 +1393,50 @@ AntibodyForests_MV <- function(VDJ,
     }
     VDJ.GEX.matrix[[1]] <- do.call('rbind', VDJ.GEX.matrix)
   }
-  
+
   sample_dfs <- list()
   output_list <- list()
   global_adjacency_network_list <- list()
   sample_names <- c()
-  
+
   if(network.level!='global.clonotype' & network.level!='global'){
     repertoire.number <- unique(VDJ.GEX.matrix[[1]]$sample_id)
-    
+
     for(i in 1:length(repertoire.number)){
       sample_dfs[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id==repertoire.number[i]),]
       sample_dfs[[i]] <- sample_dfs[[i]]
     }
-    
+
   }else{
     sample_dfs[[1]] <-VDJ.GEX.matrix[[1]]
     repertoire.number <- 'global'
   }
-  
-  
+
+
   if(!is.null(resolve.ties)){
     if(resolve.ties[length(resolve.ties)]!='random' & resolve.ties[length(resolve.ties)]!='first'){
       resolve.ties <- c(resolve.ties, 'first')
     }
   }
-  
+
   for(i in 1:length(sample_dfs)){
-    
+
     sample_dfs[[i]] <- sample_dfs[[i]][order(sample_dfs[[i]]$clonotype_frequency, decreasing=T), ]
-    
+
     if(!(is.numeric(specific.networks))){
       if(specific.networks[1]!='all'){
         unique_clonotypes <- unique(specific.networks)
         sample_dfs[[i]] <- sample_dfs[[i]][which(sample_dfs[[i]]$clonotype_id %in% unique_clonotypes),]
       }
     }
-    
+
     if(network.level!='global'){
       clonotype_dfs <-  split(sample_dfs[[i]], factor(sample_dfs[[i]]$clonotype_id, levels=unique(sample_dfs[[i]]$clonotype_id)))
     }else{
       clonotype_dfs <- sample_dfs[[i]]
       if(is.numeric(specific.networks)){
         selected_clonotypes <- unique(clonotype_dfs$clonotype_id)
-        
+
         if(length(selected_clonotypes) > specific.networks){
           selected_clonotypes <- selected_clonotypes[1:specific.networks]
           clonotype_dfs <- clonotype_dfs[which(clonotype_dfs$clonotype_id %in% selected_clonotypes),]
@@ -1449,149 +1449,149 @@ AntibodyForests_MV <- function(VDJ,
       clonotype_dfs <- temp_list
       temp_list <- NULL
     }
-    
+
     if(parallel){
       requireNamespace('parallel')
       cores <- parallel::detectCores()
-      
+
       network_dfs <- parallel::mclapply(clonotype_dfs, transform_clonotype_to_network_df, mc.cores=cores)
       network_dfs <- network_dfs[!sapply(network_dfs, is.null)]
-      
+
       if(is.null(network_dfs) | length(network_dfs)==0){
         next
       }
-      
+
       if(is.numeric(specific.networks)){
         if(specific.networks < length(network_dfs)){
           network_dfs <- network_dfs[1:specific.networks]
         }
       }
-      
+
       clonotype_names <- lapply(network_dfs, function(x) paste0(unique(unlist(x$clonotype_id))[order(nchar(unlist(unique(x$clonotype_id))),unlist(unique(x$clonotype_id)))], collapse=';'))
       sample_names[i] <- paste0(unlist(unique(lapply(network_dfs, function(x) unique(x$sample_id)))), collapse=';')
-      
+
       #return(network_dfs)
       if(network.algorithm=='tree'){
         adjacency_matrices <- parallel::mclapply(network_dfs, calculate_adjacency_matrix_tree, mc.cores=cores)
         adjacency_network_list <- mapply(function(x,y) list(adjacency_matrix=x, network_df=y), adjacency_matrices, network_dfs, SIMPLIFY=F)
         adjacency_matrices <- NULL
         network_dfs <- NULL
-        
+
       }else if(stringr::str_detect(network.algorithm, 'prune')){
         directed <- F
         adjacency_matrices <- parallel::mclapply(network_dfs, calculate_adjacency_matrix_prune, mc.cores=cores)
         adjacency_network_list <- mapply(function(x,y) list(adjacency_matrix=x, network_df=y), adjacency_matrices, network_dfs, SIMPLIFY=F)
         adjacency_matrices <- NULL
         network_dfs <- NULL
-        
+
       }else if(stringr::str_detect(network.algorithm, 'phylogenetic')){
         adjacency_network_list <- parallel::mclapply(network_dfs, create_phylo_trees, mc.cores=cores)
         unlink('./tempdir', recursive=T)
         network_dfs <- NULL
-        
+
       }else if(network.algorithm == 'mst'){
         directed <- F
         adjacency_network_list <- parallel::mclapply(network_dfs, create_mst_trees, mc.cores=cores)
         network_dfs <- NULL
-        
+
       }else{
         stop('Unknown network.algorithm!')
       }
-      
+
       if(expand.intermediates & !(stringr::str_detect(network.algorithm, 'phylogenetic'))) {
         adjacency_network_list <- parallel::mclapply(adjacency_network_list, expand_intermediates, mc.cores=cores)
       }
-      
+
       if(network.level=='forest.per.sample'){
         adjacency_network_list <- list(join_trees(adjacency_network_list))
         #clonotype_names <- paste0(clonotype_names, collapse=';')
         clonotype_names <- 'joined.per.sample'
       }
-      
+
       if(network.level=='forest.global'){
         global_adjacency_network_list[[i]] <- adjacency_network_list
         next
       }
-      
+
       output_list[[i]] <- parallel::mclapply(adjacency_network_list, create_network, mc.cores=cores)
       output_list[[i]] <- parallel::mclapply(output_list[[i]], instantiate_tree_object, mc.cores=cores)
-      
+
       #output_list[[i]] <- unname(output_list[[i]])
       #output_list[[i]] <- unlist(output_list[[i]])
     }else{
-      
+
       network_dfs <- lapply(clonotype_dfs, function(x) transform_clonotype_to_network_df(x))
       network_dfs <- network_dfs[!sapply(network_dfs, is.null)]
-      
+
       if(is.null(network_dfs) | length(network_dfs)==0){
         next
       }
-      
+
       if(is.numeric(specific.networks)){
         if(specific.networks < length(network_dfs)){
           network_dfs <- network_dfs[1:specific.networks]
         }
       }
-      
+
       clonotype_names <- lapply(network_dfs, function(x) paste0(unique(unlist(x$clonotype_id))[order(nchar(unique(unlist(x$clonotype_id))),unique(unlist(x$clonotype_id)))], collapse=';'))
       sample_names[i] <- paste0(unlist(unique(lapply(network_dfs, function(x) unique(x$sample_id)))), collapse=';')
-      
+
       if(network.algorithm=='tree'){
         adjacency_matrices <- lapply(network_dfs, function(x) calculate_adjacency_matrix_tree(x))
         adjacency_network_list <- mapply(function(x,y) list(adjacency_matrix=x, network_df=y), adjacency_matrices, network_dfs, SIMPLIFY=F)
         adjacency_matrices <- NULL
         network_dfs <- NULL
-        
+
       }else if(stringr::str_detect(network.algorithm, 'prune')){
         adjacency_matrices <- lapply(network_dfs, function(x) calculate_adjacency_matrix_prune(x))
         adjacency_network_list <- mapply(function(x,y) list(adjacency_matrix=x, network_df=y), adjacency_matrices, network_dfs, SIMPLIFY=F)
         adjacency_matrices <- NULL
         network_dfs <- NULL
-        
+
       }else if(stringr::str_detect(network.algorithm, 'phylogenetic')){
         adjacency_network_list <- lapply(network_dfs, function(x) create_phylo_trees(x))
         unlink('./tempdir', recursive=T)
         network_dfs <- NULL
-        
+
       }else if(network.algorithm == 'mst'){
         directed <- F
         adjacency_network_list <- lapply(network_dfs, function(x) create_mst_trees(x))
         network_dfs <- NULL
-        
+
       }else{
         stop('Unknown network.algorithm!')
       }
-      
+
       if(expand.intermediates & !(stringr::str_detect(network.algorithm, 'phylogenetic'))){
         adjacency_network_list <- lapply(adjacency_network_list, function(x) expand_intermediates(x))
       }
-      
+
       if(network.level=='forest.per.sample'){
         adjacency_network_list <- list(join_trees(adjacency_network_list))
         #clonotype_names <- paste0(clonotype_names, collapse=';')
         clonotype_names <- 'joined.per.sample'
       }
-      
+
       if(network.level=='forest.global'){
         global_adjacency_network_list[[i]] <- adjacency_network_list
         next
       }
-      
+
       output_list[[i]] <- lapply(adjacency_network_list, function(x) create_network(x))
       output_list[[i]] <- lapply(output_list[[i]], function(x) instantiate_tree_object(x))
     }
-    
+
     names(output_list[[i]]) <- clonotype_names
     output_list[[i]] <- output_list[[i]][order(nchar(names(output_list[[i]])),names(output_list[[i]]))]
-    
+
   }
-  
+
   if(network.level=='forest.global'){
     adjacency_network_list <- purrr::flatten(global_adjacency_network_list)
-    
+
     adjacency_network_list <- join_trees(adjacency_network_list)
     #names(adjacency_network_list) <- paste0(clonotype_names, collapse='-')
-    
+
     output_list <- create_network(adjacency_network_list)
     output_list <- list(instantiate_tree_object(output_list))
     names(output_list) <- paste0(sample_names[!is.na(sample_names)], collapse=';')
@@ -1599,17 +1599,17 @@ AntibodyForests_MV <- function(VDJ,
     names(output_list) <- paste0(sample_names[!is.na(sample_names)], collapse=';')
     return(output_list)
   }
-  
+
   names(output_list) <- sample_names
   output_list <- output_list[!sapply(output_list, is.null)]
-  
+
   if(length(output_list) == 1){
     if(length(output_list[[1]]) == 1){
       output_list <- output_list[[1]][[1]]
     }
   }
-  
+
   #output_list <- purrr::flatten(output_list)
-  
+
   return(output_list)
 }

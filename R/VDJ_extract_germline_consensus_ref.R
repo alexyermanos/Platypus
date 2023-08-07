@@ -10,7 +10,7 @@
 #' @param path_tOData str, denoting the folder containing the VDJ folder with VDJ information per sample
 #' @return $vdj: VDJ containing the VDJ/VJ_ref.nt/aa columns if ref = TRUE and the full_VDJ, full_VJ columns with the fr1-fr4. $clones: clone_ids for which a reference was made.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' samples = c('LCMV', 'TNFR')
 #' vgm = read("VGM.RData")
 #' n_clones = 20

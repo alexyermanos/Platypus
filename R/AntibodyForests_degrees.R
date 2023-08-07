@@ -46,7 +46,8 @@ AntibodyForests_degrees <- function(trees,
   if(missing(parallel)) parallel <- F
   if(missing(plot.type)) plot.type <- 'barplot' #Or histogram
 
-
+  original_graph <- NULL
+  degree <- NULL
   get_feature_names <- function(trees, features){
 
    if(is.null(features)){
@@ -191,7 +192,7 @@ AntibodyForests_degrees <- function(trees,
   degree_histogram <- function(degree_df){
 
     out_plot <- ggplot2::ggplot(degree_df, ggplot2::aes(x = degree)) +
-                   ggplot2::geom_histogram(ggplot2::aes(y=..density..), colour="black", fill="lightblue", bins = nbins) +
+                   ggplot2::geom_histogram(colour="black", fill="lightblue", bins = nbins) +
                    ggplot2::theme_bw() +
                    ggplot2::theme_classic() +
                    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5), axis.text.x =  ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +

@@ -10,16 +10,17 @@
 #' @return Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.
 #' @export
 #' @examples
+#' \dontrun{
 #' #To return a plot detailing the expression of common genes by seurat cluster
 #'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
 #'group.by = "seurat_clusters", threshold.to.plot = 5)
 #'
 #'
-#'# EXAMPLE CODE for getting dottile plot for B cell types 
+#'# EXAMPLE CODE for getting dottile plot for B cell types
+#'
 #'
 #'dottile <- GEX_dottile_plot_MV(GEX = VGM[[2]], genes = c('CD19'), group.by = 'seurat_clusters', threshold.to.plot = 5, gene_module = 'mathew')
-#'
-#'
+#'}
 GEX_dottile_plot_MV <- function(GEX,
                              genes,
                              group.by,
@@ -48,9 +49,9 @@ GEX_dottile_plot_MV <- function(GEX,
   if (missing(gene_module)) {gene_module <- '' }
 
   # dotplot with genes on y-axis if gene_module is missing
-  
+
   if (gene_module == '') {
-  
+
   #Make unique
   genes <- unique(genes)
 
@@ -88,11 +89,11 @@ GEX_dottile_plot_MV <- function(GEX,
   plot_out <- ggplot2::ggplot(to_plot_sum_f, ggplot2::aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + ggplot2::geom_point(show.legend = T) + cowplot::theme_cowplot()  + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1), legend.position = "right",axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.95, hjust=1)) + ggplot2::labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + ggplot2::scale_color_viridis_c(option = "B", end = 0.9) + ggplot2::scale_size_binned(range = c(1,9.5))
 
     return(plot_out)
-  
+
   }
-  
+
   else if (gene_module == 'mathew') {
-    
+
     # setup gene list
     gene_list <- list()
     # NaiveBcell
@@ -128,20 +129,20 @@ GEX_dottile_plot_MV <- function(GEX,
     # Cell in the lightzone Reentering to DZ
     gene_list[[length(gene_list)+1]] <- (c("AICDA", "CXCR4", "XRCC4", "CD24A", "MKI67", "FOXO1", "TCF3"))
     names(gene_list)[length(gene_list)] <- "DZ_reentry"
-    
+
     # Add gene modules to GEX object
-    Idents(GEX) <- "seurat_clusters"
-    GEX <- AddModuleScore(
+    Seurat::Idents(GEX) <- "seurat_clusters"
+    GEX <- Seurat::AddModuleScore(
       object = GEX,
       features = gene_list,
       name = paste0(names(gene_list), "_module"))
     #Plotting
-    plot2 <- DotPlot(GEX, features = paste0(names(gene_list), "_module", 1:length(gene_list))) + coord_flip() + RotatedAxis()
-    plot_out <- plot2 + theme(axis.title.y = element_blank(), axis.text.y = element_text(angle = 45, hjust = 1, vjust = 0.1), legend.position = "bottom", legend.direction = "vertical")
-    
+    plot2 <- Seurat::DotPlot(GEX, features = paste0(names(gene_list), "_module", 1:length(gene_list))) + ggplot2::coord_flip() + ggplot2::RotatedAxis()
+    plot_out <- plot2 + ggplot2::theme(axis.title.y = ggplot2::element_blank(), axis.text.y = ggplot2::element_text(angle = 45, hjust = 1, vjust = 0.1), legend.position = "bottom", legend.direction = "vertical")
+
     return(plot_out)
   }
-  
+
 
 }
 

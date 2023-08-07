@@ -33,14 +33,15 @@ Returns a ggplot object were the dot size indicates the percentage of expressing
 Outputs a dotplot for gene expression, where the color of each dot is scaled by the gene expression level and the size is scaled by the \% of cells positive for the gene
 }
 \examples{
+\dontrun{
 #To return a plot detailing the expression of common genes by seurat cluster
 GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
 group.by = "seurat_clusters", threshold.to.plot = 5)
 
 
-# EXAMPLE CODE for getting dottile plot for B cell types 
+# EXAMPLE CODE for getting dottile plot for B cell types
+
 
 dottile <- GEX_dottile_plot_MV(GEX = VGM[[2]], genes = c('CD19'), group.by = 'seurat_clusters', threshold.to.plot = 5, gene_module = 'mathew')
-
-
+}
 }

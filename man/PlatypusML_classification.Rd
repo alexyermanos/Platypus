@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlatypusML_classification.R
 \name{PlatypusML_classification}
 \alias{PlatypusML_classification}
-\title{This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds 
+\title{This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds
 for different classification models and reports the AUC scores and ROC curves.}
 \usage{
 PlatypusML_classification(features, cv.folds, balancing, proportion)
@@ -25,7 +25,7 @@ To classify and obtain the performance of different models, using extracted and 
 
 #extract features
 features_VDJ_GP33_binder <- PlatypusML_feature_extraction_VDJ(VGM = VGM,
-which.features = c("VDJ_cdr3s_nt"), 
+which.features = c("VDJ_cdr3s_nt"),
 which.encoding = c("kmer"),
 parameters.encoding.nt = c(3),
 which.label = "GP33_binder")
@@ -40,6 +40,6 @@ classifier_GP33_binder$combined
 }
 }
 \description{
-This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds 
+This PlatypusML_classification function takes as input encoded features obtained using the PlatypusML_extract_features function. The function runs cross validation on a specified number of folds
 for different classification models and reports the AUC scores and ROC curves.
 }

@@ -2,8 +2,8 @@
 % Please edit documentation in R/PlatypusML_feature_extraction_GEX.R
 \name{PlatypusML_feature_extraction_GEX}
 \alias{PlatypusML_feature_extraction_GEX}
-\title{This PlatypusML_feature_extraction_GEX function takes as input specified features from the second output of the VDJ_GEX_matrix function and encodes 
-according to the specified strategy. The function returns a matrix containing the encoded extracted features as columns and the different cells as rows. 
+\title{This PlatypusML_feature_extraction_GEX function takes as input specified features from the second output of the VDJ_GEX_matrix function and encodes
+according to the specified strategy. The function returns a matrix containing the encoded extracted features as columns and the different cells as rows.
 This function should be called as a first step in the process of modeling the VGM data using machine learning.}
 \usage{
 PlatypusML_feature_extraction_GEX(
@@ -22,13 +22,13 @@ PlatypusML_feature_extraction_GEX(
 \item{VGM}{output of the VDJ_GEX_matrix function, containing both VDJ and GEX objects.}
 
 \item{encoding.level}{String. Specifies on which level the features will be extracted. There are three possible options: "clone" (one random sample per clone),
-"clone.avg" (average expression per clone), "unique.sequence" (selecting only unique sequences based on a specified sequence (in the unique.sequence argument)). 
+"clone.avg" (average expression per clone), "unique.sequence" (selecting only unique sequences based on a specified sequence (in the unique.sequence argument)).
 Defaults to "clone.avg".}
 
-\item{unique.sequence}{String. Needs to be specified only when encoding.level is set to "unique.sequence". The name of the sequence on which unique selection should be based on. 
+\item{unique.sequence}{String. Needs to be specified only when encoding.level is set to "unique.sequence". The name of the sequence on which unique selection should be based on.
 Defaults to "VDJ_cdr3s_aa".}
 
-\item{which.features}{String. Information on which GEX features should be encoded. Options are "varFeatures" (the 1000 most variable features obtained by Seurat::FindVariableFeatures) 
+\item{which.features}{String. Information on which GEX features should be encoded. Options are "varFeatures" (the 1000 most variable features obtained by Seurat::FindVariableFeatures)
 or "PCs" (the top n PCs, number of PCs to be defined in n.PCs). Defaults to "PCs".}
 
 \item{n.PCs}{Integer. Number of PCs to be used if choosing which.features == "PCs". Max 50. Defaults to 20.}
@@ -38,7 +38,7 @@ The label has to be a binary label. If missing, no label will be appended to the
 
 \item{problem}{String ("classification" or "regression"). Whether the return matrix will be used in a classification problem or a regression one. Defaults to "classification".}
 
-\item{verbose.classes}{Boolean. Whether to display information on the distribution of samples between classes. Defaults to TRUE. 
+\item{verbose.classes}{Boolean. Whether to display information on the distribution of samples between classes. Defaults to TRUE.
 For this parameter to be set to TRUE, classification must all be set to TRUE (default).}
 
 \item{platypus.version}{This function works with "v3" only, there is no need to set this parameter.}
@@ -48,23 +48,23 @@ A dataframe containing the encoded features and its label, each row correspondin
 The label can be found in the last column of the dataframe returned. If which.label="NA" only the encoded features are returned.
 }
 \description{
-This PlatypusML_feature_extraction_GEX function takes as input specified features from the second output of the VDJ_GEX_matrix function and encodes 
-according to the specified strategy. The function returns a matrix containing the encoded extracted features as columns and the different cells as rows. 
+This PlatypusML_feature_extraction_GEX function takes as input specified features from the second output of the VDJ_GEX_matrix function and encodes
+according to the specified strategy. The function returns a matrix containing the encoded extracted features as columns and the different cells as rows.
 This function should be called as a first step in the process of modeling the VGM data using machine learning.
 }
 \examples{
 \dontrun{
-To return the encoded gene expression in form of the 20 PCs at the clone level (average expression per clone). 
+To return the encoded gene expression in form of the 20 PCs at the clone level (average expression per clone).
 Attaching the "GP33_binder" label to be used in downstream ML models.
 
 features_PCs_GP33_binder <- PlatypusML_feature_extraction_GEX(
-VGM = VGM, 
+VGM = VGM,
 encoding.level = "clone.avg",
 which.features = "PCs",
 n.PCs = 20,
 which.label = "GP33_binder")
 
-To return the encoded gene expression in form of the 1000 most variable features (genes) at the clone level. 
+To return the encoded gene expression in form of the 1000 most variable features (genes) at the clone level.
 Attaching the "GP33_binder" label to be used in downstream ML models.
 
 features_varFeatures_GP33_binder <- PlatypusML_features_extraction_GEX(
