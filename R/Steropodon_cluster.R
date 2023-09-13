@@ -1,3 +1,37 @@
+#' Structural clustering from Steropodon inferred coordinates/feature matrix or distance matrices
+
+
+#'@description Function for clustering superposed coordinates from Steropodon_coordinates (feature matrices) or distance matrices from Steropodon_distance.
+#' Different clustering algorithms can be used from the bluster package (https://bioconductor.org/packages/release/bioc/vignettes/bluster/inst/doc/clusterRows.html).
+#' Specific clustering parameters (to finetune bluster's functions) can be specified as a named list in additional.cluster.parameters.
+#' Dimensionality reduction (i.e., PCA, T-SNE, UMAP) can be performed before clustering, as defined in the dim.reduction parameter.
+#' Additionally, plot.dim.reduction defines the dimensionality reduction algorithm for the 2D scatterplots, if plot.results is set to TRUE.
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param distance.matrix a distance matrix obtained from Steropodon_distances for clustering.
+#' @param feature.matrix a feature/superposed coordinate matrix obtained from Steropodon_coordinates for clustering. Ensure structures are initially aligned using Steropodon_superpose.
+#' @param dim.reduction string - 'pca', 'tsne', or 'umap' for the dimensionality reduction algorithm performed before clustering.
+#' @param plot.dim.reduction string - 'pca', 'tsne', or 'umap' for the dimensionality reduction algorithm performed after clustering/for plotting if plot.results is set to TRUE.
+#' @param cluster.method bluster function - see the bluster package documentation (https://bioconductor.org/packages/release/bioc/vignettes/bluster/inst/doc/clusterRows.html) for all clustering algorithms available (for clustering either feature or distance matrices).
+#' @param additional.cluster.parameters named list - additional parameters for the clustering algorithms.
+#' @param additional.dim.reduction.parameters named list - additional parameters for the dimensionality reduction algorithms.
+#' @param plot.results boolean - if TRUE, will output a 2D scatter plot for all structures in the Steropodon nested list, colored by cluster ID. Else, will output the Steropodon objects with a new 'cluster' slot/attribute.
+
+
+#' @return a scatter plot colored by cluster ID or a nested list of Steropodon objects (input in the steropodon.object parameter) with a new 'cluster' slot.
+#' @export
+#' @examples
+#' \dontrun{
+#' feature_clusters <- Steropodon_cluster(steropodon.object = steropodon_trimmed,
+#' feature.matrix = feature_matrix,
+#' dim.reduction = 'tsne',
+#' plot.dim.reduction = 'tsne',
+#' cluster.method = bluster::HclustParam,
+#' additional.dim.reduction.parameters = list(perplexity = 10),
+#' plot.results = T)
+#'}
+
+
 Steropodon_cluster <- function(steropodon.object,
                                distance.matrix,
                                feature.matrix,

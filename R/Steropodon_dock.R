@@ -1,9 +1,44 @@
-#DONE
+#' Antibody-antigen dockling for a Steropodon object
+
+
+#' @description Performs antibody-antigen docking using ZDOCK and saves the resulting complex in the 'complex' slot of all Steropodon structures in the nested list/for a single Steropodon object.
+#' The antibody-antigen ccomplex can be used for downstream analysis (e.g., obtaining interface and paratope-epitope structures and sequences using Steropodon_interface).
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param docking.tool string - the docking tool that should be used. Currently, only ZDOCK is implemented (docking.tool = 'zdock').
+#' @param tool.directory string - the path to the docking tool main directory.
+#' @param antigen string - PDB ID of the target antigen that should be docked.
+#' @param antigen.name string - name of the docked target.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param additional.docking.parameters named list - additional parameters for the docking tool. For ZDOCK, these include zdock.n.prediction (number of dockings to be performed), zdock.fixed.receptor (if the receptor should be fixed or flexible when docking).
+#' @param parallel bool - if docking should be performed in parallel (requires multiple cores).
+
+
+#' @return the Steropodon object or nested list of objects with the 'complex' slot including the docked antibody-antigen structure.
+#' @export
+#' @examples
+#' \dontrun{
+#'steropodon_docked <-
+#'  steropodon_igfold$s1$clonotype1$`1` %>%
+#'  Steropodon_dock(docking.tool = 'zdock',
+#'                  tool.directory = '/Users/tudorcotet/Desktop/zdock',
+#'                 antigen = '2tnf',
+#'                 antigen.name = 'TNFR2',
+#'                 structure = 'structure',
+#'                 additional.docking.params = list(zdock.n.predictions = 10,
+#'                                                   zdock.fixed.receptor = T),
+#'                 parallel = F)
+#'}
+
+
+
 Steropodon_dock <- function(steropodon.object,
                             docking.tool,
                             tool.directory,
-                            ligand,
-                            ligand.name,
+                            antigen,
+                            antigen.name,
                             structure,
                             additional.docking.params,
                             parallel
@@ -12,15 +47,15 @@ Steropodon_dock <- function(steropodon.object,
   if(missing(steropodon.object)) stop('Please input your Steropodon object!')
   if(missing(docking.tool)) docking.tool <- 'zdock'
   if(missing(tool.directory)) stop('Please input the ZDOCK directory path')
-  if(missing(ligand)) stop('Please input either a ligand PDB ID or a path to the PDB file')
-  if(missing(ligand.name)) stop('Please input the ligand name!')
+  if(missing(antigen)) stop('Please input either a antigen PDB ID or a path to the PDB file')
+  if(missing(antigen.name)) stop('Please input the antigen name!')
   if(missing(structure)) structure <- 'structure'
   if(missing(additional.docking.params)) additional.docking.params <- list()
   if(missing(parallel)) parallel <- T
 
   call_zdock <- function(steropodon.object,
-                         ligand,
-                         ligand.name,
+                         antigen,
+                         antigen.name,
                          structure,
                          zdock.directory,
                          zdock.n.predictions,
@@ -31,8 +66,8 @@ Steropodon_dock <- function(steropodon.object,
                          ){
 
     if(missing(steropodon.object)) stop('Please input your Steropodon object!')
-    if(missing(ligand)) stop('Please input either a ligand PDB ID or a path to the PDB file')
-    if(missing(ligand.name)) stop('Please input the ligand name!')
+    if(missing(antigen)) stop('Please input either a antigen PDB ID or a path to the PDB file')
+    if(missing(antigen.name)) stop('Please input the antigen name!')
     if(missing(structure)) structure <- 'structure'
     if(missing(zdock.directory)) stop('Please input the ZDOCK directory path')
     if(missing(zdock.n.predictions)) zdock.n.predictions <- 2000
@@ -44,7 +79,7 @@ Steropodon_dock <- function(steropodon.object,
     #zdock.directory <- '/Users/tudorcotet/Desktop/zdock'
 
     call_zdock_lapply <- function(receptor.file,
-                                  ligand.file,
+                                  antigen.file,
                                   steropodon.list,
                                   structure,
                                   zdock.directory,
@@ -99,7 +134,7 @@ Steropodon_dock <- function(steropodon.object,
 
       system(
         paste0(
-          zdock.directory, '/zdock', ' -R ', receptor.file, ' -L ', ligand.file, ' -o ', out_file_name, ' -N ', zdock.n.predictions, fixed_receptor
+          zdock.directory, '/zdock', ' -R ', receptor.file, ' -L ', antigen.file, ' -o ', out_file_name, ' -N ', zdock.n.predictions, fixed_receptor
         )
       )
 
@@ -137,9 +172,9 @@ Steropodon_dock <- function(steropodon.object,
 
     receptor_files <- list.files(temp_dir)
 
-    ligand_file <- paste0(ligand.name, '.pdb')
-    ligand_file_path <- paste0(temp_dir, '/', ligand_file)
-    ligand_pdb <- bio3d::write.pdb(bio3d::read.pdb(ligand), ligand_file_path)
+    antigen_file <- paste0(antigen.name, '.pdb')
+    antigen_file_path <- paste0(temp_dir, '/', antigen_file)
+    antigen_pdb <- bio3d::write.pdb(bio3d::read.pdb(antigen), antigen_file_path)
 
     setwd(temp_dir)
 
@@ -151,12 +186,12 @@ Steropodon_dock <- function(steropodon.object,
 
     system(
       paste0(
-        zdock.directory, '/mark_sur ', ligand_file, ' ', ligand_file
+        zdock.directory, '/mark_sur ', antigen_file, ' ', antigen_file
       )
     )
 
     partial_function <- function(x) call_zdock_lapply(receptor.file = x,
-                                                      ligand.file = ligand_file,
+                                                      antigen.file = antigen_file,
                                                       steropodon.list = steropodon_list,
                                                       structure = structure,
                                                       zdock.directory = zdock.directory,
@@ -216,37 +251,37 @@ Steropodon_dock <- function(steropodon.object,
 
       pdb$atom$eleno <- 1:nrow(pdb$atom)
       docked_receptor_pdb <- pdb$atom[1:nrow(receptor_pdb$atom),]
-      docked_ligand_pdb <- pdb$atom[(nrow(receptor_pdb$atom)+1):nrow(pdb$atom),]
+      docked_antigen_pdb <- pdb$atom[(nrow(receptor_pdb$atom)+1):nrow(pdb$atom),]
       final_resno <- max(docked_receptor_pdb$resno)
 
-      ligand_resnos <- unique(docked_ligand_pdb$resno)
-      ligand_resnos <- ligand_resnos[order(ligand_resnos)]
-      resno_dict <- final_resno + 1:length(ligand_resnos)
-      names(resno_dict) <- ligand_resnos
-      docked_ligand_pdb$resno <- resno_dict[as.character(docked_ligand_pdb$resno)]
+      antigen_resnos <- unique(docked_antigen_pdb$resno)
+      antigen_resnos <- antigen_resnos[order(antigen_resnos)]
+      resno_dict <- final_resno + 1:length(antigen_resnos)
+      names(resno_dict) <- antigen_resnos
+      docked_antigen_pdb$resno <- resno_dict[as.character(docked_antigen_pdb$resno)]
 
       docked_receptor_pdb$chain <- chain_dict[docked_receptor_pdb$chain]
-      docked_ligand_pdb$chain <- 'antigen'
+      docked_antigen_pdb$chain <- 'antigen'
 
       docked_receptor_pdb$region <- receptor_pdb$atom$region
-      docked_ligand_pdb$region <- 'antigen'
+      docked_antigen_pdb$region <- 'antigen'
 
       missing_features <- setdiff(colnames(receptor_pdb$atom), colnames(docked_receptor_pdb))
 
       for(feature in missing_features){
         docked_receptor_pdb[[feature]] <- receptor_pdb$atom[[feature]]
-        docked_ligand_pdb[[feature]] <- rep(NA, nrow(docked_ligand_pdb))
+        docked_antigen_pdb[[feature]] <- rep(NA, nrow(docked_antigen_pdb))
       }
 
 
-      pdb$atom <- rbind(docked_receptor_pdb, docked_ligand_pdb)
+      pdb$atom <- rbind(docked_receptor_pdb, docked_antigen_pdb)
 
-      ligand_structure <- split_structure(pdb, grouping = c('chain'), specific.values = 'antigen')
+      antigen_structure <- split_structure(pdb, grouping = c('chain'), specific.values = 'antigen')
       receptor_structure <- split_structure(pdb, grouping = c('chain'), specific.values = c('VDJ','VJ'), combine.values = T, combine.groupings = F)
 
       #Maybe also modify CDRH3s and other split structures that already exist in the Steropodon object
       steropodon_list[[id_1]]@complex <- pdb
-      steropodon_list[[id_1]]@antigen <- ligand_structure
+      steropodon_list[[id_1]]@antigen <- antigen_structure
       steropodon_list[[id_1]] <- modify_structure(steropodon_list[[id_1]], structure = structure, pdb = receptor_structure)
     }
 
@@ -259,8 +294,8 @@ Steropodon_dock <- function(steropodon.object,
   if(docking.tool == 'zdock'){
     params <- list(steropodon.object = steropodon.object,
                    zdock.directory = tool.directory,
-                   ligand = ligand,
-                   ligand.name = ligand.name,
+                   antigen = antigen,
+                   antigen.name = antigen.name,
                    structure = structure,
                    parallel = parallel
                   )

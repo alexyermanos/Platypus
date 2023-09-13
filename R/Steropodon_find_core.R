@@ -1,4 +1,30 @@
-#DONE
+#' Obtain the invariant core structure across all Steropodon objects in a nested list
+
+
+#' @description Obtains the invariant core structure (least variable) across all structures in a Steropodon nested list.
+#' Can also obtain the core regions across samples (core per sample if core.per = 'sample') or samples and clonotypes (core.per = 'clonotype').
+#'
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param core.per string - 'all' to pool all Steropodon structures for core identification, 'sample' to pool all structures per sample, 'clonotype' to pool all structures per unique clonotype in each sample.
+#' @param alignemnt.method string - sequence alignment method to be used for the iterative structural superposition. Currently only MAFFT is implemented (alignment.method = 'mafft').
+#' @param fit.to.core bool - if TRUE, will also align all structures to the calculated core using a single iteration of coordinate superposition/Kabsch algorithm.
+#' @param core.volume float - minimal core volume at which superposition iterations should be stopped.
+
+#' @return the inter-structure distance matrix or a heatmap of the distance values.
+#' @export
+#' @examples
+#' \dontrun{
+#' steropodon_igfold_core <-
+#'   steropodon_igfold %>%
+#'   Steropodon_find_core(structure = 'structure',
+#'                       core.per = 'sample')
+
+#'}
+
+
 Steropodon_find_core <- function(steropodon.object,
                                  structure,
                                  core.per,

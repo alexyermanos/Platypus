@@ -1,4 +1,42 @@
-#DONE
+#' Calculates RMSD/LDDT/TM-score/custom scores between all structures in a Steropodon nested list
+
+
+#' @description Computes a distance matrix using the structural distance scores defined in the distance.metric parameter.
+#' Options include: 'rmsd' for calculating the root mean square deviation between all coordinates, 'lddt' for the local distance difference test, 'tmscore' for the template modelling score, 'custom' for a weighted RMSD score (weighted by chains or framework/variable regions).
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param distance.metric string - the distance metric to be used. Options include: 'rmsd' for calculating the root mean square deviation between all coordinates, 'lddt' for the local distance difference test, 'tmscore' for the template modelling score, 'custom' for a weighted RMSD score (weighted by chains or framework/variable regions).
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param seq.struct.superpose bool - if TRUE, will perform a sequence alignment followed by an iterative structural superposition (removing outlier atoms in the fit). This is similar to the 'align' command in PyMOL.
+#' @param struct.superpose bool - if TRUE, will perform a single structure superposition/ Kabsch algorithm iteration.
+#' @param compare.cores bool - if TRUE, will compare the core/ shared structural regions across all structures as obtained from the Steropoodon_find_cores function.
+#' @param cutoff flaot - the distance cutoff at which outliers will be rejected in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
+#' @param max.cycles integer - the maximum number of iterations (superposition followed by outlier rejection) to be done in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
+#' @param alignment.method string - sequence alignment method to be used when seq.struct.superpose = TRUE. Currently only MAFFT is implemented (alignment.method = 'mafft').
+#' @param custom.specific.values vector of strings - VDJ or VJ regions to be considered in the custom distance algorithm (distance.metric = 'custom'). If only specific regions for a given chain are to be picked, the 'features' parameter should include both 'chain' and 'region'.
+#' @param custom.features vector of strings or string - the sequence features to be considered for the distance calculation. 'region' only for FR1/CDR1/etc regions (across all chains), 'chain' for either 'VDJ' or 'VJ' chains (inserted in specific.values).
+#' @param custom.weights vector of integer - weight to be assigned in the custom score for each region/chain included in the custom.specific.values parameter.
+#' @param custom.normalize.sequence.length bool - if TRUE, will normalize the score per region by that region's number of amino acids.
+#' @param custom.commutative bool - if TRUE, will normalize the distance by the length of both sequence lengths of the target and template structures (pdb1 and pdb2) used in the distance calculation.
+#' @param plot.results bool - if TRUE, will output a heatmap of the distance matrix.
+
+
+#' @return the inter-structure distance matrix or a heatmap of the distance values.
+#' @export
+#' @examples
+#' \dontrun{
+#' superposed_seq_struct <- Steropodon_superposition(steropodon_igfold,
+#' sequence.structure.superpose = T,
+#' structure.superpose = F,
+#' max.cycles = 10, cutoff = 0.5)
+#'
+#' distance_matrix <- superposed_seq_struct %>%
+#' Steropodon_distances(distance.metric = 'rmsd', plot.results = F)
+#'}
+
+
 Steropodon_distances <- function(steropodon.object,
                                  distance.metric,
                                  structure,

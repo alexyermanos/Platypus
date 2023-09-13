@@ -1,5 +1,30 @@
-#Custom weighted RMSD score, normalized by sequence length, for various regions of a structure.
-#Modified from https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009675
+#' Computes a weighted RMSD score for two (superposed) structures
+
+
+#'@description Custom weighted RMSD score, normalized by sequence length, for various regions of a structure.
+#' The 'specific.values' parameter defines a vector of the VDJ/VJ regions to be considered (will only get the RMSD across these regions, rest will be masked).
+#' The 'weights' parameter defines a vector of weights for each region from the 'features' parameter.
+#' Modified from https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009675
+
+#' @param pdb1 bio3d::pdb object of the first structure.
+#' @param pdb2 bio3d::pdb object of the second structure.
+#' @param specific.values vector of strings - VDJ or VJ regions to be considered. If only specific regions for a given chain are to be picked, the 'features' parameter should include both 'chain' and 'region'.
+#' @param features vector of strings or string - the sequence features to be considered for the distance calculation. 'region' only for FR1/CDR1/etc regions (across all chains), 'chain' for either 'VDJ' or 'VJ' chains (inserted in specific.values).
+#' @param weights vector of integer - weight to be assigned in the custom score for each region/chain included in the specific.values parameter.
+#' @param normalize.sequence.length bool - if TRUE, will normalize the score per region by that region's number of amino acids.
+#' @param commutative bool - if TRUE, will normalize the distance by the length of both sequence lengths of the target and template structures (pdb1 and pdb2) used in the distance calculation.
+
+#' @return the score value (float).
+#' @export
+#' @examples
+#' \dontrun{
+#' compute_custom_score(pdb1, pdb2,
+#' specific.values = c('VDJ_CDR1', 'VDJ_CDR2', 'VDJ_CDR3'),
+#' features = c('region', 'chain'),
+#' weights = c(1,1,3),
+#' normalize.sequence_length = TRUE)
+#'}
+
 compute_custom_score <- function(pdb1, pdb2,
                                  specific.values,
                                  features,
@@ -46,10 +71,27 @@ compute_custom_score <- function(pdb1, pdb2,
   return(dist)
 }
 
-#Computes AlphaFold's modified version of the lDDT score on superposed c-alpha coordinates
-#pdb1 = true, pdb2 = predicted
-#Large cutoff so all residue pairs are considered and score is commutative
-compute_af_lddt <- function(pdb1, pdb2, cutoff = 100, mask = rep(TRUE, length(pdb1$indices$atom))){
+#' Computes the LDDT score for two (superposed) structures
+
+#'@description Computes the LDDT score for two (superposed) structures. Atoms can be masked from the score calculation using the 'mask' parameter.
+#' Modified from https://github.com/google-deepmind/alphafold/blob/7c9114c8423ac9db981d8365168464bab09b3e54/alphafold/model/lddt.py.
+#' Coordinates should be superposed beforehand.
+
+
+#' @param pdb1 bio3d::pdb object of the first structure.
+#' @param pdb2 bio3d::pdb object of the second structure.
+#' @param cutoff integer - maximum distance for a pair of points to be included.
+#' @param mask vector of boolean - which atoms should be masked/not considered in the score calculation (if FALSE).
+
+
+#' @return the score value (float).
+#' @export
+#' @examples
+#' \dontrun{
+#' compute_af_lddt(pdb1, pdb2)
+#'}
+#'
+compute_af_lddt <- function(pdb1, pdb2, cutoff = 15, mask = rep(TRUE, length(pdb1$indices$atom))){
   if(is.null(pdb1$indices)){
     stop('Could not find the superposed c-alpha indices for lDDT calculation. Ensure seq.struct.superpose is set to T when distance.metric = "lddt"')
   }
@@ -72,7 +114,21 @@ compute_af_lddt <- function(pdb1, pdb2, cutoff = 100, mask = rep(TRUE, length(pd
   return(score)
 }
 
-#Computes the Template Modeling Score on superposed c-alpha coordinates
+#' Computes the LDDT score for two (superposed) structures
+
+#' @description Computes the TM-score between two structures.
+#' Modified from: https://www.blopig.com/blog/2017/01/tm-score/
+
+#' @param pdb1 bio3d::pdb object of the first structure.
+#' @param pdb2 bio3d::pdb object of the second structure.
+
+#' @return the score value (float).
+#' @export
+#' @examples
+#' \dontrun{
+#' compute_af_lddt(pdb1, pdb2)
+#'}
+#'
 compute_tmscore <- function(pdb1, pdb2){
   if(is.null(pdb1$indices)){
     stop('Could not find the superposed c-alpha indices for Template Modeling Score calculation. Ensure seq.struct.superpose is set to T when distance.metric = "tmscore" or that Steropodon_core was run before if compare.cores is set to T')

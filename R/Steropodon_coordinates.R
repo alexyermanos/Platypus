@@ -1,4 +1,39 @@
-#DONE
+#' Obtain a feature matrix of aligned coordinates across all Steropodon objects
+
+
+#'@description Function used to obtain a feature matrix (n_structures x aligned_coordinates) for superposed Steropodon structures.
+#' The feature matrix can be visualized as a 2D scatter plot, using the dimensionality reduction algorithm specified by dim.reduction, and colored by the VGM features mentioned in the color.by parameter.
+#' Otherwise, it will output a 2D Matrix object for downstream analysis (e.g., clustering using Steropodon_cluster).
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param use.pdbs bool - if TRUE, will use coordinates of the bio3d pdbs object obtained from Steropodon_sequence_alignment function (aligned coordinate vectors). If use.pdbs is set to FALSE, the resulting feature matrix will include all unaligned coordinate vectors, matching the length of the largest coordinate vector from the Steropodon nested list (with NA values added to match lengths).
+#' @param feature.imputation string - method to impute NA values in the aligned coordinate matrix: 'zeros' will add zeros, 'mean' will get the mean across each sample, 'median' for the median value across each sample row, 'iterative_pca' will use the missMDA::imputePCA() function to infer the missing values.
+#' @param remove.na bool - if TRUE, will remove NA values from the aligned coordinate matrix.
+#' @param scale bool - if TRUE, will scale the output coordinate/feature matrix using Seurat::ScaleData().
+#' @param variable.features integer or NULL - will select N most variable features in the coordinate matrix using Seurat::FindVariableFeatures(matrix, nfeatures = variable.features).
+#' @param plot.results bool - if TRUE, will output a 2D scatter plot of the coordinate matrix after dimensionality reduction (defined using the dim.reduction parameter). Points can be colored by a custom VGM label specified in the color.by parameter. The VGM also needs to be included in the VGM parameter.
+#' @param dim.reduction string - 'pca', 'tsne', or 'umap' for the dimensionality reduction algorithm performed before plotting.
+#' @param color.by string or vector of strings - the column name in the VDJ/GEX parts of the VGM object which will be used to color each Steropodon structure/ scatter plot point.
+#' @param VGM the VGM object to select the custom labels from if color.by is not NULL.
+#' @param cluster.method string or NULL - the bluster clustering method for the 2D scatter plots. For more information, see the bluster::clusterRows() function.
+#' @param additional.dim.reduction.parameters named list - additional parameters for the dimensionality reduction algorithms.
+#' @param per.cell bool - if TRUE, will create the output scatter plot/ feature matrix per cell (barcode x coordinates) by pooling all cells assigned to a Steropodon-modelled receptor sequence.
+
+
+#' @return a feature/coordinate matrix for downstream analyses or a 2D scatter plot.
+#' @export
+#' @examples
+#' \dontrun{
+#' superposed_w_pdbs <- superposed_seq_struct %>%
+#' Steropodon_sequence_alignment(structure = 'structure')
+#' superposed_w_pdbs %>% Steropodon_coordinates(use.pdbs = T,
+#' color.by = c('site', 'age', 'VDJ_vgene'),
+#' dim.reduction = 'pca', VGM = VGM)
+#'}
+
 Steropodon_coordinates <- function(steropodon.object,
                                    structure,
                                    use.pdbs,

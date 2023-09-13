@@ -1,3 +1,23 @@
+#' Annotates the VGM object with information from the Steropodon object
+
+
+#'@description Function to integrate information from the Steropodon object (structure clusters, paratope and epitope sequences after docking) into the VGM object (both GEX and VDJ) for downstream analysis.
+#' For use cases, see the Steropodon vignette (https://alexyermanos.github.io/Platypus/articles/Steropodon.html) - 9. Cluster analysis via Steropodon_cluster
+
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' Steropodon_cluster, Steropodon_dock and other functions should be first ran on the object to obtain the information that will be integrated into the VGM object.
+#' @param VGM the Platypus VGM object (GEX and VDJ) to be annotated.
+
+#' @return a VGM object with all information available added from Steropodon objects(s)
+#' @export
+#' @examples
+#' \dontrun{
+#' Steropodon_annotate_VGM(steropodon.objkect = structures, VGM = VGM)
+#'}
+
+
+
 Steropodon_annotate_VGM <- function(steropodon.object,
                                     VGM
                                     ){

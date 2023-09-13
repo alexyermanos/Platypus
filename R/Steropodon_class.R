@@ -1,3 +1,15 @@
+#' Class used for Steropodon functions
+#'@description See the Steropodon_model function for complete documentation
+#' @export
+#' @examples
+#' \dontrun{
+#' Steropodon_model Steropodon_model(VDJ, model = 'igfold', sequence.type = 'VDJ.VJ',
+#' max.clonotypes = 10, max.per.clonotype = 1,
+#' additional.model.parameters = list(igfold.refine = T, igfold.use.openmm = T),
+#' save.rds = T, save.dir = './steropodon_RDS',
+#' use.conda = T, env.name = 'igfold')
+#' }
+
 methods::setClass('Steropodon',
     slots = c(
       structure = 'ANY',

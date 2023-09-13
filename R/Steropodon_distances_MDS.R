@@ -1,4 +1,32 @@
-#DONE
+#' Performs multidimensional scaling on a distance matrix obtained from Steropodon_distances
+
+
+#' @description Function for multidimensional scaling of the distance matrix obtained from Steropodon_distances.
+#' Will also output a scatter plot colored by the VGM label column specified in the color.by parameter, if plot.results is set to TRUE.
+
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param distance.matrix the distance matrix obtained from Steropodon_distances.
+#' @param color.by string or vector of strings - the column name in the VDJ/GEX parts of the VGM object which will be used to color each Steropodon structure/ scatter plot point.
+#' @param VGM  the VGM object to select the custom labels from if color.by is not NULL.
+#' @param cluster.method string or NULL - the bluster clustering method for the 2D scatter plots. For more information, see the bluster::clusterRows() function.
+#' @param plot.results bool - if TRUE, will output a 2D scatter plot of the distance matrix after MDS. Points can be colored by a custom VGM label specified in the color.by parameter. The VGM also needs to be included in the VGM parameter.
+
+
+#' @return the MDS results or a 2D scatter plot if plot.results is set to TRUE.
+#' @export
+#' @examples
+#' \dontrun{
+#' distance_matrix <- superposed_seq_struct %>%
+#' Steropodon_distances(distance.metric = 'rmsd', plot.results = F)
+
+#' Steropodon_distances_MDS(steropodon.object = superposed_seq_struct,
+#'                          distance.matrix = distance_matrix,
+#'                          color.by = c('site', 'age', 'sample', 'VDJ_vgene'),
+#'                          VGM = VGM)
+#'}
+
+
 Steropodon_distances_MDS <- function(steropodon.object,
                                      distance.matrix,
                                      color.by,
