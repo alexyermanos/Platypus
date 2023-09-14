@@ -1,3 +1,33 @@
+#' Determine several physicochemical properties for a Steroopodon structure
+
+
+#' @description Function to calculate physicochemical properties across a nested list of Steropodon objects. Per-residue values will be added to the bio3d object that represents a single structure.
+#' The properties currently implemented are: 'SASA', 'charge', 'hydrophobicity', 'pKa', 'DSSP', inputted in the 'properties' parameter.
+#' Exploratory analyses (bar plots and line plots across samples, clonotypes, etc) with the properties calculated in Steropodon_properties can be performed using Steropodon_metrics(). See the Steropodon_metrics() documentation for more information.
+#'
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param properties string or vector of strings - physicochemical properties to be calculated for a modelled structure. Options include: 'SASA', 'charge', 'hydrophobicity', 'pKa', 'DSSP'.
+#' @param propka.directory string - path to the propka directory for pKa calculation (if the 'properties' parameter includes 'pKa').
+#' @param dssp.exefile string - path to the DSSP executable (if the 'properties' parameter includes 'DSSP').
+#' @param parallel bool - if TRUE, will execute the physicochemical property calculation in parallel, on all available CPU cores - 1.
+
+#' @return nested list of Steropodon objects with new columns added to the structure's bio3d object, depending on the physicochemical property included in 'properties'.
+#' @export
+#' @examples
+#' \dontrun{
+#' steropodon_properties <-
+#'  steropodon_igfold %>%
+#'  Steropodon_properties(structure = 'structure',
+#'                        properties = c('SASA', 'charge', 'hydrophobicity', 'DSSP'),
+#'                        dssp.exefile = '/opt/homebrew/Caskroom/miniforge/base/bin/mkdssp',
+#'                        parallel = F)
+#'}
+
+
+
 Steropodon_properties <- function(steropodon.object,
                                   structure,
                                   properties,

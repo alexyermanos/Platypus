@@ -1,4 +1,29 @@
-#' @importFrom reticulate %as%
+#' Structure refinement using OpenMM/other tools
+
+
+#' @description Function to refine/relax modelled structures using OpenMM (minimize energy, reduce clashes, add H atoms).
+#'
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param use.conda boolean - if TRUE, will use conda for environment management and installing all refining tool dependencies. Else, it will use virtualenv.
+#' @param env.name string - name of the Python environment with the structure refining tools and dependencies installed.
+#' @param parallel boolean - if TRUE, will execture the structural refinement in parallel, on all available cores - 1.
+#' @param refining.tools string - structural refinement/relaxation tool. Currently, only OpenMM is supported (refining.tools = 'openmm').
+#' @param additional.tool.params named list - additional parameters for the structural relaxation tool.
+
+#' @return a nested list of Steropodon objects or a single object with all structures in 'structure' relaxed (reduced clashes, added H atoms).
+#' @export
+#' @examples
+#' \dontrun{
+#' steropodon_refined_openmm <-
+#'  steropodon_igfold$s1$clonotype1$`1` %>%
+#'  Steropodon_refine(refining.tools = 'openmm',
+#'                    parallel = F,
+#'                    env.name = 'openmm_env',
+#'                    use.conda = T)
+#'}
 
 
 Steropodon_refine <- function(steropodon.object,
