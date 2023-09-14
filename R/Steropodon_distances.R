@@ -12,7 +12,7 @@
 #' @param seq.struct.superpose bool - if TRUE, will perform a sequence alignment followed by an iterative structural superposition (removing outlier atoms in the fit). This is similar to the 'align' command in PyMOL.
 #' @param struct.superpose bool - if TRUE, will perform a single structure superposition/ Kabsch algorithm iteration.
 #' @param compare.cores bool - if TRUE, will compare the core/ shared structural regions across all structures as obtained from the Steropoodon_find_cores function.
-#' @param cutoff flaot - the distance cutoff at which outliers will be rejected in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
+#' @param cutoff float - the distance cutoff at which outliers will be rejected in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
 #' @param max.cycles integer - the maximum number of iterations (superposition followed by outlier rejection) to be done in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
 #' @param alignment.method string - sequence alignment method to be used when seq.struct.superpose = TRUE. Currently only MAFFT is implemented (alignment.method = 'mafft').
 #' @param custom.specific.values vector of strings - VDJ or VJ regions to be considered in the custom distance algorithm (distance.metric = 'custom'). If only specific regions for a given chain are to be picked, the 'features' parameter should include both 'chain' and 'region'.

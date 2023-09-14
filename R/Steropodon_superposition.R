@@ -1,4 +1,35 @@
-#DONE
+#' Performs sequence and structural alignment similar to PyMOL's 'align' command
+
+
+#' @description Sequence and structural alignment of Steropodon structures, similar to PymMOL's 'align' command.
+#' Will first perform sequence alignment, then structural superposition on the aligned coordinates for n cycles ('max.cycles' parameter), removing outliers based on a cutoff ('cutoff' parameter)
+#'
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param steropodon.template Steropodon object - template structure for alignment.
+#' @param fit.to.core boolean - if TRUE, will align all structures to their respective invariant core, determined using Steropodon_find_core().
+#' @param sequence.structure.superpose bool - if TRUE, will perform a sequence alignment followed by an iterative structural superposition (removing outlier atoms in the fit). This is similar to the 'align' command in PyMOL.
+#' @param structure.superpose bool - if TRUE, will perform a single structure superposition/ Kabsch algorithm iteration.
+#' @param alignment.method string - sequence alignment method to be used when seq.struct.superpose = TRUE. Currently only MAFFT is implemented (alignment.method = 'mafft').
+#' @param max.cycles integer - the maximum number of iterations (superposition followed by outlier rejection) to be done in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
+#' @param cutoff float - the distance cutoff at which outliers will be rejected in the sequence alignment and iterative structural superposition algorithm (seq.struct.superpose = TRUE).
+#' @param parallel bool - if TRUE, will perform the structural superposition in parallel, on all available CPU cores - 1.
+#'
+#' @return a nested list of Steropodon structures superposes/aligned to the steropodon.template structure or the first structure in the list.
+#' @export
+#' @examples
+#' \dontrun{
+#' superposed_seq_struct <-
+#' Steropodon_superposition(steropodon_igfold,
+#' sequence.structure.superpose = T,
+#' structure.superpose = F,
+#' max.cycles = 10,
+#' cutoff = 0.5)
+#'}
+
+
 Steropodon_superposition <- function(steropodon.object,
                                      structure,
                                      steropodon.template,

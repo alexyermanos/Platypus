@@ -1,4 +1,26 @@
-#DONE
+#' Sequence alignment of Steropodon structures
+
+
+#' @description Sequence alignment of Steropodon structures. Will add a new 'pdbs' slot in each Steropodon object with the aligned sequences.
+#'
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param alignment.method string - sequence alignment algorithm to be used. Currently, only MAFFT is supported (alignment.method = 'mafft').
+#' @param fit.to.template boolean - if TRUE, will fit all structures to the template given in steropodon.template. Else, all structures will be aligned to the first one.
+#' @param steropodon.template Steropodon object - template structure for alignment.
+#' @param annotate.features string - which features already present in the Steropodon object should be added to the new 'pdbs' object with the alignment. Defaults to 'all' to assign all present annotations in the 'pdbs' object.
+
+#' @return a nested list of Steropodon structures superposes/aligned to the steropodon.template structure or the first structure in the list. Alignments are added in the 'pdbs' slot of the Steropodon object.
+#' @export
+#' @examples
+#' \dontrun{
+#' superposed_w_pdbs <-
+#' superposed_seq_struct %>%
+#' Steropodon_sequence_alignment(structure = 'structure')
+#'}
+
 Steropodon_sequence_alignment <- function(steropodon.object,
                                           structure,
                                           alignment.method,
