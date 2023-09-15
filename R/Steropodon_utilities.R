@@ -1,3 +1,16 @@
+#' Annotates a bio3d pdb structure's atoms or residues
+
+#' @description Annotates a Steropodon structure's atoms or residues
+#' @param pdb bio3d pdb object to be annotated
+#' @param res.idx list or vector of integers - residue IDs to be annotated
+#' @param atom.idx list or vector of integers - atom IDs to be annotated
+#' @param feature list or vector of strings - features/labels to be annotated
+#' @return an annotated bio3d object
+#' @export
+#' @examples
+#' \dontrun{
+#' annotate_structure(pdb = pdb, res.idx = res.idx, feature = feature)
+#'}
 annotate_structure <- function(pdb, res.idx, atom.idx, feature){
   if(missing(pdb)) stop('Please input your PDB structure')
   if(missing(res.idx)) res.idx <- NULL
@@ -18,6 +31,23 @@ annotate_structure <- function(pdb, res.idx, atom.idx, feature){
   return(pdb)
 }
 
+
+#' Trims a bio3d pdb object given a grouping and a specific value
+
+#' @description Splits a bio3d pdb object given a grouping and a specific value
+#' @param pdb bio3d pdb object to split
+#' @param grouping string or vector of strings - grouping factor for the split (e.g., 'chain' will only split chains such as VDJ and VJ/ heavy and light).
+#' @param specific.values string or vector of strings - the specific regions to kept in the structure, depending on the 'grouping' parameter (e.g., grouping = 'chain' and specific.values = 'VDJ' will remove all keep chains).
+#' @param combine.groupings bool - if TRUE, the regions inserted in specific.values will all be combined in the same final structure.
+#' @param combine.values bool - if TRUE, will combine the 'grouping' features for a more specific trimming (e.g., 'chain' and 'region' to select exactly which hypervariable regions from any chain should be kept - 'VDJ_CDR1', 'VJ_CDR1' etc.).
+#' @return a trimmed bio3d object, with regions kept as dictated by the specific.values parameter.
+#' @export
+#' @examples
+#' \dontrun{
+#' only_heavy <- split_structure(pdb = pdb,
+#'   grouping = 'chain',
+#'   specific.values = 'VDJ')
+#'}
 split_structure <- function(pdb, grouping, specific.values, combine.groupings, combine.values){
   if(missing(pdb)) stop('Please input your PDB structure')
   if(missing(grouping)) grouping <- 'chain'
@@ -76,9 +106,18 @@ split_structure <- function(pdb, grouping, specific.values, combine.groupings, c
 }
 
 
+#' Turns a Steropodon nested list into a single list
+
+#' @description Turns a Steropodon nested list into a single list
+#' @param steropodon.object  a nested list of predicted structure objects (per sample, per clonotype)
+#' @return a single list of Steropodon objects
+#' @export
+#' @examples
+#' \dontrun{
+#' steropodon_list <- unnest_steropodon(steropodon_object)
+#'}
 unnest_steropodon <- function(steropodon.object){
   custom_flatten <- function (x, use.names = TRUE, classes = "ANY"){
-    # Taken from: https://stackoverflow.com/questions/49252400/r-purrr-flatten-list-of-named-lists-to-list-and-keep-names
     len <- sum(rapply(x, function(x) 1L, classes = classes))
     y <- vector("list", len)
     i <- 0L
@@ -100,6 +139,17 @@ unnest_steropodon <- function(steropodon.object){
 }
 
 
+#' Converts a single list of Steropodon objects into a nested list (per sample, per clonotype)
+
+#' @description Converts a single list of Steropodon objects into a nested list (per sample, per clonotype)
+#' @param steropodon.list named list - Steropodon objects unnested using unnest_steropodon. The list should be named, including the sample and clonptype IDs for easier nesting.
+
+#' @return a nested list of Steropodon objects (per sample, per clonotype).
+#' @export
+#' @examples
+#' \dontrun{
+#' steropodon_object <- nest_steropodon(steropodon_list)
+#'}
 nest_steropodon <- function(steropodon.list){
   get_barcode_dataframe <- function(steropodon.list){
     unique_names <- names(steropodon.list)
@@ -141,6 +191,18 @@ nest_steropodon <- function(steropodon.list){
 }
 
 
+#' Selects a single bio3d pdb object from a given Steropodon object slot/attribute
+#' @description Selects a single bio3d pdb object from a given Steropodon object slot/attribute
+#' @param steropodon.object a single Steropdon object, as obtained from Steropodon_model.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @return a bio3d pdb object
+#' @export
+#' @examples
+#' \dontrun{
+#' pdb <- select_structure(steropodon_igfold[[1]][[1]], structure = 'CDRH3')
+#'}
 select_structure <- function(steropodon.object, structure){
 
     if(structure == 'structure'){
@@ -174,6 +236,24 @@ select_structure <- function(steropodon.object, structure){
     return(pdb)
 }
 
+
+
+#' Modifies an attribute/slot of a single Steropodon object
+
+#' @description Modifies an attribute/slot of a single Steropodon object
+#' @param steropodon.object a single Steropdon object, as obtained from Steropodon_model.
+#' @param pdb bio3d pdb object - will replace the object present in the attribute determined by the 'structure' parameter.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @return a Steropodon object with the attribute/slot named in 'structure' replaced with the bio3d pdb structure from 'pdb'.
+#' @export
+#' @examples
+#' \dontrun{
+#' modified_steropodon <- modify_structure(steropodon_object,
+#'                                         pdb = pdb,
+#'                                         structure = 'CDRH3')
+#'}
 modify_structure <- function(steropodon.object, pdb, structure){
 
     if(structure == 'structure'){
@@ -206,6 +286,28 @@ modify_structure <- function(steropodon.object, pdb, structure){
     return(steropodon.object)
 }
 
+
+#' Performs sequence and iterative structural alignment
+
+#' @description Sequence and structural alignment of bio3d xyz coordinates, similar to PymMOL's 'align' command.
+#' Will first perform sequence alignment, then structural superposition on the aligned coordinates for n cycles ('max.cycles' parameter), removing outliers based on a cutoff ('cutoff' parameter)
+#' @param mobile bio3d xyz coordinates - coordinates to be aligned
+#' @param fixed bio3d xyz coordinates - template coordinates
+#' @param mobile.inds vector of integers - C-alpha atom indices for the mobile coordinates.
+#' @param fixed.inds vector of integers - C-alpha atom indices for the fixed coordinates.
+#' @param aln.method string - sequence alignment algorithm. Currently, only MAFFT is implemented (aln.method = 'mafft').
+#' @param max.cycles integer - the maximum number of iterations (superposition followed by outlier rejection) to be done in the sequence alignment and iterative structural superposition algorithm.
+#' @param cutoff float - the distance cutoff at which outliers will be rejected in the sequence alignment and iterative structural superposition algorithm.
+#' @param return.mobile boolean - if TRUE, will only return the mobile coordinates. Else, will return both fixed and nobile as bio3d pdb objects.
+#' @return a nested list of Steropodon structures with all regions not included in 'specific.values' removed. For more information, see the Steropodon vignette (https://alexyermanos.github.io/Platypus/articles/Steropodon.html).
+#' @export
+#' @examples
+#' \dontrun{
+#' aligned <- sequence_structure_superpose(mobile_pdb,
+#' fixed_pdb,
+#' max.cycles = 10,
+#' cutoff = 0.5)
+#'}
 sequence_structure_superpose <- function(mobile,
                                          fixed,
                                          mobile.inds  = NULL,
@@ -404,6 +506,20 @@ sequence_structure_superpose <- function(mobile,
 }
 
 
+#' Performs a single iteration of structural alignment (Kabsch algorithm)
+
+#' @description Performs a single iteration of structural alignment (Kabsch algorithm)
+#' @param fixed bio3d xyz coordinates - template coordinates
+#' @param mobile bio3d xyz coordinates - coordinates to be aligned
+#' @param mobile.inds vector of integers - C-alpha atom indices for the mobile coordinates.
+#' @param fixed.inds vector of integers - C-alpha atom indices for the fixed coordinates.
+#' @return mobile coordinates aligned to the fixed ones, as a bio3d xyz object.
+#' @export
+#' @examples
+#' \dontrun{
+#' aligned <- sequence_structure_superpose(mobile_pdb,
+#' fixed_pdb)
+#'}
 structure_superpose <- function(fixed,
                                 mobile,
                                 mobile.inds = NULL,
@@ -420,6 +536,20 @@ structure_superpose <- function(fixed,
 }
 
 
+#' Extract framework/hypervariable regions annotated with VDJ_call_MIXCR
+
+#' @description Extract framework/hypervariable regions annotated with VDJ_call_MIXCR
+#' @param VDJ.matrix
+#' @param chain.to.extract
+#' @param as.nucleotide
+#' @param regions.to.extract
+
+#' @return a nested list of Steropodon structures with all regions not included in 'specific.values' removed. For more information, see the Steropodon vignette (https://alexyermanos.github.io/Platypus/articles/Steropodon.html).
+#' @export
+#' @examples
+#' \dontrun{
+
+#'}
 extract_MIXCR <- function(VDJ.matrix, chain.to.extract, as.nucleotide, regions.to.extract){
       if(missing(VDJ.matrix)) stop('Input the VDJ dataframe obtained after calling VDJ_call_MIXCR')
       if(missing(chain.to.extract)) chain.to.extract <- 'VDJ.VJ'
@@ -460,7 +590,17 @@ extract_MIXCR <- function(VDJ.matrix, chain.to.extract, as.nucleotide, regions.t
 }
 
 
+#' Sequence aligment using MAFFT
 
+#' @description Sequence aligment using MAFFT
+#' @param structure.list list - list of Steropodon structures as bio3d pdb objects
+#' @param alignment.method string - alignment method. Currently, only MAFFT is supported (alignment.method = 'mafft').
+#' @return a bio3d pdbs object of aligned sequences and their corresponding coordinates
+#' @export
+#' @examples
+#' \dontrun{
+#' aligned <- sequence_alignment(structures, alignment.method = 'mafft')
+#'}
 sequence_alignment <- function(structure.list,
                                alignment.method
                                ){
@@ -485,7 +625,22 @@ sequence_alignment <- function(structure.list,
 }
 
 
+#' Saves a Steropodon object's structure as a PDB file
+#' @description Saves a Steropodon object's structure as a PDB file
 
+#' @param steropodon.object a single Steropodon object or a nested list (per sample, per clonotype).
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param dir string - path to the directory for saving the PDB files
+#' @return no returns. Will save the PDBs in the specified directory.
+#' @export
+#' @examples
+#' \dontrun{
+#' write_steropodon_pdbs(steropodon_igfold,
+#' structure = 'CDRH3',
+#' dir = './pdbs')
+#'}
 write_steropodon_pdbs <- function(steropodon.object, structure, dir){
 
   if(!is.null(dir)){
@@ -550,6 +705,20 @@ write_steropodon_pdbs <- function(steropodon.object, structure, dir){
   return(list(chain_dict = chain_dict, file_list = file_list))
 }
 
+
+#' Removes NA values from a Steropodon structure
+#' @description Removes NA values from a Steropodon structure
+#' @param steropodon.object a single Steropodon object or a nested list (per sample, per clonotype).
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @return the Steropodon object with the structure in the slot specified by 'structure' without any NA values.
+#' @export
+#' @examples
+#' \dontrun{
+#' no_na <- remove_na_steropodon(steropodon.object,
+#' structure = 'CDRH3')
+#'}
 remove_na_steropodon <- function(steropodon.object, structure){
   remove_na_pdb <- function(pdb){
     na_residues <- unique(pdb$atom$resno[is.na(pdb$atom$chain)])

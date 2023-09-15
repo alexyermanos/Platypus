@@ -1,4 +1,34 @@
-#DONE
+#' Plots a Steropodon modelled structure using r3dmol
+
+#' @description Plots a structure modelled via Steropodon_model using r3dmol.
+#' Structures can be colored by physicochemical properties, framework/hypervariable regions, chains, epitopes/paratopes, and invariant core regions, as determined in the color.by parameter.
+
+#' @param combine.groupings  a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param color.by string - feature in the Steropodon object to color the structure by.
+#' @param single.plot boolean - if TRUE, will pool all structures into a single plot.
+#' @param specific.color.values named list - list of feature names and colors (list('#4287f5'='VDJ_CDR1') to color only VDJ_CDR1 regions ).
+#' @param additional.r3dmol.code named list - additional r3dmol code for the final visualizations/plots.
+#' @param show.label boolean - if TRUE, will also show a label with the feature name as specified by color.by.
+#' @param animate boolean - if TRUE, will create an animation of all structures in a given (nested) list of Steropodon objects.
+
+#' @return No returns. Will output an r3dmol visualization of the structure(s) in the plots tab on RStudio.
+#' @export
+#' @examples
+#' \dontrun{
+#'steropodon_igfold$s1$clonotype1$`1` %>%
+#'  Steropodon_trim(structure = 'structure',
+#'                  grouping = c('chain', 'region'),
+#'                  specific.values = c('VDJ_CDR1','VDJ_CDR2','VDJ_CDR3','VJ_CDR1','VJ_CDR2','VJ_CDR3'),
+#'                  combine.values = T,
+#'                  combine.groupings = T) %>%
+#'  Steropodon_visualize(structure = 'structure',
+#'                       color.by = c('chain', 'region'))
+#'}
+
+
 Steropodon_visualize <- function(steropodon.object,
                                  structure,
                                  color.by,
@@ -18,7 +48,7 @@ Steropodon_visualize <- function(steropodon.object,
                                                                 '#923fd1'='VDJ_CDR2','#923fd1'='VJ_CDR2',
                                                                 '#e31948'='VDJ_CDR3','#e31948'='VJ_CDR3'
                                                                 )
-  
+
   if(missing(additional.r3dmol.code)) additional.r3dmol.code <- NULL
   if(missing(show.label)) show.label <- T
   if(missing(animate)) animate <- F
@@ -102,7 +132,7 @@ Steropodon_visualize <- function(steropodon.object,
 
     return(features_positions_list)
   }
- 
+
   create_plot <- function(pdb.list,
                           position.list,
                           numeric.feature,
@@ -111,13 +141,13 @@ Steropodon_visualize <- function(steropodon.object,
                           show.label,
                           animate
                           ){
-    
+
     #TO DO: color each structure w a different shade (to better notice structure differences)
     #colfunc_heavy <- grDevices::colorRampPalette(c("#fabea2", "#f56f31"))
     #colfunc_light <- grDevices::colorRampPalette(c("#f5e598", "#fcda35"))
     #col_list_heavy <- colfunc_heavy(length(pdb.list))
     #col_list_light <- colfunc_light(length(pdb.list))
-    
+
     if(numeric.feature){
       cartoon_styles <- r3dmol::m_style_cartoon()
       cartoon_styles$cartoon$colorscheme <- position.list[[1]]
@@ -138,14 +168,14 @@ Steropodon_visualize <- function(steropodon.object,
           resid <- paste0('c(', resid, ')')
           color <- position.list[[i]]$color[[j]]
           label <- position.list[[i]]$feature[[j]]
-          
+
           if(show.label){
             feat_string <- paste0('r3dmol::m_set_style(sel = r3dmol::m_sel(resi = ', resid, ', model = -1), style = r3dmol::m_style_cartoon(color = "', color, '")) %>%
                                  r3dmol::m_add_label(text = "', label, '", sel = r3dmol::m_sel(resi = ', resid, ', model = -1), style = r3dmol::m_style_label(backgroundColor = "', color,'", backgroundOpacity = 0.8, fontSize = 12, fontOpacity = 1, fontColor = "black", alignment = "center"))')
           }else{
             feat_string <- paste0('r3dmol::m_set_style(sel = r3dmol::m_sel(resi = ', resid, ', model = -1), style = r3dmol::m_style_cartoon(color = "', color, '"))')
           }
-         
+
 
           plot_string[[i]] <- paste0(plot_string[[i]], ' %>% ', feat_string)
         }
@@ -160,7 +190,7 @@ Steropodon_visualize <- function(steropodon.object,
         plot_grid[[i]] <- parse(text = plot_grid[[i]])
       }
     }
-    
+
     if(single.plot == 'grid'){
       out <- r3dmol::m_grid(
         viewer = plot_grid,
@@ -169,7 +199,7 @@ Steropodon_visualize <- function(steropodon.object,
           backgroundColor = "black"
         )
       )
-      
+
     }else if(single.plot == 'overlap'){
       plot_string <- paste0(plot_string, collapse = ' %>% ')
       plot_string <- paste0('r3dmol::r3dmol() %>% ', plot_string)

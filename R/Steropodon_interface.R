@@ -1,4 +1,31 @@
-#DONE
+#' Obtains the interface of a modelled antibody-antigen complex from Steropodon_dock
+
+
+#' @description Uses the 'complex' slot of a Steropodon object with the modelled antibody-antigen complex (from Steropoodon_dock) to obtain the interface region, as defined by the distance.threshold parameter.
+
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param distance.threshold float - the distance threshold (in Å) for defining the interface.
+#' @param include.hydrogens bool - if hydrogen atoms should be considered when inferring the antibody-antigen interface.
+#'
+#' @return the input nested list of Steropodon object with two new slots: 'paratope' for the paratope structure and 'epitope' for the epitope structure.
+#' @export
+#' @examples
+#' \dontrun{
+#'steropodon_docked <-
+#'  steropodon_igfold$s1$clonotype1$`1` %>%
+#'  Steropodon_dock(docking.tool = 'zdock',
+#'                  tool.directory = '/Users/tudorcotet/Desktop/zdock',
+#'                 antigen = '2tnf',
+#'                 antigen.name = 'TNFR2',
+#'                 structure = 'structure',
+#'                 additional.docking.params = list(zdock.n.predictions = 10,
+#'                                                   zdock.fixed.receptor = T),
+#'                 parallel = F)
+#'steropodon_docked_interface <-
+#'  steropodon_docked %>%
+#'  Steropodon_interface(structure = 'structure', distance.threshold = 5)
+#'}
+
 Steropodon_interface <- function(steropodon.object,
                                  distance.threshold,
                                  include.hydrogens
@@ -26,20 +53,20 @@ Steropodon_interface <- function(steropodon.object,
 
     pdb$atom$temp_chain <- pdb$atom$chain
     pdb$atom$chain[pdb$atom$chain %in% c('VDJ', 'VJ')] <- 'receptor'
-    pdb$atom$chain[!(pdb$atom$chain %in% c('VDJ', 'VJ'))] <- 'ligand'
+    pdb$atom$chain[!(pdb$atom$chain %in% c('VDJ', 'VJ'))] <- 'antigen'
 
     receptor_inds <- bio3d::atom.select(pdb, chain = 'receptor')
-    ligand_inds <- bio3d::atom.select(pdb, chain = 'ligand')
+    antigen_inds <- bio3d::atom.select(pdb, chain = 'antigen')
 
     epitope <- bio3d::binding.site(pdb,
-                                   a.inds = ligand_inds,
+                                   a.inds = antigen_inds,
                                    b.inds = receptor_inds,
                                    cutoff = distance.threshold,
                                    hydrogens = include.hydrogens)
 
     paratope <- bio3d::binding.site(pdb,
                                     a.inds = receptor_inds,
-                                    b.inds = ligand_inds,
+                                    b.inds = antigen_inds,
                                     cutoff = distance.threshold,
                                     hydrogens = include.hydrogens)
 

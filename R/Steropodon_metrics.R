@@ -1,4 +1,38 @@
-#DONE
+#' Plot the structure-level physicochemical properties obtained form Steropodon_properties
+
+
+#' @description Function to visualize the physicochemical properties calculated using Steropoodon_properties.
+#'
+#' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
+#' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
+#' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
+#' @param plot.format string - either 'bar' for bar plots of the values denoted in the 'feature' parameter, grouped by the 'grouping parameter, or line plots of property per residue id if plot.format = 'line'
+#' @param plot.level string - the level at which properties should be averages for the bar plots. 'global' for all structures, 'sample' to obtain bar plots for each sample, 'clonotype' for bar plots across all samples and clonotypes.
+#' @param feature string - the physicochemical property to be quantified/plotted. Options include 'charge', 'hydrophobicity', 'SASA', 'b-factor'.
+#' @param grouping string - grouping factor for the bar plots ('region' for framework/hypervariable regions, 'chain' to group across heavy or light chains).
+#' @param proportions bool - if TRUE, will create bar plots of proportions (e.g., proportions of residues per region) instead of absolute values.
+#' @param combine.lineplot bool - if TRUE, will combine all line plots (defined by plot.level) into a single plot.
+
+
+#' @return bar plots if plot.format = 'bar' or line plots if plot.format = 'line' of the properties specified in feature.
+#' @export
+#' @examples
+#' \dontrun{
+#'steropodon_properties <-
+#'  steropodon_igfold %>%
+#'  Steropodon_properties(structure = 'structure',
+#'  properties = c('SASA', 'charge', 'hydrophobicity', 'DSSP'),
+#'  dssp.exefile = '/opt/homebrew/Caskroom/miniforge/base/bin/mkdssp',
+#'  parallel = F)
+#'
+#'steropodon_properties %>%
+#'  Steropodon_metrics(plot.format = 'line',
+#'                     feature = 'charge',
+#'                     plot.level = 'global')
+#'}
+
+
 Steropodon_metrics <- function(steropodon.object,
                                structure,
                                plot.format,

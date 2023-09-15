@@ -1,9 +1,58 @@
-#MAIN ISSUE/ TO DO: PARALLEL COMPUTATION W RETICULATE
-#https://stackoverflow.com/questions/58507084/parallel-processing-in-r-calling-reticulate-python-function
-#https://stackoverflow.com/questions/69692625/parallelized-reticulate-call-with-foreach-failing
-#https://github.com/ropensci/drake/issues/1145
-#https://stackoverflow.com/questions/51043043/parallel-processing-in-r-shiny-calling-python-script
-#WILL PROBABLY TEST W FUTURES (future::plan(multicore))
+#' Main function of the Steropodon module - obtain a nested list of Steropodon objects, containing folded receptor structures
+
+
+#' @description Main function of the Steropodon module - obtain a nested list of Steropodon objects, containing folded receptor structures from the sequences initially selected.
+#' Selection of the unique sequences to be folded can occur either per clonotype (given a threshold), from a vector of sequences, or from a vector of unique cell barcodes.
+#' Steropodon_model employs several deep-learning models for protein folding, mostly relying on alignment/MSA-free models for a lighter local setup and, usually, faster inference.
+#' For example, IgFold, OmegaFold, and DeepAb make use of protein language model-based (pLM) architectures, completely avoiding the MSA step used in models such as AlphaFold, whereas ColabFold uses a public server for MSA queries.
+#' These can be installed directly on a local machine using Reticulate and called with a minimal download requirement.
+#' Moreover, by specifying an environment name for either conda or Python’s virtualenv, Steropodon will install all dependencies of a given model when first calling Steropodon_model.
+#' If this fails, we recommend following the installation instructions for your desired protein folding model and then using that environment as input to env.name.
+#' For ColabFold, we recommend first installing following these instructions https://github.com/YoshitakaMo/localcolabfold, as Steropodon_model requires the colabfold_batch command to be exported to your path variable.
+#' Therefore, we have highlighted the main design philosophy of the Steropodon pipeline: it can be directly used with a single call on a local machine - it does not require extensive installations of either libraries or sequence databases.
+#' This enables the fast exploratory analysis of a given repertoire’s structural features and, most importantly, allows researchers to employ this pipeline on their local machines.
+#' Of course, this comes with a computational cost, and the number of structures that can be folded in a reliable amount of time depends on each individual machine.
+#' Steropodon can also be set up on a cluster, while the gpu parameter in Steropodon_model will enable GPU usage and faster inference.
+#' Steropodon_model allows the folding of either single chains ('VDJ' or 'VJ' in the sequence.type parameter) or paired chains (sequence.type = 'VDJ.VJ').
+
+#' @param VGM the VGM object, used in most analyses in the Platypus computational immunology ecosystem. Obtained from the VDJ_GEX_matrix function.
+#' @param AntibodyForests.object the AntibodyForests object - a lineage of set of clonal lineages with unique sequences to be extracted for structural modelling. More multimodal analyses (structural evolution and clonal networks) will be implemented soon.
+#' @param model string - the immune receptor folding model to be used. Current options include: 'igfold', 'omegafold', 'colabfold', and 'deepab'. Other deep learning models for protein structure inference will be added soon.
+#' @param model.folder string - the path to the model directory (for weights, inference scripts, etc). See Steropodon_protein_folding for the subroutine for each folding model and if/how these paths are needed (as Steropodon aims to initially install the model in a specified environment and call from Python using Reticulate).
+#' @param additional.model.parameters named list - additional parameters/options for the folding models. See Steropodon_protein_folding for more information.
+#' @param sequence.type string - the chains that should be folded: 'VDJ.VJ' for paired heavy-light chains, 'VDJ' for heavy, 'VJ' for light.
+#' @param sequence.vector vector of strings or NULL - vector of receptor sequences that should be folded (will no longer select per clonotype from the VGM object).
+#' @param barcode.vector vector of strings or NULL - vector of cell barcodes (from the GEX/Seurat object) for which unique receptors should be selected for structural modelling.
+#' @param antigen.columns vector of strings or NULL - if the folding method selected allows modelling antibody-antigen complexes (e.g., model = 'colabfold'), this should define the VGM column name(s) with the antigen sequences.
+#' @param antigen.pdbs vector of strings or NULL - if the folding method selected allows modelling antibody-antigen complexes (e.g., model = 'colabfold'), this should define the PDB IDs for the antigen further used in multimer/complex folding.
+#' @param antigen.sequences vector of strings or NULL - if the folding method selected allows modelling antibody-antigen complexes (e.g., model = 'colabfold'), this should define the antigen sequences further used in multimer/complex folding.
+#' @param max.clonotypes integer - the maximum number of clonotypes from which unique sequences will be picked for folding, per sample. Clonotype will first be ranked by clonal expansion.
+#' @param max.per.clonotype integer - the maximum number of unique sequences per clonotype selected for structural prediction.
+#' @param min.clonotype.frequency integer - the minimum clonal expansion for a clonotype to be selected from for folding.
+#' @param save.pdbs boolean - if TRUE, all structures will be also saved as PDB file.
+#' @param save.rds boolean - if TRUE, will save the Steropodon object as an RDS file.
+#' @param save.dir string - path to the directory for saving structures/Steropodon objects.
+#' @param env.name string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
+#' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
+#' @param gpu boolean - if TRUE, will use GPUs for faster structural inference.
+
+#' @return a nested list of Steropodon objects (per sample, per clonotype), with slots for the modelled structure and several other slots for saving structures from the downstream analyses.
+#' @export
+#' @examples
+#' \dontrun{
+#' Steropodon_model(VDJ,
+#'                 model = 'igfold',
+#'                 sequence.type = 'VDJ.VJ',
+#'                 max.clonotypes = 10,
+#'                 max.per.clonotype = 1,
+#'                 additional.model.parameters = list(igfold.refine = T, igfold.use.openmm = T),
+#'                 save.rds = T,
+#'                 save.dir = './steropodon_RDS',
+#'                 use.conda = T,
+#'                 env.name = 'vignette_env'
+#'}
+
+
 Steropodon_model <- function(VGM,
                              AntibodyForests.object,
                              model,
