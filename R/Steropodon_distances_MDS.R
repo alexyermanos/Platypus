@@ -44,6 +44,8 @@ Steropodon_distances_MDS <- function(steropodon.object,
   if(missing(VGM) & plot.results) stop('Please input your VGM object or VDJ matrix!')
   if(missing(cluster.method)) cluster.method <- NULL
 
+  X <- NULL
+  Y <- NULL
 
   distance_mds <- function(distance.matrix,
                             steropodon.list,

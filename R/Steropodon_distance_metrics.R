@@ -99,8 +99,8 @@ compute_af_lddt <- function(pdb1, pdb2, cutoff = 15, mask = rep(TRUE, length(pdb
   coords1 <- matrix(pdb1$xyz, ncol = 3, byrow = T)[pdb1$indices$atom,]
   coords2 <- matrix(pdb2$xyz, ncol = 3, byrow = T)[pdb2$indices$atom,]
 
-  dmat1 <- as.matrix(dist(coords1, diag = T, upper = T)) + 1e-10
-  dmat2 <- as.matrix(dist(coords2, diag = T, upper = T)) + 1e-10
+  dmat1 <- as.matrix(stats::dist(coords1, diag = T, upper = T)) + 1e-10
+  dmat2 <- as.matrix(stats::dist(coords2, diag = T, upper = T)) + 1e-10
 
   mask = as.matrix(mask) * 1
   mask = mask %*% t(mask)

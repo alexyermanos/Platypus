@@ -21,7 +21,12 @@
 #'steropodon_igfold$s1$clonotype1$`1` %>%
 #'  Steropodon_trim(structure = 'structure',
 #'                  grouping = c('chain', 'region'),
-#'                  specific.values = c('VDJ_CDR1','VDJ_CDR2','VDJ_CDR3','VJ_CDR1','VJ_CDR2','VJ_CDR3'),
+#'                  specific.values = c('VDJ_CDR1',
+#'                  'VDJ_CDR2',
+#'                  'VDJ_CDR3',
+#'                  'VJ_CDR1',
+#'                  'VJ_CDR2',
+#'                  'VJ_CDR3'),
 #'                  combine.values = T,
 #'                  combine.groupings = T) %>%
 #'  Steropodon_visualize(structure = 'structure',
@@ -56,6 +61,8 @@ Steropodon_visualize <- function(steropodon.object,
   if(animate){
     single.plot <- 'overlap'
   }
+
+  combined <- NULL
 
   preprocess_pdbs <- function(pdb, color.by, numeric.feature){
     chains <- unique(pdb$atom$chain)

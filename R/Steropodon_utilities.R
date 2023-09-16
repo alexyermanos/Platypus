@@ -55,6 +55,8 @@ split_structure <- function(pdb, grouping, specific.values, combine.groupings, c
   if(missing(combine.groupings)) combine.groupings <- F
   if(missing(combine.values)) combine.values <- F
 
+  combined <- NULL
+
   is_null_pdb <- function(pdb){
     out <- F
     if(nrow(pdb$atom) == 0){
@@ -331,8 +333,8 @@ sequence_structure_superpose <- function(mobile,
       l <- matrix(xyz.b, ncol = 3, byrow = T)
 
       devs <- apply(cbind(k,l), 1, "xyz.dist")
-      m <- median(devs)
-      std <- sd(devs)
+      m <- stats::median(devs)
+      std <- stats::sd(devs)
 
       cut <- m + (2*std)
       inds <- which(devs > cut)
@@ -361,7 +363,7 @@ sequence_structure_superpose <- function(mobile,
       pdbseq <- bio3d::aa321(pdb$atom[pdb$calpha, "resid"])
       aliseq <- toupper(s$ali[i, ])
       tomatch <- gsub("X", "[A-Z]", aliseq[!bio3d::is.gap(aliseq)])
-      start.num <- regexpr(pattern = paste(c(na.omit(tomatch[1:15])), collapse = ""), text = paste(pdbseq, collapse = ""))[1]
+      start.num <- regexpr(pattern = paste(c(stats::na.omit(tomatch[1:15])), collapse = ""), text = paste(pdbseq, collapse = ""))[1]
 
       nseq <- rep(NA, length(aliseq))
       ali.res.ind <- which(!bio3d::is.gap(aliseq))
@@ -548,7 +550,7 @@ structure_superpose <- function(fixed,
 #' @export
 #' @examples
 #' \dontrun{
-
+#' sequences <- extract_MIXCR(VDJ, chain.to.extract = 'VDJ')
 #'}
 extract_MIXCR <- function(VDJ.matrix, chain.to.extract, as.nucleotide, regions.to.extract){
       if(missing(VDJ.matrix)) stop('Input the VDJ dataframe obtained after calling VDJ_call_MIXCR')

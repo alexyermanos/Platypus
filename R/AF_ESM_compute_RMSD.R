@@ -19,9 +19,9 @@ AF_ESM_compute_RMSD <- function(alphafold.output.folder, esmfold.output.folder) 
   alphafold.output <- list()
   sample <- c()
   for(i in 1:length(output.dirs)) {
-    alphafold.output[[length(alphafold.output)+1]] <- biop3d::read.pdb(paste0(
+    alphafold.output[[length(alphafold.output)+1]] <- bio3d::read.pdb(paste0(
       alphafold.output.folder,"/", output.dirs[i],"/", "ranked_0.pdb"))
-    sample <- c(sample,paste0(parse_number(output.dirs[i])))
+    sample <- c(sample,paste0(readr::parse_number(output.dirs[i])))
   }
   names(alphafold.output) <- sample
   alphafold.output <- alphafold.output[order(as.integer(names(alphafold.output)))]
@@ -33,7 +33,7 @@ AF_ESM_compute_RMSD <- function(alphafold.output.folder, esmfold.output.folder) 
   for(i in 1:length(files)) {
     esmfold.output[[length(esmfold.output)+1]] <- bio3d::read.pdb(paste0(esmfold.output.folder,
                                                                   "/", files[i]))
-    sample <- c(sample,paste0(parse_number(files[i])))
+    sample <- c(sample,paste0(readr::parse_number(files[i])))
   }
   names(esmfold.output) <- sample
   esmfold.output <- esmfold.output[order(as.integer(names(esmfold.output)))]
@@ -43,7 +43,7 @@ AF_ESM_compute_RMSD <- function(alphafold.output.folder, esmfold.output.folder) 
   for (i in seq(length(alphafold.output))) {
     alphafold <- alphafold.output[[paste(i)]]
     esmfold <- esmfold.output[[paste(i)]]
-    align <- struct.aln(alphafold, esmfold, exefile='msa')
+    align <- bio3d::struct.aln(alphafold, esmfold, exefile='msa')
 
     rmsd <- c(rmsd, bio3d::rmsd(alphafold, esmfold, fit=TRUE,
                          a.inds=align$a.inds$xyz, b.inds=align$b.inds$xyz))

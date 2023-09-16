@@ -43,6 +43,12 @@ Steropodon_properties <- function(steropodon.object,
    if(missing(dssp.exefile) & ('DSSP' %in% properties)) stop('Please input path to the DSPP exe file')
    if(missing(parallel)) parallel <- T
 
+   chain <- NULL
+   . <- NULL
+   resno <- NULL
+   temp.dir <- NULL
+   receptor_files <- NULL
+
    switch(Sys.info()[['sysname']],
            Windows= {message("Windows system detected")
              operating.system <- "Windows"},
@@ -53,16 +59,16 @@ Steropodon_properties <- function(steropodon.object,
 
 
     #TO DO:
-    calculate_interatomic <- function(){
-    }
+    #calculate_interatomic <- function(){
+    #}
 
     #TO DO:
-    calculate_sap <- function(pdb){
-    }
+    #calculate_sap <- function(pdb){
+    #}
 
     #TO DO:
-    calculate_pi <- function(pdb){
-    }
+    #calculate_pi <- function(pdb){
+    #}
 
 
     #From Lucas' VDJ_structure_analysis function
@@ -136,7 +142,7 @@ Steropodon_properties <- function(steropodon.object,
       dssp_df$resno <- as.integer(dssp_df$resno)
 
       pdb$atom <- dplyr::left_join(pdb$atom, dssp_df, by = c("resno","chain"))
-      chain_dict <- setNames(names(chain_dict), chain_dict)
+      chain_dict <- stats::setNames(names(chain_dict), chain_dict)
       pdb$atom$chain <- chain_dict[pdb$atom$chain]
 
       return(pdb)
@@ -168,7 +174,7 @@ Steropodon_properties <- function(steropodon.object,
       pka <- paste(pka, collapse = '\n')
 
       tc <- textConnection(pka)
-      df <- read.table(tc, as.is=T, fill=T, blank.lines.skip=F)
+      df <- utils::read.table(tc, as.is=T, fill=T, blank.lines.skip=F)
       close(tc)
 
       df <- df[-1,]
@@ -178,7 +184,7 @@ Steropodon_properties <- function(steropodon.object,
       df$pKa <- as.numeric(df$pKa)
       df$pKmodel <- as.numeric(df$pKmodel)
 
-      chain_dict <- setNames(names(chain_dict), chain_dict)
+      chain_dict <- stats::setNames(names(chain_dict), chain_dict)
       df$chain <- chain_dict[df$chain]
       pdb$atom <- dplyr::left_join(pdb$atom, df, by = c('resno', 'chain', 'resid'))
 
@@ -189,7 +195,7 @@ Steropodon_properties <- function(steropodon.object,
       en <- paste(en, collapse = '\n')
 
       tc <- textConnection(en)
-      df <- read.table(tc, as.is=T, fill=T, blank.lines.skip=F)
+      df <- utils::read.table(tc, as.is=T, fill=T, blank.lines.skip=F)
       close(tc)
       colnames(df) <- c('pH', 'Free energy of folding (kcal/mol')
 
@@ -201,7 +207,7 @@ Steropodon_properties <- function(steropodon.object,
       ch <- propka_out[(start+2):(end-1)]
 
       tc <- textConnection(ch)
-      df <- read.table(tc, as.is=T, fill=T, blank.lines.skip=F)
+      df <- utils::read.table(tc, as.is=T, fill=T, blank.lines.skip=F)
       close(tc)
 
       colnames(df) <- c('pH', 'unfolded', 'folded')

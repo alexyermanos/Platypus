@@ -52,7 +52,7 @@ Steropodon_save <- function(steropodon.object,
      for(i in 1:length(steropodon_list)){
        struct <- select_structure(steropodon_list[[i]], structure = structure)
        file_path <- paste0(save.dir, '/', file_names[i], '.csv')
-       write.csv(struct$atom, file_path)
+       utils::write.csv(struct$atom, file_path)
      }
    }
 }

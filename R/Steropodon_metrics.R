@@ -52,6 +52,14 @@ Steropodon_metrics <- function(steropodon.object,
   if(missing(proportions)) proportions <- T
   if(missing(combine.lineplot)) combine.lineplot <- F
 
+  colors <- NULL
+  counts <- NULL
+  . <- NULL
+  lineplot_group <- NULL
+  resno <- NULL
+  pdb <- NULL
+  combined <- NULL
+  color.by <- NULL
 
   create_lineplot <- function(df.list,
                               feature,
@@ -198,13 +206,13 @@ Steropodon_metrics <- function(steropodon.object,
         df <- df %>%
               dplyr::group_by(grouping) %>%
               dplyr::group_by(feature) %>%
-              dplyr::mutate(counts = n()) %>%
+              dplyr::mutate(counts = dplyr::n()) %>%
               dplyr::ungroup()
 
         if(proportions){
           df <- df %>%
                 dplyr::group_by(grouping) %>%
-                dplyr::mutate(group_counts = n()) %>%
+                dplyr::mutate(group_counts = dplyr::n()) %>%
                 dplyr::ungroup()
 
           df$counts <- df$counts / df$group_counts

@@ -1,3 +1,26 @@
+#' Folds receptor sequences from a given dataframe using ColabFold
+#' @description Folds receptor sequences from a given dataframe using ColabFold
+#' @param sequence.df dataframe - sequences and their IDs, as obtained from the Steropodon_model function.
+#' @param colabfold.num.recycle See ColabFold for more information.
+#' @param colabfold.num.ensemble See ColabFold for more information.
+#' @param colabfold.num.models See ColabFold for more information.
+#' @param colabfold.msa.mode See ColabFold for more information.
+#' @param colabfold.amber See ColabFold for more information.
+#' @param colabfold.stop.at.score See ColabFold for more information.
+#' @param colabfold.stop.at.score.below See ColabFold for more information.
+#' @param env.name  string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
+#' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
+#' @param gpu boolean - if TRUE, will use GPUs for faster structural inference.
+
+#' @return input dataframe with a new column with the folded structure path. Will be processed by Steropodon_model into a Steropodon object/list of objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' folded_df <- call_colabfold(sequence_df,
+#' env.name = 'colabfold',
+#' use.conda = T,
+#' gpu = T)
+#'}
 call_colabfold <- function(sequence.df,
                            colabfold.num.recycle,
                            colabfold.num.ensemble,
@@ -25,6 +48,7 @@ call_colabfold <- function(sequence.df,
    if(missing(use.conda)) use.conda <- T
    if(missing(gpu)) gpu <- T
 
+   create_fasta_directory <- NULL
 
    if(Sys.which('colabfold_batch')==''){
      message('Could not find a local installation of colabfold_batch. Will try to install it in a conda/virtualenv environment. However, it is recommended to install ColabFold manually by following the instructions here: https://github.com/sokrypton/ColabFold, https://github.com/YoshitakaMo/localcolabfold and exporting the colabfold_batch and colabfold_search $PATH variables')
@@ -164,6 +188,25 @@ call_colabfold <- function(sequence.df,
    return(list(pdb_dir = pdb_dir, sequence_df = sequence.df))
 }
 
+
+#' Folds receptor sequences from a given dataframe using IgFold
+#' @description Folds receptor sequences from a given dataframe using IgFold
+#' @param sequence.df dataframe - sequences and their IDs, as obtained from the Steropodon_model function.
+#' @param igfold.refine boolean - if TRUE, will refine the modelled structure using OpenMM or PyRosetta.
+#' @param igfold.renum boolean - if TRUE, will renumber the modelled structure chains.
+#' @param igfold.use.openmm boolean - if TRUE, will use OpenMM for structure relaxation. Else, will use PyRosetta.
+#' @param igfold.use.abnum boolean - if TRUE, will use AbNum for structure/region renumbering.
+#' @param env.name  string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
+#' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
+
+#' @return input dataframe with a new column with the folded structure path. Will be processed by Steropodon_model into a Steropodon object/list of objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' folded_df <- call_igfold(sequence_df,
+#' env.name = 'igfold',
+#' use.conda = T)
+#'}
 call_igfold <- function(sequence.df,
                         igfold.refine,
                         igfold.renum,
@@ -180,6 +223,8 @@ call_igfold <- function(sequence.df,
   if(missing(igfold.use.abnum)) igfold.use.abnum <- F
   if(missing(env.name)) env.name <- NULL
   if(missing(use.conda)) use.conda <- T
+
+  fasta_sequence <- NULL
 
 
   pdb_dir <- './tempdir_steropodon_pdbs_igfold_tnfr2'
@@ -282,6 +327,26 @@ call_igfold <- function(sequence.df,
   return(list(pdb_dir = pdb_dir, sequence_df = sequence.df))
 }
 
+
+#' Folds receptor sequences from a given dataframe using OmegaFold
+#' @description Folds receptor sequences from a given dataframe using OmegaFold
+#' @param sequence.df dataframe - sequences and their IDs, as obtained from the Steropodon_model function.
+#' @param model.folder string - path to the OmegaFold model directory.
+#' @param omegafold.num.cycle integer - number of recycles during inference.
+#' @param omegafold.subbatch.size integer - subbatch size.
+#' @param omegafold.allow.tf32 boolean - if TRUE, will default to the TensorFloat-32 (TF32) precision format.
+#' @param env.name  string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
+#' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
+#' @param gpu boolean - if TRUE, will use GPUs for faster structural inference.
+
+#' @return input dataframe with a new column with the folded structure path. Will be processed by Steropodon_model into a Steropodon object/list of objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' folded_df <- call_omegafold(sequence_df, model.folder = './omegafold',
+#' env.name = 'omegafold',
+#' use.conda = T)
+#'}
 call_omegafold <- function(sequence.df,
                            model.folder,
                            omegafold.num.cycle,
@@ -318,6 +383,7 @@ call_omegafold <- function(sequence.df,
    device <- 'xla' #Test for TPUs on Colab
  }
 
+ fasta_sequence <- NULL
 
  pdb_dir <- './tempdir_steropodon_pdbs_omegafold'
  if(!dir.exists(pdb_dir)) dir.create(pdb_dir)
@@ -405,6 +471,24 @@ call_omegafold <- function(sequence.df,
  return(list(pdb_dir = pdb_dir, sequence_df = sequence.df))
 }
 
+
+#' Folds receptor sequences from a given dataframe using DeepAb
+#' @description Folds receptor sequences from a given dataframe using DeepAb
+#' @param sequence.df dataframe - sequences and their IDs, as obtained from the Steropodon_model function.
+#' @param model.folder string - path to the DeepAb model directory.
+#' @param deepab.decoys see DeepAb for more information.
+#' @param env.name  string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
+#' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
+#' @param path.to.pyrosetta string - path to the PyRosetta licence.
+
+#' @return input dataframe with a new column with the folded structure path. Will be processed by Steropodon_model into a Steropodon object/list of objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' folded_df <- call_deepab(sequence_df, model.folder = './deepab',
+#' env.name = 'deepab',
+#' use.conda = T)
+#'}
 call_deepab <- function(sequence.df,
                         model.folder,
                         deepab.decoys,
@@ -419,6 +503,8 @@ call_deepab <- function(sequence.df,
    if(missing(deepab.decoys)) deepab.decoys <- 5
    if(missing(env.name)) env.name <- NULL
    if(missing(path.to.pyrosetta)) path.to.pyrosetta <- NULL
+
+   fasta_sequence <- NULL
 
    pdb_dir <- './tempdir_steropodon_pdbs_deepab'
    if(!dir.exists(pdb_dir)) dir.create(pdb_dir)
@@ -531,18 +617,24 @@ call_deepab <- function(sequence.df,
 }
 
 
-call_helixfold <- function(){
+#' Calls all implemented models inside Steropodon_model
+#' @description Calls all implemented models inside Steropodon_model
+#' @param sequence.df dataframe - sequences and their IDs, as obtained from the Steropodon_model function.
+#' @param model string - folding model ('colabfold', 'omegafold', 'igfold', 'deepab').
+#' @param model.folder boolean - if TRUE, will refine the modelled structure using OpenMM or PyRosetta.
+#' @param env.name  string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
+#' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
+#' @param gpu boolean - if TRUE, will use GPUs for faster structural inference.
+#' @param additional.model.parameters named list - additional parameters specific to the folding model.
 
-}
-
-call_alphafold_minimal <- function(){
-
-}
-
-call_esmfold <- function(){
-
-}
-
+#' @return input dataframe with a new column with the folded structure path. Will be processed by Steropodon_model into a Steropodon object/list of objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' folded_df <- call_models(sequence_df, model = 'igfold',
+#' env.name = 'igfold',
+#' use.conda = T)
+#'}
 call_models <- function(sequence.df, model, model.folder, env.name, use.conda, gpu, additional.model.parameters){
   if(model == 'colabfold'){
     params <- list(sequence.df = sequence.df,
@@ -561,15 +653,6 @@ call_models <- function(sequence.df, model, model.folder, env.name, use.conda, g
 
     out <- do.call(call_omegafold, c(params, additional.model.parameters))
 
-  }else if(model == 'helixfold'){
-    params <- list(sequence.df = sequence.df,
-                   model.folder = model.folder,
-                   env.name = env.name,
-                   use.conda = use.conda,
-                   gpu = gpu)
-
-    out <- do.call(call_helixfold, c(params, additional.model.parameters))
-
   }else if(model == 'igfold'){
     params <- list(sequence.df = sequence.df,
                    env.name = env.name,
@@ -587,26 +670,6 @@ call_models <- function(sequence.df, model, model.folder, env.name, use.conda, g
                    )
 
     out <- do.call(call_deepab, c(params, additional.model.parameters))
-
-
-  }else if(model == 'alphafold_minimal'){
-    params <- list(sequence.df = sequence.df,
-                   model.folder = model.folder,
-                   env.name = env.name,
-                   use.conda = use.conda
-                   )
-
-    out <- do.call(call_alphafold_minimal, c(params, additional.model.parameters))
-
-
-  }else if(model == 'esmfold'){
-    params <- list(sequence.df = sequence.df,
-                   model.folder = model.folder,
-                   env.name = env.name,
-                   use.conda = use.conda
-                   )
-
-    out <- do.call(call_esmfold, c(params, additional.model.parameters))
 
 
   }else{

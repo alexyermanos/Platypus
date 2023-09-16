@@ -56,6 +56,10 @@ Steropodon_multimodal <- function(
   if(missing(plot.results)) plot.results <- T
   if(missing(color.by)) color.by <- 'sample_id'
 
+  struct <- NULL
+  additional.integration.params <- NULL
+  False <- NULL
+  additional.clustering.params <- NULL
 
   create_multimodal_object <- function(feature.matrix,
                                        seurat.obj,

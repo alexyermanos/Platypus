@@ -65,6 +65,9 @@ Steropodon_coordinates <- function(steropodon.object,
   if(missing(additional.dim.reduction.parameters)) additional.dim.reduction.parameters <- list()
   if(missing(per.cell)) per.cell <- F
 
+  X <- NULL
+  Y <- NULL
+
   get_feature_matrix <- function(steropodon.list,
                                  structure,
                                  use.pdbs,
@@ -89,7 +92,7 @@ Steropodon_coordinates <- function(steropodon.object,
     }
 
     if(remove.na){
-      coords <- t(na.omit(t(coords)))
+      coords <- t(stats::na.omit(t(coords)))
     }
 
     return(coords)

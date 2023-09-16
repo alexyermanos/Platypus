@@ -14,6 +14,7 @@
 #' @param additional.tool.params named list - additional parameters for the structural relaxation tool.
 
 #' @return a nested list of Steropodon objects or a single object with all structures in 'structure' relaxed (reduced clashes, added H atoms).
+#' @importFrom reticulate %as%
 #' @export
 #' @examples
 #' \dontrun{
@@ -43,9 +44,12 @@ Steropodon_refine <- function(steropodon.object,
    if(missing(refining.tools)) refining.tools <- 'openmm'
    if(missing(additional.tool.params)) additional.tool.params <- list()
 
+   f <- NULL
+   pdb_list_refined <- NULL
+   i <- NULL
 
    merge_refined_pdb <- function(original.pdb, refined.pdb, chain.dict){
-     chain.dict <- setNames(names(chain.dict), chain.dict)
+     chain.dict <- stats::setNames(names(chain.dict), chain.dict)
      refined.pdb$atom$chain <- chain.dict[refined.pdb$atom$chain]
 
      cols <- setdiff(colnames(original.pdb$atom), colnames(refined.pdb$atom))
@@ -246,7 +250,7 @@ Steropodon_refine <- function(steropodon.object,
 
 
      is.error <- function(x) inherits(x, "try-error")
-     failed <- lapply(pbb_list_refined, function(x) is.error(x))
+     failed <- lapply(pdb_list_refined, function(x) is.error(x))
      if(length(failed)!=0){
        message(paste0('OpenMM failed on the following structures: ', paste0(names(pdb_list)[failed], collapse = ', ')))
        pdb_list_refined[[failed]] <- pdb_list[[failed]]
@@ -354,7 +358,7 @@ Steropodon_refine <- function(steropodon.object,
                                                  vj$resno <- vj$resno - min(vj$resno)
                                                  pdb$atom[pdb$atom$chain == 'VJ',] <- vj
                                                  pdb$atom$resno <- 1 + pdb$atom$resno
-                                                 i <<- i + 1
+                                                 i <- i + 1
                                                  return(pdb)}
                                                  )
 
@@ -389,7 +393,7 @@ Steropodon_refine <- function(steropodon.object,
 
 
      is.error <- function(x) inherits(x, "try-error")
-     failed <- lapply(pbb_list_refined, function(x) is.error(x))
+     failed <- lapply(pdb_list_refined, function(x) is.error(x))
      if(length(failed)!=0){
        message(paste0('OpenMM failed on the following structures: ', paste0(names(pdb_list)[failed], collapse = ', ')))
        pdb_list_refined[[failed]] <- pdb_list[[failed]]

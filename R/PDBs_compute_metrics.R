@@ -18,6 +18,12 @@
 
 PDBs_compute_metrics <- function(model, output.folder, cutoff=5) {
 
+  . <- NULL
+  interface <- NULL
+  chain <- NULL
+  resno <- NULL
+  elety <- NULL
+
   #Creating the output object based on the model
   if(model == "alphafold") {
     output.dirs <- list.dirs(output.folder, full.names=FALSE, recursive=FALSE)

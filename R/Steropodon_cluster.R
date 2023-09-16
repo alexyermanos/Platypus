@@ -55,6 +55,10 @@ Steropodon_cluster <- function(steropodon.object,
    if(missing(additional.dim.reduction.parameters)) additional.dim.reduction.parameters <- list()
    if(missing(plot.results)) plot.results <- T
 
+   X <- NULL
+   Y <- NULL
+   color.by <- NULL
+
    plot_embeddings <- function(embed.dfs){
 
      out_plots <- vector(mode = 'list', length = length(embed.dfs))
@@ -154,7 +158,7 @@ Steropodon_cluster <- function(steropodon.object,
                                        ){
 
       if(cluster.method == 'hclust'){
-        params <- list(d = as.dist(distance.matrix))
+        params <- list(d = stats::as.dist(distance.matrix))
         clust <- do.call(stats::hclust, c(params, additional.cluster.parameters))
 
         if(is.null(additional.cluster.parameters$k)){
@@ -175,7 +179,7 @@ Steropodon_cluster <- function(steropodon.object,
         }
 
       }else if(cluster.method == 'medoids'){
-        params <- list(x = as.dist(distance.matrix))
+        params <- list(x = stats::as.dist(distance.matrix))
 
         if(is.null(additional.cluster.parameters$k)){
           additional.cluster.parameters$k <- 3

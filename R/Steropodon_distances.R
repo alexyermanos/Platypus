@@ -70,6 +70,8 @@ Steropodon_distances <- function(steropodon.object,
   if(missing(custom.commutative)) custom.commutative <- T
   if(missing(plot.results)) plot.results <- T
 
+  d <- NULL
+
   #Calls seq/struct alignment and the distance metric
 
   compute_parallel_distance <- function(steropodon.pdb.list,
@@ -204,8 +206,8 @@ Steropodon_distances <- function(steropodon.object,
           l <- matrix(xyz.b, ncol = 3, byrow = T)
 
           devs <- apply(cbind(k,l), 1, "xyz.dist")
-          m <- median(devs)
-          std <- sd(devs)
+          m <- stats::median(devs)
+          std <- stats::sd(devs)
 
           cut <- m + (2*std)
           inds <- which(devs > cut)
@@ -234,7 +236,7 @@ Steropodon_distances <- function(steropodon.object,
           pdbseq <- bio3d::aa321(pdb$atom[pdb$calpha, "resid"])
           aliseq <- toupper(s$ali[i, ])
           tomatch <- gsub("X", "[A-Z]", aliseq[!bio3d::is.gap(aliseq)])
-          start.num <- regexpr(pattern = paste(c(na.omit(tomatch[1:15])), collapse = ""), text = paste(pdbseq, collapse = ""))[1]
+          start.num <- regexpr(pattern = paste(c(stats::na.omit(tomatch[1:15])), collapse = ""), text = paste(pdbseq, collapse = ""))[1]
 
           nseq <- rep(NA, length(aliseq))
           ali.res.ind <- which(!bio3d::is.gap(aliseq))
@@ -458,7 +460,7 @@ Steropodon_distances <- function(steropodon.object,
 
     #Will modify for non-commutative metrics and for diag != NA
     m <- bigstatsr::FBM(length(steropodon.pdb.list), length(steropodon.pdb.list))
-    combs <- combn(1:length(steropodon.pdb.list), 2)
+    combs <- utils::combn(1:length(steropodon.pdb.list), 2)
     ident <- rbind(1:length(steropodon.pdb.list), 1:length(steropodon.pdb.list))
     combs <- cbind(combs, ident)
     cores <- parallel::detectCores() - 1

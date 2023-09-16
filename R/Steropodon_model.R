@@ -96,6 +96,15 @@ Steropodon_model <- function(VGM,
   if(missing(use.conda)) use.conda <- T
   if(missing(gpu)) gpu <- F
 
+  sample_id <- NULL
+  clonotype_id <- NULL
+  sequence_column <- NULL
+  clonotype_frequency <- NULL
+  sequence_frequency <- NULL
+  fasta_sequence <- NULL
+  n_cells <- NULL
+
+
   #Define global variables
   aa_short <- c('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y')
   aa_abbrev <- c('ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE', 'LYS', 'LEU', 'MET', 'ASN', 'PYL', 'PRO', 'GLN', 'ARG', 'SER', 'THR', 'SEC', 'VAL', 'TRP', 'TYR')
@@ -188,12 +197,12 @@ Steropodon_model <- function(VGM,
 
     VDJ <- VDJ %>%
            dplyr::group_by(sample_id, clonotype_id) %>%
-           dplyr::mutate(clonotype_frequency = n()) %>%
+           dplyr::mutate(clonotype_frequency = dplyr::n()) %>%
            dplyr::ungroup()
 
     VDJ <- VDJ %>%
            dplyr::group_by(sample_id, clonotype_id, sequence_column) %>%
-           dplyr::mutate(sequence_frequency = n()) %>%
+           dplyr::mutate(sequence_frequency = dplyr::n()) %>%
            dplyr::ungroup()
 
     if(!is.null(sequence.vector) | !is.null(barcode.vector)){
@@ -216,7 +225,7 @@ Steropodon_model <- function(VGM,
         for(i in 1:length(ids)){
           selected_clonotypes <- VDJ[VDJ$sample_id == ids[i],] %>%
                                  dplyr::distinct(clonotype_id, .keep_all = T) %>%
-                                 dplyr::arrange(desc(clonotype_frequency))
+                                 dplyr::arrange(plyr::desc(clonotype_frequency))
 
           selected_clonotypes <- selected_clonotypes$clonotype_id[1:max.clonotypes]
           per_sample_dfs[[i]] <- VDJ[VDJ$sample_id == ids[i] & (VDJ$clonotype_id %in% selected_clonotypes),]
@@ -229,7 +238,7 @@ Steropodon_model <- function(VGM,
       if(!is.null(max.per.clonotype)){
         temp_VDJ <- VDJ %>%
                dplyr::group_by(sample_id, clonotype_id, sequence_column) %>%
-               dplyr::arrange(desc(sequence_frequency))
+               dplyr::arrange(plyr::desc(sequence_frequency))
 
         temp_VDJ <- temp_VDJ %>%
                 dplyr::group_by(sample_id, clonotype_id) %>%
@@ -264,12 +273,12 @@ Steropodon_model <- function(VGM,
 
     #Add VDJ/VJ regions inferred from MIXCR to annotate the structures later
     if(sequence.type == 'VDJ' | sequence.type == 'VDJ.VJ'){
-      VDJ_subset <- VDJ %>% select(c('barcode', VDJ_regions))
+      VDJ_subset <- VDJ %>% dplyr::select(c('barcode', VDJ_regions))
       final_df <- merge(final_df, VDJ_subset, by.x = 'barcodes', by.y = 'barcode', all.x = T)
     }
 
     if(sequence.type == 'VJ' | sequence.type == 'VDJ.VJ'){
-      VDJ_subset <- VDJ %>% select(c('barcode', VJ_regions))
+      VDJ_subset <- VDJ %>% dplyr::select(c('barcode', VJ_regions))
       final_df <- merge(final_df, VDJ_subset, by.x = 'barcodes', by.y = 'barcode', all.x = T)
     }
 
@@ -481,7 +490,7 @@ Steropodon_model <- function(VGM,
 
         temp_subset <- sequence_subset %>%
                            dplyr::group_by(fasta_sequence) %>%
-                           dplyr::mutate(n_cells = n()) %>%
+                           dplyr::mutate(n_cells = dplyr::n()) %>%
                            dplyr::ungroup() %>%
                            dplyr::distinct(fasta_sequence, .keep_all = T) %>%
                            dplyr::arrange(dplyr::desc(n_cells))

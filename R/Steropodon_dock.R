@@ -53,6 +53,8 @@ Steropodon_dock <- function(steropodon.object,
   if(missing(additional.docking.params)) additional.docking.params <- list()
   if(missing(parallel)) parallel <- T
 
+  combined <- NULL
+
   call_zdock <- function(steropodon.object,
                          antigen,
                          antigen.name,
@@ -168,7 +170,7 @@ Steropodon_dock <- function(steropodon.object,
 
     current_dir <- getwd()
     chain_dict <- write_steropodon_pdbs(steropodon.object, structure = structure, dir = temp_dir)
-    chain_dict <- setNames(names(chain_dict), chain_dict)
+    chain_dict <- stats::setNames(names(chain_dict), chain_dict)
 
     receptor_files <- list.files(temp_dir)
 

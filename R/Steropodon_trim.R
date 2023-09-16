@@ -10,7 +10,7 @@
 #' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
 #' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
 #' @param grouping string or vector of strings - the feature name in a Steropodon object that includes the parts we want trimmed (e.g., 'chain' if we want to remove a VDJ or VJ chain).
-#' @param specific.values string or vector of strings - the specific regions to be removed from the structure, depending on the 'grouping' parameter (e.g., grouping = 'chain' and specific.values = 'VDJ' will remove all heavy chains).
+#' @param specific.values string or vector of strings - the specific regions to kept in the structure, depending on the 'grouping' parameter (e.g., grouping = 'chain' and specific.values = 'VDJ' will remove all keep chains).
 #' @param combine.values bool - if TRUE, the regions inserted in specific.values will all be combined in the same final structure.
 #' @param combine.groupings bool - if TRUE, will combine the 'grouping' features for a more specific trimming (e.g., 'chain' and 'region' to select exactly which hypervariable regions from any chain should be kept - 'VDJ_CDR1', 'VJ_CDR1' etc.).
 #'
@@ -21,7 +21,8 @@
 #'steropodon_igfold$s1$clonotype1$`1` %>%
 #'  Steropodon_trim(structure = 'structure',
 #'                  grouping = c('chain', 'region'),
-#'                  specific.values = c('VDJ_CDR1','VDJ_CDR2','VDJ_CDR3','VJ_CDR1','VJ_CDR2','VJ_CDR3'),
+#'                  specific.values = c('VDJ_CDR1','VDJ_CDR2',
+#'                  VDJ_CDR3','VJ_CDR1','VJ_CDR2','VJ_CDR3'),
 #'                  combine.values = T,
 #'                  combine.groupings = T) %>%
 #'  Steropodon_visualize(structure = 'structure',
@@ -42,6 +43,8 @@ Steropodon_trim <- function(steropodon.object,
     if(missing(specific.values)) specific.values <- c('VDJ_CDR1', 'VDJ_CDR2', 'VDJ_CDR3', 'VJ_CDR1', 'VJ_CDR2', 'VJ_CDR3')
     if(missing(combine.values)) combine.values <- T
     if(missing(combine.groupings)) combine.groupings <- T
+
+    combined <- NULL
 
     split_structure <- function(pdb,
                                 grouping,
