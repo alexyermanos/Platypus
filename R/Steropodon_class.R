@@ -1,15 +1,20 @@
-#' Class used for Steropodon functions
-#'@description See the Steropodon_model function for complete documentation
-#' @export
-#' @examples
-#' \dontrun{
-#' Steropodon_model Steropodon_model(VDJ, model = 'igfold', sequence.type = 'VDJ.VJ',
-#' max.clonotypes = 10, max.per.clonotype = 1,
-#' additional.model.parameters = list(igfold.refine = T, igfold.use.openmm = T),
-#' save.rds = T, save.dir = './steropodon_RDS',
-#' use.conda = T, env.name = 'igfold')
-#' }
-
+#' S4 class for the Steropodon object.
+#'
+#' @slot structure bio3d pdb object of main modelled structure.
+#' @slot sequence string - structure's corresponding amino acid sequence.
+#' @slot barcodes vector of strings - cell barcodes corresponding to a given sequence/structure.
+#' @slot pdbs bio3d pdbs object of aligned sequences and structures.
+#' @slot H bio3d pdb object - heavy chain structure.
+#' @slot L bio3d pdb object - light chain structure.
+#' @slot CDRH3 bio3d pdb object - CDRH3.
+#' @slot CDRL3 bio3d pdb object - CDRL3
+#' @slot antigen bio3d pdb object - antigen
+#' @slot complex bio3d pdb object - antibody-antigen complex from Steropodon_dock
+#' @slot properties dataframe - structure physicochemical properties.
+#' @slot paratope bio3d pdb object - paratope of complex from Steropodon_interface
+#' @slot epitope bio3d pdb object - epitope of complex from Steropodon_interface
+#' @slot core bio3d pdb object - invariant core from Steropodon_find_core
+#' @slot structure_id string - unique structure id.
 methods::setClass('Steropodon',
     slots = c(
       structure = 'ANY',
@@ -28,81 +33,4 @@ methods::setClass('Steropodon',
       core = 'ANY',
       structure_id = 'ANY'
     )
-)
-
-
-
-methods::setMethod(f='show', signature='Steropodon',
- definition=function(object) {
-   cat('Steropodon object', '\n')
-
-   cat('Sample: ', object@structure_id$sample, '  ', 'Clonotype: ', object@structure_id$clonotype, '  ', 'Rank: ', object@structure_id$rank)
-   cat('\n')
-
-   cat('Number of cells: ', length(object@barcodes))
-   cat('\n')
-
-   structures <- c()
-
-   if(!is.null(object@structure)){
-     structures <- c(structures, 'main')
-   }
-
-   if(!is.null(object@complex)){
-     structures <- c(structures, 'complex')
-   }
-
-   if(!is.null(object@antigen)){
-     structures <- c(structures, 'antigen')
-   }
-
-   if(!is.null(object@paratope)){
-     structures <- c(structures, 'paratope')
-   }
-
-   if(!is.null(object@epitope)){
-     structures <- c(structures, 'epitope')
-   }
-
-   if(!is.null(object@pdbs)){
-     structures <- c(structures, 'PDBs')
-   }
-
-   if(!is.null(object@core)){
-     structures <- c(structures, 'core')
-   }
-
-   if(!is.null(object@properties)){
-     structures <- c(structures, 'properties')
-   }
-
-   if(!is.null(object@H)){
-     structures <- c(structures, 'H')
-   }
-
-   if(!is.null(object@L)){
-     structures <- c(structures, 'L')
-   }
-
-   if(!is.null(object@CDRH3)){
-     structures <- c(structures, 'CDRH3')
-   }
-
-   if(!is.null(object@CDRL3)){
-     structures <- c(structures, 'CDRL3')
-   }
-
-   cat('Structures available: ', paste0(structures, collapse = ', '))
-
-   cat('\n')
-
-   cat('Sequence: ', object@sequence)
-
-   cat('\n')
-
-   cat('\n')
-
-   cat('\n')
-
- }
 )

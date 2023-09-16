@@ -3,7 +3,7 @@
 #' @description Plots a structure modelled via Steropodon_model using r3dmol.
 #' Structures can be colored by physicochemical properties, framework/hypervariable regions, chains, epitopes/paratopes, and invariant core regions, as determined in the color.by parameter.
 
-#' @param combine.groupings  a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
+#' @param steropodon.object  a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
 #' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
 #' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
 #' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).

@@ -18,13 +18,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'steropodon_igfold$s1$clonotype1$`1` %>%
-#'  Steropodon_trim(structure = 'structure',
-#'                  grouping = c('chain', 'region'),
-#'                  specific.values = c('VDJ_CDR1','VDJ_CDR2',
-#'                  VDJ_CDR3','VJ_CDR1','VJ_CDR2','VJ_CDR3'),
-#'                  combine.values = T,
-#'                  combine.groupings = T) %>%
+#' steropodon_igfold$s1$clonotype1 %>%
+#'  Steropodon_trim(structure = 'structure') %>%
 #'  Steropodon_visualize(structure = 'structure',
 #'                       color.by = c('chain', 'region'))
 #'}

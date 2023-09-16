@@ -10,6 +10,7 @@
 #' @param steropodon.object a nested list of predicted structure objects (per sample, per clonotype) or a single Steropodon object.
 #' @param distance.matrix a distance matrix obtained from Steropodon_distances for clustering.
 #' @param feature.matrix a feature/superposed coordinate matrix obtained from Steropodon_coordinates for clustering. Ensure structures are initially aligned using Steropodon_superpose.
+#' @param multimodal.object a multimodal Seurat object as obtained from Steropodon_multimodal (integrated GEX and structural features).
 #' @param dim.reduction string - 'pca', 'tsne', or 'umap' for the dimensionality reduction algorithm performed before clustering.
 #' @param plot.dim.reduction string - 'pca', 'tsne', or 'umap' for the dimensionality reduction algorithm performed after clustering/for plotting if plot.results is set to TRUE.
 #' @param cluster.method bluster function - see the bluster package documentation (https://bioconductor.org/packages/release/bioc/vignettes/bluster/inst/doc/clusterRows.html) for all clustering algorithms available (for clustering either feature or distance matrices).

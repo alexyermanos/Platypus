@@ -541,12 +541,12 @@ structure_superpose <- function(fixed,
 #' Extract framework/hypervariable regions annotated with VDJ_call_MIXCR
 
 #' @description Extract framework/hypervariable regions annotated with VDJ_call_MIXCR
-#' @param VDJ.matrix
-#' @param chain.to.extract
-#' @param as.nucleotide
-#' @param regions.to.extract
+#' @param VDJ.matrix VDJ matrix, VGM[[1]].
+#' @param chain.to.extract string - 'VDJ' for heavy, 'VJ' for light, 'VDJ.VJ' for both.
+#' @param as.nucleotide bool - TRUE for nucleotides, FALSE for amino acids.
+#' @param regions.to.extract vector of strings - framework/hypervariable region to extract and paste together ('FR1', 'CDR1', 'FR2', 'CDR2', 'FR3', 'CDR3', 'FR4').
 
-#' @return a nested list of Steropodon structures with all regions not included in 'specific.values' removed. For more information, see the Steropodon vignette (https://alexyermanos.github.io/Platypus/articles/Steropodon.html).
+#' @return VDJ dataframe with a new column - 'mixcr_assembled' with the extracted MIXCR regions.
 #' @export
 #' @examples
 #' \dontrun{

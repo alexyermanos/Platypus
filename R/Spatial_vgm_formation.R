@@ -6,6 +6,7 @@
 #' @param cluster_path Path to 10X Genomic clustering file that is not specific for immune cells, in csv format
 #' @param matrix_path Path to the filtered feature barcode matrix containing barcode from fixed list of known-good barcode sequences in the h5 format
 #' @return Returns the input VGM matrix (output of VDJ_GEX_matrix()) with an additional list containing the spatial information.
+#' @importFrom sp SpatialLines
 #' @export
 #' @examples
 #' \dontrun{

@@ -9,7 +9,7 @@
 #' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
 #' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
 #' @param core.per string - 'all' to pool all Steropodon structures for core identification, 'sample' to pool all structures per sample, 'clonotype' to pool all structures per unique clonotype in each sample.
-#' @param alignemnt.method string - sequence alignment method to be used for the iterative structural superposition. Currently only MAFFT is implemented (alignment.method = 'mafft').
+#' @param alignment.method string - sequence alignment method to be used for the iterative structural superposition. Currently only MAFFT is implemented (alignment.method = 'mafft').
 #' @param fit.to.core bool - if TRUE, will also align all structures to the calculated core using a single iteration of coordinate superposition/Kabsch algorithm.
 #' @param core.volume float - minimal core volume at which superposition iterations should be stopped.
 

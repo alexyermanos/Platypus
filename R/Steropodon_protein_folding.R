@@ -8,6 +8,7 @@
 #' @param colabfold.amber See ColabFold for more information.
 #' @param colabfold.stop.at.score See ColabFold for more information.
 #' @param colabfold.stop.at.score.below See ColabFold for more information.
+#' @param colabfold.local.database.directory See ColabFold for more information.
 #' @param env.name  string - the conda environment name with the model and all dependencies already installed or to be installed by Steropodon_model.
 #' @param use.conda boolean - if TRUE, will use conda for managing the Python environments and installing folding model dependencies. Else, it will use virtualenv.
 #' @param gpu boolean - if TRUE, will use GPUs for faster structural inference.
@@ -354,8 +355,7 @@ call_omegafold <- function(sequence.df,
                            omegafold.allow.tf32,
                            env.name,
                            use.conda,
-                           gpu,
-                           ...){
+                           gpu){
 
  if(missing(sequence.df)) stop('Please input the processed sequence dataframe!')
  if(missing(model.folder) | is.null(model.folder)) stop('Please input the OmegaFold directory path!')
@@ -494,8 +494,7 @@ call_deepab <- function(sequence.df,
                         deepab.decoys,
                         env.name,
                         use.conda,
-                        path.to.pyrosetta,
-                        ...
+                        path.to.pyrosetta
                        ){
 
    if(missing(sequence.df)) stop('Please input the processed sequence dataframe!')
