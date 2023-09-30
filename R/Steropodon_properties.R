@@ -9,7 +9,7 @@
 #' @param structure string - the structure saved inside the Steropodon object to be chosen: 'structure' for the whole receptor structure (VDJ and VJ chains),'H' for the heavy chain, 'L' for the light chain,
 #' 'CDRH3' for the CDR3 region of the heavy chain, 'CDRL3' for the CDR3 region in the light chain, 'paratope' for the paratope structure (after using Steropodon_dock), 'epitope' for the epitope structure (after using Steropodon_dock),
 #' 'core' for the core/structurally non-variable region across all structures in the Steropodon nested list (after using the Steropodon_find_core function), 'complex' for the modelled antibody-antigen complex (after using Steropodon_dock).
-#' @param properties string or vector of strings - physicochemical properties to be calculated for a modelled structure. Options include: 'SASA', 'charge', 'hydrophobicity', 'pKa', 'DSSP'.
+#' @param properties string or vector of strings - physicochemical properties to be calculated for a modelled structure. Options include: 'charge', 'hydrophobicity', 'pKa', 'DSSP'.
 #' @param propka.directory string - path to the propka directory for pKa calculation (if the 'properties' parameter includes 'pKa').
 #' @param dssp.exefile string - path to the DSSP executable (if the 'properties' parameter includes 'DSSP').
 #' @param parallel bool - if TRUE, will execute the physicochemical property calculation in parallel, on all available CPU cores - 1.
@@ -38,7 +38,7 @@ Steropodon_properties <- function(steropodon.object,
 
    if(missing(steropodon.object)) stop('Please input your Steropodon object!')
    if(missing(structure)) structure <- 'structure'
-   if(missing(properties)) properties <- c('SASA', 'charge', 'hydrophobicity', 'pKa', 'DSSP')
+   if(missing(properties)) properties <- c('charge', 'hydrophobicity', 'pKa', 'DSSP')
    if(missing(propka.directory) & ('pKa' %in% properties)) stop('Please input your directory to Propka for pKa calculations')
    if(missing(dssp.exefile) & ('DSSP' %in% properties)) stop('Please input path to the DSPP exe file')
    if(missing(parallel)) parallel <- T
@@ -70,17 +70,6 @@ Steropodon_properties <- function(steropodon.object,
     #calculate_pi <- function(pdb){
     #}
 
-
-    #From Lucas' VDJ_structure_analysis function
-    calculate_sasa <- function(pdb){
-
-      SASA <- suppressWarnings(vanddraabe::FreeSASA.diff(pdb$atom))
-      pdb$atom$SASA.lost <- SASA$SASA.lost
-      pdb$atom$SASA.prot <- SASA$SASA.prot
-      pdb$atom$SASA.hetatm <- SASA$SASA.hetatm
-
-      return(pdb)
-    }
 
     #From Lucas' VDJ_structure_analysis function
     calculate_charge <- function(pdb){

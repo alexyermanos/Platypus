@@ -40,7 +40,6 @@
 #'@param antigen.interaction If the antibody is predicted together with the antigen the antigen.interaction argument can be set to TRUE in order to get some binding site metrics. The function will determine the binding site residues based on the bio3d::binding.site() function as well as the average minimal distance of every binding site residue from the antibody to the antigen. Furthermore, the mean confidence (pLDDT) of the binding site residues is calculated. All the results are summarized in a data frame.
 #'@param binding.site.cutoff Cutoff for the bio3d::binding.site() function. Default is 5.
 #'@param dist.mat If set to TRUE, the binding residues distance matrix for every structure will be returned as a list. Default = FALSE, so only the minimal distances in the summary data frame is returned.
-#'@param SASA if set to TRUE the Solvent Accessible Surface Area will be calculated for every Structure
 #'@param hydrophobicity If set to TRUE, the per residue hydrophobicity will be calculated.
 #'@param charge If set to TRUE, the per residue charge will be calculated.
 #'@param metrics.plot If set to TRUE, a structure plot colored according to the metrics will be shown.
@@ -88,7 +87,6 @@ VDJ_structure_analysis <- function(VDJ.structure,
                                antigen.interaction,
                                binding.site.cutoff,
                                dist.mat,
-                               SASA,
                                hydrophobicity,
                                charge,
                                metrics.plot,
@@ -135,7 +133,6 @@ VDJ_structure_analysis <- function(VDJ.structure,
   if(missing(antigen.interaction)) {antigen.interaction <- F}
   if(missing(binding.site.cutoff)) {binding.site.cutoff <- 5}
   if(missing(dist.mat)) {dist.mat <- F}
-  if(missing(SASA)) {SASA <- F}
   if(missing(hydrophobicity)) {hydrophobicity <- F}
   if(missing(charge)) {charge <- F}
   if(missing(metrics.plot)) {metrics.plot <- F}
@@ -396,38 +393,6 @@ VDJ_structure_analysis <- function(VDJ.structure,
       ##Metrics
       metrics_df <- data.frame(struc$atom)
       metrics_df$charge <- NULL
-
-
-      ##Solvent Accessible Surface Area of Binding site residues
-      if(SASA){
-
-        SASA_df <- vanddraabe::FreeSASA.diff(struc$atom)
-        SASA_exp_df <- SASA_df$uniq.atom.ids %>% stringr::str_split("_") %>% do.call(rbind, .) %>% data.frame()
-        names(SASA_exp_df) <- c("resid", "resno", "chain", "elety","eleno")
-        SASA_df <- cbind(SASA_df,SASA_exp_df)
-        SASA_df$resno <- as.integer(SASA_df$resno)
-        SASA_df$eleno <- as.integer(SASA_df$eleno)
-        SASA_df$uniq.atom.ids <- NULL
-
-        metrics_df <- dplyr::left_join(metrics_df,SASA_df,by = c("resno","chain","elety","eleno","resid"))
-
-
-
-        m_SASA_A <- SASA_df %>% dplyr::filter(chain == "A" & resno %in% res_A) %>% .$SASA.prot %>% mean()
-        m_SASA_B <- SASA_df %>% dplyr::filter(chain == "B" & resno %in% res_B) %>% .$SASA.prot %>% mean()
-        m_SASA_C <- SASA_df %>% dplyr::filter(chain == "C" & resno %in% res_C) %>% .$SASA.prot %>% mean()
-        m_SASA <- SASA_df$SASA.prot %>% mean()
-
-        SASA_out_list <- list(
-          "mean_SASA_HC" = m_SASA_A,
-          "mean_SASA_LC" = m_SASA_B,
-          "mean_SASA_antigen" = m_SASA_C,
-          "mean_SASA_overall" = m_SASA
-        )
-
-      }
-
-
 
 
       #Hydrophobicity
@@ -812,19 +777,6 @@ VDJ_structure_analysis <- function(VDJ.structure,
       metrics_df <- data.frame(STRUC$atom)
       metrics_df$charge <- NULL
 
-      #SASA
-      if(SASA & !antigen.interaction){
-
-        SASA_df <- vanddraabe::FreeSASA.diff(STRUC$atom)
-        SASA_exp_df <- SASA_df$uniq.atom.ids %>% stringr::str_split("_") %>% do.call(rbind, .) %>% data.frame()
-        names(SASA_exp_df) <- c("resid", "resno", "chain", "elety","eleno")
-        SASA_df <- cbind(SASA_df,SASA_exp_df)
-        SASA_df$resno <- as.integer(SASA_df$resno)
-        SASA_df$eleno <- as.integer(SASA_df$eleno)
-        SASA_df$uniq.atom.ids <- NULL
-
-        metrics_df <- dplyr::left_join(metrics_df,SASA_df,by = c("resno","chain","elety","eleno","resid"))
-      }
 
         #Hydrophobicity
         if(hydrophobicity){
