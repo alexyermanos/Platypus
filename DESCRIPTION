@@ -3,7 +3,7 @@ Type: Package
 Title: Single-Cell Immune Repertoire and Gene Expression Analysis
 Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology. This R version of 'Platypus' is part of the 'ePlatypus' ecosystem for computational analysis of immunogenomics data.
 Version: 3.5.0
-Date: 2023-08-07
+Date: 2023-10-2
 Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ayermanos@gmail.com"),
              person("Andreas", "Agrafiotis", role = "ctb"),
              person("Victor", "Kreiner", role = "ctb"),
@@ -14,9 +14,10 @@ Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ay
              person("Vittoria Martinolli", "D'Arcy", role = "ctb"),
              person("Lucas", "Stalder", role = "ctb"),
 	     person("Daphne", "van Ginneken", role = "ctb"))
-Maintainer: Alexander Yermanos <tc2219@ic.ac.uk>
+Maintainer: Alexander Yermanos <ayermanos@gmail.com>
 Depends:
-    R(>= 4.0.0)
+    R(>= 4.0.0),
+    sp(>= 1.5.0)
 biocViews:
 Imports:
     Biostrings,
@@ -27,14 +28,16 @@ Imports:
     ggtree,
     jsonlite,
     knitr,
+    magrittr,
     Matrix(>= 1.3-3),
+    methods,
     plyr,
     reshape2, 
     reticulate,
     seqinr,
-    stringr,
     Seurat,
     SeuratObject(>= 4.1.3),
+    stringr,
     tibble,
     tidyr,
     utils,
@@ -77,9 +80,7 @@ Suggests:
     limma,
     keras,
     kmer,
-    magrittr,
     Matrix.utils,
-    methods,
     missMDA,
     missMethods,
     monocle3,
