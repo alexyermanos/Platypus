@@ -227,10 +227,6 @@ Steropodon_properties <- function(steropodon.object,
                                     ){
       pdb <- select_structure(steropodon.object, structure = structure)
 
-      if('SASA' %in% properties){
-        pdb <- calculate_sasa(pdb)
-      }
-
       if('charge' %in% properties){
         pdb <- calculate_charge(pdb)
       }

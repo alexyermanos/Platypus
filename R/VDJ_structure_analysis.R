@@ -494,7 +494,6 @@ VDJ_structure_analysis <- function(VDJ.structure,
         )
       }
 
-      if(SASA){out.list[[i]] <- append(out.list[[i]],SASA_out_list)}
       if(hydrophobicity){out.list[[i]] <- append(out.list[[i]],Hydph_out_list)}
       if(charge){out.list[[i]] <- append(out.list[[i]],charge_out_list)}
 
@@ -821,7 +820,7 @@ VDJ_structure_analysis <- function(VDJ.structure,
 
 
   ##Add to return list
-  if(SASA | charge | hydrophobicity) {return.list[[length(return.list)+1]] <- metrics.list}
+  if(charge | hydrophobicity) {return.list[[length(return.list)+1]] <- metrics.list}
 
   if(metrics.plot){
 
@@ -831,30 +830,6 @@ VDJ_structure_analysis <- function(VDJ.structure,
       Plot.Struc <- vis.structure[[i]]
 
       Plot.Struc$atom <- metrics.list[[i]]
-
-      if(SASA){
-
-        #For loop to get rid of NA values
-        out.vec <- c()
-        CurVar <- 0
-        for(i in metrics.list[[i]]$SASA.prot){
-          if(!is.na(i)){CurVar <- i}
-          out.vec <- c(out.vec,CurVar)
-        }
-
-        Plot.Struc$atom$b <- out.vec
-
-        cartoon_styles <- r3dmol::m_style_cartoon()
-        cartoon_styles$cartoon$colorscheme <- list(prop = "b", gradient = "roygb", min = 0, max = 100)
-
-        SASA_plot <- r3dmol::r3dmol() %>%
-          r3dmol::m_add_model(r3dmol::m_bio3d(Plot.Struc)) %>%
-          r3dmol::m_set_style(style = cartoon_styles) %>%
-          r3dmol::m_zoom_to() %>%
-          r3dmol::m_spin(speed = spin.speed)
-
-        metrics.plot[[length(metrics.plot)+1]] <- SASA_plot
-      }
 
       if(hydrophobicity){
 
