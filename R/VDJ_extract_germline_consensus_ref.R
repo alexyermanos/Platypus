@@ -36,7 +36,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     #Since I make consensus with the concatenation of fr1-fr4 consensus, it shouldnt need to be trimmed since it is already at apropriate shape
     s1 <- DNAString(consensus)
     s2 <- DNAString(reference)
-    globalAlign <- pairwiseAlignment(s1, s2, type="global-local")
+    globalAlign <- pairwiseAlignment(s1, s2, type="global-local",gapOpening = Inf)
     new_reference <- as.character(globalAlign@subject)
     return (new_reference)
   }
