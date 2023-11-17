@@ -16,21 +16,18 @@ Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ay
 	     person("Daphne", "van Ginneken", role = "ctb"))
 Maintainer: Alexander Yermanos <ayermanos@gmail.com>
 Depends:
-    R(>= 4.0.0),
-    sp(>= 1.5.0)
+    R(>= 4.0.0)
 biocViews:
 Imports:
     Biostrings,
     cowplot,  
     dplyr, 
-    foreach,
     ggplot2,
     ggtree,
     jsonlite,
     knitr,
     magrittr,
     Matrix(>= 1.3-3),
-    methods,
     plyr,
     reshape2, 
     reticulate,
@@ -46,6 +43,7 @@ Suggests:
     AnnotationDbi,
     ape,
     BiocGenerics,
+    biomaRt,
     circlize,
     cluster,
     doParallel,
@@ -69,6 +67,7 @@ Suggests:
     purrr,
     readr,
     readxl,
+    rstudioapi,
     Rtsne,
     scales,
     sf,
