@@ -64,10 +64,10 @@ install.packages("Platypus")
 # First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. 
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 # For MacOS users it may look like this
-install.packages("~/Downloads/Platypus_3.4.1.tar.gz", repos = NULL, type="source")
+install.packages("~/Downloads/Platypus_3.5.0.tar.gz", repos = NULL, type="source")
 # For windows it will likely look something like this. 
 # WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
-install.packages("C:/Users/YourPCName/Downloads/Platypus_3.4.1.tar.gz", repos = NULL, type="source")
+install.packages("C:/Users/YourPCName/Downloads/Platypus_3.5.0.tar.gz", repos = NULL, type="source")
 
 # The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in current CRAN version. 
 
