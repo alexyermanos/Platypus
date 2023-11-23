@@ -33,8 +33,6 @@ repertoire sequencing experiments from mouse and human.
 
 Stay tuned for updates <https://twitter.com/AlexYermanos>
 
-## Architecture
-
 ![](images/PlatypusV3_abstract.png)
 
 # System requirements
