@@ -2356,6 +2356,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #rename for clarity
   names(out.list) <- c("VDJ", "GEX", "VDJ.GEX.stats", "Running params", "sessionInfo")
 
+  #Capitalized gene names from now on :)
+  rownames(out.list[[2]]) <- sapply(rownames(out.list[[2]]), function(x) toupper(x))
+
   if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Done!"))
   if(verbose) message(Sys.time())
 
