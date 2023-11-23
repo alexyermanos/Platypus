@@ -43,7 +43,7 @@
 #' @param FB.ratio.threshold Numeric. Defaults to 2 Threshold for assignment of feature barcodes by counts. A feature barcode is assigned to a cell if its counts are >FB.count.threshold and if its counts are FB.ratio.threshold-times higher than the counts of the feature barcode with second most counts.
 #' @param FB.count.threshold Numeric. Defaults to 10. For description of Feature Barcode assignment see parameter FB.ratio.threshold above
 #' @param FB.exclude.pattern Character (regex compatible). If a feature barcode matches this pattern it will be excluded from the hashing sample assignments. This may be neccessary if CITE-seq barcodes and hashing barcodes are sequenced in the same run.
-#'@param verbose if TRUE prints runtime info to console. Defaults to TRUE
+#' @param verbose if TRUE prints runtime info to console. Defaults to TRUE
 #' @return Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == F, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
 #' @export
 #' @examples
@@ -167,7 +167,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            verbose){
 
   #### Variable setup ####
-
+  Nr_of_VDJ_chains <- NULL
+  Nr_of_VJ_chains <- NULL
   orig_barcode <- NULL
   match_ex_crit <- NULL
   barcode_VDJ_iteration <- NULL
@@ -200,7 +201,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #### Function def: Helper for Barcode intersect ####
   #source: Stackoverflow user A5C1D2H2I1M1N2O1R2T1 Issue: 24614391
   listIntersect <- function(inList) {
-    X <- crossprod(table(stack(inList)))
+    X <- crossprod(table(utils::stack(inList)))
     #X[lower.tri(X)] <- NA
     #diag(X) <- NA
     #out <- na.omit(data.frame(as.table(X)))
@@ -2354,6 +2355,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #rename for clarity
   names(out.list) <- c("VDJ", "GEX", "VDJ.GEX.stats", "Running params", "sessionInfo")
+
+  #Capitalized gene names from now on :)
+  rownames(out.list[[2]]) <- sapply(rownames(out.list[[2]]), function(x) toupper(x))
 
   if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Done!"))
   if(verbose) message(Sys.time())
