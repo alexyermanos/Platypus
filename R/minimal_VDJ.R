@@ -1,32 +1,34 @@
-#' Minimal version of the VDJ building part from VDJ_GEX_matrix. Adapted for Cellranger v6 and v7.
+#' Minimal version of the VDJ building part from VDJ_GEX_matrix. Adapted for Cellranger v6 and v7 and compatible with previous versions.
 
 
-#'@description  Minimal version of the VDJ building part from VDJ_GEX_matrix. Adapted for Cellranger v6 and v7. Currently, Seurat objects need to be integrated by matching barcodes from the Suerat object's metadata with the barcodes of the VDJ dataframe.
+#'@description  Minimal version of the VDJ building part from VDJ_GEX_matrix. Adapted for Cellranger v6 and v7 (compatible with previous versions as well). Currently, Seurat objects need to be integrated by matching barcodes from the Suerat object's metadata with the barcodes of the VDJ dataframe.
 #' @param VDJ.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: all_contig_annotations.csv, filtered_contig_annotations.csv, all_contig_annotations.csv, filtered_contig.fasta, consensus.fasta, concat_ref.fasta,
-#' @param trim.germlines bool - if TRUE, will trim the germlines to the consensus sequences (using BIostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost).
+#' @param trim vector - vector including "germline" (trims germlines), "consensus", or "sequence".
 #' @param gap.opening.cost float or Inf - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Default to gapless alignment (gap.opening.cost = Inf).
 #' @param parallel bool - if TRUE, will execute the per-sample VDJ building and germline trimming routines in parallel (parallelized across samples).
 #' @param num.cores integer or NULL - number of cores to be used of parallel = T. Defaults to all ncores = (available cores - 1) or the ncores = number of samples (depending which is smaller).
 #' @param operating.system string - operating system for choosing the parallel processing method. Options include: "Windows", "Darwin", "Linux".
+#' @param cellranger.version integer - cellranger version used to obtain the VDJ folder files.
 #' @return Returns the VDJ dataframe/ VGM[[1]] object. Integration with the Seurat object needs to be performed separately (matching by barcodes).
 #' @export
 #' @examples
 #' \dontrun{
-#' VDJ <- minimal_VDJ(VDJ_directories, trim.germlines = TRUE,
+#' VDJ <- minimal_VDJ(VDJ_directories, trim = c('germline'),
 #' gap.opening.cost = Inf, parallel = TRUE)
 #'}
 
 
 minimal_VDJ <- function(VDJ.directory.list,
-                        trim.germlines,
+                        trim,
                         gap.opening.cost,
                         parallel,
                         num.cores,
-                        operating.system
+                        operating.system,
+                        cellranger.version
                         ){
 
   if(missing(VDJ.directory.list)) stop('Input list of VDJ sample paths from cellranger v7')
-  if(missing(trim.germlines)) trim.germlines <- FALSE
+  if(missing(trim)) trim <- NULL
   if(missing(gap.opening.cost)) gap.opening.cost <- Inf
   if(missing(parallel)) parallel <- FALSE
   if(missing(num.cores)) num.cores <- NULL
@@ -39,11 +41,19 @@ minimal_VDJ <- function(VDJ.directory.list,
                Darwin = {message("MAC system detected")
                         operating.system <- "Darwin"})
   }
+
+  if(missing(cellranger.version)) cellranger.version <- 3
+
+  if(cellranger.version < 6){
+    trim <- unique(c(trim, c('consensus', 'sequence')))
+  }
+
   barcode <- NULL
   chain <- NULL
   raw_consensus_id <- NULL
-  
+
   trim_ref <- function(consensus, reference, gap.opening.cost = Inf){
+
     #Trims the reference based on the first and last codon
     #Arguments:
     #         consensus: Consensus sequence for the clonotype and chain
@@ -52,14 +62,33 @@ minimal_VDJ <- function(VDJ.directory.list,
     #Author: Evgenios Kladis
 
     if (is.na(reference) | is.na(consensus)){
-      return ("")
+      return (NA)
     }
 
     globalAlign <- Biostrings::pairwiseAlignment(Biostrings::DNAString(consensus), Biostrings::DNAString(reference), type="global-local", gapOpening = gap.opening.cost)
     return(as.character(globalAlign@subject))
   }
 
+  get_annotation_table <- function(annotations){
+    annotations_table <- do.call(BiocGenerics::rbind, lapply(annotations, function(y){
+
+        if(length(y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="L-REGION+V-REGION")]) == 1){
+          temp_start <- y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="L-REGION+V-REGION")][[1]]$contig_match_start
+        } else {temp_start <- 10000 } #This is to cause substr() in trimming to return an empty string
+        if(length(y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="J-REGION")]) == 1){
+          temp_end <- y$annotations[sapply(y$annotations, function(x) x$feature$region_type=="J-REGION")][[1]]$contig_match_end #!
+        } else {temp_end <- 0 } #This is to cause substr() in trimming to return an empty string
+        data.frame("contig_id" = y$contig_name,
+                   "sequence" = y$sequence,
+                   "temp_start" = temp_start,
+                   "temp_end" = temp_end
+        )}))### returns a dataframe with these four outputs.
+
+    return(annotations_table)
+  }
+
   single_sample_parse <- function(VDJ.directory){
+
     #Obtains all necessary data from a VDJ directory: filtered_contig_annotation.csv (most receptor info and trimmed sequences), filtered_contig.fasta (raw receptors), consensus_annotations.csv (trimmed consensus sequences), consensus.fasta (raw consensus), concat_ref.fasta (raw germlines).
     #Arguments:
     #         VDJ.directory: Path to a single sample in the VDJ directory from Cellranger v6 and v7
@@ -106,23 +135,24 @@ minimal_VDJ <- function(VDJ.directory.list,
 
   make_vdj_sample <- function(index,
                               VDJ.directory.list,
-                              trim.germlines = TRUE,
+                              trim = c('germline'),
                               gap.opening.cost = Inf){
 
     #Creates a VDJ dataframe for a single sample.
     #Arguments:
     #         index: Sample/iteration index.
     #         VDJ.directoty.list: List of directories to all samples from Cellranger v6/v7.
-    #         trim.germlines: if TRUE, will trim the germlines to the consensus sequences (using BIostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost).
+    #         trim: if TRUE, will trim the germlines to the consensus sequences (using BIostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost).
     #         gap.opening.cost: the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Default to gapless alignment (gap.opening.cost = Inf). Suggested by Anamay Samant.
     #Author: Tudor-Stefan Cotet, Aurora Desideri Perea, Anamay Samant
 
 
     #Obtain final column names
-    colnames_unordered <- c('barcode','sample_id','VDJ_fwr1_aa','VDJ_fwr1_nt','VDJ_cdr1_aa','VDJ_cdr1_nt','VDJ_fwr2_aa','VDJ_fwr2_nt','VDJ_cdr2_aa','VDJ_cdr2_nt','VDJ_fwr3_aa','VDJ_fwr3_nt','VDJ_cdr3s_aa','VDJ_cdr3s_nt','VDJ_fwr4_aa','VDJ_fwr4_nt','VDJ_umis','VDJ_vgene','VDJ_dgene','VDJ_jgene','VDJ_cgene','VDJ_sequence_nt_trimmed','VDJ_consensus_nt_trimmed','VDJ_consensus_nt_raw','VDJ_germline_nt_raw','VDJ_germline_nt_trimmed','VDJ_sequence_aa_trimmed','VDJ_consensus_aa_trimmed','VDJ_consensus_aa_raw','VDJ_germline_aa_raw','VDJ_germline_aa_trimmed','VDJ_chain','VDJ_raw_consensus_id','VDJ_contig_id','VJ_fwr1_aa','VJ_fwr1_nt','VJ_cdr1_aa','VJ_cdr1_nt','VJ_fwr2_aa','VJ_fwr2_nt','VJ_cdr2_aa','VJ_cdr2_nt','VJ_fwr3_aa','VJ_fwr3_nt','VJ_cdr3s_aa','VJ_cdr3s_nt','VJ_fwr4_aa','VJ_fwr4_nt','VJ_umis','VJ_vgene','VJ_jgene','VJ_cgene','VJ_sequence_nt_trimmed','VJ_consensus_nt_trimmed','VJ_consensus_nt_raw','VJ_germline_nt_raw','VJ_germline_nt_trimmed','VJ_sequence_aa_trimmed','VJ_consensus_aa_trimmed','VJ_consensus_aa_raw','VJ_germline_aa_raw','VJ_germline_aa_trimmed','VJ_chain','VJ_raw_consensus_id','celltype','Nr_of_VDJ_chains','Nr_of_VJ_chains','clonotype_id','clonotype_frequency','clonotype_id_10x')
+    colnames_unordered <-c('barcode','sample_id','VDJ_fwr1_aa','VDJ_fwr1_nt','VDJ_cdr1_aa','VDJ_cdr1_nt','VDJ_fwr2_aa','VDJ_fwr2_nt','VDJ_cdr2_aa','VDJ_cdr2_nt','VDJ_fwr3_aa','VDJ_fwr3_nt','VDJ_cdr3s_aa','VDJ_cdr3s_nt','VDJ_fwr4_aa','VDJ_fwr4_nt','VDJ_umis','VDJ_vgene','VDJ_dgene','VDJ_j_gene','VDJ_c_gene','VDJ_sequence_nt_trimmed','VDJ_sequence_nt_raw','VDJ_consensus_nt_trimmed','VDJ_consensus_nt_raw','VDJ_germline_nt_trimmed','VDJ_germline_nt_raw','VDJ_sequence_aa_trimmed','VDJ_sequence_aa_raw','VDJ_consensus_aa_trimmed','VDJ_consensus_aa_raw','VDJ_germline_aa_raw','VDJ_germline_aa_trimmed','VDJ_chain','VDJ_raw_consensus_id','VDJ_contig_id','VJ_fwr1_aa','VJ_fwr1_nt','VJ_cdr1_aa','VJ_cdr1_nt','VJ_fwr2_aa','VJ_fwr2_nt','VJ_cdr2_aa','VJ_cdr2_nt','VJ_fwr3_aa','VJ_fwr3_nt','VJ_cdr3s_aa','VJ_cdr3s_nt','VJ_fwr4_aa','VJ_fwr4_nt','VJ_umis','VJ_vgene','VJ_jgene','VJ_cgene','VJ_sequence_nt_trimmed','VJ_sequence_nt_raw','VJ_consensus_nt_trimmed','VJ_consensus_nt_raw','VJ_germline_nt_trimmed','VJ_germline_nt_raw','VJ_sequence_aa_trimmed','VJ_sequence_aa_raw','VJ_consensus_aa_trimmed','VJ_consensus_aa_raw','VJ_germline_aa_raw','VJ_germline_aa_trimmed','VJ_chain','VJ_raw_consensus_id','celltype','Nr_of_VDJ_chains','Nr_of_VJ_chains','clonotype_id','clonotype_frequency','clonotype_id_10x')
 
     #Obtain the final column names in a similar order to the previous VGM[[1]] objects.
-    colnames_reordered <- c('barcode','sample_id','clonotype_id','clonotype_frequency','celltype','VDJ_chain','VJ_chain', 'Nr_of_VDJ_chains','Nr_of_VJ_chains', 'VDJ_fwr1_aa','VDJ_fwr1_nt','VDJ_cdr1_aa','VDJ_cdr1_nt','VDJ_fwr2_aa','VDJ_fwr2_nt','VDJ_cdr2_aa','VDJ_cdr2_nt','VDJ_fwr3_aa','VDJ_fwr3_nt','VDJ_cdr3s_aa','VDJ_cdr3s_nt','VDJ_fwr4_aa','VDJ_fwr4_nt','VDJ_umis','VDJ_vgene','VDJ_dgene','VDJ_jgene','VDJ_cgene','VDJ_sequence_nt_trimmed','VDJ_consensus_nt_trimmed','VDJ_consensus_nt_raw','VDJ_germline_nt_raw','VDJ_germline_nt_trimmed','VDJ_sequence_aa_trimmed','VDJ_consensus_aa_trimmed','VDJ_consensus_aa_raw','VDJ_germline_aa_raw','VDJ_germline_aa_trimmed','VDJ_raw_consensus_id','VDJ_contig_id','VJ_fwr1_aa','VJ_fwr1_nt','VJ_cdr1_aa','VJ_cdr1_nt','VJ_fwr2_aa','VJ_fwr2_nt','VJ_cdr2_aa','VJ_cdr2_nt','VJ_fwr3_aa','VJ_fwr3_nt','VJ_cdr3s_aa','VJ_cdr3s_nt','VJ_fwr4_aa','VJ_fwr4_nt','VJ_umis','VJ_vgene','VJ_jgene','VJ_cgene','VJ_sequence_nt_trimmed','VJ_consensus_nt_trimmed','VJ_consensus_nt_raw','VJ_germline_nt_raw','VJ_germline_nt_trimmed','VJ_sequence_aa_trimmed','VJ_consensus_aa_trimmed','VJ_consensus_aa_raw','VJ_germline_aa_raw','VJ_germline_aa_trimmed','VJ_raw_consensus_id','clonotype_id_10x')
+    colnames_reordered <- c('barcode','sample_id','clonotype_id','clonotype_frequency','celltype','Nr_of_VDJ_chains','Nr_of_VJ_chains','VDJ_fwr1_aa','VDJ_fwr1_nt','VDJ_cdr1_aa','VDJ_cdr1_nt','VDJ_fwr2_aa','VDJ_fwr2_nt','VDJ_cdr2_aa','VDJ_cdr2_nt','VDJ_fwr3_aa','VDJ_fwr3_nt','VDJ_cdr3s_aa','VDJ_cdr3s_nt','VDJ_fwr4_aa','VDJ_fwr4_nt','VDJ_umis','VDJ_vgene','VDJ_dgene','VDJ_j_gene','VDJ_c_gene','VDJ_sequence_nt_trimmed','VDJ_sequence_nt_raw','VDJ_consensus_nt_trimmed','VDJ_consensus_nt_raw','VDJ_germline_nt_trimmed','VDJ_germline_nt_raw','VDJ_sequence_aa_trimmed','VDJ_sequence_aa_raw','VDJ_consensus_aa_trimmed','VDJ_consensus_aa_raw','VDJ_germline_aa_raw','VDJ_germline_aa_trimmed','VDJ_chain','VDJ_raw_consensus_id','VDJ_contig_id','VJ_fwr1_aa','VJ_fwr1_nt','VJ_cdr1_aa','VJ_cdr1_nt','VJ_fwr2_aa','VJ_fwr2_nt','VJ_cdr2_aa','VJ_cdr2_nt','VJ_fwr3_aa','VJ_fwr3_nt','VJ_cdr3s_aa','VJ_cdr3s_nt','VJ_fwr4_aa','VJ_fwr4_nt','VJ_umis','VJ_vgene','VJ_jgene','VJ_cgene','VJ_sequence_nt_trimmed','VJ_sequence_nt_raw','VJ_consensus_nt_trimmed','VJ_consensus_nt_raw','VJ_germline_nt_trimmed','VJ_germline_nt_raw','VJ_sequence_aa_trimmed','VJ_sequence_aa_raw','VJ_consensus_aa_trimmed','VJ_consensus_aa_raw','VJ_germline_aa_raw','VJ_germline_aa_trimmed','VJ_chain','VJ_raw_consensus_id','clonotype_id_10x')
+
 
     #Read and parse a single sample directory using single_sample_parse()
     VDJ.directory <- VDJ.directory.list[[index]]
@@ -141,31 +171,92 @@ minimal_VDJ <- function(VDJ.directory.list,
             dplyr::left_join(sample.dataframes$raw_consensus_table, by="raw_consensus_id") |>
             dplyr::left_join(sample.dataframes$raw_reference_table, by="raw_consensus_id")
 
+
     #Remove appended dataframes from memory  - will save time and RAM
     #sample.dataframes$raw_contigs_table <- NULL
     #sample.dataframes$trimmed_consensus_table <- NULL
     #sample.dataframes$raw_consensus_table <- NULL
     #sample.dataframes$raw_reference_table <- NULL
 
-    #If trim.germlines is set to T, will trim and align the raw references to the consensus sequences to obtain trimmed germlines
-    if(trim.germlines){
+    #Check if column in filtered_contig_table. If not add an empty column
+    contig_table_columns <- c("fwr1", "fwr1_nt", "cdr1", "cdr1_nt",
+           "fwr2", "fwr2_nt", "cdr2", "cdr2_nt",
+           "fwr3", "fwr3_nt", "cdr3", "cdr3_nt",
+           "fwr4", "fwr4_nt", "umis",
+           "v_gene", "d_gene", "j_gene", "c_gene",
+           "sequence_nt_trimmed", "sequence_nt_raw",
+           "consensus_nt_trimmed", "consensus_nt_raw",
+           "germline_nt_trimmed", "germline_nt_raw",
+           "sequence_aa_trimmed", "sequence_aa_raw",
+           "consensus_aa_trimmed", "consensus_aa_raw",
+           "germline_aa_trimmed", "germline_aa_raw",
+           "chain",
+           "raw_clonotype_id", "raw_consensus_id", "contig_id", "barcode")
+
+    for(col in contig_table_columns){
+      if(!(col %in% colnames(sample.dataframes$filtered_contig_table))){
+        sample.dataframes$filtered_contig_table[[col]] <- NA
+      }
+    }
+
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'None'] <- NA
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'NA'] <- NA
+    sample.dataframes$filtered_contig_table[is.null(sample.dataframes$filtered_contig_table)] <- NA
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == ''] <- NA
+
+    if('sequence' %in% trim){
+      annotations_df <- jsonlite::read_json(paste(VDJ.directory,"/all_contig_annotations.json",sep=""))
+      annotations_df <- get_annotation_table(annotations_df) |>
+            dplyr::mutate(sequence_nt_trimmed = substr(sequence, as.numeric(temp_start)+1, as.numeric(temp_end)))
+      annotations_df <- annotations_df[,c('contig_id', 'sequence_nt_trimmed')]
+
+      sample.dataframes$filtered_contig_table$sequence_nt_trimmed <- NULL
+      sample.dataframes$filtered_contig_table <- sample.dataframes$filtered_contig_table |>
+            dplyr::left_join(annotations_df, by="contig_id")
+    }
+
+    if('consensus' %in% trim){
+      annotations_df <- jsonlite::read_json(paste(VDJ.directory,"/consensus_annotations.json",sep=""))
+      annotations_df <- get_annotation_table(annotations_df) |>
+            dplyr::mutate(consensus_nt_trimmed = substr(sequence, as.numeric(temp_start)+1, as.numeric(temp_end)))
+      annotations_df <- annotations_df[,c('contig_id', 'consensus_nt_trimmed')]
+      sample.dataframes$filtered_contig_table$consensus_nt_trimmed <- NULL
+      sample.dataframes$filtered_contig_table <- sample.dataframes$filtered_contig_table |>
+            dplyr::left_join(annotations_df, by=c("raw_consensus_id" = "contig_id"))
+
+      #print(sample.dataframes$filtered_contig_table$consensus_nt_trimmed)
+
+    }
+
+    #If 'germline' in trim, will trim and align the raw references to the consensus sequences to obtain trimmed germlines
+    if('germline' %in% trim){
       germline_df <- sample.dataframes$filtered_contig_table[!is.na(sample.dataframes$filtered_contig_table$consensus_nt_trimmed),]
       germline_df <- germline_df |> dplyr::distinct(raw_consensus_id, .keep_all = TRUE)
 
+      sample.dataframes$filtered_contig_table$germline_nt_trimmed <- NULL
       germline_df$germline_nt_trimmed <- mapply(function(x,y) trim_ref(x, y, gap.opening.cost), germline_df$consensus_nt_trimmed, germline_df$germline_nt_raw)
       sample.dataframes$filtered_contig_table <- sample.dataframes$filtered_contig_table |>
                dplyr::left_join(germline_df[, c('raw_consensus_id', 'germline_nt_trimmed')], by="raw_consensus_id")
-    }else{
-      sample.dataframes$filtered_contig_table$germline_nt_trimmed <- NA
     }
 
+
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'None'] <- NA
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'NA'] <- NA
+    sample.dataframes$filtered_contig_table[is.null(sample.dataframes$filtered_contig_table)] <- NA
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == ''] <- NA
 
     #Adds sequences as amino acids as well
     sequence_columns <- c('sequence_nt_trimmed','sequence_nt_raw','consensus_nt_trimmed','consensus_nt_raw','germline_nt_trimmed','germline_nt_raw')
     for(col in sequence_columns){
       new_col <- stringr::str_replace(col, '_nt_', '_aa_')
-      sample.dataframes$filtered_contig_table[[new_col]] <- ifelse(is.na(sample.dataframes$filtered_contig_table[[col]]), NA, as.character(suppressWarnings(Biostrings::translate(Biostrings::DNAStringSet(sample.dataframes$filtered_contig_table[[col]])))))
+      non_na_inds <- which(!is.na(sample.dataframes$filtered_contig_table[[col]]))
+
+      if(length(non_na_inds) == 0){
+        next
+      }
+      sample.dataframes$filtered_contig_table[[new_col]][non_na_inds] <- ifelse(is.na(sample.dataframes$filtered_contig_table[[col]][non_na_inds]), NA, as.character(suppressWarnings(Biostrings::translate(Biostrings::DNAStringSet(sample.dataframes$filtered_contig_table[[col]][non_na_inds]), if.fuzzy.codon = "solve"))))
     }
+
 
     #Separately match VDJ/heavy chains
     contigs_vdj <- subset(sample.dataframes$filtered_contig_table, chain %in% c("IGH","TRG","TRGB")) |>
@@ -174,16 +265,16 @@ minimal_VDJ <- function(VDJ.directory.list,
                 "fwr3", "fwr3_nt", "cdr3", "cdr3_nt",
                 "fwr4", "fwr4_nt", "umis",
                 "v_gene", "d_gene", "j_gene", "c_gene",
-                "sequence_nt_trimmed", "sequence_nt_trimmed",
+                "sequence_nt_trimmed", "sequence_nt_raw",
                 "consensus_nt_trimmed", "consensus_nt_raw",
-                "germline_nt_raw", "germline_nt_trimmed",
-                "sequence_aa_trimmed", "sequence_aa_trimmed",
+                "germline_nt_trimmed", "germline_nt_raw",
+                "sequence_aa_trimmed", "sequence_aa_raw",
                 "consensus_aa_trimmed", "consensus_aa_raw",
-                "germline_aa_raw", "germline_aa_trimmed",
+                "germline_aa_raw",, "germline_aa_trimmed",
                 "chain",
                 "raw_clonotype_id", "raw_consensus_id", "contig_id", "barcode")
     contigs_vdj <- contigs_vdj[order(contigs_vdj$umis, decreasing = TRUE),]
-    colnames(contigs_vdj)[1:33] <- paste0('VDJ_', colnames(contigs_vdj)[1:33])
+    colnames(contigs_vdj)[1:35] <- paste0('VDJ_', colnames(contigs_vdj)[1:35])
 
     #Separately match VJ/light chains
     contigs_vj <- subset(sample.dataframes$filtered_contig_table, chain %in% c('TRD','TRA','IGK','IGL')) |>
@@ -192,16 +283,17 @@ minimal_VDJ <- function(VDJ.directory.list,
                  "fwr3", "fwr3_nt", "cdr3", "cdr3_nt",
                  "fwr4", "fwr4_nt", "umis",
                  "v_gene", "j_gene", "c_gene",
-                 "sequence_nt_trimmed", "sequence_nt_trimmed",
+                 "sequence_nt_trimmed", "sequence_nt_raw",
                  "consensus_nt_trimmed", "consensus_nt_raw",
-                 "germline_nt_raw", "germline_nt_trimmed",
-                 "sequence_aa_trimmed", "sequence_aa_trimmed",
+                 "germline_nt_trimmed", "germline_nt_raw",
+                 "sequence_aa_trimmed", "sequence_aa_raw",
                  "consensus_aa_trimmed", "consensus_aa_raw",
                  "germline_aa_raw", "germline_aa_trimmed",
                  "chain",
                  "raw_clonotype_id", "raw_consensus_id", "contig_id", "barcode")
     contigs_vj <- contigs_vj[order(contigs_vj$umis, decreasing = TRUE),]
-    colnames(contigs_vj)[1:32] <- paste0('VJ_', colnames(contigs_vj)[1:32])
+    colnames(contigs_vj)[1:34] <- paste0('VJ_', colnames(contigs_vj)[1:34])
+
 
     #Filter out aberrant cells with 2 or more chains by selecting the ones with highest UMIs.
     VDJ <- VDJ |>
@@ -237,10 +329,10 @@ minimal_VDJ <- function(VDJ.directory.list,
     VDJ$VDJ_raw_clonotype_id <- NULL
     VDJ$VJ_raw_clonotype_id <- NULL
 
+
     #Predefined column names and order matching the old versions of VGM[[1]]. Also reorders by clonotype IDs
     colnames(VDJ) <- colnames_unordered
     VDJ <- VDJ[order(nchar(VDJ$clonotype_id), VDJ$clonotype_id), colnames_reordered]
-    colnames(VDJ) == colnames_unordered
 
     #Removes row index
     rownames(VDJ) <- NULL
@@ -251,7 +343,7 @@ minimal_VDJ <- function(VDJ.directory.list,
   #Partial function definition for lapply
   partial_function <- function(x) {make_vdj_sample(x,
                                                    VDJ.directory.list = VDJ.directory.list,
-                                                   trim.germlines = trim.germlines,
+                                                   trim = trim,
                                                    gap.opening.cost = gap.opening.cost
                                                    )}
 
