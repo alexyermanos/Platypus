@@ -5,6 +5,7 @@
 #' @param VDJ.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: all_contig_annotations.csv, filtered_contig_annotations.csv, all_contig_annotations.csv, filtered_contig.fasta, consensus.fasta, concat_ref.fasta,
 #' @param trim vector - vector including "germline" (trims germlines), "consensus", or "sequence".
 #' @param gap.opening.cost float or Inf - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Default to gapless alignment (gap.opening.cost = Inf).
+#' @param filter.aberrants string - aberrant cells (with two or more chains) will be either completely removed ('remove') or the chain with the highest UMI count will be selected ('umi').
 #' @param parallel bool - if TRUE, will execute the per-sample VDJ building and germline trimming routines in parallel (parallelized across samples).
 #' @param num.cores integer or NULL - number of cores to be used of parallel = T. Defaults to all ncores = (available cores - 1) or the ncores = number of samples (depending which is smaller).
 #' @param operating.system string - operating system for choosing the parallel processing method. Options include: "Windows", "Darwin", "Linux".
@@ -21,6 +22,7 @@
 minimal_VDJ <- function(VDJ.directory.list,
                         trim,
                         gap.opening.cost,
+                        filter.aberrants,
                         parallel,
                         num.cores,
                         operating.system,
@@ -30,6 +32,7 @@ minimal_VDJ <- function(VDJ.directory.list,
   if(missing(VDJ.directory.list)) stop('Input list of VDJ sample paths from cellranger v7')
   if(missing(trim)) trim <- NULL
   if(missing(gap.opening.cost)) gap.opening.cost <- Inf
+  if(missing(filter.aberrants)) filter.aberrants <- 'umi'
   if(missing(parallel)) parallel <- FALSE
   if(missing(num.cores)) num.cores <- NULL
   if(missing(operating.system)){
@@ -62,7 +65,7 @@ minimal_VDJ <- function(VDJ.directory.list,
     #Author: Evgenios Kladis
 
     if (is.na(reference) | is.na(consensus)){
-      return (NA)
+      return ("missing")
     }
 
     globalAlign <- Biostrings::pairwiseAlignment(Biostrings::DNAString(consensus), Biostrings::DNAString(reference), type="global-local", gapOpening = gap.opening.cost)
@@ -96,38 +99,66 @@ minimal_VDJ <- function(VDJ.directory.list,
 
     out <- vector("list", 5)
 
+    if(!file.exists(paste(VDJ.directory,"/filtered_contig_annotations.csv",sep=""))){
+      stop("Could not find the filtered_contig_annotations.csv file in your VDJ folder")
+    }
+
+    if(!file.exists(paste(VDJ.directory,"/filtered_contig.fasta",sep=""))){
+      stop("Could not find the filtered_contig.fasta file in your VDJ folder")
+    }
+
     out[[1]] <- utils::read.csv(paste(VDJ.directory,"/filtered_contig_annotations.csv",sep=""),sep=",",header=T)
-    out[[1]]$sequence_nt_trimmed <- paste0(out[[1]][["fwr1_nt"]],
-                                           out[[1]][["cdr1_nt"]],
-                                           out[[1]][["fwr2_nt"]],
-                                           out[[1]][["cdr2_nt"]],
-                                           out[[1]][["fwr3_nt"]],
-                                           out[[1]][["cdr3_nt"]],
-                                           out[[1]][["fwr4_nt"]])
+    if(!all(is.na(out[[1]][["fwr4_nt"]]))){
+      out[[1]]$sequence_nt_trimmed <- paste0(out[[1]][["fwr1_nt"]],
+                                              out[[1]][["cdr1_nt"]],
+                                              out[[1]][["fwr2_nt"]],
+                                              out[[1]][["cdr2_nt"]],
+                                              out[[1]][["fwr3_nt"]],
+                                              out[[1]][["cdr3_nt"]],
+                                              out[[1]][["fwr4_nt"]])
+    }else{
+      out[[1]]$sequence_nt_trimmed <- NA
+    }
 
     out[[2]] <- data.frame(Biostrings::readDNAStringSet(paste(VDJ.directory,"/filtered_contig.fasta",sep="")))
     colnames(out[[2]]) <- 'sequence_nt_raw'
     out[[2]]$contig_id <- rownames(out[[2]])
 
-    out[[3]] <- utils::read.csv(paste(VDJ.directory,"/consensus_annotations.csv",sep=""),sep=",",header=T)
-    out[[3]]$consensus_nt_trimmed <- paste0(out[[3]][["fwr1_nt"]],
-                                            out[[3]][["cdr1_nt"]],
-                                            out[[3]][["fwr2_nt"]],
-                                            out[[3]][["cdr2_nt"]],
-                                            out[[3]][["fwr3_nt"]],
-                                            out[[3]][["cdr3_nt"]],
-                                            out[[3]][["fwr4_nt"]])
-    out[[3]]$consensus_id <- unlist(lapply(out[[3]]$consensus_id, function(x) gsub(x, pattern = "(consensus)(.*)", replacement = "\\1_\\2")))
+    if(file.exists(paste(VDJ.directory,"/consensus_annotations.csv",sep=""))){
+      out[[3]] <- utils::read.csv(paste(VDJ.directory,"/consensus_annotations.csv",sep=""),sep=",",header=T)
+      if(!all(is.na(out[[3]][["fwr4_nt"]]))){
+        out[[3]]$consensus_nt_trimmed <- paste0(out[[3]][["fwr1_nt"]],
+                                                out[[3]][["cdr1_nt"]],
+                                                out[[3]][["fwr2_nt"]],
+                                                out[[3]][["cdr2_nt"]],
+                                                out[[3]][["fwr3_nt"]],
+                                                out[[3]][["cdr3_nt"]],
+                                                out[[3]][["fwr4_nt"]])
+      }else{
+        out[[3]]$consensus_nt_trimmed <- NA
+      }
 
-    out[[4]] <- data.frame(Biostrings::readDNAStringSet(paste(VDJ.directory,"/consensus.fasta",sep="")))
-    colnames(out[[4]]) <- 'consensus_nt_raw'
-    out[[4]]$raw_consensus_id <- rownames(out[[4]])
+      out[[3]]$consensus_id <- unlist(lapply(out[[3]]$consensus_id, function(x) gsub(x, pattern = "(consensus)(.*)", replacement = "\\1_\\2")))
+    }else{
+      out[[3]] <- data.frame(consensus_nt_trimmed = NA, raw_consensus_id = unlist(unique(out[[1]]$raw_consensus_id)))
+    }
 
-    out[[5]] <- data.frame(Biostrings::readDNAStringSet(paste(VDJ.directory,"/concat_ref.fasta",sep="")))
-    colnames(out[[5]]) <- 'germline_nt_raw'
-    out[[5]]$raw_consensus_id <- rownames(out[[5]])
-    out[[5]]$raw_consensus_id <- unlist(lapply(out[[5]]$raw_consensus_id, function(x) gsub(x, pattern = "_concat_ref_", replacement = "_consensus_")))
+    if(file.exists(paste(VDJ.directory,"/consensus.fasta",sep=""))){
+      out[[4]] <- data.frame(Biostrings::readDNAStringSet(paste(VDJ.directory,"/consensus.fasta",sep="")))
+      colnames(out[[4]]) <- 'consensus_nt_raw'
+      out[[4]]$raw_consensus_id <- rownames(out[[4]])
+    }else{
+      out[[4]] <- data.frame(consensus_nt_raw = NA, raw_consensus_id = unlist(unique(out[[1]]$raw_consensus_id)))
+    }
 
+    if(file.exists(paste(VDJ.directory,"/concat_ref.fasta",sep=""))){
+      out[[5]] <- data.frame(Biostrings::readDNAStringSet(paste(VDJ.directory,"/concat_ref.fasta",sep="")))
+      colnames(out[[5]]) <- 'germline_nt_raw'
+      out[[5]]$raw_consensus_id <- rownames(out[[5]])
+      out[[5]]$raw_consensus_id <- unlist(lapply(out[[5]]$raw_consensus_id, function(x) gsub(x, pattern = "_concat_ref_", replacement = "_consensus_")))
+    }else{
+      out[[5]] <- data.frame(germline_nt_raw = NA, raw_consensus_id = unlist(unique(out[[1]]$raw_consensus_id)))
+    }
 
     names(out) <- c('filtered_contig_table', 'raw_contigs_table', 'trimmed_consensus_table', 'raw_consensus_table', 'raw_reference_table')
     return(out)
@@ -136,6 +167,7 @@ minimal_VDJ <- function(VDJ.directory.list,
   make_vdj_sample <- function(index,
                               VDJ.directory.list,
                               trim = c('germline'),
+                              filter.aberrants = 'umi',
                               gap.opening.cost = Inf){
 
     #Creates a VDJ dataframe for a single sample.
@@ -186,7 +218,7 @@ minimal_VDJ <- function(VDJ.directory.list,
            "v_gene", "d_gene", "j_gene", "c_gene",
            "sequence_nt_trimmed", "sequence_nt_raw",
            "consensus_nt_trimmed", "consensus_nt_raw",
-           "germline_nt_trimmed", "germline_nt_raw",
+           "germline_nt_raw",
            "sequence_aa_trimmed", "sequence_aa_raw",
            "consensus_aa_trimmed", "consensus_aa_raw",
            "germline_aa_trimmed", "germline_aa_raw",
@@ -203,8 +235,10 @@ minimal_VDJ <- function(VDJ.directory.list,
     sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'NA'] <- NA
     sample.dataframes$filtered_contig_table[is.null(sample.dataframes$filtered_contig_table)] <- NA
     sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == ''] <- NA
+    sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'NULL'] <- NA
 
-    if('sequence' %in% trim){
+
+    if(('sequence' %in% trim) & file.exists(paste(VDJ.directory,"/all_contig_annotations.json",sep=""))){
       annotations_df <- jsonlite::read_json(paste(VDJ.directory,"/all_contig_annotations.json",sep=""))
       annotations_df <- get_annotation_table(annotations_df) |>
             dplyr::mutate(sequence_nt_trimmed = substr(sequence, as.numeric(temp_start)+1, as.numeric(temp_end)))
@@ -215,7 +249,7 @@ minimal_VDJ <- function(VDJ.directory.list,
             dplyr::left_join(annotations_df, by="contig_id")
     }
 
-    if('consensus' %in% trim){
+    if(('consensus' %in% trim) & file.exists(paste(VDJ.directory,"/consensus_annotations.json",sep=""))){
       annotations_df <- jsonlite::read_json(paste(VDJ.directory,"/consensus_annotations.json",sep=""))
       annotations_df <- get_annotation_table(annotations_df) |>
             dplyr::mutate(consensus_nt_trimmed = substr(sequence, as.numeric(temp_start)+1, as.numeric(temp_end)))
@@ -223,22 +257,18 @@ minimal_VDJ <- function(VDJ.directory.list,
       sample.dataframes$filtered_contig_table$consensus_nt_trimmed <- NULL
       sample.dataframes$filtered_contig_table <- sample.dataframes$filtered_contig_table |>
             dplyr::left_join(annotations_df, by=c("raw_consensus_id" = "contig_id"))
-
-      #print(sample.dataframes$filtered_contig_table$consensus_nt_trimmed)
-
     }
 
     #If 'germline' in trim, will trim and align the raw references to the consensus sequences to obtain trimmed germlines
     if('germline' %in% trim){
       germline_df <- sample.dataframes$filtered_contig_table[!is.na(sample.dataframes$filtered_contig_table$consensus_nt_trimmed),]
       germline_df <- germline_df |> dplyr::distinct(raw_consensus_id, .keep_all = TRUE)
-
-      sample.dataframes$filtered_contig_table$germline_nt_trimmed <- NULL
-      germline_df$germline_nt_trimmed <- mapply(function(x,y) trim_ref(x, y, gap.opening.cost), germline_df$consensus_nt_trimmed, germline_df$germline_nt_raw)
+      germline_df$germline_nt_trimmed <- unlist(mapply(function(x,y) trim_ref(x, y, gap.opening.cost), germline_df$consensus_nt_trimmed, germline_df$germline_nt_raw))
+      germline_df$germline_nt_trimmed[germline_df$germline_nt_trimmed == 'missing'] <- NA
       sample.dataframes$filtered_contig_table <- sample.dataframes$filtered_contig_table |>
                dplyr::left_join(germline_df[, c('raw_consensus_id', 'germline_nt_trimmed')], by="raw_consensus_id")
+    }else{
     }
-
 
     sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'None'] <- NA
     sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'NA'] <- NA
@@ -249,14 +279,13 @@ minimal_VDJ <- function(VDJ.directory.list,
     sequence_columns <- c('sequence_nt_trimmed','sequence_nt_raw','consensus_nt_trimmed','consensus_nt_raw','germline_nt_trimmed','germline_nt_raw')
     for(col in sequence_columns){
       new_col <- stringr::str_replace(col, '_nt_', '_aa_')
+      sample.dataframes$filtered_contig_table[[new_col]] <- NA
       non_na_inds <- which(!is.na(sample.dataframes$filtered_contig_table[[col]]))
-
       if(length(non_na_inds) == 0){
         next
       }
       sample.dataframes$filtered_contig_table[[new_col]][non_na_inds] <- ifelse(is.na(sample.dataframes$filtered_contig_table[[col]][non_na_inds]), NA, as.character(suppressWarnings(Biostrings::translate(Biostrings::DNAStringSet(sample.dataframes$filtered_contig_table[[col]][non_na_inds]), if.fuzzy.codon = "solve"))))
     }
-
 
     #Separately match VDJ/heavy chains
     contigs_vdj <- subset(sample.dataframes$filtered_contig_table, chain %in% c("IGH","TRG","TRGB")) |>
@@ -273,7 +302,7 @@ minimal_VDJ <- function(VDJ.directory.list,
                 "germline_aa_raw",, "germline_aa_trimmed",
                 "chain",
                 "raw_clonotype_id", "raw_consensus_id", "contig_id", "barcode")
-    contigs_vdj <- contigs_vdj[order(contigs_vdj$umis, decreasing = TRUE),]
+    #contigs_vdj <- contigs_vdj[order(contigs_vdj$umis, decreasing = TRUE),] - added arrange in the filtering by distinct part to be more readable (but same functionality)
     colnames(contigs_vdj)[1:35] <- paste0('VDJ_', colnames(contigs_vdj)[1:35])
 
     #Separately match VJ/light chains
@@ -291,16 +320,45 @@ minimal_VDJ <- function(VDJ.directory.list,
                  "germline_aa_raw", "germline_aa_trimmed",
                  "chain",
                  "raw_clonotype_id", "raw_consensus_id", "contig_id", "barcode")
-    contigs_vj <- contigs_vj[order(contigs_vj$umis, decreasing = TRUE),]
+    #contigs_vj <- contigs_vj[order(contigs_vj$umis, decreasing = TRUE),] - added arrange in the filtering by distinct part to be more readable (but same functionality)
     colnames(contigs_vj)[1:34] <- paste0('VJ_', colnames(contigs_vj)[1:34])
 
+    #Added comments to ensure users understand how cells with an aberrant number of chains are treated
+    if(filter.aberrants == 'umi'){ #Filter out aberrant cells with 2 or more chains by selecting the ones with highest UMI count- option 1
+      VDJ <- VDJ |>
+             dplyr::left_join(contigs_vdj, by="barcode") |>
+             #Left join is possible with duplicated rows in contigs_vdj - in this case, more rows will be added to the VDJ data frame depending on the number of aberrant VDJ chains for a single cell.
+             #For example, if a cell with barcode A has two duplicate barcodes (two barcodes A) in contigs_vdj, meaning it has two VDJ chains identified, dplyr will duplicate the VDJ row for barcode A and merge distinctly to each row.
+             #The behaviour is also explained here https://stackoverflow.com/questions/42431974/r-dplyr-left-join-multiple-returned-values-and-new-rows-how-to-ask-for-the-fi
+             #If it is followed by distinct, we remove those duplicated rows and only keep a unique VDJ chain per barcode.
+             dplyr::arrange(dplyr::desc(VDJ_umis)) |>
+             #Added the arrange part in here as well (which I was doing before joining as you can see above via contigs_vdj <- contigs_vdj[order(contigs_vdj$umis, decreasing = TRUE),]).
+             #This ensures that once we use distinct, only the first row (therefore the one with most UMIs) is added per duplicated barcodes.
+             dplyr::distinct(barcode, .keep_all = TRUE) |>
+             #Distinct to filter out duplicates (as they were sorted by UMIs, only the ones with highest UMI counts are kept).
 
-    #Filter out aberrant cells with 2 or more chains by selecting the ones with highest UMIs.
-    VDJ <- VDJ |>
-           dplyr::left_join(contigs_vdj, by="barcode") |>
-           dplyr::distinct(barcode, .keep_all = TRUE) |>
-           dplyr::left_join(contigs_vj, by="barcode") |>
-           dplyr::distinct(barcode, .keep_all = TRUE)
+             #Same approach for merging VJ chains - it will first merge and add more rows with duplicated barcodes, we then sort by UMI, and then use distinct() to filter out the duplicated barcodes and only keep first=most UMIs
+             dplyr::left_join(contigs_vj, by="barcode") |>
+             dplyr::arrange(dplyr::desc(VJ_umis)) |>
+             dplyr::distinct(barcode, .keep_all = TRUE)
+
+    }else if(filter.aberrants == 'remove'){ #Filter out using Valentijn's method for removing duplicates
+      contigs_vdj <- contigs_vdj[!duplicated(contigs_vdj$barcode),]
+      contigs_vj <- contigs_vj[!duplicated(contigs_vj$barcode),]
+      VDJ <- merge(x = VDJ, y = contigs_VDJ, by = c("barcode"), all = TRUE)
+      VDJ <- merge(x = VDJ, y = contigs_VJ, by = c("barcode"), all = TRUE)
+
+    }else{ #For future options
+      message('Aberrant filtering method not implemented. Will filter by UMIs!')
+      VDJ <- VDJ |>
+             dplyr::left_join(contigs_vdj, by="barcode") |>
+             dplyr::arrange(dplyr::desc(VDJ_umis)) |>
+             dplyr::distinct(barcode, .keep_all = TRUE) |>
+             dplyr::arrange(dplyr::desc(VJ_umis)) |>
+             dplyr::left_join(contigs_vj, by="barcode") |>
+             dplyr::distinct(barcode, .keep_all = TRUE)
+    }
+
 
     VDJ <- VDJ[, 2:(length(VDJ)-1)]
 
@@ -344,6 +402,7 @@ minimal_VDJ <- function(VDJ.directory.list,
   partial_function <- function(x) {make_vdj_sample(x,
                                                    VDJ.directory.list = VDJ.directory.list,
                                                    trim = trim,
+                                                   filter.aberrants = filter.aberrants,
                                                    gap.opening.cost = gap.opening.cost
                                                    )}
 
