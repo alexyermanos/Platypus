@@ -268,6 +268,7 @@ minimal_VDJ <- function(VDJ.directory.list,
       sample.dataframes$filtered_contig_table <- sample.dataframes$filtered_contig_table |>
                dplyr::left_join(germline_df[, c('raw_consensus_id', 'germline_nt_trimmed')], by="raw_consensus_id")
     }else{
+      sample.dataframes$filtered_contig_table$germline_nt_trimmed <- NA
     }
 
     sample.dataframes$filtered_contig_table[sample.dataframes$filtered_contig_table == 'None'] <- NA
@@ -420,7 +421,7 @@ minimal_VDJ <- function(VDJ.directory.list,
 
     }else{
       cl <- parallel::makeCluster(cores)
-      pdb_list <- parallel::parLapply(cl, 1:length(VDJ.directory.list), partial_function)
+      VDJ_list <- parallel::parLapply(cl, 1:length(VDJ.directory.list), partial_function)
       parallel::stopCluster(cl)
     }
   }else{
