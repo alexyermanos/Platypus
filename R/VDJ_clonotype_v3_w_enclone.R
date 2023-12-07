@@ -202,6 +202,9 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     #Remove duplicated barcodes
     sample_out <- sample_out[!(sample_out$X %in% sample_out$X[duplicated(sample_out$X)]),]
 
+    #Check if there are NA clonotypes
+    if(any(sample_out$clonotype_id == "clonotypeNA")){message("NA clonotypes found, you might want to exclude these from further analysis.")}
+
     return(sample_out)
   }
 
