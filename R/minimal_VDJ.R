@@ -54,7 +54,7 @@ minimal_VDJ <- function(VDJ.directory,
     
     # Obtain trimmed sequences from raw sequences using the start and end indices of the annotated 'L-REGION+V-REGION' and 'J-REGION' using 'all_contig_annotations.json' or 'consensus_annotations.json' file from Cell Ranger
     # Arguments:
-    # - annotations_JSON: Path to JSON file containing annotations of contig or consensus sequences ('all_contig_annotations.json' or 'consensus_annotations.json')
+    # - annotations_JSON: path to JSON file containing annotations of contig or consensus sequences ('all_contig_annotations.json' or 'consensus_annotations.json')
     # Authors: Victor Kreiner, Tudor-Stefan Cotet, Valentijn Tromp
 
     # Read JSON file and store data object in 'annotations_list'
@@ -362,19 +362,15 @@ minimal_VDJ <- function(VDJ.directory,
 
     # Create a VDJ subset by selecting contigs encoding a TRB, TRG, or IGH (heavy) chain
     vdj_subset <- subset(contigs_merged, chain %in% c("TRB","TRG","IGH"))
-    # Add number of contigs per barcode in colum 'chain_count'
-    vdj_subset$chain_count <- sapply(vdj_subset$barcode, function(x) sum(vdj_subset$barcode == x))
-    # Add "VDJ_" to column names of 'vdj_subset' (except the 'barcode' and 'clonotype_id' column)
-    colnames(vdj_subset) <- ifelse(colnames(vdj_subset) %in% c("barcode","clonotype_id"), yes = colnames(vdj_subset), no = paste0("VDJ_", colnames(vdj_subset)))
+    # Add "VDJ_" to column names of 'vdj_subset' (except the 'barcode' column)
+    colnames(vdj_subset) <- ifelse(colnames(vdj_subset)  == "barcode", yes = colnames(vdj_subset), no = paste0("VDJ_", colnames(vdj_subset)))
 
     # Create a VJ subset by selecting contigs encoding a TRA, TRD, IGK, or IGL (light) chain
     vj_subset <- subset(contigs_merged, chain %in% c("TRA","TRD","IGK","IGL")) |>
       # Select all column except 'dgene' (absent in VJ transcripts)
       dplyr::select(all_columns[all_columns != "dgene"])
-    # Add number of contigs per barcode in colum 'chain_count'
-    vj_subset$chain_count <- sapply(vj_subset$barcode, function(x) sum(vj_subset$barcode == x))
-    # Add "VJ_" to column names of 'vj_subset' (except the 'barcode' and 'clonotype_id' column)
-    colnames(vj_subset) <- ifelse(colnames(vj_subset) %in% c("barcode", "clonotype_id"), yes = colnames(vj_subset), no = paste0("VJ_", colnames(vj_subset)))
+    # Add "VJ_" to column names of 'vj_subset' (except the 'barcode' column)
+    colnames(vj_subset) <- ifelse(colnames(vj_subset) == "barcode", yes = colnames(vj_subset), no = paste0("VJ_", colnames(vj_subset)))
 
     # If 'remove.divergent.cells' is set to TRUE (default), filter out cells with multiple VDJ transcripts or multiple VJ transcripts by filtering out non-unique barcodes  
     if(remove.divergent.cells){
@@ -383,26 +379,37 @@ minimal_VDJ <- function(VDJ.directory,
       non_singlets_vj <- unique(vj_subset$barcode[duplicated(vj_subset$barcode)])
       non_singlets <- unique(c(non_singlets_vdj, non_singlets_vj))
       # Subset by the unique barcodes per VDJ and VJ dataframe
-      vdj_subset <- subset(vdj_subset, !(barcode %in% non_singlets_vdj))
-      vj_subset <- subset(vj_subset, !(barcode %in% non_singlets_vj))
+      vdj_subset_processed <- subset(vdj_subset, !(barcode %in% non_singlets))
+      vj_subset_processed <- subset(vj_subset, !(barcode %in% non_singlets))
       # Save number of cells excluded due to suspicion of being divergent singlets in 'filtering_counts' dataframe
       filtering_counts[basename(VDJ.sample.directory), "divergent.cells"] <- length(non_singlets)
       }
 
-    # Merge 'vdj_subset' with 'vj_subset' by 'barcode' and 'clonotype_id'
-    # If there are multiple rows with the same barcode in either the 'vdj_subset' or 'vj_subset' dataframe, each combination of these VDJ and VJ chain will result in a separate row in the merged data frame)
-    VDJ_df <- merge(x = vdj_subset, y = vj_subset, by = c("barcode","clonotype_id"), all = TRUE)
-    
-    # If 'remove.divergent.cells' is set to FALSE, merge rows with identical 'barcode'
+    # If 'remove.divergent.cells' is set to FALSE, merge rows with identical 'barcode' in 'VDJ_subset' and VJ_subset'
     if(!remove.divergent.cells){
-      # Concatenate unique non-missing values in each column into a comma-separated string for each group
-      VDJ_df <- aggregate(data = VDJ_df, x = . ~ barcode, FUN = \(x)toString(unique(na.omit(x))), na.action = identity)
-      }
-
-    # If 'complete.cells.only' is set to TRUE, filter out cells that lack a VDJ or VJ transcript by filtering out rows with missing values in 'VDJ_chain' and 'VJ_chain'
+      # Concatenate non-missing values in each column into a comma-separated string for 'vdj_subset' and 'vj_subset'
+      vdj_subset_processed <- aggregate(data = vdj_subset, x = . ~ barcode, FUN = \(x)toString(na.omit(x)), na.action = identity)
+      vj_subset_processed <- aggregate(data = vj_subset, x = . ~ barcode, FUN = \(x)toString(na.omit(x)), na.action = identity)
+    }
+    
+    # Merge 'vdj_subset' with 'vj_subset' by 'barcode'
+    VDJ_df <- dplyr::full_join(vdj_subset_processed, vj_subset_processed, by = "barcode")
+    
+    # Add number of contigs per barcode for both VDJ and VJ transcript in columns 'VDJ_chain_count' and 'VJ_chain_count'
+    VDJ_df$VDJ_chain_count <- sapply(VDJ_df$barcode, function(x) nrow(subset(vdj_subset, barcode == x)))
+    VDJ_df$VJ_chain_count <- sapply(VDJ_df$barcode, function(x) nrow(subset(vj_subset, barcode == x)))
+    
+    # Combine 'VDJ_clonotype_id' and 'VDJ_clonotype_id'
+    VDJ_df <- VDJ_df |>
+      dplyr::mutate(clonotype_id = ifelse(!is.na(VDJ_clonotype_id) & !is.na(VJ_clonotype_id), 
+                                          ifelse(VDJ_clonotype_id == VJ_clonotype_id, VDJ_clonotype_id, paste(VDJ_clonotype_id, VJ_clonotype_id, sep = ", ")),
+                                          ifelse(is.na(VDJ_clonotype_id), VJ_clonotype_id, VDJ_clonotype_id))) |>
+      dplyr::select(-VDJ_clonotype_id, -VJ_clonotype_id)
+    
+    # If 'complete.cells.only' is set to TRUE, filter out cells that have a 'VDJ_chain_count' or 'VJ_chain_count' of 0
     if(complete.cells.only){
       number_cells_before <- nrow(VDJ_df)
-      VDJ_df <- VDJ_df |> tidyr::drop_na(c(VDJ_chain, VJ_chain))
+      VDJ_df <- subset(VDJ_df, VDJ_chain_count > 0 & VJ_chain_count > 0)
       number_cells_after <- nrow(VDJ_df)
       # Save number of cells excluded due to missing VDJ or VJ transcript in 'filtering_counts' dataframe
       filtering_counts[basename(VDJ.sample.directory), "incomplete.cells"] <- number_cells_before - number_cells_after
@@ -458,7 +465,8 @@ minimal_VDJ <- function(VDJ.directory,
     VDJ_df <- VDJ_df[, new_order]
 
     # Reorder rows in 'VDJ_df' dataframe by 'clonotype_id'
-    VDJ_df <- VDJ_df[order(as.numeric(gsub("clonotype", "", VDJ_df$clonotype_id))),]
+    VDJ_df <- VDJ_df |>
+      dplyr::arrange(as.integer(stringr::str_extract(clonotype_id, "\\d+")))
     
     # Combinine 'VDJ_df' dataframe, 'warnings' list, and 'filtering_counts' dataframe in 'output' list
     output <- list(VDJ_df = VDJ_df, warnings = warnings, filtering = filtering_counts)
