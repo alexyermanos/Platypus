@@ -111,7 +111,7 @@ minimal_VDJ <- function(VDJ.directory,
     # - seq1: sequence used as reference during pairwise alignment
     # - seq2: sequence that will be trimmeded during pairwise alignment
     # - gap.opening.cost: cost for opening a gap in Biostrings::pairwiseAlignment (defaults to Inf for gapless alignments, as suggested by Anamay Saman)
-    # Author: Evgenios Kladis, Valentijn Tromp
+    # Authors: Evgenios Kladis, Valentijn Tromp
 
     # If 'seq1' or 'seq2' is missing, an empty string is returned
     if(is.na(seq1) | is.na(seq2)){
@@ -420,9 +420,6 @@ minimal_VDJ <- function(VDJ.directory,
 
     # Add column 'sample_id' to 'VDJ' dataframe and use name of sample directory folder - will also add a sample id as the index
     VDJ_df$sample_id <- basename(VDJ.sample.directory)
-
-    # Append 'sample_id' to the barcode
-    VDJ_df$barcode <- paste(VDJ_df$sample_id, VDJ_df$barcode, sep="_")
 
     # Add column 'celltype' based on chains in 'VDJ_chain' and 'VJ_chain' column ("TRA" and "TRB" --> "T cell"; "IGH", "IGK", and "IGL" --> "B cell")
     VDJ_df$celltype[stringr::str_detect(paste0(VDJ_df$VDJ_chain,VDJ_df$VJ_chain), "TR")] <- "T cell"
