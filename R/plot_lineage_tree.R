@@ -17,11 +17,11 @@ plot_lineage_tree <- function(AntibodyForests_object,
                               sample,
                               clone){
   
-  # Arrange the nodes by using 'germline' node as the root and by directing the tree downwards
-  layout <- igraph::layout_as_tree(tree, root = which(igraph::V(tree)$node_type == "germline"), circular = FALSE)
-  
   # Retrieve igraph object from AntibodyForests object
   tree <- AntibodyForests_object[[sample]][[clone]][["lineage.tree"]]
+  
+  # Arrange the nodes by using 'germline' node as the root and by directing the tree downwards
+  layout <- igraph::layout_as_tree(tree, root = which(igraph::V(tree)$node_type == "germline"), circular = FALSE)
   
   # Plot tree
   igraph::plot.igraph(tree, layout = layout, 
