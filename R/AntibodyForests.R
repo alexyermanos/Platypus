@@ -229,9 +229,9 @@ AntibodyForests <- function(VDJ,
     # Retrieve sample ID and clonotype ID from 'clone'
     sample <- strsplit(clone, split="_")[[1]][1]
     clonotype <- strsplit(clone, split="_")[[1]][2]
-    
+
     # Make a subset of the VDJ dataframe with all cells from the specified sample and clone and only the columns 'barcode', the specified 'sequence.columns' and 'germline.columns', and additional columns specified in 'node.features'
-    vdj_subset <- subset(VDJ, sample_id == sample & clonotype_id == clonotype)[,c("barcode", sequence.columns, germline.columns, node.features)]
+    vdj_subset <- VDJ[VDJ$sample_id == sample & VDJ$clonotype_id == clonotype,c("barcode", sequence.columns, germline.columns, node.features)]
     
     # Create vectors specifying
     nt.columns <- colnames(vdj_subset)[stringr::str_detect(colnames(vdj_subset), "_nt")]
