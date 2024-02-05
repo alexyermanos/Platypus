@@ -1,4 +1,4 @@
-#' Plot B cell lineage tree from AntibodyForests object
+#' Plot B cell lineage tree of clonotype from AntibodyForests object
 #' Authors: Valentijn Tromp, Daphne van Ginneken
 #' @description 
 #' @param AntibodyForests_object list - AntibodyForests object as obtained from the AntibodyForests() function in Platypus.
@@ -8,25 +8,32 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' AntibodyForests_plot(AntibodyForests_object,
-#'                      sample = "S1",
-#'                      clonotype = "clonotype4")
+#' plot_lineage_tree(AntibodyForests_object,
+#'                   sample = "S1",
+#'                   clonotype = "clonotype1")
 #'}
 
 plot_lineage_tree <- function(AntibodyForests_object,
                               sample,
-                              clone){
+                              clonotype){
   
   # Retrieve igraph object from AntibodyForests object
-  tree <- AntibodyForests_object[[sample]][[clone]][["lineage.tree"]]
+  tree <- AntibodyForests_object[[sample]][[clonotype]][["lineage.tree"]]
   
-  # Arrange the nodes by using 'germline' node as the root and by directing the tree downwards
-  layout <- igraph::layout_as_tree(tree, root = which(igraph::V(tree)$node_type == "germline"), circular = FALSE)
+  # Arrange the nodes by using 'germline' node as the root and by directing the tree downwards using the 'igraph::layout_as_tree()' function
+  layout <- igraph::layout_as_tree(tree, root = "germline")
+  
+  # Define node labels
+  igraph::V(tree)$label <- ifelse(igraph::V(tree)$name == "germline", "G", ifelse(startsWith(igraph::V(tree)$name, "node"), gsub(pattern = "node", replacement = "", igraph::V(tree)$name), ""))
+  
+  # Define node colors (the germline node is colored orange, the recovered sequence nodes are colored lightblue, and the unrecovered (internal) sequence nodes are colored grey)
+  igraph::V(tree)$color <- ifelse(igraph::V(tree)$label == "G", "orange",
+                                  ifelse(igraph::V(tree)$label == "", "grey", "lightblue"))
   
   # Plot tree
-  igraph::plot.igraph(tree, layout = layout, 
-                      vertex.label.dist = 0, 
-                      edge.arrow.size = 0.1, 
+  igraph::plot.igraph(tree, layout = layout,
+                      vertex.label.dist = 0,
                       vertex.size = 10, 
-                      vertex.label.cex = 0.5)
+                      vertex.label.cex = 0.8,
+                      edge.arrow.size = 0.1)
 }
