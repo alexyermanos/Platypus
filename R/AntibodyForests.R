@@ -4,14 +4,14 @@
 #' @param VDJ dataframe - VDJ object as obtained from the minimal_VDJ() function in Platypus.
 #' @param sequence.columns string or vector of strings - denotes the sequence column(s) in the VDJ dataframe that contain the sequences that will be used to infer B cell lineage trees. Nodes in the trees will represent unique combinations of the selected sequences.
 #' @param germline.columns string or vector of strings - denotes the germline column(s) in the VDJ dataframe that contain the sequences that will be used as starting points of the trees. The columns should be in the same order as in 'sequence.columns'.
-#' @param concatenate.sequences bool - if TRUE, sequences from multiple sequence columns are concatenated into one sequence for single distance matrix calculations / multiple sequence alignments, else, a distance matrix is calculated / multiple sequence alignment is performed for each sequence column separately. Defaults to FALSE. 
+#' @param concatenate.sequences bool - if TRUE, sequences from multiple sequence columns are concatenated into one sequence for single distance matrix calculations / multiple sequence alignments, else, a distance matrix is calculated / multiple sequence alignment is performed for each sequence column separately. Defaults to TRUE. 
 #' @param node.features string or vector of strings - denotes the column name(s) in the VDJ dataframe from which the node features should be extracted (which can, for example, be used for plotting of lineage trees later on).
-#' @param network.algorithm string - denotes the network algorithm that will be used to convert the distance matrix or multiple sequence alignment into a lineage tree/network. Distance-based options: 'network.tree', 'network.mst', and 'phylo.nj'. Multiple sequence alignment-based options: 'phylo.ml', and 'phylo.mp'. Defaults to 'network.tree' (mst-like algorithm).
-#' 'network.tree' : mst-like tree evolutionary network algorithm in which the germline node is positioned at the top of the tree, and nodes with the minimum distance to any existing node in the tree are linked iteratively.
-#' 'network.mst'  : minimum spanning tree (MST) algorithm from 'ape::mst()' constructs networks/trees with the minimum sum of edge lengths/weights, which involves iteratively adding edges to the network in ascending order of edge weights, while ensuring that no cycles are formed.
-#' 'phylo.nj'     : neighbor-joining (NJ) algorithm from 'ape::nj()' constructs phylogenetic trees by joining pairs of nodes with the minimum distance, creating a bifurcating tree consisting of internal nodes (representing unrecovered sequences) and terminal nodes (representing the recovered sequences). After tree construction, the tree is rerooted with respect to the germline node and internal nodes having a distance of 0 to a terminal node are replaced by that terminal node.
-#' 'phylo.ml'     : --- TO BE ADDED SOON! ---
-#' 'phylo.mp'     : --- TO BE ADDED SOON! ---
+#' @param construction.method string - denotes the approach and algorithm that will be used to convert the distance matrix or multiple sequence alignment into a lineage tree. There are two approaches two construct a lineage tree: a tree can be constructed from a network/graph (phylo.network) or from a phylogenetic tree (phylo.tree). There are three algorithm options that take a pairwise distance matrix as input: 'phylo.network.default', 'phylo.network.mst', and 'phylo.tree.nj'. There are two algorithm options that take a multiple sequence alignment as input: 'phylo.tree.ml', and 'phylo.tree.mp'. Defaults to 'phylo.network.default' (mst-like algorithm).
+#' 'phylo.network.default': mst-like tree evolutionary network algorithm in which the germline node is positioned at the top of the tree, and nodes with the minimum distance to any existing node in the tree are linked iteratively.
+#' 'phylo.network.mst'    : minimum spanning tree (MST) algorithm from 'ape::mst()' constructs networks with the minimum sum of edge lengths/weights, which involves iteratively adding edges to the network in ascending order of edge weights, while ensuring that no cycles are formed, after which the network is reorganized into a germline-rooted lineage tree.
+#' 'phylo.tree.nj'        : neighbor-joining (NJ) algorithm from 'ape::nj()' constructs phylogenetic trees by joining pairs of nodes with the minimum distance, creating a bifurcating tree consisting of internal nodes (representing unrecovered sequences) and terminal nodes (representing the recovered sequences). After tree construction, the tree is rerooted with respect to the germline node and internal nodes having a distance of 0 to a terminal node are replaced by that terminal node.
+#' 'phylo.tree.ml'        : [TO BE ADDED SOON]
+#' 'phylo.tree.mp'        : [TO BE ADDED SOON]
 #' @param distance.metric string - denotes the metric that will be calculated with the 'stringdist()' function to measure (string) distance between sequences. Options: 'lv', 'dl', 'osa', 'hamming', 'lcs', 'qgram', 'cosine', 'jaccard', 'jw', and 'soundex'.  Defaults to 'lv' (Levenshtein distance / edit distance).
 #' 'lv'       : Levensthein distance (also known as edit distance) equals to the minimum number of single-element edits (insertions, deletions, or substitutions) required to transformer one string into another.
 #' 'dl'       : Damerau-Levenshtein distance is similar to the Levenshtein distance, but also allows transpositions of adjacent elements as a single-edit operation.
@@ -23,9 +23,7 @@
 #' 'jaccard'  : Jaccard distance equals to 1 - Jaccard index (the strings are converted into sets of single elements (A and B), whereby the Jaccard index (J) equals to the size of the intersection of the two sets divided by the size of the union of the sets, which can be written in a formula as J(A, B) = |A ∩ B| / |A ∪ B|).
 #' 'jw'       : Jaro-Winkler distance equals to 1 - Jaro-Winkler similarity (Jaro-Winkler similary is calculated with the following formulas: Sw = Sj + P * L * (1-Sj) in which Sw is the Jaro-Winkler similary, Sj is the Jaro similarity, P is the scaling factor (defaults to 0), and L is the length of the matching prefix; and Sj = 1/3 * (m/|s1| + m/|s2| + (m-t)/m) in which Sj is the Jaro similarity, m is the number of matching elements, |s1| and |s2|are the lengths of the strings, and t is the number of transpositions).
 #' 'soundex'  : Soundex distance equals to 1 if the 4-character Soundex code of the strings do not match (Soundex is a phonetic algorithm that converts strings into a 4-character code based on their (English) pronunciation).
-#' @param substitution.model string - denotes the codon substitution model that will be used during the likelihood calculations (if 'network.algorithm' is set to 'phylo.ml'. Options: 'GY94' and 'HLP17'. Defaults to NULL. 
-#' 'GY94'   : --- TO BE ADDED SOON! ---
-#' 'HLP17'  : --- TO BE ADDED SOON! ---
+#' @param model string - [TO BE ADDED SOON]
 #' @param resolve.ties string or vector of strings - denotes the way ties are handled during the conversion of the distance matrix into lineage trees by the 'network.tree' algorithm (in the event where an unlinked node, that is to be linked to the tree next, shares identical distances with multiple previously linked nodes in the lineage tree). Options: 'min.expansion', 'max.expansion', 'min.germline.dist', 'max.germline.dist', 'min.germline.edges', 'max.germline.edges', and 'random'. If a vector is provided, ties will be resolved in a hierarchical manner. Defaults to 'c("max.expansion", "close.germline.dist", "close.germline.edges")'.
 #' 'min.expansion'        : the node(s) having the smallest size is/are selected.
 #' 'max.expansion'        : the node(s) having the biggest size is/are selected.
@@ -34,6 +32,7 @@
 #' 'min.germline.edges'   : the node(s) having the lowest possible number of edges to the germline node is/are selected.
 #' 'max.germline.edges    : the node(s) having the highest possible number of edges to the germline node is/are selected.
 #' 'random'               : a random node is selected.
+#' @param remove.internal.nodes bool - if TRUE, internal nodes are removed from phylogenetic trees.
 #' @param parallel bool - if TRUE, the per-clone network inference is executed in parallel (parallelized across samples). Defaults to FALSE.
 #' @param num.cores integer - number of cores to be used when parallel = TRUE. Defaults to all available cores - 1 or the number of samples in the VDJ dataframe (depending which number is smaller).
 #' @return Returns nested list of AntibodyForests objects for each sample and each clonotype, whereby an AntibodyForests object consists of a list of all nodes with their sequences and features called 'clones', a list of distance matrices, one for each selected sequence column, called 'distance.matrices', and the lineage tree as an igraph object called 'lineage.tree'. For example, output[[1]][[2]] denotes the AntibodyForests object of the first sample, second clonotype. 
@@ -46,8 +45,8 @@
 #'                 concatenate.sequences = TRUE,
 #'                 node.features = c("VDJ_vgene", "VDJ_dgene", "VDJ_jgene", "VDJ_cgene"),
 #'                 distance.metric = "lv",
-#'                 network.algorithm = "tree",
-#'                 resolve.ties = c("max.expansion", "close.germline.dist", "close.germline.edges"),
+#'                 construction.method = "phylo.network.default",
+#'                 resolve.ties = c("max.expansion", "close.germline.dist", "close.germline.edges", "random"),
 #'                 parallel = TRUE)
 #'}
 
@@ -55,13 +54,14 @@
 AntibodyForests <- function(VDJ,
                             sequence.columns,
                             germline.columns,
-                            concatenate.sequences = FALSE,
+                            concatenate.sequences,
                             node.features,
                             distance.metric,
-                            substitution.model,
-                            network.algorithm,
+                            model,
+                            construction.method,
                             resolve.ties,
-                            parallel = FALSE,
+                            remove.internal.nodes,
+                            parallel,
                             num.cores){
   
   # If 'sequence.columns' is missing or if the columns are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
@@ -70,32 +70,49 @@ AntibodyForests <- function(VDJ,
   if(missing(germline.columns) | !all(germline.columns %in% colnames(VDJ))){stop("Error: Please provide valid 'germline.columns' from the input VDJ dataframe.")}
   # If the columns in 'germline.columns' do not correspond to the columns in 'sequence.columns', a warning is returned.
   if(!all(sequence.columns == gsub("germline", "sequence", germline.columns))){warning("WARNING: Please make sure that the columns in 'germline.columns' correspond to the columns in 'sequence.columns'.")}
+  # If the 'concatenate.sequences' parameter is missing, it is set to TRUE
+  if(missing(concatenate.sequences)){concatenate.sequences <- TRUE}
   # If 'node.features' contains columns that are not present in the 'VDJ' dataframe, a message is returned and execution is stopped
   if(!all(node.features %in% colnames(VDJ))){stop("Error: Not all columns in 'node.features' could be found in the input VDJ dataframe.")}
-  # If 'network.algorithm', 'distance.metric', 'substitution.model', and 'resolve.ties' are all missing, the edit distance / Levenshtein distance will be used to calculate pairwise string distance matrices and the 'network.tree' algorithm will be used to convert the distance matrices into lineage trees using the 'max.expansion', 'min.germline.dist', and 'min.germline.edges' options to resolve ties
-  if(missing(network.algorithm) && missing(distance.metric) && missing(substitution.model) && missing(resolve.ties)){network.algorithm <- "network.tree"; distance.metric <- "lv"; resolve.ties <- c("max.expansion", "min.germline.dist", "min.germline.edges")}
-  # If 'network.algorithm' is set to 'network.tree', but 'distance.metric' is missing
-  if(network.algorithm == "network.tree" && missing(distance.metric)){distance.metric <- "lv"}
-  # If 'network.algorithm' is set to 'network.tree', but 'resolve.ties' is missing, the 'max.expansion', 'min.germline.dist', and 'min.germline.edges' options are used to handle ties
-  if(network.algorithm == "network.tree" && missing(resolve.ties)){resolve.ties <- c("max.expansion", "min.germline.dist", "min.germline.edges")}
+  # If 'construction.method', 'distance.metric', 'model', and 'resolve.ties' are all missing, the edit distance / Levenshtein distance will be used to calculate pairwise string distance matrices and the 'phylo.network.default' algorithm will be used to convert the distance matrices into lineage trees using the 'max.expansion', 'min.germline.dist', 'min.germline.edges', and 'random' options to resolve ties
+  if(missing(construction.method) && missing(distance.metric) && missing(model) && missing(resolve.ties)){construction.method <- "phylo.network.default"; distance.metric <- "lv"; resolve.ties <- c("max.expansion", "min.germline.dist", "min.germline.edges", "random")}
+  # If the 'construction.method' is defined, retrieve the 'approach' and 'algorithm' from it
+  approach <- unlist(base::strsplit(construction.method, split = "\\."))[2]; algorithm <- unlist(base::strsplit(construction.method, split = "\\."))[3]
+  # If the 'construction.method' is set to 'phylo.network.default', but 'distance.metric' is missing
+  if(construction.method == "phylo.network.default" && missing(distance.metric)){distance.metric <- "lv"}
+  # If the 'construction.method' is set to 'phylo.network.default', but 'resolve.ties' is missing, the 'max.expansion', 'min.germline.dist', 'min.germline.edges', and 'random' options are used to handle (all) ties
+  if(construction.method == "phylo.network.default" && missing(resolve.ties)){resolve.ties <- c("max.expansion", "min.germline.dist", "min.germline.edges", "random")}
+  # If the 'construction.method' is set to 'phylo.tree.nj', 'phylo.tree.mp', or 'phylo.tree.ml', but the 'remove.internal.nodes' parameter is missing, it is set to FALSE
+  if(construction.method %in% c("phylo.tree.nj", "phylo.tree.mp", "phylo.tree.ml") && missing(remove.internal.nodes)){remove.internal.nodes <- FALSE}
+  # If the 'construction.method' is set to 'phylo.tree.mp' or 'phylo.tree.ml' (for which a multiple sequence alignment is required), while 'concatenate.sequences' is set to FALSE, a message is reutrned and execution is stopped
+  if(construction.method %in% c("phylo.tree.mp", "phylo.tree.ml") && !concatenate.sequences){stop("Error: multiple sequence alignment-based lineage tree construction methods require to have one sequence as input.")}
+  # If the 'resolve.ties' or 'remove.internal.nodes' parameters are still not defined, these parameters will not be used and are set to NA
+  if(missing(resolve.ties)){resolve.ties <- NA}
+  if(missing(remove.internal.nodes)){remove.internal.nodes <- NA}
+  # If the 'parallel' parameter is missing, it is set to FALSE
+  if(missing(parallel)){parallel <- FALSE}
   # If 'parallel' is set to TRUE but 'num.cores' is not specified, the number of cores is set to all available cores - 1
   if(parallel == TRUE && missing(num.cores)){num.cores <- parallel::detectCores() -1}
   
   
-  convert_dist_to_tree <- function(clone,
-                                   dist.matrix, 
-                                   network.algorithm, 
-                                   resolve.ties, 
-                                   node.sizes){
+  build_lineage_tree <- function(clone,
+                                 input,
+                                 approach,
+                                 algorithm,
+                                 resolve.ties,
+                                 remove.internal.nodes = FALSE,
+                                 node.sizes){
     
-    # Converts a pairwise distance matrix into a lineage tree 
+    # Build a B cell lineage tree using a pairwise distance matrix or a multiple sequence alignment (msa) as input 
     # Arguments:
-    # - clone: string specifying the sample and clonotype in the format "S1_clonotype1"
-    # - dist.matrix: matrix containing distances between all possible pairs of sequences/nodes
-    # - network.algorithm: string specifying distance-based tree construction method
-    # - resolve.ties: string or vector of strings denoting the way ties are handled in the 'network.tree' algorithm
+    # - clone: string specifying the sample and clonotype of the distance matrix or msa in the format "S1_clonotype1"
+    # - input: distance matrix containing pairwise (string) distances between all possible pairs of sequences/nodes OR multiple sequence alignment in the phyDat format
+    # - approach: string specifying the approach for constructing the lineage tree ("network" for a network/graph-derived lineage tree or "tree" for a phylogenetic tree-derived lineage tree)
+    # - algorithm: string denoting the exact algorithm used to convert the input (distance matrix or msa) into a lineage tree
+    # - resolve.ties: string or vector of strings denoting the way ties are handled in the 'phylo.network.default' algorithm
+    # - remove.internal.nodes: bool indicating whether to remove internal nodes from phylogenetic tree-derived lineage trees
     # - node.sizes: list containing the sequence/node sizes/frequencies
-    # Author: Valentijn Tromp
+    # Authors: Valentijn Tromp, Daphne van Ginneken
     
     
     count_edges_between_two_nodes <- function(node1, node2, edge.matrix){
@@ -132,21 +149,30 @@ AntibodyForests <- function(VDJ,
     }
     
     
-    # 0. Make back-up of distance matrix and remove diagonal 0's 
+    # 1. Define the input object (distance matrix or multiple sequence alignment)
     
-    # Save distance matrix in 'dist_matrix'
-    dist_matrix <- dist.matrix
+    # If the provided construction method is a distance-based tree-inference algorithm ('phylo.network.default', 'phylo.network.mst' or 'phylo.tree.nj')...
+    if(approach == "network" | algorithm == "nj"){
+      
+      # Save 'input' in 'dist_matrix'
+      dist_matrix <- input
+      
+      # Duplicate 'dist_matrix' to use back-up version when constructing networks
+      dist_matrix_backup <- dist_matrix
+    }
     
-    # Save node sizes in 'node_sizes'
-    node_sizes <- node.sizes
+    # If the provided construction method is a msa-based tree-inference algorithm ('phylo.tree.mp', or 'phylo.tree.ml')...
+    if(approach == "tree" && algorithm %in% c("mp", "ml")){
+      
+      # Save 'input' in 'msa'
+      msa <- input
+    }
     
-    # Duplicate 'dist_matrix' for later on
-    dist_matrix_backup <- dist_matrix
     
+    # 2. Use specified approach and algorithm to create 'edges' dataframe with the columns "upper.node", "lower.node", and "edge.length" in which each row represents one edge 
     
-    # 1. Create lineage tree with 'network.tree' algorithm and store edges with edge lengths/weights in 'edges' dataframe (if 'network.algorithm' is set to 'network.tree')
-    
-    if(network.algorithm == "network.tree"){
+    # 2.1 If the approach is set to 'network' with the default algorithm, a mst-like network algorithm is used to construct a germline-conditioned minimum spanning tree
+    if(approach == "network" && algorithm == "default"){
       
       # Create matrix to store edges of the tree 
       edges <- matrix(nrow = 0, ncol = 3)
@@ -196,12 +222,12 @@ AntibodyForests <- function(VDJ,
               
               # If the 'resolve.ties' parameter is set to 'min.expansion', the node(s) having the smallest size is/are selected
               if(option == "min.expansion"){
-                node_to_connect_to <- node_to_connect_to[node_sizes[node_to_connect_to] == min(unlist(node_sizes[node_to_connect_to]))]
+                node_to_connect_to <- node_to_connect_to[node.sizes[node_to_connect_to] == min(unlist(node.sizes[node_to_connect_to]))]
               }
               
               # If the 'resolve.ties' parameter is set to 'max.expansion', the node(s) having the biggest size is/are selected
               if(option == "max.expansion"){
-                node_to_connect_to <- node_to_connect_to[node_sizes[node_to_connect_to] == max(unlist(node_sizes[node_to_connect_to]))]
+                node_to_connect_to <- node_to_connect_to[node.sizes[node_to_connect_to] == max(unlist(node.sizes[node_to_connect_to]))]
               }
               
               # If the 'resolve.ties' parameter is set to 'min.germline.dist', the node(s) having the smallest string distance to the germline node is/are selected
@@ -246,7 +272,7 @@ AntibodyForests <- function(VDJ,
             # Print warning message
             warning(paste0(c("Not all ties could be resolved in ", clone, " !!!")))
             
-            # The currently unlinked node is connected to both linked nodes in the tree, thereby creating a loop in the network
+            # The currently unlinked node is connected to both linked nodes in the tree, thereby creating a cyclic graph
             for(i in node_to_connect_to){
               edges <- rbind(edges, c(i, node, dist_matrix_backup[i, node]))
             }
@@ -260,13 +286,11 @@ AntibodyForests <- function(VDJ,
       
       # Convert 'edges' matrix into dataframe
       edges <- as.data.frame(edges)
-      
     }
     
     
-    # 2. Create lineage tree with 'mst' algorithm and store edges with edge lengths/weights in 'edges' dataframe (if 'network.algorithm' is set to 'mst')
-    
-    if(network.algorithm == "network.mst"){
+    # 2.2 If the approach is set to 'network' and the 'mst' algorithm is specified, a minimum spanning tree is constructed with the 'ape::mst()' function and reorganized into a lineage tree with the B cell on top 
+    if(approach == "network" && algorithm == "mst"){
       
       # Create minimum spanning stree with 'ape::mst()' function
       mst_network <- ape::mst(dist_matrix)
@@ -320,61 +344,45 @@ AntibodyForests <- function(VDJ,
         # All the nodes in 'processed_lower_nodes' will be the 'current_upper_nodes' in the next iteration
         current_upper_nodes <- processed_lower_nodes
         
-        # Update 'processed_nodes' vector by appending nodes in 'processed_lower_nodes'
+        # Update 'processed_nodes' vector by appending the nodes in 'processed_lower_nodes'
         processed_nodes <- c(processed_nodes, processed_lower_nodes)
       }
     }
     
     
-    # 3. Create lineage tree with 'nj' algorithm and store edges with edge lengths/weights in 'edges' dataframe (if 'network.algorithm' is set to 'nj')
-    
-    if(network.algorithm == "phylo.nj"){
+    # 2.3 If the approach is set to 'tree' and the 'nj' algorithm is specified, a neighbor joining tree is constructed with the 'ape::nj()' function and reorganized into a lineage tree with the B cell on top 
+    if(approach == "tree" && algorithm == "nj"){
       
       # A neighbor joining tree can only be build if there are 3 or more sequences
       if(nrow(dist_matrix) > 2){
         
         # Create neighbor joining tree with 'ape::nj()' function
-        nj_phylo_tree <- ape::nj(dist_matrix)
+        nj_tree <- ape::nj(dist_matrix)
         
         # Reroot tree with respect to germline node
-        nj_phylo_tree_rerooted <- ape::root(nj_phylo_tree, "germline")
+        nj_tree_rerooted <- ape::root(nj_tree, "germline")
         
         # Convert 'phylo' object into 'igraph' object
-        nj_igraph_object <- ape::as.igraph.phylo(nj_phylo_tree_rerooted)
+        nj_igraph_object <- ape::as.igraph.phylo(nj_tree_rerooted)
+        
+        # Remove 'Node' from labels of internal nodes
+        igraph::V(nj_igraph_object)$name <- gsub(pattern = "Node", replacement = "", x = igraph::V(nj_igraph_object)$name)
         
         # Create matrix containing the edges of neighbor joining tree between internal nodes (first column) and terminal nodes (second column)
         edges <- igraph::get.edgelist(nj_igraph_object)
         
-        # Remove 'Node' from labels of internal nodes
-        edges <- gsub(pattern = "Node", replacement = "", x = edges)
-        
         # Create dataframe containing the edges plus a third column containing the length of the edges
-        edges <- data.frame(do.call(rbind, lapply(1:nrow(edges), function(x) c(edges[x, 1], edges[x, 2], as.numeric(nj_phylo_tree_rerooted$edge.length[x])))))
+        edges <- data.frame(do.call(rbind, lapply(1:nrow(edges), function(x) c(edges[x, 1], edges[x, 2], as.numeric(nj_tree_rerooted$edge.length[x])))))
         
         # Rename column names of 'edges' dataframe
         colnames(edges) <- c("upper.node", "lower.node", "edge.length")
         
-        # Make a subset of edges with a length of 0
-        zero_length_edges <- edges[edges$edge.length == 0,]
+        # Create pairwise distance matrix with internal nodes from NJ tree
+        dist_matrix_tree <- ape::dist.nodes(nj_tree_rerooted)
         
-        # Remove edges with a length of 0 from 'edges' dataframe
-        edges <- edges[edges$edge.length != 0,]
-        
-        # If the 'zero_length_edges' is not empty...
-        if(nrow(zero_length_edges) != 0){
-          
-          # Loop over edges in 'zero_length_edges' dataframe
-          for(i in 1:nrow(zero_length_edges)){
-            
-            # Retrieve internal and terminal node that are connected by this 'zero length edge'
-            internal_node <- zero_length_edges[i, "upper.node"]
-            terminal_node <- zero_length_edges[i, "lower.node"]
-            
-            # Replace 'internal_node' with 'terminal_node' in the columns 'upper.node' and 'lower.node' in the 'edges' dataframe
-            edges[edges$upper.node == internal_node, "upper.node"] <- terminal_node
-            edges[edges$lower.node == internal_node, "lower.node"] <- terminal_node
-          }
-        }
+        # Rename column names and row names of 'dist_matrix_NJ'
+        rownames(dist_matrix_tree) <- c(nj_tree_rerooted$tip.label, 1:nj_tree_rerooted$Nnode)[as.numeric(rownames(dist_matrix_tree))]
+        colnames(dist_matrix_tree) <- c(nj_tree_rerooted$tip.label, 1:nj_tree_rerooted$Nnode)[as.numeric(colnames(dist_matrix_tree))]
         
         # Swap values in rows where the second column contains the 'germline' node (in order to place the germline node on top of the tree)
         edges[edges$lower.node == "germline", ] <- edges[edges$lower.node == "germline", c("lower.node", "upper.node", "edge.length")]
@@ -387,6 +395,201 @@ AntibodyForests <- function(VDJ,
     }
     
     
+    # 2.4 If the approach is set to 'tree' and the 'mp' algorithm is specified, a maximum parsimony tree is constructed with the 'phangorn::mp()' function
+    if(approach == "tree" && algorithm == "mp"){
+      
+      # Create maximum parsimony tree with the 'phangorn::pratchet()' function
+      #tree <- phangorn::pratchet(input)
+    }
+    
+    
+    # 2.5 If the approach is set to 'tree' and the 'mp' algorithm is specified, a maximum parsimony tree is constructed with the 'phangorn::mp()' function
+    if(approach == "tree" && algorithm == "ml"){
+      
+      # Create maximum likelihood tree with the 'phangorn::pml_bb()' function
+      #tree <- phangorn::pml_bb(msa, model = phangorn::modelTest(msa, model = phangorn::modelTest(msa)))
+    }
+    
+    
+    # 3.1 If the approach is set to 'tree', edges with a length of zero (if present) are removed by replacing the upper node (referred to as the outgoing node) with the lower node (reffered to as the substitute node) 
+    if(approach == "tree" && algorithm == "nj"){
+     
+      # Make a subset of edges with a length of 0 from the 'edges' dataframe
+      zero_length_edges <- edges[edges$edge.length == 0,]
+      
+      # Remove edges with a length of 0 from 'edges' dataframe
+      edges <- edges[edges$edge.length != 0,]
+      
+      # If the 'zero_length_edges' is not empty...
+      if(nrow(zero_length_edges) != 0){
+        
+        # Loop over edges in 'zero_length_edges' dataframe
+        for(i in 1:nrow(zero_length_edges)){
+          
+          # Determine outgoing and substitute node that are connected by this edge of length 0, given that the outgoing node is present in the 'upper.node' column and the 'substitute.node' is present in the 'lower.node' column
+          outgoing_node <- zero_length_edges[i, "upper.node"]
+          substitute_node <- zero_length_edges[i, "lower.node"]
+          
+          # Replace 'outgoing_node' with 'substitute.node' in the columns 'upper.node' and 'lower.node' and simultaneously update the 'edge.length' column in the 'edges' dataframe
+          for(row in rownames(edges[edges$upper.node == outgoing_node, ])){edges[row, c("upper.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, edges[row, "lower.node"]])} 
+          for(row in rownames(edges[edges$lower.node == outgoing_node, ])){edges[row, c("lower.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, edges[row, "upper.node"]])}
+          
+          
+          # Replace 'outgoing_node' with 'substitute.node' in the columns 'upper.node' and 'lower.node' and simultaneously update the 'edge.length' column in the 'zero_length_edges' dataframe
+          for(row in rownames(zero_length_edges[zero_length_edges$upper.node == outgoing_node, ])){zero_length_edges[row, c("upper.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, zero_length_edges[row, "lower.node"]])}
+          for(row in rownames(zero_length_edges[zero_length_edges$lower.node == outgoing_node, ])){zero_length_edges[row, c("lower.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, zero_length_edges[row, "upper.node"]])}
+        }
+      } 
+    }
+    
+    # 3.2 If the approach is set to 'tree' and 'remove.internal.nodes' is set to true, internal nodes (or unrecovered sequences nodes) are removed from the tree by...
+    if(approach == "tree" && algorithm == "nj" && remove.internal.nodes){
+      
+      # Retrieve internal nodes present in 'edges' dataframe (names of terminal nodes start with "node" followed by a number, the germline node is named "germline", and all other nodes are internal nodes)
+      internal_nodes <- unique(c(edges$upper.node, edges$lower.node)[!startsWith(c(edges$upper.node, edges$lower.node), "node") & c(edges$upper.node, edges$lower.node) != "germline"])
+      
+      # Keep removing nodes until the 'internal_nodes' is empty
+      while(length(internal_nodes) != 0){
+        
+        # Select edges from 'edges' dataframe which link an node from the 'internal_nodes' vector to another node (could be another internal node or a terminal node)
+        edges_to_be_removed <- edges[edges$upper.node %in% internal_nodes| edges$lower.node %in% internal_nodes, ]
+        
+        # Apply function that calculated the cost to remove an edge to each edge/row in 'edges_to_be_removed', in which the cost is defined as the increase in the sum of edge lengths
+        costs <- unlist(lapply(1:nrow(edges_to_be_removed), function(row){
+          
+          # Retrieve nodes that are connected by this edge
+          node_pair <- c(edges_to_be_removed$upper.node[row], edges_to_be_removed$lower.node[row])
+          
+          # If one of the nodes is a terminal (or sequence recovered) node, the internal (or unrecovered sequence) node is replaced by this node
+          if(!all(node_pair %in% internal_nodes)){
+            outgoing_node <- node_pair[node_pair %in% internal_nodes]
+            substitute_node <- node_pair[!node_pair %in% internal_nodes]
+          }
+          
+          # If both nodes are internal (or unrecovered sequence) nodes, the upper internal node is replaced by the lower internal node
+          if(all(node_pair %in% internal_nodes)){
+            outgoing_node <- node_pair[1]
+            substitute_node <- node_pair[2]
+          }
+          
+          # Retrieve nodes that are connected to the outgoing node
+          nodes_linked_to_outgoing_node <- unique(c(edges[edges$upper.node == outgoing_node | edges$lower.node == outgoing_node, "upper.node"], c(edges[edges$upper.node == outgoing_node | edges$lower.node == outgoing_node, "lower.node"])))
+          nodes_linked_to_outgoing_node <- nodes_linked_to_outgoing_node[nodes_linked_to_outgoing_node != outgoing_node & nodes_linked_to_outgoing_node != substitute_node]
+          
+          # Retrieve nodes that are connected to the substitute node
+          nodes_linked_to_substitute_node <- unique(c(edges[edges$upper.node == substitute_node | edges$lower.node == substitute_node, "upper.node"], c(edges[edges$upper.node == substitute_node | edges$lower.node == substitute_node, "lower.node"])))
+          nodes_linked_to_substitute_node <- nodes_linked_to_substitute_node[nodes_linked_to_substitute_node != outgoing_node & nodes_linked_to_substitute_node != substitute_node]
+          
+          # Calculate the cost for removing the edge (by subtracting the sum of the lengths of the edges currently linked to the 'outgoing_node' and 'substitute_node' from the sum of the lengths of the edges that would be linked to the 'substitute_node' after the 'outgoing_node' is replaced with the 'substitute_node')
+          cost <- sum(sapply(nodes_linked_to_outgoing_node , function(node) dist_matrix_tree[node, substitute_node])) - sum(sapply(nodes_linked_to_outgoing_node , function(node) dist_matrix_tree[node, outgoing_node])) - dist_matrix_tree[substitute_node, outgoing_node]
+          
+          # Return cost
+          return(cost)
+        }))
+        
+        # Select edges from 'edges_to_be_removed' dataframe that have the minimum cost to get removed and store these edges in 'selection_edges_to_be_removed'
+        selection_edges_to_be_removed <- edges_to_be_removed[(1:nrow(edges_to_be_removed))[costs == min(costs)], ]
+        
+        # If there is only edge with this minimum cost...
+        if(nrow(selection_edges_to_be_removed) == 1){
+          
+          # Remove edge in 'selection_edges_to_be_removed' from 'edges' dataframe
+          edges <- edges[!rownames(edges) %in% rownames(selection_edges_to_be_removed), ]
+         
+          # Retrieve nodes that are connected by this edge
+          node_pair <- c(selection_edges_to_be_removed$upper.node, selection_edges_to_be_removed$lower.node)
+          
+          # If one of the nodes is a terminal (or sequence recovered) node, the internal (or unrecovered sequence) node is replaced by this node
+          if(!all(node_pair %in% internal_nodes)){
+            outgoing_node <- node_pair[node_pair %in% internal_nodes]
+            substitute_node <- node_pair[!node_pair %in% internal_nodes]
+          }
+          
+          # If both nodes are internal (or unrecovered sequence) nodes, the upper internal node is replaced by the lower internal node
+          if(all(node_pair %in% internal_nodes)){
+            outgoing_node <- node_pair[1]
+            substitute_node <- node_pair[2]
+          }
+          
+          # Replace all occurrences of 'outgoing_node' with 'substitute_node' in 'edges' dataframe and simultaneously update 'edge.length'
+          for(row in rownames(edges[edges$upper.node == outgoing_node, ])){edges[row, c("upper.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, edges[row, "lower.node"]])} 
+          for(row in rownames(edges[edges$lower.node == outgoing_node, ])){edges[row, c("lower.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, edges[row, "upper.node"]])}
+        }
+        
+        # If there are multiple edges with this minimum cost...
+        if(nrow(selection_edges_to_be_removed) != 1){
+          
+          # Create vector 'outgoing_nodes' containing the nodes to be replaced that are present in the 'selection_edges_to_be_removed' dataframe
+          outgoing_nodes <- unique(unlist(lapply(1:nrow(selection_edges_to_be_removed), function(x){
+            
+            # Retrieve the nodes that are connected by this edge
+            node_pair <- c(selection_edges_to_be_removed$upper.node[x], selection_edges_to_be_removed$lower.node[x])
+            
+            # If one of the nodes is a terminal (or sequence recovered) node, the internal (or unrecovered sequence) node is replaced by this node
+            if(!all(node_pair %in% internal_nodes)){
+              outgoing_node <- node_pair[node_pair %in% internal_nodes]
+            }
+            
+            # If both nodes are internal (or unrecovered sequence) nodes, the upper internal node is replaced by the lower internal node
+            if(all(node_pair %in% internal_nodes)){
+              outgoing_node <- node_pair[1]
+            }
+            
+            # Return the 'outgoing_node'
+            return(outgoing_node)
+          })))
+          
+          
+          # Loop over nodes in 'outgoing_nodes'
+          for(outgoing_node in outgoing_nodes){
+            
+            # Create vecctor 'substitute_nodes' containing the nodes that are connected to the current outgoing internal node by the edges in 'selection_edges_to_be_removed' with the minimum cost
+            substitute_nodes <- unique(c(selection_edges_to_be_removed[selection_edges_to_be_removed$upper.node == outgoing_node, "lower.node"], selection_edges_to_be_removed[selection_edges_to_be_removed$lower.node == outgoing_node, "upper.node"]))
+            
+            # If there is only node connected to this outgoing node with the minimum cost...
+            if(length(substitute_nodes) == 1){
+              
+              # Save single nodes from 'substitute_nodes' in 'substitute_node'
+              substitute_node <- substitute_nodes
+              
+              # Remove the edge between the 'outgoing_node' and the 'substitute_node' from the 'edges' dataframe and the 'selection_edges_to_be_removed' dataframe
+              edges <- edges[!(edges$upper.node == outgoing_node & edges$lower.node == substitute_node), ]
+              selection_edges_to_be_removed <- selection_edges_to_be_removed[!(selection_edges_to_be_removed$upper.node == outgoing_node & selection_edges_to_be_removed$lower.node == substitute_node), ]
+              
+              # Replace all occurrences of 'outgoing_node' with 'substitute_node' in 'edges' dataframe and simultaneously update 'edge.length' in 'edges' dataframe
+              for(row in rownames(edges[edges$upper.node == outgoing_node, ])){edges[row, c("upper.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, edges[row, "lower.node"]])} 
+              for(row in rownames(edges[edges$lower.node == outgoing_node, ])){edges[row, c("lower.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, edges[row, "upper.node"]])}
+              
+              # Replace all occurrences of 'outgoing_node' with 'substitute_node' in 'edges' dataframe and simultaneously update 'edge.length' in 'selection_edges_to_be_removed' dataframe
+              for(row in rownames(selection_edges_to_be_removed[selection_edges_to_be_removed$upper.node == outgoing_node, ])){selection_edges_to_be_removed[row, c("upper.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, selection_edges_to_be_removed[row, "lower.node"]])} 
+              for(row in rownames(selection_edges_to_be_removed[selection_edges_to_be_removed$lower.node == outgoing_node, ])){selection_edges_to_be_removed[row, c("lower.node", "edge.length")] <- c(substitute_node, dist_matrix_tree[substitute_node, selection_edges_to_be_removed[row, "upper.node"]])}
+            }
+            
+            # If all the edges that link the nodes that are currently linked to this outgoing internal node are present in the 'selection_edges_to_be_removed' dataframe, the lower nodes of this outgoing internal node are coupled to the upper node of this outgoing internal node
+            if(length(substitute_nodes) > 1){
+              
+              # Retrieve the upper node of the outgoing internal node from the 'selection_edges_to_be_removed' dataframe and save in 'upper_node' 
+              upper_node <- edges[edges$lower.node == outgoing_node, "upper.node"]
+              
+              # Retrieve the lower nodes of the outgoing internal node from the 'selection_edges_to_be_removed' dataframe and save in 'lower_nodes'
+              lower_nodes <- edges[edges$upper.node == outgoing_node, "lower.node"]
+              
+              # Remove the edges linked to the 'outgoing_node'
+              edges <- edges[!(edges$upper.node == outgoing_node | edges$lower.node == outgoing_node), ]
+              
+              # Append new edges between upper node and lower nodes to the 'edges' dataframe
+              for(lower_node in lower_nodes){edges <- base::rbind(edges, c(upper_node, lower_node, dist_matrix_tree[upper_node, lower_node]))}
+              colnames(edges) <- c("upper.node", "lower.node", "edge.length")
+            }
+          }
+        }
+        
+        # Update 'internal_nodes' vector
+        internal_nodes <- unique(c(edges$upper.node, edges$lower.node)[!startsWith(c(edges$upper.node, edges$lower.node), "node") & c(edges$upper.node, edges$lower.node) != "germline"])
+      }
+    }
+    
+    
     # 4. Convert 'edges' dataframe into igraph object  
     
     # Create 2-column matrix in which each row represent an edge in the graph
@@ -395,8 +598,8 @@ AntibodyForests <- function(VDJ,
     # Create igraph object using edges stored in 'edge_matrix'
     tree <- igraph::graph_from_edgelist(edge_matrix)
     
-    # Append node size from 'node_sizes' ligt to vertex/node attributes of igraph object
-    igraph::V(tree)$size <- node_sizes[igraph::V(tree)$name]
+    # Append node size from 'node.sizes' ligt to vertex/node attributes of igraph object
+    igraph::V(tree)$size <- node.sizes[igraph::V(tree)$name]
     
     # Append edge length/weight from 'edges' dataframe to edge attributes of igraph object
     igraph::E(tree)$length <- edges$edge.length
@@ -412,10 +615,11 @@ AntibodyForests <- function(VDJ,
                                    germline.columns,
                                    concatenate.sequences,
                                    node.features,
-                                   network.algorithm,
+                                   construction.method,
                                    distance.metric,
-                                   substitution.model,
-                                   resolve.ties){
+                                   model,
+                                   resolve.ties,
+                                   remove.internal.nodes){
     
     # Infers network/tree for a single clone within one sample
     # Arguments:
@@ -425,10 +629,11 @@ AntibodyForests <- function(VDJ,
     # - germline.columns: string or vector of strings denoting the germline columns in the 'VDJ' dataframe that contain the sequences that will be used as starting points of the lineage trees
     # - concatenate.sequences: bool indicating whether sequences from different sequence columns should be concatenated before pairwise distance calculations or multiple string alignment
     # - node.features: string or vector of strings denoting the additional column name(s) in the VDJ dataframe to be selected
-    # - network.algorithm: string denoting the network algorithm that will be used to convert the distance matrices or multiple sequence alignments into lineage trees
-    # - distance.metric: string denoting the metric that will be calculated to measure (string) distances between sequences (if no substitution model is specified)
-    # - substitution.model: denotes codon substitution model that will be used to calculate the alignment score when comparing nucleotide sequences
-    # - resolve.ties: string denoting the way ties are handled when the 'tree' network algorithm is being used 
+    # - construction.method: string denoting the network algorithm that will be used to convert the distance matrices or multiple sequence alignments into lineage trees
+    # - distance.metric: string denoting the metric that will be calculated to measure (string) distances between sequences
+    # - model: denotes codon substitution model that will be used during the likelihood calculations
+    # - resolve.ties: string denoting the way ties are handled when the 'network.tree' network algorithm is being used 
+    # - remove.internal.nodes: bool indicating whether to remove internal nodes from trees constructed with 'phylo.nj' algorithm
     
     # 1. Create a nested list 'nodes_list', in which each sublist represents a clone/node in the graph, and each node represent a unique combination of sequences of the columns selected in 'sequence.columns'
     # Each node/sublist contains the following items:
@@ -446,14 +651,18 @@ AntibodyForests <- function(VDJ,
     germline_columns <- germline.columns
     
     # Make a subset of the VDJ dataframe with all cells from the specified sample and clone and only the columns 'barcode', the specified 'sequence.columns' and 'germline.columns', and additional columns specified in 'node.features'
-    vdj_subset <- base::subset(VDJ, sample_id == sample & clonotype_id == clonotype)[,c("barcode", sequence_columns, germline_columns, node.features)]
+    vdj_subset <- VDJ[VDJ$sample_id == sample & VDJ$clonotype_id == clonotype, c("barcode", sequence_columns, germline_columns, node.features)]
     
     # Create vectors specifying
-    nt.columns <- colnames(vdj_subset)[stringr::str_detect(colnames(vdj_subset), "_nt")]
-    aa.columns <- colnames(vdj_subset)[stringr::str_detect(colnames(vdj_subset), "_aa")]
+    nt_columns <- colnames(vdj_subset)[stringr::str_detect(colnames(vdj_subset), "_nt")]
+    aa_columns <- colnames(vdj_subset)[stringr::str_detect(colnames(vdj_subset), "_aa")]
+    
+    # Define sequence type
+    if(length(nt_columns) != 0){sequence_type <- "DNA"}
+    if(length(aa_columns) != 0){sequence_type <- "AA"}
     
     # Trim of last one or two nucleotides to make the length of the nucleotide sequences in 'vdj_subset' multiple of 3
-    vdj_subset[nt.columns] <- lapply(vdj_subset[nt.columns], function(x){
+    vdj_subset[nt_columns] <- lapply(vdj_subset[nt_columns], function(x){
       ifelse(nchar(x) %% 3 != 0, substring(x, 1, nchar(x) - (nchar(x) %% 3)))
     })
     
@@ -506,10 +715,10 @@ AntibodyForests <- function(VDJ,
     names(nodes_list$germline) <- sequence_columns
     
     
-    # 2.1 Calculate a pairwise string distance matrix for each column in 'sequence_columns' using the specified 'distance.metric', if 'network.algorithm' is set to a distance-based tree/network construction method 
+    # 2.1 Calculate a pairwise string distance matrix for each column in 'sequence_columns' using the specified 'distance.metric', if 'construction.method' is set to a distance-based tree-inference method 
     
-    # If 'network.algorithm' is set to 'network.tree', 'network.mst', or 'phylo.nj' and if the provided 'distance.metric' is one of the methods for distance calculation of the 'stringdistmatrix()' function, this function is used to calculate the distance matrix with the specified string distance metric
-    if(network.algorithm %in% c("network.tree", "network.mst", "phylo.nj") && distance.metric %in% c("osa", "lv", "dl", "hamming", "lcs", "qgram", "cosine", "jaccard", "jw", "soundex")){
+    # If 'construction.method' is set to 'phylo.network.default', 'phylo.network.mst', or 'phylo.tree.nj', the 'stringdistmatrix()' function is used to calculate the pairwise distance matrix with the specified string distance metric
+    if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj")){
       
       # Calculate a distance matrix for each 'sequence.column' separately
       string_dist_matrices <- lapply(sequence_columns, function(x){
@@ -525,31 +734,67 @@ AntibodyForests <- function(VDJ,
         return(dist_matrix)
       })
       
-      # Rename distance matrices in list 'dist_matrices' according to the sequence columns in 'sequence_columns'
+      # Rename distance matrices in list 'dist_matrices' according to the column names in 'sequence_columns'
       names(string_dist_matrices) <- sequence_columns
+      
+      # Store the sum of the distance matrices in 'string_dist_matrices' in 'input', which will be the input for the 'build_lineage_tree' function next
+      input <- base::Reduce(`+`, string_dist_matrices)
     }
     
     
-    # 3. Convert distance matrices to a lineage tree
+    # 2.2 Create an object of class phyDat, if 'construction.method' is set to a msa-based tree-inference method
     
-    # If the provided 'network.algorithm' is a distance-based tree construction method, the function 'convert_dist_to_tree()' is used to build the lineage tree 
-    if(network.algorithm %in% c("network.tree", "network.mst", "phylo.nj")){
-      igraph_tree <- convert_dist_to_tree(clone = clone,
-                                          dist.matrix = Reduce(`+`, string_dist_matrices), 
-                                          network.algorithm = network.algorithm,
-                                          resolve.ties = resolve.ties,
-                                          node.sizes = node_sizes)
+    # If 'construction.method' is set to 'phylo.tree.mp' or 'phylo.tree.ml', ...
+    if(construction.method %in% c("phylo.tree.mp", "phylo.tree.ml")){
+      
+      # Extract (concatenated) sequences from 'nodes_list' and save in 'seqs' list
+      seqs <- sapply(nodes_list, function(y) y["concatenated_sequence"])
+      names(seqs) <- names(nodes_list)
+      
+      # If the 'sequence_type' is set to "DNA"...
+      if(sequence_type == "DNA"){
+        
+        # Convert character strings in 'seqs' list into AAString objects
+        seqs <- lapply(seqs, function(x) Biostrings::DNAString(x))
+        
+        # Convers 'seqs' list into an AAStringSet object
+        seqs <- Biostrings::DNAStringSet(seqs)
+      }
+      
+      # If the 'sequence_type' is set to "AA"...
+      if(sequence_type == "AA"){
+        
+        # Convert character strings in 'seqs' list into AAString objects
+        seqs <- lapply(seqs, function(x) Biostrings::AAString(x))
+        
+        # Convers 'seqs' list into an AAStringSet object
+        seqs <- Biostrings::AAStringSet(seqs)
+      }
+      
+      # Make the multiple sequence alignment with the 'msa()' function from the msa package
+      msa <- msa::msa(seqs)
+      
+      # Convert msa into phyDat format and store in 'input', which will be the input for the 'build_lineage_tree' function next
+      if(sequence_type == "DNA"){input <- phangorn::as.phyDat(msa, type = "DNA")}
+      if(sequence_type == "AA"){input <- phangorn::as.phyDat(msa, type = "AA")}
     }
+    
+    # 3. Build lineage tree using object saved in 'input' (either distance matrix or multiple sequence alignment)
+    igraph_tree <- build_lineage_tree(clone = clone,
+                                      input = input,
+                                      approach = approach,
+                                      algorithm = algorithm,
+                                      resolve.ties = resolve.ties,
+                                      remove.internal.nodes = remove.internal.nodes,
+                                      node.sizes = node_sizes)
     
     
     # 4. Create and return a list containing the phylogenetic tree, the sequences and features of the nodes in the tree, and the distance matrices used to build the tree
     
-    # Return 'nodes_list', 'dist_matrices' and 'tree' as a list
-    return(list(nodes = nodes_list, 
-                distance.matrices = string_dist_matrices,
-                lineage.tree = igraph_tree))
+    # If the 'construction.method' is distance matrix-based, return 'nodes_list', 'dist_matrices' and 'tree' as a list
+    if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj")){return(list(nodes = nodes_list, distance.matrices = string_dist_matrices, lineage.tree = igraph_tree))}
+    if(construction.method %in% c("phylo.tree.mp", "phylo.tree.ml")){return(list(nodes = nodes_list, msa = msa, lineage.tree = igraph_tree))}
   }
-  
   
   # Create list with sample IDs
   sample_list <- unique(VDJ$sample_id)
@@ -565,10 +810,11 @@ AntibodyForests <- function(VDJ,
                                            germline.columns = germline.columns,
                                            concatenate.sequences = concatenate.sequences,
                                            node.features = node.features,
-                                           network.algorithm = network.algorithm,
+                                           construction.method = construction.method,
                                            distance.metric = distance.metric,
-                                           substitution.model = substitution.model,
-                                           resolve.ties = resolve.ties)
+                                           model = model,
+                                           resolve.ties = resolve.ties,
+                                           remove.internal.nodes = remove.internal.nodes)
     return(single_network)
   }
   
@@ -621,6 +867,7 @@ AntibodyForests <- function(VDJ,
     # Return the 'sample_sublist'
     return(sample_sublist)
   })
+  
   # Rename the sublists in 'reorganized_output_list' to their original sample ID
   names(reorganized_output_list) <- sample_list
   

@@ -24,11 +24,12 @@ plot_lineage_tree <- function(AntibodyForests_object,
   layout <- igraph::layout_as_tree(tree, root = "germline")
   
   # Define node labels
-  igraph::V(tree)$label <- ifelse(igraph::V(tree)$name == "germline", "G", ifelse(startsWith(igraph::V(tree)$name, "node"), gsub(pattern = "node", replacement = "", igraph::V(tree)$name), ""))
+  igraph::V(tree)$label <- ifelse(igraph::V(tree)$name == "germline", "G", 
+                                  ifelse(startsWith(igraph::V(tree)$name, "node"), gsub(pattern = "node", replacement = "", igraph::V(tree)$name), igraph::V(tree)$name))
   
   # Define node colors (the germline node is colored orange, the recovered sequence nodes are colored lightblue, and the unrecovered (internal) sequence nodes are colored grey)
   igraph::V(tree)$color <- ifelse(igraph::V(tree)$label == "G", "orange",
-                                  ifelse(igraph::V(tree)$label == "", "grey", "lightblue"))
+                                  ifelse(startsWith(igraph::V(tree)$name, "node"), "lightblue", "grey"))
   
   # Plot tree
   igraph::plot.igraph(tree, layout = layout,
