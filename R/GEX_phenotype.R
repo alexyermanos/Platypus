@@ -82,7 +82,7 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
     }
   }
   seurat.object[["cell.state"]] <- Seurat::Idents(object = seurat.object)
-  Seurat::Idents(object = seurat.object)<-seurat.object[["previous.ident"]]
+  Seurat::Idents(object = seurat.object) <- unname(unlist(seurat.object[["previous.ident"]]))
 
   return(seurat.object)
 }

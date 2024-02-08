@@ -137,5 +137,3 @@ VGM_integrate <- function(VGM,
   }
   return(VGM)
 }
-
-

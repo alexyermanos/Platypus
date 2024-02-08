@@ -23,8 +23,13 @@
 #' clone_counts = result[2]$clones
 #' }
 #'
-VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, ref = TRUE, path_toData = "../Data/"){
 
+VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, ref = TRUE, path_toData = "../Data/"){
+  if(missing(VDJ)) stop("Please input your VDJ data frame!")
+  if(missing(n_clones)) n_clones <- NA
+  if(missing(samples)) samples <- NA
+  if(missing(ref)) ref <- TRUE
+  if(missing(path_toData)) path_toData <- "../Data/"
 
   barcode <- NULL
   chain <- NULL

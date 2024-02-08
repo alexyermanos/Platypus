@@ -233,8 +233,8 @@ VDJ_clonal_expansion <- function(VDJ,
                 clones_per_isotype[[j]]$ClonalRank <- j
 
               } else if(color.by != "isotype"){
-                color_cur_clone <- unique(curr_clone$colors)
-                n_color_cur_clone <- length(unique(curr_clone$colors))
+                color_cur_clone <- unique(curr_rep_iso$colors)
+                n_color_cur_clone <- length(unique(curr_rep_iso$colors))
 
                 clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],n_color_cur_clone), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
 
