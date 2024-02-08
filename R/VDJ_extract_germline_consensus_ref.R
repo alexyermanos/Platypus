@@ -5,10 +5,12 @@
 #' on the alignement with the consensus.
 #' @param  VDJ VDJ or vgm[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
 #' @param n_clones integer, denoting the top n clones to get the reference. If NA it is performed in all clones
-#' @param sample list of sample names, with the same order as they were accessed to make the VGM
+#' @param samples list of sample names, with the same order as they were accessed to make the VGM
 #' @param ref bool, denoting whether or not we trim the reference of the antibodies.
-#' @param path_tOData str, denoting the folder containing the VDJ folder with VDJ information per sample
+#' @param path_toData str, denoting the folder containing the VDJ folder with VDJ information per sample
 #' @return $vdj: VDJ containing the VDJ/VJ_ref.nt/aa columns if ref = TRUE and the full_VDJ, full_VJ columns with the fr1-fr4. $clones: clone_ids for which a reference was made.
+#' @importFrom magrittr %<>%
+#' @export
 #' @examples
 #' \dontrun{
 #' samples = c('LCMV', 'TNFR')
@@ -21,7 +23,18 @@
 #' clone_counts = result[2]$clones
 #' }
 #'
+
 VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, ref = TRUE, path_toData = "../Data/"){
+  if(missing(VDJ)) stop("Please input your VDJ data frame!")
+  if(missing(n_clones)) n_clones <- NA
+  if(missing(samples)) samples <- NA
+  if(missing(ref)) ref <- TRUE
+  if(missing(path_toData)) path_toData <- "../Data/"
+
+  barcode <- NULL
+  chain <- NULL
+  VDJ_barcode <- NULL
+
   #SUPLEMENTARY FUNCTIONS
   #1
   trim_ref <- function(consensus, reference){
@@ -34,9 +47,9 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
       return ("")
     }
     #Since I make consensus with the concatenation of fr1-fr4 consensus, it shouldnt need to be trimmed since it is already at apropriate shape
-    s1 <- DNAString(consensus)
-    s2 <- DNAString(reference)
-    globalAlign <- pairwiseAlignment(s1, s2, type="global-local",gapOpening = Inf)
+    s1 <- Biostrings::DNAString(consensus)
+    s2 <- Biostrings::DNAString(reference)
+    globalAlign <- Biostrings::pairwiseAlignment(s1, s2, type="global-local")
     new_reference <- as.character(globalAlign@subject)
     return (new_reference)
   }
@@ -61,7 +74,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     output = list(VDJ_ref.aa = "", VDJ_ref.nt = "", VJ_ref.aa = "", VJ_ref.nt = "")
     for (chain in c("VDJ","VJ")){
       #Due to the issue with the consensus id of th VGM, take it from the reference id
-      con_id = str_sub(vgm_barcode[[paste(chain,"_raw_consensus_id",sep="")]],-1,-1)
+      con_id = stringr::str_sub(vgm_barcode[[paste(chain,"_raw_consensus_id",sep="")]],-1,-1)
       clonotype_cons = vgm_barcode[[paste(chain,"_raw_consensus_id",sep="")]]
       #In case the cell has only light or only heavy chain, skip the process
       if(clonotype_cons == ""){
@@ -142,15 +155,15 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     all_contig_annotations = data.frame()
     for (x in samples) {
       x = paste(path_toData,"VDJ/",x,"/",sep="")
-      contig_annotations <- read_csv(paste(x,"filtered_contig_annotations.csv",sep="")) %>%
+      contig_annotations <- utils::read.csv(paste(x,"filtered_contig_annotations.csv",sep="")) %>%
         #Removing final -1 from barcodes
-        mutate(VDJ_barcode = substr(barcode,1,nchar(barcode)-2))
+        dplyr::mutate(VDJ_barcode = substr(barcode,1,nchar(barcode)-2))
       all_contig_annotations = rbind(all_contig_annotations, contig_annotations)#CHANGE BECAUSE OF DIFFERENT collumns LCMV TNFR2 files
     }
     #Dividing into heavy and light chain
     contigs_HC <- subset(all_contig_annotations, chain == "IGH") %>%
       #Selecting columns of interest
-      select("fwr1", "fwr1_nt", "cdr1", "cdr1_nt",
+      dplyr::select("fwr1", "fwr1_nt", "cdr1", "cdr1_nt",
              "fwr2", "fwr2_nt", "cdr2", "cdr2_nt",
              "fwr3", "fwr3_nt", "cdr3", "cdr3_nt",
              "fwr4", "fwr4_nt", "umis", "VDJ_barcode")
@@ -159,19 +172,19 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
 
     #Repeating for light chain
     contigs_LC <- subset(all_contig_annotations, chain %in% c("IGK","IGL")) %>%
-      select("fwr1", "fwr1_nt", "cdr1", "cdr1_nt",
+      dplyr::select("fwr1", "fwr1_nt", "cdr1", "cdr1_nt",
              "fwr2", "fwr2_nt", "cdr2", "cdr2_nt",
              "fwr3", "fwr3_nt", "cdr3", "cdr3_nt",
              "fwr4", "fwr4_nt", "umis", "VDJ_barcode")
     colnames(contigs_LC)[0:15] <- paste('LC', colnames(contigs_LC)[0:15], sep = '_')
 
     #Removing sample nr from barcode from VDJ
-    VDJ %<>% mutate(VDJ_barcode = sub(".*_","",barcode))
+    VDJ %<>% dplyr::mutate(VDJ_barcode = sub(".*_","",barcode))
 
     #Joining columns of interest to the initial VDJ
-    VDJ_HC_contigs <- left_join(VDJ, contigs_HC, by="VDJ_barcode")
-    VDJ_contigs <- left_join(VDJ_HC_contigs, contigs_LC, by="VDJ_barcode") %>%
-      select(-VDJ_barcode)
+    VDJ_HC_contigs <- dplyr::left_join(VDJ, contigs_HC, by="VDJ_barcode")
+    VDJ_contigs <- dplyr::left_join(VDJ_HC_contigs, contigs_LC, by="VDJ_barcode") %>%
+      dplyr::select(-VDJ_barcode)
 
     VDJ_contigs$full_VDJ <- paste0(VDJ_contigs$HC_fwr1_nt,
                                    VDJ_contigs$HC_cdr1_nt,
@@ -221,7 +234,7 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     #Examined sample_id
     sample_id = sample_id + 1
     #read the consensus
-    consensus = read.csv(paste(path,"consensus_annotations.csv",sep=""), sep=",")
+    consensus = utils::read.csv(paste(path,"consensus_annotations.csv",sep=""), sep=",")
     vgm_subset = VDJ[VDJ$sample_id == paste("s",sample_id,sep = ""),]
     #Filtering for one light one heavy chain
     VDJ <- VDJ[grepl(";",VDJ$VDJ_chain_contig) == FALSE,]
