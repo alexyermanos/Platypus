@@ -7,22 +7,29 @@
 #' 'all.depth'        : Number of edges connecting each node to the germline
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
 #' 'colless.number'   : Sum of the absolute difference between the number of left- and right descendants for each node (this requires a tree to be binary!)
+#' @param parallel If TRUE, the metric calculations are parallelized across AntibodyForests-objects. (default FALSE)
+#' @param num.cores Number of cores to be used when parallel = TRUE. (Defaults to all available cores - 1)
 #' @return Returns a dataframe where the rows are trees and the columns are metrics
 #' @export
 
 AntibodyForests_metrics <- function(input,
                                     multiple.objects,
-                                    metrics){
+                                    metrics,
+                                    parallel,
+                                    num.cores){
   
   #Stop when no input is provided
   if(missing(input)){stop("Please provide a valid input object.")}
   #Set defaults
   if(missing(multiple.objects)){multiple.objects = F}
   if(missing(metrics)){metrics <- "mean.depth"}
+  if(missing(parallel)){parallel <- FALSE}
   #Check if the input is in the correct format.
   #If multiple.objects is TRUE, multiple AntibodyForests-objects should be in the input list, where the third item in the nested AntibodyForest-object should be of class "igraph"
   if((multiple.objects == F && class(input[[1]][[1]][[3]]) != "igraph")|| (multiple.objects == T && class(input[[1]][[1]][[1]][[3]]) != "igraph")){
     stop("The input is not in the correct AntibodyForests-object format.")}
+  # If 'parallel' is set to TRUE but 'num.cores' is not specified, the number of cores is set to all available cores - 1
+  if(parallel == TRUE && missing(num.cores)){num.cores <- parallel::detectCores() -1}
   
   #Functions to calculate metrics
   calculate_mean_depth <- function(tree){
@@ -78,31 +85,103 @@ AntibodyForests_metrics <- function(input,
     return(metrics_vector)
   }
   
-  #Create a list of metric dataframes if there are multiple AntibodyForests-objects in the input
-  if(multiple.objects == T){
-    #Go over each tree in each of the AntibodyForests objects and create a metric list
-    metric_list <- lapply(input, function(object){
-      t(as.data.frame(lapply(object, function(sample){
+
+
+  # If 'parallel' is set to TRUE, the metric calculation is parallelized across the clonotypes
+  if(parallel){
+    
+    # Retrieve the operating system
+    operating_system <- Sys.info()[['sysname']]
+    
+    # If the operating system is Linux or Darwin, 'mclapply' is used for parallelization
+    if(operating_system %in% c('Linux', 'Darwin')){
+      #Create a list of metric dataframes if there are multiple AntibodyForests-objects in the input
+      if(multiple.objects == T){
+        #Go over each tree in each of the AntibodyForests objects and create a metric list
+        metric_list <- parallel::mclapply(mc.cores = num.cores, input, function(object){
+          t(as.data.frame(parallel::mclapply(mc.cores = num.cores, object, function(sample){
+            parallel::mclapply(mc.cores = num.cores, sample, function(clonotype){
+              calculate_metrics(clonotype, metrics)
+            })
+          })))
+        })
+        
+        return(metric_list)
+      }
+      #Create a single metric dataframe if there is only one AntibodyForests-object in the input
+      else if(multiple.objects == F){
+        #Go over each tree in the AntibodyForests object and create a metric dataframe
+        metric_df <- t(as.data.frame(parallel::mclapply(mc.cores = num.cores,input, function(sample){
+          parallel::mclapply(mc.cores = num.cores,sample, function(clonotype){
+            calculate_metrics(clonotype, metrics)
+          })
+        })))
+        
+        return(metric_df)
+      }
+    }
+    
+    # If the operating system is Windows, "parLapply" is used for parallelization
+    if(operating_system == "Windows"){
+      # Create cluster
+      cluster <- parallel::makeCluster(num.cores)
+      
+      if(multiple.objects == T){
+        #Go over each tree in each of the AntibodyForests objects and create a metric list
+        metric_list <- parallel::parLapply(cluster, input, function(object){
+          t(as.data.frame(parallel::parLapply(cluster, object, function(sample){
+            parallel::parLapply(cluster, sample, function(clonotype){
+              calculate_metrics(clonotype, metrics)
+            })
+          })))
+        })
+        
+        return(metric_list)
+      }
+      #Create a single metric dataframe if there is only one AntibodyForests-object in the input
+      else if(multiple.objects == F){
+        #Go over each tree in the AntibodyForests object and create a metric dataframe
+        metric_df <- t(as.data.frame(parallel::parLapply(cluster,input, function(sample){
+          parallel::parLapply(cluster,sample, function(clonotype){
+            calculate_metrics(clonotype, metrics)
+          })
+        })))
+        
+        return(metric_df)
+      }
+      # Stop cluster
+      parallel::stopCluster(cluster)
+    }
+    
+  }
+  
+  # If 'parallel' is set to FALSE, the network inference is not parallelized
+  if(!parallel){
+    #Create a list of metric dataframes if there are multiple AntibodyForests-objects in the input
+    if(multiple.objects == T){
+      #Go over each tree in each of the AntibodyForests objects and create a metric list
+      metric_list <- lapply(input, function(object){
+        t(as.data.frame(lapply(object, function(sample){
+          lapply(sample, function(clonotype){
+            calculate_metrics(clonotype, metrics)
+          })
+        })))
+      })
+      
+      return(metric_list)
+    }
+    #Create a single metric dataframe if there is only one AntibodyForests-object in the input
+    else if(multiple.objects == F){
+      #Go over each tree in the AntibodyForests object and create a metric dataframe
+      metric_df <- t(as.data.frame(lapply(input, function(sample){
         lapply(sample, function(clonotype){
           calculate_metrics(clonotype, metrics)
         })
       })))
-    })
-    
-    return(metric_list)
+      
+      return(metric_df)
+    }
   }
-  #Create a single metric dataframe if there is only one AntibodyForests-object in the input
-  else if(multiple.objects == F){
-    #Go over each tree in the AntibodyForests object and create a metric dataframe
-    metric_df <- t(as.data.frame(lapply(input, function(sample){
-      lapply(sample, function(clonotype){
-        calculate_metrics(clonotype, metrics)
-      })
-    })))
-    
-    return(metric_df)
-  }
-
   
   
 }
