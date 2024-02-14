@@ -87,6 +87,9 @@ AntibodyForests_metrics <- function(input,
     #   metrics_vector["colless_number"] <- colless
     # }
    
+    #Standart metrics
+    metrics_vector["nodes"] <- gorder(clonotype$lineage.tree)
+    
     return(metrics_vector)
   }
   
