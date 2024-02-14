@@ -40,6 +40,11 @@ AntibodyForests_metrics <- function(input,
   
   calculate_all_depth <- function(tree){
     paths <- igraph::shortest_paths(tree, from = "germline", output = "both")
+    #Set names to the list of vpath
+    names(paths$epath) <- names(unlist(lapply(paths$vpath, function(x){tail(x,n=1)})))
+    #Reorder the vpaths according to node number
+    paths$epath <- paths$epath[c("germline",sort(names(paths$epath)[names(paths$epath) != "germline"]))]
+    #Concatenate the depths in a string separated by "_"
     depths <- paste(unlist(lapply(paths$epath, length)), collapse = "_")
     return(depths)
   }
@@ -55,7 +60,7 @@ AntibodyForests_metrics <- function(input,
     return(colless)
   }
   
-  #Calculate the metrics for a tree
+  #Calculate the metrics for a clonotype
   calculate_metrics <- function(clonotype, metrics){
     
     #Create empty vector to store metrics
@@ -135,6 +140,8 @@ AntibodyForests_metrics <- function(input,
             })
           })))
         })
+        # Stop cluster
+        parallel::stopCluster(cluster)
         
         return(metric_list)
       }
@@ -146,11 +153,12 @@ AntibodyForests_metrics <- function(input,
             calculate_metrics(clonotype, metrics)
           })
         })))
+        # Stop cluster
+        parallel::stopCluster(cluster)
         
         return(metric_df)
       }
-      # Stop cluster
-      parallel::stopCluster(cluster)
+
     }
     
   }
