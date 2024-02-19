@@ -3,10 +3,11 @@
 #' @param input Output from AntibodyForests_metrics(), either one dataframe or a list of dataframes
 #' @param within.clonotypes If TRUE: input should contain multiple metric dataframes (default FALSE)
 #' @param distance.methods The metrics to be calculated (default ...)
-#' euclidean'    : Euclidean distance of the number of edges for each leaf (depth) between different trees of the same clonotype.
+#' 'none'         : No distance metric, analyze similarity directly from tree metrics in the input dataframe(s)
+#' 'euclidean'    : Euclidean distance of the number of edges for each leaf (depth) between different trees of the same clonotype.
 #' @param similarity.methods The methods to analyze similarity (default PCA)
 #' @param metrics.to.visualize Other metrics from the input to use for visualization.
-#' @return Returns a list of distance matrices for each clonotype. Optionally various plots based on similarity.methods and metrics.to.visualize
+#' @return If within.clonotypes = TRUE: Returns a list of distance matrices for each clonotype and various plots based on similarity.methods and metrics.to.visualize. If within.clonotypes = FALSE returns only plots.
 #' @export
 
 AntibodyForests_compare <- function(input,
@@ -26,7 +27,7 @@ AntibodyForests_compare <- function(input,
     stop("Please provide a list of metric dataframes when comparing within clonotypes.")
   }
   #When comparing within clonotypes, check if the same trees are in the metric dataframes.
-  if(class(input) == "list" && length(unique(lapply(input, rownames))) != 1){
+  if(within.clonotypes == T && class(input) == "list" && length(unique(lapply(input, rownames))) != 1){
     stop("Row names of the metric dataframes are not matching. Make sure to select the same 
          trees (in the same order) when comparing within clonotypes.")
   }
@@ -39,14 +40,15 @@ AntibodyForests_compare <- function(input,
     stop("all_depth needs to be calculated in order to compare euclidean distance.")
   }
   #Check if all metrics in metrics.to.visualize are in the input dataframes
-  if(metrics.to.visualize != "none" && !(metrics.to.visualize %in% lapply(input, colnames)[[1]])){
+  if((within.clonotypes == T && metrics.to.visualize != "none" && !(metrics.to.visualize %in% lapply(input, colnames)[[1]])) ||
+     (within.clonotypes == F && metrics.to.visualize != "none" && !(metrics.to.visualize %in% colnames(input)))){
     stop("metrics.to.visualize need to be in the input metrics dataframes.")
   }
   
   #Functions to calculate distance
   calculate_euclidean <- function(tree_list, clonotype){
     #Create a matrix where each row is a tree and each column is the depth per node
-    depth_matrix <- matrix(data = NA, ncol = as.numeric(tree_list[[1]][clonotype,"nodes"]))
+    depth_matrix <- matrix(data = NA, ncol = as.numeric(tree_list[[1]][clonotype,"nr_nodes"]))
     for(index in 1:length(tree_list)){
       all_depth <- tree_list[[index]][clonotype,"all_depth"]
       #split the all_depth string into a vector
@@ -60,6 +62,28 @@ AntibodyForests_compare <- function(input,
     euclidean_matrix <- stats::dist(depth_matrix, method = "euclidean", diag = T, upper = T)
     
     return(euclidean_matrix)
+  }
+  
+  #Calculate principle components
+  calculate_PC <- function(df, to.scale){
+    #Run a PCA and save the PCs in a dataframe
+    pca_results <- as.data.frame(stats::prcomp(df)$x, scale. = to.scale)
+    
+    #Add tree names to the dataframe
+    pca_results$tree <- rownames(pca_results)
+    
+    return(pca_results)
+  }
+  
+  plot_PC <- function(df, color, name){
+    p <- ggplot2::ggplot(df, aes(x=PC1,y=PC2, color=.data[[color]], label = tree)) +
+      ggplot2::geom_point(size=5) +
+      ggrepel::geom_label_repel()+
+      ggplot2::theme_minimal() +
+      ggplot2::theme(text = element_text(size = 20)) +
+      ggplot2::ggtitle(name)
+    
+    return(p)
   }
   
   #1. Calculate distance matrix
@@ -80,47 +104,35 @@ AntibodyForests_compare <- function(input,
   
   #2. Similarity analysis and visualization
   
-  if ("PCA" %in% similarity.methods){
+  #PCA on the distance matrix per clonotype when within.clonotypes is TRUE
+  if ("PCA" %in% similarity.methods && within.clonotypes == T){
     #Save names of the trees
     list_names <- names(distance_list)
     
-    #Create empty list to store plots
-    plot_list <- list()
-    
     #Do a PCA and plotting for each clonotype
     distance_list <- lapply(seq_along(distance_list), function(clonotype){
-      #Calculate principle components
-      pca_results <- as.data.frame(prcomp(distance_list[[clonotype]])$x)
-      pca_results$tree <- rownames(pca_results)
+      #Create empty list to store plots
+      plot_list <- list()
       
-      #Plot the PC1 and PC2 of the distance between the trees
-      pca_plot_default <- ggplot2::ggplot(pca_results, aes(x=PC1,y=PC2,color=tree, label = tree)) +
-        ggplot2::geom_point(size=5) +
-        ggrepel::geom_label_repel()+
-        ggplot2::theme_minimal() +
-        ggplot2::theme(text = element_text(size = 20),
-              legend.position = "none") +
-        ggplot2::ggtitle(names(distance_list)[[clonotype]])
-      plot_list[["default"]] <- pca_plot_default
+      #Calculate principle components
+      pca_results <- calculate_PC(distance_list[[clonotype]], to.scale = F)
+      
+      #Plot the PC1 and PC2 of the distance between the trees and color on tree
+      plot_list[["default"]] <- plot_PC(df = pca_results, color = "tree",
+                                          name = names(distance_list)[[clonotype]])
       
       if (metrics.to.visualize != "none"){
         for (metric in metrics.to.visualize){
           #Add this metric to the PCA output dataframe
           pca_results[metric] <- NA
-          for (tree in names(within_metrics)){
-            pca_results[tree,metric] <- as.numeric(within_metrics[[tree]][names(distance_list)[[clonotype]], metric])
+          for (tree in names(input)){
+            pca_results[tree,metric] <- as.numeric(input[[tree]][names(distance_list)[[clonotype]], metric])
           }
           
-          #Plot the PC1 and PC2 of the distance between the trees colored on metric
-          pca_plot_metric <- ggplot2::ggplot(pca_results, aes(x=PC1,y=PC2, color=.data[[metric]], label = tree)) +
-            ggplot2::geom_point(size=5) +
-            ggrepel::geom_label_repel() +
-            ggplot2::theme_minimal() +
-            ggplot2::theme(text = element_text(size = 20)) +
-            ggplot2::ggtitle(names(distance_list)[[clonotype]])
-          
           #Add extra PCA plot to the output list
-          plot_list[[metric]] <- pca_plot_metric
+          #Plot the PC1 and PC2 of the distance between the trees and color on metric
+          plot_list[[metric]] <- plot_PC(psa_results, color = metric,
+                                            name = names(distance_list)[[clonotype]])
         }
       }
       #Add the distance matrix and the default PCA plot to the output list
@@ -132,7 +144,35 @@ AntibodyForests_compare <- function(input,
     #Name the clonotypes in the list
     names(distance_list) <- list_names
     
+    return(distance_list)
+    
+  }
+  #PCA directly on the input on all clonotypes when within.clonotypes is FALSE
+  if ("PCA" %in% similarity.methods && within.clonotypes == F){
+    #Calculate principle components
+    pca_results <- calculate_PC(input, to.scale = T)
+    
+    #Create empty list to store plots
+    plot_list <- list()
+    
+    #Plot the PC1 and PC2 of the distance between the trees and color on tree
+    plot_list[["default"]] <- plot_PC(pca_results, color = "tree", name = "All trees")
+    
+    if (metrics.to.visualize != "none"){
+      for (metric in metrics.to.visualize){
+        #Add this metric to the PCA output dataframe
+        pca_results[metric] <- as.numeric(input[,metric])
+        
+        #Add extra PCA plot to the output list
+        #Plot the PC1 and PC2 of the distance between the trees and color on metric
+        plot_list[[metric]] <- plot_PC(pca_results, color = metric,
+                                       name = "All trees")
+    
+      }
+    }
+    
+    return(plot_list)
   }
   
-  return(distance_list)
+  
 }

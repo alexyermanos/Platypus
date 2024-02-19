@@ -3,6 +3,8 @@
 #' @param input AntibodyForests-object(s), output from AntibodyForests()
 #' @param multiple.objects If TRUE: input should contain multiple AntibodyForests-objects (default FALSE)
 #' @param metrics The metrics to be calculated (default mean.depth)
+#' 'nr.nodes'         : The total number of nodes
+#' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'all.depth'        : Number of edges connecting each node to the germline
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
@@ -65,7 +67,7 @@ AntibodyForests_metrics <- function(input,
     
     #Create empty vector to store metrics
     metrics_vector <- c()
-    
+
     if ("mean.depth" %in% metrics){
       depth <- calculate_mean_depth(clonotype$lineage.tree)
       metrics_vector["mean_depth"] <- depth
@@ -86,9 +88,16 @@ AntibodyForests_metrics <- function(input,
     #   colless <- calculate_colless_number(clonotype$phylo.tree)
     #   metrics_vector["colless_number"] <- colless
     # }
-   
-    #Standart metrics
-    metrics_vector["nodes"] <- gorder(clonotype$lineage.tree)
+    
+    #Standard metrics
+    #Total number of nodes
+    nodes <- igraph::vcount(clonotype$lineage.tree)
+    metrics_vector["nr_nodes"] <- nodes
+    
+    #Total number of cells
+    cells <- sum(unlist(lapply(clonotype$nodes, function(x){length(x$barcodes)})))
+    metrics_vector["nr_cells"] <- cells
+
     
     return(metrics_vector)
   }
