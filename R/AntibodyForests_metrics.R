@@ -8,6 +8,7 @@
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'all.depth'        : Number of edges connecting each node to the germline
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
+#' 'spectral.density' : Assymetry and peakedness of the spectral density profiles (calculated with package RPANDA)
 #' 'colless.number'   : Sum of the absolute difference between the number of left- and right descendants for each node (this requires a tree to be binary!)
 #' @param parallel If TRUE, the metric calculations are parallelized across AntibodyForests-objects. (default FALSE)
 #' @param num.cores Number of cores to be used when parallel = TRUE. (Defaults to all available cores - 1)
@@ -35,7 +36,9 @@ AntibodyForests_metrics <- function(input,
   
   #Functions to calculate metrics
   calculate_mean_depth <- function(tree){
+    #Get the shortest paths between each node and the germline
     paths <- igraph::shortest_paths(tree, from = "germline", output = "both")
+    #Take the mean of the number of edges on each path
     depth <- mean(unlist(lapply(paths$epath, length)))
     return(depth)
   }
@@ -52,14 +55,27 @@ AntibodyForests_metrics <- function(input,
   }
   
   calculate_sackin_index <- function(tree){
+    #Get the shortest paths between each node and the germline
     paths <- igraph::shortest_paths(tree, from = "germline", output = "both")
+    #Sum the number of nodes in the paths
     depth <- sum(unlist(lapply(paths$vpath, length)))
     return(depth)
   }
   
-  calculate_colless_number <- function(tree){
-    colless <- phyloTop::colless.phylo(ape::as.phylo(tree), normalise = T)
-    return(colless)
+  # calculate_colless_number <- function(tree){
+  #   #transform igraph network into bifurcating phylo tree
+  #   phylo_tree <- AntibodyForests_phylo(tree, solve_multichotomies = T)
+  #   #calculate the colless number
+  #   colless <- phyloTop::colless.phylo(phylo_tree, normalise = T)
+  #   return(colless)
+  # }
+  
+  calculate_spectral_density <- function(tree){
+    #transform igraph network into bifurcating phylo tree
+    phylo_tree <- AntibodyForests_phylo(tree, solve_multichotomies = F)
+    #Calculate the spectral density of the tree
+    sd <- RPANDA::spectR(phylo_tree, meth = "standard")
+    return(sd)
   }
   
   #Calculate the metrics for a clonotype
@@ -83,10 +99,26 @@ AntibodyForests_metrics <- function(input,
       metrics_vector["sackin_index"] <- si
     }
     
-    # Traditional Colless Number on bifurcating phylo tree
+    if ("spectral.density" %in% metrics){
+      if (igraph::vcount(clonotype$lineage.tree) > 2){
+        spectr <- calculate_spectral_density(clonotype$lineage.tree)
+        metrics_vector["spectral_peakedness"] <- spectr$peakedness
+        metrics_vector["spectral_asymmetry"] <- spectr$asymmetry
+      } else {
+        warning("Tree needs at least 2 nodes (additional to germline) to calculate spectral density.")
+        metrics_vector["spectral_peakedness"] <- NA
+        metrics_vector["spectral_asymmetry"] <- NA
+      }
+    }
+    
     # if ("colless.number" %in% metrics){
-    #   colless <- calculate_colless_number(clonotype$phylo.tree)
-    #   metrics_vector["colless_number"] <- colless
+    #   if (igraph::vcount(clonotype$lineage.tree) > 2){
+    #     colless <- calculate_colless_number(clonotype$lineage.tree)
+    #     metrics_vector["colless_number"] <- colless
+    #   } else {
+    #     warning("Tree needs at least 2 nodes (additional to germline) to calculate the colless number.")
+    #     metrics_vector["colless_number"] <- NA
+    #   }
     # }
     
     #Standard metrics
