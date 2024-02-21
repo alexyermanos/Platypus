@@ -131,4 +131,6 @@ Encoding: UTF-8
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 LazyData: true
+URL: https://alexyermanos.github.io/Platypus/, https://github.com/alexyermanos/Platypus
+BugReports: https://github.com/alexyermanos/Platypus/issues
 Config/testthat/edition: 3
