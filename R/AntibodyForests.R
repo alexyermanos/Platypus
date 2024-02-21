@@ -390,8 +390,11 @@ AntibodyForests <- function(VDJ,
         edges <- rbind(edges, c("germline", "node1", dist_matrix_backup["germline", "node1"]))
       }
       
+      # Convert 'edges' matrix into dataframe
+      edges <- as.data.frame(edges)
+      
       # Convert 'edges' matrix into igraph object
-      igraph_object <- igraph::graph_from_edgelist(edges[, c("upper.node", "lower.node"), drop = FALSE])
+      igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
       
       # Set 'phylo_object' to NULL
       phylo_object <- NULL
@@ -408,7 +411,7 @@ AntibodyForests <- function(VDJ,
       adjacency_matrix <- ape::mst(dist_matrix)
       
       # Convert 'mst' object into 'igraph' object
-      igraph_object <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "directed")
+      igraph_object <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
       
       # Create matrix containing the edges of tree tree between internal nodes (first column) and terminal nodes (second column)
       edges <- igraph::get.edgelist(igraph_object)
@@ -421,6 +424,9 @@ AntibodyForests <- function(VDJ,
       
       # Reorder the 'edges' dataframe to enable the construction of a directed graph
       edges <- reorder_edges(edges)
+      
+      # Convert reordered 'edges' dataframe back into an object of class 'igraph'
+      igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
       
       # Set 'phylo_object' to NULL
       phylo_object <- NULL
@@ -440,7 +446,7 @@ AntibodyForests <- function(VDJ,
         phylo_object <- ape::nj(dist_matrix)
       }
       
-      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant 
+      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant and no object of class 'phylo' is created
       if(nrow(dist_matrix) < 3){
         phylo_object <- NULL
         edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = dist_matrix_backup["germline", "node1"])
@@ -464,7 +470,7 @@ AntibodyForests <- function(VDJ,
         phylo_object$node.label <- NULL
       }
       
-      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant 
+      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant, and no object of class 'phylo' is created
       if(length(msa) < 3){
         phylo_object <- NULL
         edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = stringdist::stringdist(as.character(phangorn::as.MultipleAlignment(msa))[1], as.character(phangorn::as.MultipleAlignment(msa))[2], method = "hamming"))
@@ -485,7 +491,7 @@ AntibodyForests <- function(VDJ,
         phylo_object$node.label <- NULL
       }
       
-      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant 
+      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant, and no object of class 'phylo' is created
       if(length(msa) < 3){
         phylo_object <- NULL
         edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = stringdist::stringdist(as.character(phangorn::as.MultipleAlignment(msa))[1], as.character(phangorn::as.MultipleAlignment(msa))[2], method = "hamming"))
