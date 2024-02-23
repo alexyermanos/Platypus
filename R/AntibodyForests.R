@@ -1,17 +1,19 @@
 #' Function to infer B cell evolutionary networks for all clonotypes in VDJ dataframe as obtained from the 'minimal_VDJ()' function.
 #' Authors: Valentijn Tromp, Daphne van Ginneken
 #' @description The resulting B cell lineage trees/networks provide insights into the evolutiontrary relationships between B cell sequences from each clonotype.
-#' @param VDJ dataframe - VDJ object as obtained from the minimal_VDJ() function in Platypus.
+#' @param VDJ dataframe - VDJ object as obtained from the minimal_VDJ() function in Platypus, or object of class dataframe that contains the columns specified in 'sequence.columns', 'germline.columns', and 'node.features'.
 #' @param sequence.columns string or vector of strings - denotes the sequence column(s) in the VDJ dataframe that contain the sequences that will be used to infer B cell lineage trees. Nodes in the trees will represent unique combinations of the selected sequences.
 #' @param germline.columns string or vector of strings - denotes the germline column(s) in the VDJ dataframe that contain the sequences that will be used as starting points of the trees. The columns should be in the same order as in 'sequence.columns'.
-#' @param concatenate.sequences bool - if TRUE, sequences from multiple sequence columns are concatenated into one sequence for single distance matrix calculations / multiple sequence alignments, else, a distance matrix is calculated / multiple sequence alignment is performed for each sequence column separately. Defaults to TRUE. 
+#' @param concatenate.sequences bool - if TRUE, sequences from multiple sequence columns are concatenated into one sequence for single distance matrix calculations / multiple sequence alignments, else, a distance matrix is calculated / multiple sequence alignment is performed for each sequence column separately. Defaults to FALSE. 
 #' @param node.features string or vector of strings - denotes the column name(s) in the VDJ dataframe from which the node features should be extracted (which can, for example, be used for plotting of lineage trees later on).
 #' @param construction.method string - denotes the approach and algorithm that will be used to convert the distance matrix or multiple sequence alignment into a lineage tree. There are two approaches two construct a lineage tree: a tree can be constructed from a network/graph (phylo.network) or from a phylogenetic tree (phylo.tree). There are three algorithm options that take a pairwise distance matrix as input: 'phylo.network.default', 'phylo.network.mst', and 'phylo.tree.nj'. There are two algorithm options that take a multiple sequence alignment as input: 'phylo.tree.ml', and 'phylo.tree.mp'. Defaults to 'phylo.network.default' (mst-like algorithm).
 #' 'phylo.network.default': mst-like tree evolutionary network algorithm in which the germline node is positioned at the top of the tree, and nodes with the minimum distance to any existing node in the tree are linked iteratively.
 #' 'phylo.network.mst'    : minimum spanning tree (MST) algorithm from 'ape::mst()' constructs networks with the minimum sum of edge lengths/weights, which involves iteratively adding edges to the network in ascending order of edge weights, while ensuring that no cycles are formed, after which the network is reorganized into a germline-rooted lineage tree.
 #' 'phylo.tree.nj'        : neighbor-joining (NJ) algorithm from 'ape::nj()' constructs phylogenetic trees by joining pairs of nodes with the minimum distance, creating a bifurcating tree consisting of internal nodes (representing unrecovered sequences) and terminal nodes (representing the recovered sequences). 
+#' NB: More information about the use of the 'ape' package is provided in the book 'Analysis of Phylogenetic and Evolution with R' by Emmanual Paradis (https://link.springer.com/book/10.1007/978-1-4614-1743-9).
 #' 'phylo.tree.mp'        : maximum-parsimony (MP) algorithm from 'phangorn::pratchet()' constructs phylogenetic trees by minimizing the total number of edits required to explain the observed differences among sequences.
 #' 'phylo.tree.ml'        : maximum-likelihood (ML) algorithm from 'phangorn::pml_bb()' constructs phylogenetic trees by estimating the tree topology and branch lengths that maximize the likelihood of observing the given sequence data under a specified evolutionary model. 
+#  NB: More information about estimating phylogenetic trees with the 'phangorn' package is provided on the Github page of Klaus Schliep: https://klausvigo.github.io/phangorn/articles/Trees.html. 
 #' @param distance.metric string - denotes the metric that will be calculated with the 'stringdist()' function to measure (string) distance between sequences. Options: 'lv', 'dl', 'osa', 'hamming', 'lcs', 'qgram', 'cosine', 'jaccard', 'jw', and 'soundex'.  Defaults to 'lv' (Levenshtein distance / edit distance).
 #' 'lv'       : Levensthein distance (also known as edit distance) equals to the minimum number of single-element edits (insertions, deletions, or substitutions) required to transformer one string into another.
 #' 'dl'       : Damerau-Levenshtein distance is similar to the Levenshtein distance, but also allows transpositions of adjacent elements as a single-edit operation.
@@ -22,8 +24,12 @@
 #' 'cosine'   : cosine distance equals to 1 - cosine similarity (the strings are converted into vectors containing the frequency of all single elements (A and B), whereby the cosine similarity (Sc) equals to the dot product of these vectors divided by the product of the magnitude of these vectors, which can be written in a formula as Sc(A, B) = A . B / (||A|| x ||B||)).
 #' 'jaccard'  : Jaccard distance equals to 1 - Jaccard index (the strings are converted into sets of single elements (A and B), whereby the Jaccard index (J) equals to the size of the intersection of the two sets divided by the size of the union of the sets, which can be written in a formula as J(A, B) = |A ∩ B| / |A ∪ B|).
 #' 'jw'       : Jaro-Winkler distance equals to 1 - Jaro-Winkler similarity (Jaro-Winkler similary is calculated with the following formulas: Sw = Sj + P * L * (1-Sj) in which Sw is the Jaro-Winkler similary, Sj is the Jaro similarity, P is the scaling factor (defaults to 0), and L is the length of the matching prefix; and Sj = 1/3 * (m/|s1| + m/|s2| + (m-t)/m) in which Sj is the Jaro similarity, m is the number of matching elements, |s1| and |s2|are the lengths of the strings, and t is the number of transpositions).
-#' 'soundex'  : Soundex distance equals to 1 if the 4-character Soundex code of the strings do not match (Soundex is a phonetic algorithm that converts strings into a 4-character code based on their (English) pronunciation).
-#' @param model string - [TO BE ADDED SOON]
+#' @param dna.model string or vector of strings - specifies the DNA substitution models to compare with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree (when 'construction.method' is set to 'phylo.tree.ml'). Defaults to "all" (when DMA sequences are found in the specified 'sequence.columns' and the 'germline.columns').
+#' Available DNA models: 'JC', 'F81', 'K80', 'HKY', 'TrNe', 'TrN', 'TPM1', 'K81', 'TPM1u', 'TPM2', 'TPM2u', 'TPM3', 'TPM3u', 'TIM1e', 'TIM1', 'TIM2e', 'TIM2', 'TIM3e', 'TIM3', 'TVMe', 'TVM', 'SYM', and 'GTR'.
+#' @param aa.model string or vector of strings - specifies the DNA substitution models to compare with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree (when 'construction.method' is set to 'phylo.tree.ml'). Defaults to "all" (when protein sequences are found in the specified 'sequence.columns' and the 'germline.columns').
+#' Available AA models: 'WAG', 'JTT', 'LG', 'Dayhoff', 'cpREV', 'mtmam', 'mtArt', 'MtZoa', 'mtREV24', 'VT', 'RtREV', 'HIVw', 'HIVb', 'FLU', 'Blosum62', 'Dayhoff_DCMut', and 'JTT-DCMut'.
+#' @param codon.model string or vector of strings - specifies the codon substitution models to compare with each other with the 'phangorn::codonTest()' function, of which the output will be used as input for the 
+#' Available codon models: 'M0', 'M1a', and 'M2a'.
 #' @param resolve.ties string or vector of strings - denotes the way ties are handled during the conversion of the distance matrix into lineage trees by the 'network.tree' algorithm (in the event where an unlinked node, that is to be linked to the tree next, shares identical distances with multiple previously linked nodes in the lineage tree). Options: 'min.expansion', 'max.expansion', 'min.germline.dist', 'max.germline.dist', 'min.germline.edges', 'max.germline.edges', and 'random'. If a vector is provided, ties will be resolved in a hierarchical manner. Defaults to 'c("max.expansion", "close.germline.dist", "close.germline.edges", "random")'.
 #' 'min.expansion'        : the node(s) having the smallest size is/are selected.
 #' 'max.expansion'        : the node(s) having the biggest size is/are selected.
@@ -32,23 +38,24 @@
 #' 'min.germline.edges'   : the node(s) having the lowest possible number of edges to the germline node is/are selected.
 #' 'max.germline.edges    : the node(s) having the highest possible number of edges to the germline node is/are selected.
 #' 'random'               : a random node is selected.
-#' @param remove.internal.nodes string - denotes if and how internal nodes should be removed when the 'construction.method' is set to 'phylo.tree.nj', 'phylo.tree.mp', or 'phylo.tree.ml' (unrecovered internal nodes that have a distance of 0 to a sequence recovered terminal nodes are replaced by this terminal node by default). Options: 'none', 'connect.to.root', 'all'. Defaults to 'all'.
-#' 'none'             : after removing internal nodes with a distance of zero to a terminal node, no additional internal nodes are removed.
-#' 'connect.to.root'  : connects all terminal nodes to the first parental sequence-recovered node upper in the tree, resulting in a germline-directed tree.
-#' 'all'              : iteratively replaces internal nodes with terminal nodes with the minimum increase in the sum of all edges.
-#' @param include string or vector of strings - specifies the objects to be included in the output object for each clonotype. Options: 'nodes', 'dist.matrices', 'msa', 'phylo', 'igraph', 'igraph.with.inner.nodes', 'metrics', or 'all' to select all objects. Defaults to 'all'.
+#' @param remove.internal.nodes string - denotes if and how internal nodes should be removed when the 'construction.method' is set to 'phylo.tree.nj', 'phylo.tree.mp', or 'phylo.tree.ml. Options: 'zero.length.edges.only', 'connect.to.parent', 'minimum.length', and 'minimum.cost'. Defaults to 'minimum.cost', when 'construction.method' is set to 'phylo.tree.nj'. Defautls to 'connect.to.parent', when 'construction.method' is set to 'phylo.tree.mp' or 'phylo.tree.ml'. 
+#' 'zero.length.edges.only' : only internal nodes with a distance of zero to a terminal node are removed by replacing it with the terminal node.
+#' 'connect.to.parent'      : connects all terminal nodes to the first parental sequence-recovered node upper in the tree, resulting in a germline-directed tree.
+#' 'minimum.length'         : iteratively replaces internal nodes with terminal nodes that are linked by an edge that has the minimum length.
+#' 'minimum.cost'           : iteratively replaces internal nodes with terminal nodes which results in the minimum increase in the sum of all edges (this increase is referred to as the 'cost').
+#' @param include string or vector of strings - specifies the objects to be included in the output object for each clonotype (if created). Options: 'nodes', 'dist.matrices', 'msa', 'phylo', 'igraph', 'igraph.with.inner.nodes', 'metrics', or 'all' to select all objects. Defaults to 'all'.
 #' 'nodes'                    : nested list wherein for each node, all information is stored (sequences, barcodes, selected column in 'node.features').
-#' 'dist.matrices'            : pairwise string distance matrices calculated using the specified 'distance.metric', one for each column selected in 'sequence.columns', or only one if 'concatenate_sequences' is set to TRUE 
-#' 'msa'                      : multiple sequence alignments, one for each column selected in 'sequence.columns', or only one if 'concatenate_sequences' is set to TRUE 
-#' 'edges'                    : dataframe with the three columns 'upper.node', 'lower.node', and 'edge.length', whereby each row in the dataframe represent an edge in the lineage tree,  
+#' 'dist'                     : pairwise string distance matrices calculated using the specified 'distance.metric', one for each column selected in 'sequence.columns', or only one if 'concatenate_sequences' is set to TRUE.
+#' 'msa'                      : multiple sequence alignments, one for each column selected in 'sequence.columns', or only one if 'concatenate_sequences' is set to TRUE.
 #' 'phylo'                    : object of class 'phylo' that is created when 'construction.method' is set to 'phylo.tree.nj', 'phylo.tree.mp', or 'phylo.tree.ml', and when the clonotype contains at least three sequences.
 #' 'igraph'                   : object of class 'igraph' that represent the B cell lineage tree, which is used for plotting by the 'plot_lineage_tree()' function.
-#' 'igraph.with.inner.nodes'  : object of class 'igraph' that represent the B cell lineage tree before the removal of internal nodes (if 'remove.internal.nodes' is set to 'connect.to.root' or 'all').
-#' 'metrics'                  : list of tree metrics that can only be calculated during the construction of the 
+#' 'igraph.with.inner.nodes'  : object of class 'igraph' that represent the B cell lineage tree before the removal of internal nodes (if 'remove.internal.nodes' is set to 'connect.to.parent' or 'all').
+#' 'edges'                    : dataframe with the three columns 'upper.node', 'lower.node', and 'edge.length', whereby each row in the dataframe represent an edge in the lineage tree.  
+#' 'edges.with.inner.nodes'   : dataframe with the three columns 'upper.node', 'lower.node', and 'edge.length', whereby each row in the dataframe represent an edge in the lineage tree.  
+#' 'metrics'                  : list of tree metrics that can only be calculated during the construction of the lineage tree, which includes a 'tie.resolving' matrix, indicating which options were used to handle ties (when 'construction.method' is set to 'phylo.network.default'), and a 'model' string, indicating which model was used to infer the maximum likelihood tree (if 'construction.method' is set to 'phylo.tree.ml').
 #' @param parallel bool - if TRUE, the per-clone network inference is executed in parallel (parallelized across samples). Defaults to FALSE.
-#' NB: Parallelization is not possible when creating multiple sequence alignments due to conflicts arising from temporary file handling. This limitation is caused by internal file operations wihtin the 'msa' package.
 #' @param num.cores integer - number of cores to be used when parallel = TRUE. Defaults to all available cores - 1 or the number of samples in the VDJ dataframe (depending which number is smaller).
-#' @return Returns nested list of AntibodyForests objects for each sample and each clonotype, whereby an AntibodyForests object consists of all the output objects specified in the parameter 'include'. For example, output[[1]][[2]] denotes the AntibodyForests object of the first sample, second clonotype. 
+#' @return An object of class 'AntibodyForests', structured as a nested list where each outer list represents a sample, and each inner list represents a clonotype. Each clonotype list contains the output objects specified in the 'include' parameter. For example, AntibodyForests[[1]][[2]] contains the list of output objects for the first sample and third clonotype (which would be equivalent to something like AntibodyForests$S1$clonotype3).
 #' @export
 #' @examples
 #' \dontrun{
@@ -60,7 +67,7 @@
 #'                 distance.metric = "lv",
 #'                 construction.method = "phylo.network.default",
 #'                 resolve.ties = c("max.expansion", "close.germline.dist", "close.germline.edges", "random"),
-#'                 include = c("nodes", "dist.matrices", "phylo.object", "igraph.object", "metrics")
+#'                 include = c("nodes", "dist", "igraph", "edges", "metrics"),
 #'                 parallel = TRUE)
 #'}
 
@@ -71,7 +78,9 @@ AntibodyForests <- function(VDJ,
                             concatenate.sequences,
                             node.features,
                             distance.metric,
-                            model,
+                            dna.model,
+                            aa.model,
+                            codon.model,
                             construction.method,
                             resolve.ties,
                             remove.internal.nodes,
@@ -79,43 +88,95 @@ AntibodyForests <- function(VDJ,
                             parallel,
                             num.cores){
   
-  # If 'sequence.columns' is missing or if the columns are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
-  if(missing(sequence.columns) | !all(sequence.columns %in% colnames(VDJ))){stop("Error: Please provide valid 'sequence.columns' from the input VDJ dataframe.")}
-  # If 'germline.columns' is missing or if the columns are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
-  if(missing(germline.columns) | !all(germline.columns %in% colnames(VDJ))){stop("Error: Please provide valid 'germline.columns' from the input VDJ dataframe.")}
-  # If the columns in 'germline.columns' do not correspond to the columns in 'sequence.columns', a warning is returned.
-  if(!all(sequence.columns == gsub("germline", "sequence", germline.columns))){warning("WARNING: Please make sure that the columns in 'germline.columns' correspond to the columns in 'sequence.columns'.")}
+  # If the 'sequence.columns' parameter is missing or if the columns are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
+  if(missing(sequence.columns) | !all(sequence.columns %in% colnames(VDJ))){stop("ERROR: Please provide valid 'sequence.columns' from the input VDJ dataframe.")}
+  # If the 'germline.columns' parameter is missing or if the columns are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
+  if(missing(germline.columns) | !all(germline.columns %in% colnames(VDJ))){stop("ERROR: Please provide valid 'germline.columns' from the input VDJ dataframe.")}
+  # If the columns in 'germline.columns' do not correspond to the columns in 'sequence.columns', a warning is returned
+  if(!all(sequence.columns == gsub("germline", "sequence", germline.columns))){message("WARNING: Please check whether the columns in 'germline.columns' correspond to the columns in 'sequence.columns'.\n")}
   
-  # If the 'concatenate.sequences' parameter is missing, it is set to TRUE
-  if(missing(concatenate.sequences)){concatenate.sequences <- TRUE}
+  # Store the four nucleotides in the 'nucleotides' vector and store the twenty amino acids in the 'amino_acids' vector
+  nucleotides <- c("A", "C", "G", "T")
+  amino_acids <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "*")
+  # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns'
+  if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides)))))){sequence_type <- "DNA"}
+  if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))))){sequence_type <- "AA"}
+  # If the 'sequence_type' could not be defined, a message is returned and execution is stopped
+  if(!exists("sequence_type")){stop("ERROR: Please provide an input dataframe that contains valid DNA or protein sequences in the specified sequence and germline columns. NB: the sequences in the 'sequence.columns' and 'germline.columns' should be of the same type.")}
   
-  # If 'node.features' contains columns that are not present in the 'VDJ' dataframe, a message is returned and execution is stopped
-  if(!all(node.features %in% colnames(VDJ))){stop("Error: Not all columns in 'node.features' could be found in the input VDJ dataframe.")}
+  # If the 'concatenate.sequences' parameter is missing, it is set to FALSE
+  if(missing(concatenate.sequences)){concatenate.sequences <- FALSE}
+  
   # If no columns are specified in 'node.features', it defaults to an empty vector
   if(missing(node.features)){node.features <- c()}
+  # If 'node.features' contains columns that are not present in the 'VDJ' dataframe, a message is returned and execution is stopped
+  if(!all(node.features %in% colnames(VDJ))){stop("ERROR: Not all columns in 'node.features' could be found in the input VDJ dataframe.")}
   
-  # If 'construction.method', 'distance.metric', and 'resolve.ties' are all missing, the edit distance / Levenshtein distance will be used to calculate pairwise string distance matrices and the 'phylo.network.default' algorithm will be used to convert the distance matrices into lineage trees using the 'max.expansion', 'min.germline.dist', 'min.germline.edges', and 'random' options to resolve ties
-  if(missing(construction.method) && missing(distance.metric) && missing(resolve.ties)){construction.method <- "phylo.network.default"; distance.metric <- "lv"; resolve.ties <- c("max.expansion", "min.germline.dist", "min.germline.edges", "random")}
+  # If the 'construction.method', 'distance.metric', and 'resolve.ties' are all missing, the edit distance / Levenshtein distance will be used to calculate pairwise string distance matrices,  the 'phylo.network.default' algorithm will be used to convert the distance matrices into lineage trees, using the 'max.expansion', 'min.germline.dist', 'min.germline.edges', and 'random' options to resolve ties
+  # If the 'construction.method' parameter is missing, it is set to 'phylo.network.default'
+  if(missing(construction.method)){construction.method <- "phylo.network.default"}
+  # If the 'construction.method' parameter is set to an unknown method, a message is returned and execution is stopped
+  if(!construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj", "phylo.tree.mp", "phylo.tree.ml")){stop("ERROR: The specified tree construction method is not recognized. Please choose from the following options: 'phylo.network.default', 'phylo.network.mst', 'phylo.tree.nj', 'phylo.tree.mp', or 'phylo.tree.ml'.")}
   # If the 'construction.method' is defined, retrieve the 'approach' and 'algorithm' from it
   approach <- unlist(base::strsplit(construction.method, split = "\\."))[2]; algorithm <- unlist(base::strsplit(construction.method, split = "\\."))[3]
-  # If the 'construction.method' is set to 'phylo.network.default', but 'distance.metric' is missing
-  if(construction.method == "phylo.network.default" && missing(distance.metric)){distance.metric <- "lv"}
+  # If the 'construction.method' is set to a distance-based construction method, but the 'distance.metric' parameter is missing, it is set to "lv"
+  if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && missing(distance.metric)){distance.metric <- "lv"}
   # If the 'construction.method' is set to 'phylo.network.default', but 'resolve.ties' is missing, the 'max.expansion', 'min.germline.dist', 'min.germline.edges', and 'random' options are used to handle (all) ties
   if(construction.method == "phylo.network.default" && missing(resolve.ties)){resolve.ties <- c("max.expansion", "min.germline.dist", "min.germline.edges", "random")}
-  # If the 'construction.method' is set to 'phylo.tree.nj', 'phylo.tree.mp', or 'phylo.tree.ml', but the 'remove.internal.nodes' parameter is missing, it is set to 'all'
-  if(construction.method %in% c("phylo.tree.nj", "phylo.tree.mp", "phylo.tree.ml") && missing(remove.internal.nodes)){remove.internal.nodes <- "all"}
+  # If the 'construction.method' is set to 'phylo.tree.nj', but the 'remove.internal.nodes' parameter is missing, it is set to 'minimum.cost'
+  if(construction.method == "phylo.tree.nj" && missing(remove.internal.nodes)){remove.internal.nodes <- "minimum.cost"}
+  # If the 'construction.method' is set to 'phylo.tree.mp' or 'phylo.tree.ml', but the 'remove.internal.nodes' parameter is missing, it is set to 'connect.to.parent'
+  if(construction.method %in% c("phylo.tree.mp", "phylo.tree.ml") && missing(remove.internal.nodes)){remove.internal.nodes <- "connect.to.parent"}
+  # If the 'construction.method' is set to 'phylo.tree.ml' and the 'sequence_type' is 'DNA', but the 'dna.model' parameter is missing, it is set to 'all'
+  if(construction.method == "phylo.tree.ml" && sequence_type == "DNA" && missing(dna.model)){dna.model <- "all"; aa.model <- NaN}
+  # If the 'construction.method' is set to 'phylo.tree.ml' and the 'sequence_type' is 'AA', but the 'aa.model' parameter is missing, it is set to 'all'
+  if(construction.method == "phylo.tree.ml" && sequence_type == "AA" && missing(aa.model)){aa.model <- "all"; dna.model <- NaN}
   
-  # If the 'resolve.ties' or 'remove.internal.nodes' parameters are still not defined, these parameters will not be used and are set to NA
-  if(missing(resolve.ties)){resolve.ties <- NA}
-  if(missing(remove.internal.nodes)){remove.internal.nodes <- NA}
+  # If the 'distance.metric', 'dna.model', 'aa.model', 'codon.model', 'resolve.ties', and 'remove.internal.nodes' parameter are still not defined, these parameters will not be used and are set to NaN/NULL
+  if(missing(distance.metric)){distance.metric <- NaN}
+  if(missing(dna.model)){dna.model <- NaN}
+  if(missing(aa.model)){aa.model <- NaN}
+  if(missing(codon.model)){codon.model <- NaN}
+  if(missing(resolve.ties)){resolve.ties <- NULL}
+  if(missing(remove.internal.nodes)){remove.internal.nodes <- NaN}
   
-  # If 'include' is not specified or set to 'all', all
-  if(missing(include) | all(include == "all")){include <- c("nodes", "dist.matrices", "msa", "edges", "phylo", "igraph", "metrics")}
+  # If the 'distance.metric' is set to an unknown string distance metrics, a message is returned and execution is stopped.
+  if(!distance.metric %in% c("lv", "dl", "osa", "hamming", "lcs", "qgram", "cosine", "jaccard", "jw", NaN)){stop("ERROR: The specified string distance metric is not recognized. Please choose from the following options: 'lv', 'dl', 'osa', 'hamming', 'lcs', 'qgram', 'cosine', 'jaccard', or 'jw'.")}
+  # If the 'resolve.ties' parameter contains options that are not recognized, a message is returned and execution is stopped
+  if(!all(resolve.ties %in% c("min.expansion", "max.expansion", "min.germline.dist", "max.germline.dist", "min.germline.edges", "max.germline.edges", "random", NaN))){stop("ERROR: Not all options specified in 'resolve.ties' are recognized. Please choose from the following options: 'min.expansion', 'max.expansion', 'min.germline.dist', 'max.germline.dist', 'min.germline.edges', 'max.germline.edges', and 'random'.")}
+  # If the 'remove.internal.nodes' parameter is set to an algorithm that is not recognized, a message is returned and execution is stopped
+  if(!remove.internal.nodes %in% c("zero.length.edges.only", "connect.to.parent", "minimum.length", "minimum.cost", NaN)){stop("ERROR: The specified 'remove.internal.nodes' algorithm' is not recognized. Please choose from the following options: 'zero.length.edges.only', 'connect.to.parent', 'minimum.length', or 'minimum.weight'.")}
+  
+  # If the 'construction.method' parameter is set to 'phylo.tree.ml', and the 'dna.model' or 'aa.model' parameter is set to all, return a message that the tree inferance may take up to several hours
+  if(dna.model == "all" | aa.model == "all"){message("WARNING: Comparing all available models and using the best fitting model for parameter optimization and phylogenetic tree inference may take up to several hours, when a large set of clonotypes is given as input. Please be patient!\n")}
+  # If the 'dna.model' or 'aa.model' parameter is set to 'all', it set to all available models within the 'phangorn' package for the current 'sequence_type'
+  if(dna.model == "all"){dna.model <- c("JC", "F81", "K80", "HKY", "TrNe", "TrN", "TPM1", "K81", "TPM1u", "TPM2", "TPM2u", "TPM3", "TPM3u", "TIM1e", "TIM1", "TIM2e", "TIM2", "TIM3e", "TIM3", "TVMe", "TVM", "SYM", "GTR")}
+  if(aa.model == "all"){aa.model <- c("WAG", "JTT", "LG", "Dayhoff", "cpREV", "mtmam", "mtArt", "MtZoa", "mtREV24", "VT", "RtREV", "HIVw", "HIVb", "FLU", "Blosum62", "Dayhoff_DCMut", "JTT-DCMut")}
+  # If the 'dna.model' or 'aa.model' parameter contains models that are not available for the current 'sequence_type', a message is returned and execution is stopped
+  if(sequence_type == "DNA"){if(!is.nan(dna.model)){if(!all(dna.model %in% dna_models_all)){stop("ERROR: Not all models specified in the 'dna.model' parameter are recognized as available DNA models. Please choose from the following options: 'JC', 'F81', 'K80', 'HKY', 'TrNe', 'TrN', 'TPM1', 'K81', 'TPM1u', 'TPM2', 'TPM2u', 'TPM3', 'TPM3u', 'TIM1e', 'TIM1', 'TIM2e', 'TIM2', 'TIM3e', 'TIM3', 'TVMe', 'TVM', 'SYM', and 'GTR'.")}}}
+  if(sequence_type == "AA"){if(!is.nan(dna.model)){if(!all(aa.model %in% aa_models_all)){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'WAG', 'JTT', 'LG', 'Dayhoff', 'cpREV', 'mtmam', 'mtArt', 'MtZoa', 'mtREV24', 'VT', 'RtREV', 'HIVw', 'HIVb', 'FLU', 'Blosum62', 'Dayhoff_DCMut', and 'JTT-DCMut'.")}}}
+  # If the 'codon.model' parameter is missing, it set to NaN 
+  if(missing(codon.model)){codon.model <- NaN}
+  # If the 'codon.model' parameter is set to 'all', it set to all available codon models within the 'phangorn' package
+  if(codon.model == "all"){codon.model <- c("M0", "M1a", "M2a")}
+  # If the 'codon.model' parameter contains models that are not available, a message is returned and execution is stopped
+  if(!all(codon.model %in% c("M0", "M1a", "M2a", NaN))){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'M0', 'M1a', and 'M2a'.")}
+  # If the 'codon.model' parameter is specified, while protein sequences are found in the selected 'sequence.columns' and 'germline.columns', a message is returned and execution is stopped
+  if(!is.nan(codon.model) && sequence_type == "AA"){stop("ERROR: Currently, a codon model can only be used for tree inference, if the sequences in the selected 'sequence.columns' and 'germline.columns' are DNA sequences.")}
+  
+  # If the 'include' parameter is missing, specify the output objects based on the specified 'construction.method'
+  if(missing(include) && construction.method == "phylo.network.default"){include <- c("nodes", "dist", "igraph", "edges", "metrics")}
+  if(missing(include) && construction.method == "phylo.network.mst"){include <- c("nodes", "dist", "igraph", "edges")}
+  if(missing(include) && construction.method == "phylo.tree.nj"){include <- c("nodes", "dist", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
+  if(missing(include) && construction.method == "phylo.tree.mp"){include <- c("nodes", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
+  if(missing(include) && construction.method == "phylo.tree.ml"){include <- c("nodes", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics")}
+  # If the 'include' parameter is set to 'all', all output objects will be returned
+  if(all(include == "all")){include <- c("nodes", "dist", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics")}
+  # If the 'include' parameter contains output objects that are not created/recognized, a message is returned and execution is stopped
+  if(!all(include %in% c("nodes", "dist", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics"))){stop("ERROR: Not all specified output objects are recognized. Please choose from the following options: 'nodes', 'dist', 'msa', 'phylo', 'igraph', 'igraph.with.inner.nodes', 'edges', 'edges.with.inner.nodes'', and 'metrics'.")}
   
   # If the 'parallel' parameter is missing, it is set to FALSE
   if(missing(parallel)){parallel <- FALSE}
-  # If a multiple sequence alignment will be created, but the 'parallel' parameter is set to TRUE, it is reset to FALSE to prevent conflicts arising from temporary file handling
-  if((construction.method %in% c("phylo.tree.mp", "phylo.tree.ml") | "msa" %in% include) && parallel == TRUE){parallel <- FALSE; warning("Parallelization is not possible due to conflicts arising from temprary file handling when creating multiple sequence alignments using the 'msa' package.")}
   # If 'parallel' is set to TRUE but 'num.cores' is not specified, the number of cores is set to all available cores - 1
   if(parallel == TRUE && missing(num.cores)){num.cores <- parallel::detectCores() -1}
   
@@ -123,19 +184,27 @@ AntibodyForests <- function(VDJ,
   build_lineage_tree <- function(clone,
                                  dist.matrix,
                                  msa,
+                                 sequence.type,
                                  approach,
                                  algorithm,
+                                 dna.model,
+                                 aa.model,
+                                 codon.model,
                                  resolve.ties,
                                  remove.internal.nodes,
                                  node.sizes){
     
     # Build a B cell lineage tree using a pairwise distance matrix or a multiple sequence alignment (msa) as input 
     # Arguments:
-    # - clone: string specifying the sample and clonotype of the distance matrix or msa in the format "S1_clonotype1"
+    # - clone: string specifying the sample and clonotype of the distance matrix or msa in the format 'S1_clonotype1'
     # - dist.matrix: distance matrix containing pairwise (string) distances between all possible pairs of sequences/nodes
     # - msa: multiple sequence alignment in the phyDat format
-    # - approach: string specifying the approach for constructing the lineage tree ("network" for a network/graph-derived lineage tree or "tree" for a phylogenetic tree-derived lineage tree)
+    # - sequence.type: type of the sequences aligned in the 'msa'
+    # - approach: string specifying the approach for constructing the lineage tree ('network' for a network/graph-derived lineage tree or "tree" for a phylogenetic tree-derived lineage tree)
     # - algorithm: string denoting the exact algorithm used to convert the input (distance matrix or msa) into a lineage tree
+    # - dna.model: string or vector of strings specifying the nucleotide substitution models that are compared when the 'sequence.type' is set to 'DNA', the 'approach' is set to 'tree', and the 'algorithm' is set 'ml' (the best model is used to infer the maximum likelihood phylogenetic tree)
+    # - aa.model: string or vector of strings specifying the amino acid substitution models that are compared when the 'sequence.type' is set to 'AA', the approach' is set to 'tree', and the 'algorithm' is set 'ml' (the best model is used to infer the maximum likelihood phylogenetic tree)
+    # - codon.model: string or vector strings specifying the codon substitution models that are compared when the 'sequence.type' is set to 'DNA', the 'approach' is set to 'tree', and the 'algorithm' is set 'ml' (the best model is used to infer the maximum likelihood phylogenetic tree)
     # - resolve.ties: string or vector of strings denoting the way ties are handled in the 'phylo.network.default' algorithm
     # - remove.internal.nodes: string denoting if and how internal nodes should be removed from phylogenetic tree-derived lineage trees
     # - node.sizes: list containing the sequence/node sizes/frequencies (used by the 'default' algorithm of the 'network' approach)
@@ -149,7 +218,7 @@ AntibodyForests <- function(VDJ,
       # - node1: the starting node (up in the network/tree)
       # - node2: the ending node (down in the network/tree)
       # - edge_matrix: 2-column matrix containing nodes of a directed network in which each row represent an edge, while the first column contains the upper node and the second column contains the lower node
-      # Author: Valentijn Tromp
+      # Authors: Valentijn Tromp, Daphne van Ginneken
       
       # Save input edge matrix in 'edge_matrix'
       edge_matrix <- edge.matrix
@@ -396,10 +465,9 @@ AntibodyForests <- function(VDJ,
       # Convert 'edges' matrix into igraph object
       igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
       
-      # Set 'phylo_object' to NULL
+      # Set 'phylo_object', 'edges_with_inner_nodes', and 'igraph_object_with_inner_nodes' to NULL
       phylo_object <- NULL
-      
-      # Set 'igraph_object_with_inner_nodes' to NULL
+      edges_with_inner_nodes <- NULL
       igraph_object_with_inner_nodes <- NULL
     }
     
@@ -428,10 +496,9 @@ AntibodyForests <- function(VDJ,
       # Convert reordered 'edges' dataframe back into an object of class 'igraph'
       igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
       
-      # Set 'phylo_object' to NULL
+      # Set 'phylo_object', 'edges_with_inner_nodes', and 'igraph_object_with_inner_nodes' to NULL
       phylo_object <- NULL
-      
-      # Set 'igraph_object_with_inner_nodes' to NULL
+      edges_with_inner_nodes <- NULL
       igraph_object_with_inner_nodes <- NULL
     }
     
@@ -446,10 +513,15 @@ AntibodyForests <- function(VDJ,
         phylo_object <- ape::nj(dist_matrix)
       }
       
-      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant and no object of class 'phylo' is created
+      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant ('node1'), with a distance that is equal to the string distance from the 'dist_matrix_backup'
       if(nrow(dist_matrix) < 3){
-        phylo_object <- NULL
         edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = dist_matrix_backup["germline", "node1"])
+        igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
+        
+        # As no 'phylo_object' can be created, internal nodes are absent, and therefore the 'phylo_object', 'igraph_object_with_inner_nodes', and 'edges_with_inner_nodes' are set to NULL
+        phylo_object <- NULL
+        igraph_object_with_inner_nodes <- NULL
+        edges_with_inner_nodes <- NULL
       }
     }
     
@@ -470,10 +542,15 @@ AntibodyForests <- function(VDJ,
         phylo_object$node.label <- NULL
       }
       
-      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant, and no object of class 'phylo' is created
+      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant ('node1'), with a distance that is equal to the hamming distance
       if(length(msa) < 3){
-        phylo_object <- NULL
         edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = stringdist::stringdist(as.character(phangorn::as.MultipleAlignment(msa))[1], as.character(phangorn::as.MultipleAlignment(msa))[2], method = "hamming"))
+        igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
+        
+        # As no 'phylo_object' can be created, internal nodes are absent, and therefore the 'phylo_object', 'igraph_object_with_inner_nodes', and 'edges_with_inner_nodes' are set to NULL
+        phylo_object <- NULL
+        igraph_object_with_inner_nodes <- NULL
+        edges_with_inner_nodes <- NULL
       }
     }
     
@@ -485,16 +562,38 @@ AntibodyForests <- function(VDJ,
       if(length(msa) > 2){
         
         # Create maximum likelihood tree with the 'phangorn::pml_bb()' function (and hide in-function printed message)
-        base::invisible(utils::capture.output(phylo_object <- phangorn::pml_bb(phangorn::modelTest(msa))[["tree"]]))
+        if(sequence.type == "DNA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(msa, model = dna.model))))}
+        if(sequence.type == "AA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(msa, model = aa.model))))}
+        
+        # Store tree of class 'phylo' in 'phylo_object'
+        phylo_object <- ml_tree[["tree"]]
+        
+        # If a codon model is specified...
+        if(!is.nan(codon.model)){
+          
+          # Convert the 'msa' 
+          msa <- 
+          
+          #
+          base::invisible(utils::capture.output(phylo_object <- phangorn::codonTest(phylo_object, msa)))
+        }
         
         # Remove node labels to enable conversion into igraph object
         phylo_object$node.label <- NULL
+        
+        # Store selected substitution model from the 'phangorn::modelTest()' function in the 'metrics' list
+        metrics["model"] <- ml_tree[["model"]]
       }
       
-      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant, and no object of class 'phylo' is created
+      # If there are less than 3 sequences, the tree consists of a germline node and a single descendant ('node1'), with a distance that is equal to the hamming distance normalized by the mean sequence length
       if(length(msa) < 3){
+        edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = stringdist::stringdist(as.character(phangorn::as.MultipleAlignment(msa))[1], as.character(phangorn::as.MultipleAlignment(msa))[2], method = "hamming")/((nchar(as.character(phangorn::as.MultipleAlignment(msa))[1]) + nchar(as.character(phangorn::as.MultipleAlignment(msa))[2]))/2))
+        igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
+        
+        # As no 'phylo_object' can be created, internal nodes are absent, and therefore the 'phylo_object', 'igraph_object_with_inner_nodes', and 'edges_with_inner_nodes' are set to NULL
         phylo_object <- NULL
-        edges <- data.frame(upper.node = "germline", lower.node = "node1", edge.length = stringdist::stringdist(as.character(phangorn::as.MultipleAlignment(msa))[1], as.character(phangorn::as.MultipleAlignment(msa))[2], method = "hamming"))
+        igraph_object_with_inner_nodes <- NULL
+        edges_with_inner_nodes <- NULL
       }
     }
     
@@ -509,10 +608,10 @@ AntibodyForests <- function(VDJ,
       igraph::V(igraph_object)$name <- gsub(pattern = "Node", replacement = "", x = igraph::V(igraph_object)$name)
       
       # Create matrix containing the edges of tree tree between internal nodes (first column) and terminal nodes (second column)
-      edges <- igraph::get.edgelist(igraph_object)
+      edges <- igraph::as_edgelist(igraph_object)
       
       # Create dataframe containing the edges plus a third column containing the length of the edges
-      edges <- data.frame(do.call(rbind, lapply(1:nrow(edges), function(x) c(edges[x, 1], edges[x, 2], as.numeric(phylo_object$edge.length[x])))))
+      edges <- data.frame(do.call(rbind, lapply(1:nrow(edges), function(x) c(edges[x, 1], edges[x, 2], as.numeric(abs(phylo_object$edge.length[x]))))))
       
       # Rename column names of 'edges' dataframe
       colnames(edges) <- c("upper.node", "lower.node", "edge.length")
@@ -520,23 +619,35 @@ AntibodyForests <- function(VDJ,
       # Reorder the 'edges' dataframe to enable the construction of a directed graph
       edges <- reorder_edges(edges)
       
+      # Create a duplicate of 'edges' to return later as 'edges_with_inner_nodes'
+      edges_with_inner_nodes <- edges
+      
       # Create pairwise distance matrix containing all the distances between the nodes, including the internal nodes
       dist_matrix_tree <- ape::dist.nodes(phylo_object)
       
       # Rename column names and row names of 'dist_matrix_NJ'
       rownames(dist_matrix_tree) <- c(phylo_object$tip.label, 1:phylo_object$Nnode)[as.numeric(rownames(dist_matrix_tree))]
       colnames(dist_matrix_tree) <- c(phylo_object$tip.label, 1:phylo_object$Nnode)[as.numeric(colnames(dist_matrix_tree))]
+      
+      # Convert 'edges' dataframe (without edges of length zero) back into a directed graph of class 'igraph'
+      igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
+      
+      # Create a duplicate of 'igraph_object' to return later as 'igraph_object_with_inner_nodes'
+      igraph_object_with_inner_nodes <- igraph_object
     }
     
     
     # 3.2 If the approach is set to 'tree', edges with a length of zero (if present) are removed by replacing the unrecovered internal node (referred to as the outgoing node) in the 'upper.node' column with the sequence recovered terminal node (referred to as the substitute node) in the 'lower.node' by default
-    if(approach == "tree"){
+    if(approach == "tree" && !is.null(phylo_object) && remove.internal.nodes %in% c("zero.length.edges.only", "connect.to.parent", "minimum.length", "minimum.weight")){
      
+      # Make sure the values in the column 'edge.length' are of class 'numeric'
+      edges$edge.length <- as.numeric(edges$edge.length)
+      
       # Make a subset of edges with a length of 0 from the 'edges' dataframe
-      zero_length_edges <- edges[edges$edge.length == 0,]
+      zero_length_edges <- edges[edges$edge.length <= 0.0000001,]
       
       # Remove edges with a length of 0 from 'edges' dataframe
-      edges <- edges[edges$edge.length != 0,]
+      edges <- edges[!rownames(edges) %in% rownames(zero_length_edges), ]
       
       # If the 'zero_length_edges' is not empty...
       if(nrow(zero_length_edges) != 0){
@@ -573,14 +684,11 @@ AntibodyForests <- function(VDJ,
       
       # Convert 'edges' dataframe (without edges of length zero) back into an object of class 'igraph'
       igraph_object <- igraph::graph_from_data_frame(edges, directed = TRUE)
-      
-      # Create duplicate of this 'igraph_object' to return 'igraph_object_with_inner_nodes'
-      igraph_object_with_inner_nodes <- igraph::graph_from_data_frame(edges, directed = TRUE)
     }
     
     
-    # 3.3 If the approach is set to 'tree' and 'remove.internal.nodes' is set to 'connect.to.root', internal nodes (or unrecovered sequences nodes) are removed from the tree by linking terminal sequence recovered nodes to the first upper parental sequence recovered node (resulting in mostly germline-directed treesS)
-    if(approach == "tree" && remove.internal.nodes == "connect.to.root"){
+    # 3.3 If the approach is set to 'tree' and 'remove.internal.nodes' is set to 'connect.to.parent', internal nodes (or unrecovered sequences nodes) are removed from the tree by linking terminal sequence recovered nodes to the first upper parental sequence recovered node (resulting in mostly germline-directed treesS)
+    if(approach == "tree" && !is.null(phylo_object) && remove.internal.nodes == "connect.to.parent"){
       
       # Retrieve internal nodes present in 'edges' dataframe (names of terminal nodes start with "node" followed by a number, the germline node is named "germline", and all other nodes are internal nodes)
       internal_nodes <- unique(c(edges$upper.node, edges$lower.node)[!startsWith(c(edges$upper.node, edges$lower.node), "node") & c(edges$upper.node, edges$lower.node) != "germline"])
@@ -615,7 +723,7 @@ AntibodyForests <- function(VDJ,
     
     
     # 3.4 If the approach is set to 'tree' and 'remove.internal.nodes' is set to 'all', internal nodes (or unrecovered sequences nodes) are removed from the tree by iteratively replacing internal nodes with terminal nodes with the minimum increase in the sum of all edges (this increase is referred to as the 'cost')
-    if(approach == "tree" && remove.internal.nodes == "all"){
+    if(approach == "tree" && !is.null(phylo_object) && remove.internal.nodes %in% c("minimum.length", "minimum.cost")){
       
       # Retrieve internal nodes present in 'edges' dataframe (names of terminal nodes start with "node" followed by a number, the germline node is named "germline", and all other nodes are internal nodes)
       internal_nodes <- unique(c(edges$upper.node, edges$lower.node)[!startsWith(c(edges$upper.node, edges$lower.node), "node") & c(edges$upper.node, edges$lower.node) != "germline"])
@@ -659,8 +767,11 @@ AntibodyForests <- function(VDJ,
           return(cost)
         }))
         
-        # Select edges from 'edges_to_be_removed' dataframe that have the minimum cost to get removed and store these edges in 'selection_edges_to_be_removed'
-        selection_edges_to_be_removed <- edges_to_be_removed[(1:nrow(edges_to_be_removed))[costs == min(costs)], ]
+        # If 'remove.internal.nodes' is set to 'minimum.length', select the edges from the 'edges_to_be_removed' dataframe that have the minimum 'edge.length' and store these edges in 'selection_edges_to_be_removed'
+        if(remove.internal.nodes == "minimum.length"){selection_edges_to_be_removed <- edges_to_be_removed[edges_to_be_removed$edge.length == min(edges_to_be_removed$edge.length), ]}
+        
+        # If 'remove.internal.nodes' is set to 'minimum.cost', select the edges from the 'edges_to_be_removed' dataframe that have the minimum cost to get removed and store these edges in 'selection_edges_to_be_removed'
+        if(remove.internal.nodes == "minimum.cost"){selection_edges_to_be_removed <- edges_to_be_removed[(1:nrow(edges_to_be_removed))[costs == min(costs)], ]}
         
         # If there is only one edge with this minimum cost...
         if(nrow(selection_edges_to_be_removed) == 1){
@@ -766,7 +877,13 @@ AntibodyForests <- function(VDJ,
     
     
     # 4. Combine the 'phylo_object', the 'igraph_object', the 'metrics' list, and the 'warnings' list in one list
-    output_list <- list(edges = edges, phylo = phylo_object, igraph = igraph_object, igraph.with.inner.nodes = igraph_object_with_inner_nodes, metrics = metrics, warnings = warnings)
+    output_list <- list(phylo = phylo_object, 
+                        igraph = igraph_object, 
+                        igraph.with.inner.nodes = igraph_object_with_inner_nodes, 
+                        edges = edges, 
+                        edges.with.inner.nodes = edges_with_inner_nodes,
+                        metrics = metrics, 
+                        warnings = warnings)
     
     # Return the 'output_list'
     return(output_list)
@@ -777,11 +894,14 @@ AntibodyForests <- function(VDJ,
                                    clone,
                                    sequence.columns,
                                    germline.columns,
+                                   sequence.type,
                                    concatenate.sequences,
                                    node.features,
                                    construction.method,
                                    distance.metric,
-                                   model,
+                                   dna.model,
+                                   aa.model,
+                                   codon.model,
                                    resolve.ties,
                                    remove.internal.nodes,
                                    include){
@@ -792,11 +912,14 @@ AntibodyForests <- function(VDJ,
     # - clone: string denoting the sample ID and the clonotype ID for which the network will be inferred (in the format of "S1_clonotype4" or "S2_clonotype3")
     # - sequence.columns: string or vector of strings denoting the sequence columns in the 'VDJ' dataframe that contain the sequences that will be used to infer B cell lineage trees
     # - germline.columns: string or vector of strings denoting the germline columns in the 'VDJ' dataframe that contain the sequences that will be used as starting points of the lineage trees
+    # - sequence.type: type of the sequences aligned in the selected 'sequence.columns' and 'germline.columns'
     # - concatenate.sequences: bool indicating whether sequences from different sequence columns should be concatenated before pairwise distance calculations or multiple string alignment
     # - node.features: string or vector of strings denoting the additional column name(s) in the VDJ dataframe to be selected
     # - construction.method: string denoting the network algorithm that will be used to convert the distance matrices or multiple sequence alignments into lineage trees
     # - distance.metric: string denoting the metric that will be calculated to measure (string) distances between sequences
-    # - model: denotes codon substitution model that will be used during the likelihood calculations
+    # - dna.model: denotes the nucleotide substitution model that will be used during the likelihood calculations
+    # - aa.model:
+    # - codon.model:
     # - resolve.ties: string denoting the way ties are handled when the 'network.tree' network algorithm is being used 
     # - remove.internal.nodes: bool indicating whether to remove internal nodes from trees constructed with 'phylo.nj' algorithm
     # - include: vector of strings specifying the output object that should be included in the output AntibodyForests object
@@ -820,18 +943,12 @@ AntibodyForests <- function(VDJ,
     # Make a subset of the VDJ dataframe with all cells from the specified sample and clone and only the columns 'barcode', the specified 'sequence.columns' and 'germline.columns', and additional columns specified in 'node.features'
     VDJ_subset <- VDJ[VDJ$sample_id == sample & VDJ$clonotype_id == clonotype, c("barcode", sequence_columns, germline_columns, node.features)]
     
-    # Create vectors specifying the 'nt_columns', containing the nucleotide sequences, and the 'aa_columns', containing the protein sequences
-    nt_columns <- colnames(VDJ_subset)[stringr::str_detect(colnames(VDJ_subset), "_nt")]
-    aa_columns <- colnames(VDJ_subset)[stringr::str_detect(colnames(VDJ_subset), "_aa")]
-    
-    # Define sequence type
-    if(length(nt_columns) != 0){sequence_type <- "DNA"}
-    if(length(aa_columns) != 0){sequence_type <- "AA"}
-    
-    # Trim of last one or two nucleotides to make the length of the nucleotide sequences in 'VDJ_subset' multiple of 3
-    VDJ_subset[nt_columns] <- lapply(VDJ_subset[nt_columns], function(x){
-      ifelse(nchar(x) %% 3 != 0, substring(x, 1, nchar(x) - (nchar(x) %% 3)))
-    })
+    # If the 'sequence.type' is set to 'DNA'...
+    if(sequence.type == "DNA"){
+      # Trim of last one or two nucleotides to make the length of the nucleotide sequences in 'VDJ_subset' multiple of 3
+      VDJ_subset[c(sequence_columns, germline_columns)] <- lapply(VDJ_subset[c(sequence_columns, germline_columns)], function(x){
+        ifelse(nchar(x) %% 3 != 0, substring(x, 1, nchar(x) - (nchar(x) %% 3)))
+    })}
     
     # If 'concatenate.sequences' is set to TRUE...
     if(concatenate.sequences){
@@ -885,7 +1002,7 @@ AntibodyForests <- function(VDJ,
     # 2.1 Calculate a pairwise string distance matrix for each column in 'sequence_columns' using the specified 'distance.metric', if 'construction.method' is set to a distance-based tree-inference method (or if requested by the 'include' parameter)
     
     # If 'construction.method' is set to 'phylo.network.default', 'phylo.network.mst', or 'phylo.tree.nj', or if 'dist.matrix' is specified in the 'include' paramter, the 'stringdist::stringdistmatrix()' function is used to calculate the pairwise distance matrix with the specified string distance metric
-    if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") | "dist.matrices" %in% include){
+    if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") | "dist" %in% include){
       
       # Calculate a distance matrix for each 'sequence.column' separately
       string_dist_matrices <- lapply(sequence_columns, function(x){
@@ -894,7 +1011,7 @@ AntibodyForests <- function(VDJ,
         seqs <- sapply(nodes_list, function(y) y[x])
         names(seqs) <- names(nodes_list)
         
-        # Calculate distance matrix with 'stringdistmatrix()' function using the 'seqs' list as input 
+        # Calculate distance matrix with 'stringdist::stringdistmatrix()' function using the 'seqs' list as input 
         dist_matrix <- suppressWarnings(stringdist::stringdistmatrix(seqs, seqs, method = distance.metric, useNames = "names"))
         
         # Return the distance matrix
@@ -906,7 +1023,7 @@ AntibodyForests <- function(VDJ,
       
       # Store the sum of the distance matrices in 'string_dist_matrices' in 'input_dist_matrix', which will be the input for the 'build_lineage_tree' function next
       input_dist_matrix <- base::Reduce(`+`, string_dist_matrices)
-    }
+    } else{input_dist_matrix <- NULL}
     
     
     # 2.2 Create a multiple sequence alignment, if 'construction.method' is set to a msa-based tree-inference method (or if requested by the 'include' parameter)
@@ -922,7 +1039,7 @@ AntibodyForests <- function(VDJ,
         names(seqs) <- names(nodes_list)
         
         # If the 'sequence.type' is set to "DNA"...
-        if(sequence_type == "DNA"){
+        if(sequence.type == "DNA"){
           
           # Convert character strings in 'seqs' list into DNAString objects
           seqs <- lapply(seqs, function(x) Biostrings::DNAString(x))
@@ -932,7 +1049,7 @@ AntibodyForests <- function(VDJ,
         }
         
         # If the 'sequence.type' is set to "AA"...
-        if(sequence_type == "AA"){
+        if(sequence.type == "AA"){
           
           # Convert character strings in 'seqs' list into AAString objects
           seqs <- lapply(seqs, function(x) Biostrings::AAString(x))
@@ -951,16 +1068,25 @@ AntibodyForests <- function(VDJ,
       # Rename the multiple sequence alignments according to the column names in 'sequence_columns'
       names(multiple_sequence_alignments) <- sequence_columns
       
-      # Concatenate sequences from multiple sequence alignments and convert alignment into the phyDat format, which will be the input for the 'build_lineage_tree' function next
-      input_msa <- phangorn::as.phyDat(do.call(cbind, lapply(sequence_columns, function(x) as.matrix(multiple_sequence_alignments[[x]]@unmasked))), type = sequence_type)
-    }
+      # Concatenate sequences from multiple sequence alignments and convert into matrix
+      msa_matrix <- do.call(cbind, lapply(sequence_columns, function(x) as.matrix(multiple_sequence_alignments[[x]]@unmasked)))
+      
+      # Convert the 'msa_matrix' into the phyDat format, which will be the input for the 'build_lineage_tree' function next
+      input_msa <- phangorn::as.phyDat(msa_matrix, type = sequence.type)
+    } else{input_msa <- NULL}
+    
     
     # 3. Build lineage tree using object saved in 'input' (either distance matrix or multiple sequence alignment)
+    message(paste0("Inferring lineage tree of ", strsplit(clone, split = "_")[[1]][2], " of ", strsplit(clone, split = "_")[[1]][1], "."))
     lineage_tree <- build_lineage_tree(clone = clone,
                                        dist.matrix = input_dist_matrix,
                                        msa = input_msa,
+                                       sequence.type = sequence.type,
                                        approach = approach,
                                        algorithm = algorithm,
+                                       dna.model = dna.model,
+                                       aa.model = aa.model,
+                                       codon.model = codon.model,
                                        resolve.ties = resolve.ties,
                                        remove.internal.nodes = remove.internal.nodes,
                                        node.sizes = node_sizes)
@@ -973,12 +1099,13 @@ AntibodyForests <- function(VDJ,
     
     # For each possible option, check whether it is present in the 'include' vector, and if so, append it to the 'output_list'
     if("nodes" %in% include){output_list["nodes"] <- list(nodes_list)}
-    if("dist.matrices" %in% include){output_list["distance.matrices"] <- list(string_dist_matrices)}
+    if("dist" %in% include){output_list["distance.matrices"] <- list(string_dist_matrices)}
     if("msa" %in% include){output_list["multiple.sequence.alignments"] <- list(multiple_sequence_alignments)}
-    if("edges" %in% include){output_list["edges"] <- lineage_tree["edges"]}
     if("phylo" %in% include){output_list["phylo"] <- lineage_tree["phylo"]}
     if("igraph" %in% include){output_list["igraph"] <- lineage_tree["igraph"]}
     if("igraph.with.inner.nodes" %in% include){output_list["igraph.with.inner.nodes"] <- lineage_tree["igraph.with.inner.nodes"]}
+    if("edges" %in% include){output_list["edges"] <- lineage_tree["edges"]}
+    if("edges.with.inner.nodes" %in% include){output_list["edges.with.inner.nodes"] <- lineage_tree["edges.with.inner.nodes"]}
     if("metrics" %in% include){output_list["metrics"] <- lineage_tree["metrics"]}
     
     # Return the 'output_list'
@@ -993,15 +1120,26 @@ AntibodyForests <- function(VDJ,
   
   # Define partial function for to be executed for each clone
   partial_function <- function(clone){
+    
+    # Create a temporary directory for the current clone
+    temp_dir <- tempdir()
+    
+    # Set this 'temp_dir' as the working directory
+    setwd(temp_dir)
+    
+    # Execute the 'infer_single_network' function for the current clone
     single_network <- infer_single_network(VDJ = VDJ,
                                            clone = clone,
                                            sequence.columns = sequence.columns,
                                            germline.columns = germline.columns,
+                                           sequence.type = sequence_type,
                                            concatenate.sequences = concatenate.sequences,
                                            node.features = node.features,
                                            construction.method = construction.method,
                                            distance.metric = distance.metric,
-                                           model = model,
+                                           dna.model = dna.model,
+                                           aa.model = aa.model,
+                                           codon.model = codon.model,
                                            resolve.ties = resolve.ties,
                                            remove.internal.nodes = remove.internal.nodes,
                                            include = include)
@@ -1027,7 +1165,7 @@ AntibodyForests <- function(VDJ,
       # Create cluster
       cluster <- parallel::makeCluster(num.cores)
       # Infer network for each clone 'clone_list' and store output in the list 'output_list'
-      output_list <- parallel::parLapply(cluster, X = clone_list, fun = partial_function)
+      output_list <- parallel::parLapply(cl = cluster, X = clone_list, fun = partial_function)
       # Name items in 'output_list' according to the clonotype IDs in 'clone_list'
       names(output_list) <- clone_list
       # Stop cluster
@@ -1061,6 +1199,9 @@ AntibodyForests <- function(VDJ,
   # Rename the sublists in 'reorganized_output_list' to their original sample ID
   names(reorganized_output_list) <- sample_list
   
+  # Convert 'reorganized_output_list' of class 'list' into object of class 'AntibodyForests'
+  AntibodyForests_object <- base::structure(reorganized_output_list, class = "AntibodyForests")
+  
   # Return the 'reorganized_output_list'
-  return(reorganized_output_list)
+  return(AntibodyForests_object)
 }
