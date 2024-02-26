@@ -24,12 +24,12 @@
 #' 'cosine'   : cosine distance equals to 1 - cosine similarity (the strings are converted into vectors containing the frequency of all single elements (A and B), whereby the cosine similarity (Sc) equals to the dot product of these vectors divided by the product of the magnitude of these vectors, which can be written in a formula as Sc(A, B) = A . B / (||A|| x ||B||)).
 #' 'jaccard'  : Jaccard distance equals to 1 - Jaccard index (the strings are converted into sets of single elements (A and B), whereby the Jaccard index (J) equals to the size of the intersection of the two sets divided by the size of the union of the sets, which can be written in a formula as J(A, B) = |A ∩ B| / |A ∪ B|).
 #' 'jw'       : Jaro-Winkler distance equals to 1 - Jaro-Winkler similarity (Jaro-Winkler similary is calculated with the following formulas: Sw = Sj + P * L * (1-Sj) in which Sw is the Jaro-Winkler similary, Sj is the Jaro similarity, P is the scaling factor (defaults to 0), and L is the length of the matching prefix; and Sj = 1/3 * (m/|s1| + m/|s2| + (m-t)/m) in which Sj is the Jaro similarity, m is the number of matching elements, |s1| and |s2|are the lengths of the strings, and t is the number of transpositions).
-#' @param dna.model string or vector of strings - specifies the DNA substitution models to compare with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree (when 'construction.method' is set to 'phylo.tree.ml'). Defaults to "all" (when DMA sequences are found in the specified 'sequence.columns' and the 'germline.columns').
+#' @param dna.model string or vector of strings - specifies the DNA substitution models to compare with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree (when 'construction.method' is set to 'phylo.tree.ml'). The best model according to the BIC (Bayesian information criterion) will be used to infer the tree. Defaults to "all" (when DNA sequences are found in the specified 'sequence.columns' and the 'germline.columns').
 #' Available DNA models: 'JC', 'F81', 'K80', 'HKY', 'TrNe', 'TrN', 'TPM1', 'K81', 'TPM1u', 'TPM2', 'TPM2u', 'TPM3', 'TPM3u', 'TIM1e', 'TIM1', 'TIM2e', 'TIM2', 'TIM3e', 'TIM3', 'TVMe', 'TVM', 'SYM', and 'GTR'.
-#' @param aa.model string or vector of strings - specifies the DNA substitution models to compare with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree (when 'construction.method' is set to 'phylo.tree.ml'). Defaults to "all" (when protein sequences are found in the specified 'sequence.columns' and the 'germline.columns').
+#' @param aa.model string or vector of strings - specifies the AA substitution models to compare with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree (when 'construction.method' is set to 'phylo.tree.ml'). The best model according to the BIC (Bayesian information criterion) will be used to infer the tree. Defaults to "all" (when protein sequences are found in the specified 'sequence.columns' and the 'germline.columns').
 #' Available AA models: 'WAG', 'JTT', 'LG', 'Dayhoff', 'cpREV', 'mtmam', 'mtArt', 'MtZoa', 'mtREV24', 'VT', 'RtREV', 'HIVw', 'HIVb', 'FLU', 'Blosum62', 'Dayhoff_DCMut', and 'JTT-DCMut'.
-#' @param codon.model string or vector of strings - specifies the codon substitution models to compare with each other with the 'phangorn::codonTest()' function, of which the output will be used as input for the 
-#' Available codon models: 'M0', 'M1a', and 'M2a'.
+#' @param codon.model string or vector of strings - specifies the codon substitution models to compare with each other with the 'phangorn::codonTest()' function (only possible when the 'construction.method' paramter is set to 'phylo.tree.ml' and when colums with DNA sequences are selected). The best model according to the BIC (Bayesian information criterion) will be used to infer the tree, and this tree will replace the tree inferred with the best model of the model specified in the 'dna.models' parameter. Defaults to NaN.
+#' Available codon models: 'M0'.
 #' @param resolve.ties string or vector of strings - denotes the way ties are handled during the conversion of the distance matrix into lineage trees by the 'network.tree' algorithm (in the event where an unlinked node, that is to be linked to the tree next, shares identical distances with multiple previously linked nodes in the lineage tree). Options: 'min.expansion', 'max.expansion', 'min.germline.dist', 'max.germline.dist', 'min.germline.edges', 'max.germline.edges', and 'random'. If a vector is provided, ties will be resolved in a hierarchical manner. Defaults to 'c("max.expansion", "close.germline.dist", "close.germline.edges", "random")'.
 #' 'min.expansion'        : the node(s) having the smallest size is/are selected.
 #' 'max.expansion'        : the node(s) having the biggest size is/are selected.
@@ -98,11 +98,14 @@ AntibodyForests <- function(VDJ,
   # Store the four nucleotides in the 'nucleotides' vector and store the twenty amino acids in the 'amino_acids' vector
   nucleotides <- c("A", "C", "G", "T")
   amino_acids <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "*")
-  # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns'
-  if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides)))))){sequence_type <- "DNA"}
-  if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))))){sequence_type <- "AA"}
-  # If the 'sequence_type' could not be defined, a message is returned and execution is stopped
-  if(!exists("sequence_type")){stop("ERROR: Please provide an input dataframe that contains valid DNA or protein sequences in the specified sequence and germline columns. NB: the sequences in the 'sequence.columns' and 'germline.columns' should be of the same type.")}
+  # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns', if the 'sequence_type' cannot be defined, a message is returned and execution is stopped
+  if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides)))))){
+    sequence_type <- "DNA"
+  } else if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))))){
+      sequence_type <- "AA"
+  } else{
+    if(!exists("sequence_type")){stop("ERROR: Please provide an input dataframe that contains valid DNA or protein sequences in the specified sequence and germline columns. NB: the sequences in the 'sequence.columns' and 'germline.columns' should be of the same type.")}
+  }
   
   # If the 'concatenate.sequences' parameter is missing, it is set to FALSE
   if(missing(concatenate.sequences)){concatenate.sequences <- FALSE}
@@ -153,16 +156,14 @@ AntibodyForests <- function(VDJ,
   if(dna.model == "all"){dna.model <- c("JC", "F81", "K80", "HKY", "TrNe", "TrN", "TPM1", "K81", "TPM1u", "TPM2", "TPM2u", "TPM3", "TPM3u", "TIM1e", "TIM1", "TIM2e", "TIM2", "TIM3e", "TIM3", "TVMe", "TVM", "SYM", "GTR")}
   if(aa.model == "all"){aa.model <- c("WAG", "JTT", "LG", "Dayhoff", "cpREV", "mtmam", "mtArt", "MtZoa", "mtREV24", "VT", "RtREV", "HIVw", "HIVb", "FLU", "Blosum62", "Dayhoff_DCMut", "JTT-DCMut")}
   # If the 'dna.model' or 'aa.model' parameter contains models that are not available for the current 'sequence_type', a message is returned and execution is stopped
-  if(sequence_type == "DNA"){if(!is.nan(dna.model)){if(!all(dna.model %in% dna_models_all)){stop("ERROR: Not all models specified in the 'dna.model' parameter are recognized as available DNA models. Please choose from the following options: 'JC', 'F81', 'K80', 'HKY', 'TrNe', 'TrN', 'TPM1', 'K81', 'TPM1u', 'TPM2', 'TPM2u', 'TPM3', 'TPM3u', 'TIM1e', 'TIM1', 'TIM2e', 'TIM2', 'TIM3e', 'TIM3', 'TVMe', 'TVM', 'SYM', and 'GTR'.")}}}
-  if(sequence_type == "AA"){if(!is.nan(dna.model)){if(!all(aa.model %in% aa_models_all)){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'WAG', 'JTT', 'LG', 'Dayhoff', 'cpREV', 'mtmam', 'mtArt', 'MtZoa', 'mtREV24', 'VT', 'RtREV', 'HIVw', 'HIVb', 'FLU', 'Blosum62', 'Dayhoff_DCMut', and 'JTT-DCMut'.")}}}
+  if(sequence_type == "DNA"){if(!all(is.nan(dna.model))){if(!all(dna.model %in% c("JC", "F81", "K80", "HKY", "TrNe", "TrN", "TPM1", "K81", "TPM1u", "TPM2", "TPM2u", "TPM3", "TPM3u", "TIM1e", "TIM1", "TIM2e", "TIM2", "TIM3e", "TIM3", "TVMe", "TVM", "SYM", "GTR"))){stop("ERROR: Not all models specified in the 'dna.model' parameter are recognized as available DNA models. Please choose from the following options: 'JC', 'F81', 'K80', 'HKY', 'TrNe', 'TrN', 'TPM1', 'K81', 'TPM1u', 'TPM2', 'TPM2u', 'TPM3', 'TPM3u', 'TIM1e', 'TIM1', 'TIM2e', 'TIM2', 'TIM3e', 'TIM3', 'TVMe', 'TVM', 'SYM', and 'GTR'.")}}}
+  if(sequence_type == "AA"){if(!all(is.nan(dna.model))){if(!all(aa.model %in% c("WAG", "JTT", "LG", "Dayhoff", "cpREV", "mtmam", "mtArt", "MtZoa", "mtREV24", "VT", "RtREV", "HIVw", "HIVb", "FLU", "Blosum62", "Dayhoff_DCMut", "JTT-DCMut"))){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'WAG', 'JTT', 'LG', 'Dayhoff', 'cpREV', 'mtmam', 'mtArt', 'MtZoa', 'mtREV24', 'VT', 'RtREV', 'HIVw', 'HIVb', 'FLU', 'Blosum62', 'Dayhoff_DCMut', and 'JTT-DCMut'.")}}}
   # If the 'codon.model' parameter is missing, it set to NaN 
   if(missing(codon.model)){codon.model <- NaN}
-  # If the 'codon.model' parameter is set to 'all', it set to all available codon models within the 'phangorn' package
-  if(codon.model == "all"){codon.model <- c("M0", "M1a", "M2a")}
   # If the 'codon.model' parameter contains models that are not available, a message is returned and execution is stopped
-  if(!all(codon.model %in% c("M0", "M1a", "M2a", NaN))){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'M0', 'M1a', and 'M2a'.")}
+  if(!all(codon.model %in% c("M0", NaN))){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'M0', 'M1a', and 'M2a'.")}
   # If the 'codon.model' parameter is specified, while protein sequences are found in the selected 'sequence.columns' and 'germline.columns', a message is returned and execution is stopped
-  if(!is.nan(codon.model) && sequence_type == "AA"){stop("ERROR: Currently, a codon model can only be used for tree inference, if the sequences in the selected 'sequence.columns' and 'germline.columns' are DNA sequences.")}
+  if(!all(is.nan(codon.model)) && sequence_type == "AA"){stop("ERROR: Currently, a codon model can only be used for tree inference, if the sequences in the selected 'sequence.columns' and 'germline.columns' are DNA sequences.")}
   
   # If the 'include' parameter is missing, specify the output objects based on the specified 'construction.method'
   if(missing(include) && construction.method == "phylo.network.default"){include <- c("nodes", "dist", "igraph", "edges", "metrics")}
@@ -179,7 +180,6 @@ AntibodyForests <- function(VDJ,
   if(missing(parallel)){parallel <- FALSE}
   # If 'parallel' is set to TRUE but 'num.cores' is not specified, the number of cores is set to all available cores - 1
   if(parallel == TRUE && missing(num.cores)){num.cores <- parallel::detectCores() -1}
-  
   
   build_lineage_tree <- function(clone,
                                  dist.matrix,
@@ -562,20 +562,30 @@ AntibodyForests <- function(VDJ,
       if(length(msa) > 2){
         
         # Create maximum likelihood tree with the 'phangorn::pml_bb()' function (and hide in-function printed message)
-        if(sequence.type == "DNA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(msa, model = dna.model))))}
-        if(sequence.type == "AA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(msa, model = aa.model))))}
+        if(sequence.type == "DNA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = dna.model))))}
+        if(sequence.type == "AA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = aa.model))))}
         
-        # Store tree of class 'phylo' in 'phylo_object'
+        # Store the tree of class 'phylo' in 'phylo_object'
         phylo_object <- ml_tree[["tree"]]
         
-        # If a codon model is specified...
-        if(!is.nan(codon.model)){
+        # If codon models are specified in the 'codon.model' parameter...
+        if(!all(is.nan(codon.model))){
           
-          # Convert the 'msa' 
-          msa <- 
+          # Convert the multiple sequence alignment into a matrix and remove '-' characters and save in 'codon_msa'
+          codon_msa <- do.call(rbind, lapply(names(msa), function(x){strsplit(gsub(pattern = "-", replacement = "", do.call(paste0, as.list(as.character(msa)[x,]))), split = "")[[1]]}))
+          rownames(codon_msa) <- names(msa)
           
-          #
-          base::invisible(utils::capture.output(phylo_object <- phangorn::codonTest(phylo_object, msa)))
+          # Convert the 'codon_msa' into the phyDat format, which will be the inputfor the 'phangorn::codonTest() function
+          codon_msa <- phangorn::as.phyDat(codon_msa, type = "CODON")
+          
+          # Estimate the specified codon models
+          codon_model_test <- phangorn::codonTest(tree = phylo_object, object = codon_msa, model = codon.model)
+          
+          # Select the best model according to the BIC value
+          codon.model <- codon_model_test$summary[codon_model_test$summary$BIC == min(codon_model_test$summary$BIC), "model"]
+          
+          # Replace the tree of class 'phylo' stored in 'phylo_object' by the tree created using the selected codon model
+          phylo_object <- codon_model_test$estimates[[codon.model]]$tree
         }
         
         # Remove node labels to enable conversion into igraph object
@@ -1068,11 +1078,14 @@ AntibodyForests <- function(VDJ,
       # Rename the multiple sequence alignments according to the column names in 'sequence_columns'
       names(multiple_sequence_alignments) <- sequence_columns
       
-      # Concatenate sequences from multiple sequence alignments and convert into matrix
-      msa_matrix <- do.call(cbind, lapply(sequence_columns, function(x) as.matrix(multiple_sequence_alignments[[x]]@unmasked)))
+      # If the 'sequence_columns' contains multiple column names, concatenate the sequences of these columns and create a msa of these concatenated sequences, and store this msa in 'input_msa'
+      if(length(sequence_columns) > 1){
+        if(sequence.type == "DNA"){concatenated_seqs <- lapply(names(nodes_list), function(x) Biostrings::DNAString(do.call(paste0, lapply(sequence_columns, function(y) nodes_list[[x]][y])))); names(concatenated_seqs) <- names(nodes_list); base::invisible(utils::capture.output(input_msa <- msa::msa(Biostrings::DNAStringSet(concatenated_seqs))))}
+        if(sequence.type == "AA"){concatenated_seqs <- lapply(names(nodes_list), function(x) Biostrings::AAString(do.call(paste0, lapply(sequence_columns, function(y) nodes_list[[x]][y])))); names(concatenated_seqs) <- names(nodes_list); base::invisible(utils::capture.output(input_msa <- msa::msa(Biostrings::AAStringSet(concatenated_seqs))))}
+      } else{input_msa <- multiple_sequence_alignments[sequence_columns]}
       
-      # Convert the 'msa_matrix' into the phyDat format, which will be the input for the 'build_lineage_tree' function next
-      input_msa <- phangorn::as.phyDat(msa_matrix, type = sequence.type)
+      # Convert the 'input_msa' into the phyDat format, which will be the input for the 'build_lineage_tree' function next
+      input_msa <- phangorn::as.phyDat(input_msa, type = sequence.type)
     } else{input_msa <- NULL}
     
     
