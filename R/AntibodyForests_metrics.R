@@ -1,12 +1,14 @@
 #' Function to calculate metrics for each tree in an AntibodyForests-object
 #' @description Function to calculate metrics for each tree in an AntibodyForests-object
 #' @param input AntibodyForests-object(s), output from AntibodyForests()
+#' @param min.nodes The minimum number of nodes in a tree to calculate metrics.
 #' @param multiple.objects If TRUE: input should contain multiple AntibodyForests-objects (default FALSE)
 #' @param metrics The metrics to be calculated (default mean.depth)
 #' 'nr.nodes'         : The total number of nodes
 #' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'all.depth'        : Number of edges connecting each node to the germline
+#' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
 #' 'spectral.density' : Assymetry and peakedness of the spectral density profiles (calculated with package RPANDA)
 #' 'colless.number'   : Sum of the absolute difference between the number of left- and right descendants for each node (this requires a tree to be binary!)
@@ -16,6 +18,7 @@
 #' @export
 
 AntibodyForests_metrics <- function(input,
+                                    min.nodes,
                                     multiple.objects,
                                     metrics,
                                     parallel,
@@ -35,16 +38,16 @@ AntibodyForests_metrics <- function(input,
   if(parallel == TRUE && missing(num.cores)){num.cores <- parallel::detectCores() -1}
   
   #Functions to calculate metrics
-  calculate_mean_depth <- function(tree){
+  calculate_mean_depth <- function(tree, nodes){
     #Get the shortest paths between each node and the germline
-    paths <- igraph::shortest_paths(tree, from = "germline", output = "both")
+    paths <- igraph::shortest_paths(tree, from = "germline", to = nodes, output = "both")
     #Take the mean of the number of edges on each path
     depth <- mean(unlist(lapply(paths$epath, length)))
     return(depth)
   }
   
-  calculate_all_depth <- function(tree){
-    paths <- igraph::shortest_paths(tree, from = "germline", output = "both")
+  calculate_all_depth <- function(tree, nodes){
+    paths <- igraph::shortest_paths(tree, from = "germline", to = nodes, output = "both")
     #Set names to the list of vpath
     names(paths$epath) <- names(unlist(lapply(paths$vpath, function(x){tail(x,n=1)})))
     #Reorder the vpaths according to node number
@@ -79,59 +82,105 @@ AntibodyForests_metrics <- function(input,
   }
   
   #Calculate the metrics for a clonotype
-  calculate_metrics <- function(clonotype, metrics){
+  calculate_metrics <- function(clonotype, min.nodes, metrics){
     
-    #Create empty vector to store metrics
-    metrics_vector <- c()
-
-    if ("mean.depth" %in% metrics){
-      depth <- calculate_mean_depth(clonotype$lineage.tree)
-      metrics_vector["mean_depth"] <- depth
-    }
-    
-    if ("all.depth" %in% metrics){
-      all_depth <- calculate_all_depth(clonotype$lineage.tree)
-      metrics_vector["all_depth"] <- all_depth
-    }
-    
-    if ("sackin.index" %in% metrics){
-      si <- calculate_sackin_index(clonotype$lineage.tree)
-      metrics_vector["sackin_index"] <- si
-    }
-    
-    if ("spectral.density" %in% metrics){
-      if (igraph::vcount(clonotype$lineage.tree) > 2){
-        spectr <- calculate_spectral_density(clonotype$lineage.tree)
-        metrics_vector["spectral_peakedness"] <- spectr$peakedness
-        metrics_vector["spectral_asymmetry"] <- spectr$asymmetry
-      } else {
-        warning("Tree needs at least 2 nodes (additional to germline) to calculate spectral density.")
-        metrics_vector["spectral_peakedness"] <- NA
-        metrics_vector["spectral_asymmetry"] <- NA
+    if (igraph::vcount(clonotype$lineage.tree) >= min.nodes){
+      #Create empty vector to store metrics
+      metrics_vector <- c()
+      
+      if ("mean.depth" %in% metrics){
+        #Calculate the mean depth for all nodes except the germline
+        depth <- calculate_mean_depth(clonotype$lineage.tree, 
+                                      nodes = igraph::V(clonotype$lineage.tree)[names(igraph::V(clonotype$lineage.tree)) != "germline"])
+        #Add to the metrics vector
+        metrics_vector["mean_depth"] <- depth
       }
+      
+      if ("all.depth" %in% metrics){
+        #Calculate the depth for all nodes except the germline
+        all_depth <- calculate_all_depth(clonotype$lineage.tree,
+                                         nodes = igraph::V(clonotype$lineage.tree)[names(igraph::V(clonotype$lineage.tree)) != "germline"])
+        #Add to the metrics vector
+        metrics_vector["all_depth"] <- all_depth
+      }
+      
+      if ("sackin.index" %in% metrics){
+        si <- calculate_sackin_index(clonotype$lineage.tree)
+        #Add to the metrics vector
+        metrics_vector["sackin_index"] <- si
+      }
+      
+      if ("spectral.density" %in% metrics){
+        if (igraph::vcount(clonotype$lineage.tree) > 3){
+          spectr <- calculate_spectral_density(clonotype$lineage.tree)
+          #Add to the metrics vector
+          metrics_vector["spectral_peakedness"] <- spectr$peakedness
+          metrics_vector["spectral_asymmetry"] <- spectr$asymmetry
+        }else {
+          warning("Tree needs at least 2 nodes (additional to germline) to calculate spectral density.")
+          #Add NA to the metrics vector
+          metrics_vector["spectral_peakedness"] <- NA
+          metrics_vector["spectral_asymmetry"] <- NA
+        }
+      }
+      
+      if ("group.depth" %in% metrics){
+        #Get the unique node features in the input
+        if (multiple.objects){
+          features <- unique(unlist(lapply(input[[1]],function(a){lapply(a,function(b){lapply(b$nodes, function(c){names(c)[-(1:3)]})})})))
+          }else{features <- unique(unlist(lapply(input,function(a){lapply(a,function(b){lapply(b$nodes, function(c){names(c)[-(1:3)]})})})))}
+        
+        #Loop over the node features
+        for (feature in features){
+          #Get the unique elements in this group
+          if (multiple.objects){
+            groups <- unique(unlist(lapply(input[[1]],function(a){lapply(a,function(b){lapply(b$nodes, function(c){c[[feature]]})})})))
+          }else{groups <- unique(unlist(lapply(input,function(a){lapply(a,function(b){lapply(b$nodes, function(c){c[[feature]]})})})))}
+          
+          for (group in groups){
+            #Take the nodes have a cell of this group
+            nodes <- names(which(lapply(clonotype$nodes, function(x){group %in% x[feature]}) == TRUE))
+            if (identical(nodes, character(0))){
+              #Add NA to the metrics vector
+              metrics_vector[paste0(feature,"_", group,"_depth")] <- NA
+            }else{
+              #Calcute the mean depth for the nodes that have this group
+              depth <- calculate_mean_depth(clonotype$lineage.tree, nodes = igraph::V(clonotype$lineage.tree)[nodes])
+              #Add to the metrics vector
+              metrics_vector[paste0(feature,"_", group,"_depth")] <- depth
+            }
+            
+          }
+          
+        }
+      }
+      
+      # if ("colless.number" %in% metrics){
+      #   if (igraph::vcount(clonotype$lineage.tree) > 2){
+      #     colless <- calculate_colless_number(clonotype$lineage.tree)
+      #     metrics_vector["colless_number"] <- colless
+      #   } else {
+      #     warning("Tree needs at least 2 nodes (additional to germline) to calculate the colless number.")
+      #     metrics_vector["colless_number"] <- NA
+      #   }
+      # }
+      
+      #Standard metrics
+      #Total number of nodes
+      nodes <- igraph::vcount(clonotype$lineage.tree)
+      metrics_vector["nr_nodes"] <- nodes
+      
+      #Total number of cells
+      cells <- sum(unlist(lapply(clonotype$nodes, function(x){length(x$barcodes)})))
+      metrics_vector["nr_cells"] <- cells
+      
+      
+      return(metrics_vector)
+    }else{
+      return(NA)
     }
     
-    # if ("colless.number" %in% metrics){
-    #   if (igraph::vcount(clonotype$lineage.tree) > 2){
-    #     colless <- calculate_colless_number(clonotype$lineage.tree)
-    #     metrics_vector["colless_number"] <- colless
-    #   } else {
-    #     warning("Tree needs at least 2 nodes (additional to germline) to calculate the colless number.")
-    #     metrics_vector["colless_number"] <- NA
-    #   }
-    # }
-    
-    #Standard metrics
-    #Total number of nodes
-    nodes <- igraph::vcount(clonotype$lineage.tree)
-    metrics_vector["nr_nodes"] <- nodes
-    
-    #Total number of cells
-    cells <- sum(unlist(lapply(clonotype$nodes, function(x){length(x$barcodes)})))
-    metrics_vector["nr_cells"] <- cells
 
-    
-    return(metrics_vector)
   }
   
 
@@ -150,11 +199,16 @@ AntibodyForests_metrics <- function(input,
         metric_list <- parallel::mclapply(mc.cores = num.cores, input, function(object){
           t(as.data.frame(parallel::mclapply(mc.cores = num.cores, object, function(sample){
             parallel::mclapply(mc.cores = num.cores, sample, function(clonotype){
-              calculate_metrics(clonotype, metrics)
+              calculate_metrics(clonotype, min.nodes, metrics)
+
             })
           })))
         })
-        
+
+        #Only keep rows that have enough nodes (nr_nodes != NA)
+        metric_list <- lapply(metric_list, function(metric_df){
+          metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
+        })
         return(metric_list)
       }
       #Create a single metric dataframe if there is only one AntibodyForests-object in the input
@@ -162,10 +216,12 @@ AntibodyForests_metrics <- function(input,
         #Go over each tree in the AntibodyForests object and create a metric dataframe
         metric_df <- t(as.data.frame(parallel::mclapply(mc.cores = num.cores,input, function(sample){
           parallel::mclapply(mc.cores = num.cores,sample, function(clonotype){
-            calculate_metrics(clonotype, metrics)
+            calculate_metrics(clonotype, min.nodes, metrics)
+
           })
         })))
-        
+        #Only keep rows that have enough nodes (nr_nodes != NA)
+        metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
         return(metric_df)
       }
     }
@@ -180,13 +236,18 @@ AntibodyForests_metrics <- function(input,
         metric_list <- parallel::parLapply(cluster, input, function(object){
           t(as.data.frame(parallel::parLapply(cluster, object, function(sample){
             parallel::parLapply(cluster, sample, function(clonotype){
-              calculate_metrics(clonotype, metrics)
+              calculate_metrics(clonotype, min.nodes, metrics)
+
             })
           })))
         })
         # Stop cluster
         parallel::stopCluster(cluster)
         
+        #Only keep rows that have enough nodes (nr_nodes != NA)
+        metric_list <- lapply(metric_list, function(metric_df){
+          metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
+        })
         return(metric_list)
       }
       #Create a single metric dataframe if there is only one AntibodyForests-object in the input
@@ -194,12 +255,15 @@ AntibodyForests_metrics <- function(input,
         #Go over each tree in the AntibodyForests object and create a metric dataframe
         metric_df <- t(as.data.frame(parallel::parLapply(cluster,input, function(sample){
           parallel::parLapply(cluster,sample, function(clonotype){
-            calculate_metrics(clonotype, metrics)
+            calculate_metrics(clonotype, min.nodes, metrics)
+
           })
         })))
         # Stop cluster
         parallel::stopCluster(cluster)
         
+        #Only keep rows that have enough nodes (nr_nodes != NA)
+        metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
         return(metric_df)
       }
 
@@ -215,11 +279,15 @@ AntibodyForests_metrics <- function(input,
       metric_list <- lapply(input, function(object){
         t(as.data.frame(lapply(object, function(sample){
           lapply(sample, function(clonotype){
-            calculate_metrics(clonotype, metrics)
+            calculate_metrics(clonotype, min.nodes, metrics)
           })
         })))
       })
       
+      #Only keep rows that have enough nodes (nr_nodes != NA)
+      metric_list <- lapply(metric_list, function(metric_df){
+        metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
+      })
       return(metric_list)
     }
     #Create a single metric dataframe if there is only one AntibodyForests-object in the input
@@ -227,10 +295,12 @@ AntibodyForests_metrics <- function(input,
       #Go over each tree in the AntibodyForests object and create a metric dataframe
       metric_df <- t(as.data.frame(lapply(input, function(sample){
         lapply(sample, function(clonotype){
-          calculate_metrics(clonotype, metrics)
+          calculate_metrics(clonotype, min.nodes, metrics)
         })
       })))
       
+      #Only keep rows that have enough nodes (nr_nodes != NA)
+      metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
       return(metric_df)
     }
   }
