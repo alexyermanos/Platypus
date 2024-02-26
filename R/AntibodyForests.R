@@ -1075,12 +1075,16 @@ AntibodyForests <- function(VDJ,
       
       # Rename the multiple sequence alignments according to the column names in 'sequence_columns'
       names(multiple_sequence_alignments) <- sequence_columns
+    }
+    
+    # If 'construction.method' is set to 'phylo.tree.mp' or 'phylo.tree.ml', the multiple sequence alignment(s) is/are stored in one object of class 'phyDat'
+    if(construction.method %in% c("phylo.tree.mp", "phylo.tree.ml")){
       
       # If the 'sequence_columns' contains multiple column names, concatenate the sequences of these columns and create a msa of these concatenated sequences, and store this msa in 'input_msa'
       if(length(sequence_columns) > 1){
         if(sequence.type == "DNA"){concatenated_seqs <- lapply(names(nodes_list), function(x) Biostrings::DNAString(do.call(paste0, lapply(sequence_columns, function(y) nodes_list[[x]][y])))); names(concatenated_seqs) <- names(nodes_list); base::invisible(utils::capture.output(input_msa <- msa::msa(Biostrings::DNAStringSet(concatenated_seqs))))}
         if(sequence.type == "AA"){concatenated_seqs <- lapply(names(nodes_list), function(x) Biostrings::AAString(do.call(paste0, lapply(sequence_columns, function(y) nodes_list[[x]][y])))); names(concatenated_seqs) <- names(nodes_list); base::invisible(utils::capture.output(input_msa <- msa::msa(Biostrings::AAStringSet(concatenated_seqs))))}
-      } else{input_msa <- multiple_sequence_alignments[sequence_columns]}
+      } else{input_msa <- multiple_sequence_alignments[[sequence_columns]]}
       
       # Convert the 'input_msa' into the phyDat format, which will be the input for the 'build_lineage_tree' function next
       input_msa <- phangorn::as.phyDat(input_msa, type = sequence.type)
