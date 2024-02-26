@@ -101,7 +101,7 @@ AntibodyForests <- function(VDJ,
   # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns', if the 'sequence_type' cannot be defined, a message is returned and execution is stopped
   if(all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides))))){
     sequence_type <- "DNA"
-  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))) && all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(!strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides))))){
+  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))) && all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) !all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides))))){
     sequence_type <- "AA"
   } else{
     if(!exists("sequence_type")){stop("ERROR: Please provide an input dataframe that contains valid DNA or protein sequences in the specified sequence and germline columns. NB: the sequences in the 'sequence.columns' and 'germline.columns' should be of the same type.")}
