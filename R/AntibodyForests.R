@@ -99,10 +99,10 @@ AntibodyForests <- function(VDJ,
   nucleotides <- c("A", "C", "G", "T")
   amino_acids <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "*")
   # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns', if the 'sequence_type' cannot be defined, a message is returned and execution is stopped
-  if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides)))))){
+  if(all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides))))){
     sequence_type <- "DNA"
-  } else if(all(sapply(1:nrow(VDJ), function(y) all(sapply(c(sequence.columns, germline.columns), function(x) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))))){
-      sequence_type <- "AA"
+  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids)))) && all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) all(!strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides))))){
+    sequence_type <- "AA"
   } else{
     if(!exists("sequence_type")){stop("ERROR: Please provide an input dataframe that contains valid DNA or protein sequences in the specified sequence and germline columns. NB: the sequences in the 'sequence.columns' and 'germline.columns' should be of the same type.")}
   }
@@ -161,7 +161,7 @@ AntibodyForests <- function(VDJ,
   # If the 'codon.model' parameter is missing, it set to NaN 
   if(missing(codon.model)){codon.model <- NaN}
   # If the 'codon.model' parameter contains models that are not available, a message is returned and execution is stopped
-  if(!all(codon.model %in% c("M0", NaN))){stop("ERROR: Not all models specified in the 'aa.model' parameter are recognized as available AA models. Please choose from the following options: 'M0', 'M1a', and 'M2a'.")}
+  if(!all(codon.model %in% c("M0", NaN))){stop("ERROR: Not all models specified in the 'codon.model' parameter are recognized as available codon models. Please choose from the following options: 'M0', 'M1a', and 'M2a'.")}
   # If the 'codon.model' parameter is specified, while protein sequences are found in the selected 'sequence.columns' and 'germline.columns', a message is returned and execution is stopped
   if(!all(is.nan(codon.model)) && sequence_type == "AA"){stop("ERROR: Currently, a codon model can only be used for tree inference, if the sequences in the selected 'sequence.columns' and 'germline.columns' are DNA sequences.")}
   
@@ -561,9 +561,9 @@ AntibodyForests <- function(VDJ,
       # A maximum parsimony tree can only be build if there are 3 or more sequences
       if(length(msa) > 2){
         
-        # Create maximum likelihood tree with the 'phangorn::pml_bb()' function (and hide in-function printed message)
-        if(sequence.type == "DNA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = dna.model))))}
-        if(sequence.type == "AA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = aa.model))))}
+        # Create maximum likelihood tree with the 'phangorn::pml_bb()' function (and hide in-function printed message),  and store the best model according to the BIC value from the 'phangorn::modelTest()' function in the 'metrics' list
+        if(sequence.type == "DNA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = dna.model)))); metrics["dna.model"] <- ml_tree[["model"]]}
+        if(sequence.type == "AA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = aa.model)))); metrics["aa.model"] <- ml_tree[["model"]]}
         
         # Store the tree of class 'phylo' in 'phylo_object'
         phylo_object <- ml_tree[["tree"]]
@@ -581,8 +581,9 @@ AntibodyForests <- function(VDJ,
           # Estimate the specified codon models
           codon_model_test <- phangorn::codonTest(tree = phylo_object, object = codon_msa, model = codon.model)
           
-          # Select the best model according to the BIC value
+          # Select the best model according to the BIC value and append to the 'metrics' list
           codon.model <- codon_model_test$summary[codon_model_test$summary$BIC == min(codon_model_test$summary$BIC), "model"]
+          metrics["codon.model"] <- codon.model
           
           # Replace the tree of class 'phylo' stored in 'phylo_object' by the tree created using the selected codon model
           phylo_object <- codon_model_test$estimates[[codon.model]]$tree
@@ -590,9 +591,6 @@ AntibodyForests <- function(VDJ,
         
         # Remove node labels to enable conversion into igraph object
         phylo_object$node.label <- NULL
-        
-        # Store selected substitution model from the 'phangorn::modelTest()' function in the 'metrics' list
-        metrics["model"] <- ml_tree[["model"]]
       }
       
       # If there are less than 3 sequences, the tree consists of a germline node and a single descendant ('node1'), with a distance that is equal to the hamming distance normalized by the mean sequence length
