@@ -8,8 +8,9 @@
 #' 'euclidean'      : Euclidean distance of the number of edges for each leaf (depth) between different trees of the same clonotype.
 #' 'jensen-shannon' : Jensen-Shannon distance between spectral density profilesof trees.
 #' @param visualization.methods The methods to analyze similarity (default PCA)
+#' 'PCA'
 #' @param metrics.to.visualize Other metrics from the input to use for visualization.
-#' @return If within.clonotypes = TRUE: Returns a list of distance matrices for each clonotype and various plots based on visualization.methods and metrics.to.visualize. If within.clonotypes = FALSE returns only plots.
+#' @return If within.clonotypes = TRUE: Returns a list of distance matrices for each clonotype and various plots based on visualization.methods and metrics.to.visualize. If within.clonotypes = FALSE returns a single distance matrix and various plots based on visualization.methods and metrics.to.visualize.
 #' @export
 
 AntibodyForests_compare <- function(input,
@@ -49,9 +50,9 @@ AntibodyForests_compare <- function(input,
   if(distance.method == "euclidean" && !(all(lapply(input[[2]], function(x){"all_depth" %in% colnames(x)})))){
     stop("all_depth needs to be calculated in order to compare euclidean distance.")
   }
-  if((metrics.to.visualize != "none") &&
-     ((within.clonotypes == F && !(metrics.to.visualize %in% colnames(input[[2]]))) ||
-      (within.clonotypes == T && !(metrics.to.visualize %in% lapply(input[[2]], colnames))))){
+  if((all(metrics.to.visualize != "none")) &&
+     ((within.clonotypes == F && !(all(metrics.to.visualize %in% colnames(input[[2]])))) ||
+      (within.clonotypes == T && !(all(metrics.to.visualize %in% lapply(input[[2]], colnames)))))){
     stop("metrics.to.visualize need to be in the input metrics dataframe(s).")
   }
 
@@ -145,7 +146,7 @@ AntibodyForests_compare <- function(input,
       plot_list[["default"]] <- plot_PC(pca_results, color = "tree", name = "all")
       
       #Plot the PCA colored on optional metrics
-      if (metrics.to.visualize != "none"){
+      if (all(metrics.to.visualize != "none")){
         for (metric in metrics.to.visualize){
           #Add this metric to the PCA output dataframe
           metric_df <- stats::na.omit(input[[2]])
@@ -200,7 +201,7 @@ AntibodyForests_compare <- function(input,
         temp_list[["default"]] <- plot_PC(df = pca_results, color = "tree",
                                           name = names(distance_list)[[clonotype]])
         
-        if (metrics.to.visualize != "none"){
+        if (all(metrics.to.visualize != "none")){
           for (metric in metrics.to.visualize){
             #Add this metric to the PCA output dataframe
             pca_results[metric] <- NA
