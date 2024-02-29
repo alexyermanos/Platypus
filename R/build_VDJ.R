@@ -13,21 +13,21 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' VDJ <- minimal_VDJ(VDJ_directory,
+#' VDJ <- build_VDJ(VDJ_directory,
 #'                    remove.divergent.cells = TRUE,
 #'                    complete,cells.only = TRUE,
 #'                    trim.germlines = TRUE)
 #'}
 
 
-minimal_VDJ <- function(VDJ.directory,
-                        VDJ.sample.list,
-                        remove.divergent.cells = FALSE,
-                        complete.cells.only = FALSE,
-                        trim.germlines = FALSE,
-                        gap.opening.cost = Inf,
-                        parallel = FALSE,
-                        num.cores = NULL){
+build_VDJ <- function(VDJ.directory,
+                      VDJ.sample.list,
+                      remove.divergent.cells = FALSE,
+                      complete.cells.only = FALSE,
+                      trim.germlines = FALSE,
+                      gap.opening.cost = Inf,
+                      parallel = FALSE,
+                      num.cores = NULL){
 
 
   # If both the 'VDJ.directory' and 'VDJ.sample.list' are missing, a message is returned and execution is stopped
