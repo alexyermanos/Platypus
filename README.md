@@ -10,7 +10,7 @@
 Platypus is an R toolkit designed to facilitate the data analysis of
 single-cell immune repertoire sequencing experiments. The manuscript
 corresponding to Platypus v2 can be found here at Yermanos et al NARGAB
-2021 <https://doi.org/10.1093/nargab/lqab023> and the updated manuscript concerning the v3 Platypus ecosystem can be found here: <https://www.biorxiv.org/content/10.1101/2022.09.28.509709v1> 
+2021 <https://doi.org/10.1093/nargab/lqab023> and the updated manuscript concerning the v3 Platypus ecosystem can be found here: <https://www.biorxiv.org/content/10.1101/2022.09.28.509709v1>
 
 # Ongoing updates in the Platypus pipeline (v3)
 
@@ -31,7 +31,7 @@ their own datasets. Collectively, PlatypusDB serves as a database for
 the scientific community interested in exploration of single cell immune
 repertoire sequencing experiments from mouse and human.
 
-Stay tuned for updates <https://twitter.com/AlexYermanos>
+Stay tuned for updates <https://twitter.com/alexyermanos?lang=en>
 
 ## Architecture
 
@@ -46,7 +46,7 @@ Windows 10 Pro (v1909), and used on R versions 4.0.0 and 3.6.1
 
 Platypus can easily be installed from CRAN or Github. As changes and bugfixes are made regularly, the Github version may be more recent.
 
-Please scroll down for instructions on how to install the necessary dependencies. 
+Please scroll down for instructions on how to install the necessary dependencies.
 
 ``` r
 
@@ -61,15 +61,15 @@ install.packages("Platypus")
 
 ### Downloading and installing Platypus from Github
 
-# First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command. 
+# First we need to download the most recent version from the master branch at https://github.com/alexyermanos/Platypus we can install the package using the following command.
 # WARNING: This needs to be replaced with your own directory where the downloaded package is found
 # For MacOS users it may look like this
 install.packages("~/Downloads/Platypus_3.4.1.tar.gz", repos = NULL, type="source")
-# For windows it will likely look something like this. 
-# WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory. 
+# For windows it will likely look something like this.
+# WARNING: You will need to replace 'YourPCName' with your user name for the windows account in the directory.
 install.packages("C:/Users/YourPCName/Downloads/Platypus_3.4.1.tar.gz", repos = NULL, type="source")
 
-# The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in current CRAN version. 
+# The individual R functions can additionally be found on the github in the Functions branch. Within this branch, there is a folder "R" which contains the individual functions. This can similarly be downloaded and loaded into the R environment incase not all functions are desired. Similarly, these functions are actively updated and may include more features than the in current CRAN version.
 
 ```
 
@@ -118,7 +118,7 @@ install_github("immunogenomics/harmony")
 ``` r
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-    
+
 BiocManager::install("Biostrings")
 BiocManager::install("org.Mm.eg.db")
 BiocManager::install("edgeR")
