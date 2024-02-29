@@ -52,35 +52,19 @@ Highlights the cells belonging to any number of top clonotypes or of specificall
 }
 \examples{
 
-#To return a single plot with top clones across samples
 overlay_clones_plot <- VDJ_GEX_overlay_clones(
 GEX = Platypus::small_vgm[[2]], reduction = "umap"
 ,n.clones = 5, by.sample = FALSE
 ,by.other.group = "none", pt.size = 1,split.plot.and.legend = FALSE)
 
-#To return a facet plot with top clones for each sample
 overlay_clones_plot <- VDJ_GEX_overlay_clones(
 GEX = Platypus::small_vgm[[2]], reduction = "umap"
 ,n.clones = 5, by.sample = TRUE, by.other.group = "none"
 ,pt.size = 1,ncol.facet = 2, split.plot.and.legend = FALSE)
 
-#To return a facet plot and the legend separately with top clones for each group
 overlay_clones_plot <- VDJ_GEX_overlay_clones(
 GEX = Platypus::small_vgm[[2]], reduction = "umap"
 ,n.clones = 5, by.sample = TRUE, by.other.group = "group_id", pt.size = 1
 ,ncol.facet = 2, split.plot.and.legend = TRUE)
-
-#To print both:
-#overlay_clones_plot[[1]] #Plot
-#gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend
-#To save, ggsave() is applicable to both
-
-#To return a single plot with selected clones
-#add a clonotype_to_plot column
-#GEX@meta.data$clonotype_to_plot <- GEX$VJ_vgene == "TRAV5-1"
-#Column with TRUE for all clones with a particular V gene
-#overlay_clones_plot <- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"
-#, clones.to.plot = "clonotype_to_plot", by.sample = TRUE, by.other.group = "none"
-#, split.plot.and.legend = FALSE, pt.size = 1.5)
 
 }

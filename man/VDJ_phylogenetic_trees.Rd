@@ -69,10 +69,12 @@ Nested list of tidytree dataframes or lineage dataframes.
 Creates phylogenetic trees as tidytree dataframes from an input VDJ dataframe. The resulting phylogenetic trees can be plotted using VDJ_phylogenetic_trees_plot. Both of these functions require the tidytree and ggtree packages.
 }
 \examples{
-\dontrun{
-VDJ_phylogenetic_trees(VDJ=VDJ, sequence.type='VDJ.VJ',
+\donttest{
+try({
+VDJ_phylogenetic_trees(VDJ=Platypus::small_vgm[[1]], sequence.type='VDJ.VJ',
 trimmed=TRUE, as.nucleotide=TRUE, include.germline=TRUE,
 additional.feature.columns=NULL, tree.level='intraclonal',
 output.format='tree.df.list')
+})
 }
 }

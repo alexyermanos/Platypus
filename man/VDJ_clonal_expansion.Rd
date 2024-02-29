@@ -48,16 +48,11 @@ Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing
 Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.
 }
 \examples{
-#Standard B cell plot for platypus version v3
-#Will generate one plot per sample (from sample_id column)
 clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]],
  celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
  ,treat.incomplete.clones = "exclude"
  ,treat.incomplete.cells = "proportional")
 
-#Regrouped and recolored plot in v3
-#Will generate a plot for each sample.
-#Bars are filled by the sample with the highest proportion of cells in a given clonotype
 clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
 , celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
 ,treat.incomplete.clones = "exclude"
@@ -65,22 +60,4 @@ clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
 ,color.by = "seurat_clusters") #change grouping with group.by = "column name"
 clonal_out[[1]] #list of plots
 clonal_out[[2]] #list of source dataframes
-
-#T cell plot with recoloring by vgene
-#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-#,celltype = "Tcells", clones = 30, group.by = "sample_id"
-#,color_by = "VDJ_vgene")
-
-#Plotting only IgD clones. Increased the value for clones to scan more of the dataset
-#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-#,celltype = "Bcells", clones = 150,subtypes = FALSE
-#,species = "Mouse",treat.incomplete.clones = "include"
-#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")
-
-#Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)
-#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-#,celltype = "Bcells", clones = 150,subtypes = TRUE, species = "Mouse"
-#,treat.incomplete.clones = "exclude"
-#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")
-
 }

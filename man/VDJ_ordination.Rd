@@ -39,9 +39,7 @@ Returns a ggplot with the ordination analysis performer across features, groups,
 Performs ordination/dimensionality reduction for a species incidence matrix, depending on the species selected in the feature.columns parameter.
 }
 \examples{
-
-#PCA dimensionality reduction across samples for CDRH3
-plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]],
+plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]]
 ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 ,method = "pca", reduction.level = 'groups')
 

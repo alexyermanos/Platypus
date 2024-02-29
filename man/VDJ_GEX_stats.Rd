@@ -33,9 +33,11 @@ returns a single matrix where the rows are individual cells and the columns are 
 Gives stats on number and quality of reads. This function is integrated into the VDJ_GEX_matrix. Before running, please check list element [[3]] of VDJ_GEX_matrix output for already generated statistics.
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list
 ,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4)
-,metrics10x = TRUE,save.csv = TRUE ,filename = "stats.csv")
+,metrics10x = TRUE,save.csv = FALSE)
+})
 }
 }

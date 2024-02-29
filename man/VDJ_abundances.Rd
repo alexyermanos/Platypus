@@ -66,7 +66,7 @@ or a barplot of the counts/proportions per feature, per group.
 Calculate the absolute counts or proportions of a specific cell-level feature (column in the VDJ/VDJ.GEX.matrix[[1]] object), per an optional specific grouping factor (e.g., clonotype via 'clonotype_id') and an optional sample factor(e.g., 'sample_id'). Outputs either a count dataframe of the specific feature or a ggplot2 barplot.
 }
 \examples{
-VDJ_abundances(VDJ = small_vgm[[1]],
+VDJ_abundances(VDJ = Platypus::small_vgm[[1]],
 feature.columns='VDJ_cgene', proportions='absolute',
 grouping.column='clonotype_id', specific.groups='none',
 output.format='plot')

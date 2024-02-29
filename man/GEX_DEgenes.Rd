@@ -57,7 +57,7 @@ GEX_DEgenes(
 
 \item{base}{The base with respect to which logarithms are computed. Default: 2}
 
-\item{label.n.top.genes}{FOR VOLCANO Interger. How many top genes to label either by Fold change (if logFC == TRUE) or by p.value (if logFC == FALSE). More than 50 are not recommended. Also works in conjunction with genes.to.label}
+\item{label.n.top.genes}{FOR VOLCANO Interger. How many top genes to label either by Fold change (if logFC ==TRUE) or by p.value (if logFC == FALSE). More than 50 are not recommended. Also works in conjunction with genes.to.label}
 
 \item{genes.to.label}{FOR VOLCANO Character vector of genes to label irregardless of their p value.}
 
@@ -72,28 +72,6 @@ Returns a dataframe containing the output from the FindMarkers function, which c
 Extracts the differentially expressed genes between two groups of cells. These groups are defined as cells having either of two entries (group1, group2) in the grouping.column of the input Seurat object metadata This function uses the FindMarkers function from the Seurat package.
 }
 \examples{
-#Basic run between two samples
 DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
 group1 = "s1",group2 = "s2", return.plot = "volcano")
-#DEGs[[1]] => Table of DEGs
-#DEGs[[2]] => Volcano plot
-
-#Getting DEGs between two seurat clusters
-#GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
-#grouping.column = "seurat_clusters",group1 = "0",group2 = "1")
-
-#Plotting a heatmap by foldchange of sample markers
-#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
-#,min.pct = .25,group1 = "s1",group2 = "s2", return.plot = "heatmap"
-#, up.genes = 10, down.genes = 10, logFC = TRUE)
-
-#Plotting volcano by p value of sample markers. Label additional genes of interest
-#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]],min.pct = .25
-#,group1 = "s1",group2 = "s2", return.plot = "volcano", logFC = FALSE
-#, label.n.top.genes = 40, genes.to.label = c("CD28", "ICOS"))
-
-#Generate a heatmap from an already existing FindMarkers output
-#GEX_DEgenes(GEX = VDJ_GEX_matrix.output[[2]]
-#, FindMarkers.out = FindMarkers.output.dataframe, return.plot = "heatmap"
-#, up.genes = 10, down.genes = 10, logFC = TRUE, platypus.version = "v3")
 }

@@ -45,10 +45,12 @@ Processed antigen-specific databases for both TCRs and BCRs.
 Preprocessing function for several antigen databases for both TCRs (VDJdb, McPAS-TCR, TBAdb) and BCRs (TBAdb), saving them either at a specified path, or loading them as a database list for downstream integration/analyses.
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 VDJ_db_load(databases=list('vdjdb'),file.paths=NULL,
 preprocess=TRUE,species='Mouse',filter.sequences='VDJ.VJ',
 remove.na='vgm', vgm.names=TRUE, keep.only.common=TRUE,
-output.format='df.list')
+output.format='df.list', saving.path = tempdir())
+})
 }
 }

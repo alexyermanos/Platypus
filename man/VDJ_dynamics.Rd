@@ -57,7 +57,8 @@ Either a count dataframe of the tracked elements across multiple timepoints/repe
 Track a VDJ column across multiple samples or timepoints. Tracking consists of creating a per sample/timepoint dataframe of unique values for the VDJ column and their respective counts inside that timepoints/repertoire. Also creates alluvial plots to show the temporal dynamics of the tracked elements.
 }
 \examples{
-VDJ_dynamics(VDJ = small_vgm[[1]],columns.to.track='clonotype_id', starting.point.repertoire=1,
+VDJ_dynamics(VDJ = Platypus::small_vgm[[1]],
+columns.to.track='clonotype_id', starting.point.repertoire=1,
 max.elements.to.track=10, timepoints.column='sample_id',
 output.format='plot')
 

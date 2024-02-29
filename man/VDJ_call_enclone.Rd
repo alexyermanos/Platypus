@@ -42,7 +42,9 @@ Reclonotyped VDJ object using the enclone software and 10x-specific clonotype de
 Calls recon to clonotype a VDJ object given a VDJ.directory (with sample folders which should include the all_contig_annotations.json file) - outputs a new VDJ with updated clonotype_id, clonotype_id_10x, and clonotype_frequency columns
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 VDJ_call_enclone(vdj, VDJ.directory, samples.to.combine = c('s1', 's2', 's3'), global.clonotype = T)
+})
 }
 }

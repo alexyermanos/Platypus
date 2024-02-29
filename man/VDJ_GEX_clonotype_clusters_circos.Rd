@@ -60,10 +60,12 @@ Returns a circos plot and a list object with the following elememts for N sample
 Makes a Circos plot from the VDJ_GEX_integrate output. Connects the clonotypes with the corresponding clusters.
 }
 \examples{
-\dontrun{
- clonotype.clusters <- VDJ_GEX_clonotype_clusters_circos(vgm[[1]], n_cluster=8, topX = 20)
- # print circos plot:
+\donttest{
+try({
+ clonotype.clusters <- VDJ_GEX_clonotype_clusters_circos(Platypus::small_vgm[[1]],
+ n_cluster=8, topX = 20)
  clonotype.clusters[[1]]
+ })
 }
 
 }

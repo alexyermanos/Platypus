@@ -69,9 +69,9 @@ Returns a circos plot and a list object with the following elememts for N sample
 Produces a Circos plot from the VDJ_analyze output. Connects the V-alpha with the corresponding V-beta gene for each clonotype.
 }
 \examples{
-\dontrun{
- alpha_beta_VJgene <- VDJ_alpha_beta_Vgene_circos(vgm[[1]])
- # print circos plot:
- alpha_beta_VJgene[[1]]
+\donttest{
+alpha_beta_VJgene <- VDJ_alpha_beta_Vgene_circos(Platypus::small_vgm[[1]])
+alpha_beta_VJgene[[1]]
 }
+
 }

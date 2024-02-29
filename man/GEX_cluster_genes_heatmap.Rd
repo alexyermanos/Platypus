@@ -39,16 +39,17 @@ Returns a heatmap from the function DoHeatmap from the package Seurat, which is 
 Produces a heatmap displaying the expression of the top genes that define each cluster in the Seurat object. The output heatmap is derived from DoHeatmap from Seurat and thereby can be edited using typical ggplot interactions. The number of genes per cluster and the nunber of cells to display can be specified by the user. Either the log fold change or the p value can be used to select the top n genes.
 }
 \examples{
-\dontrun{
-#For Platypus version 2
-cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = automate_GEX_output[[i]]
+\donttest{
+try({
+GEX_cluster_genes_output <- GEX_cluster_genes(GEX =
+subset(Platypus::small_vgm[[2]],
+seurat_clusters \%in\% c(0,1)), min.pct = .25
+, filter = c("MT-", "RPL", "RPS"))
+
+cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX =
+Platypus::small_vgm[[2]]
 ,GEX_cluster_genes.output=GEX_cluster_genes_output
 ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
-
-#For Platypus version 3
-
-cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = VDJ_GEX_matrix.output[[2]]
-,GEX_cluster_genes.output=GEX_cluster_genes_output
-,n.genes.per.cluster=5,metric="p.value",max.cell=5)
+})
 }
 }

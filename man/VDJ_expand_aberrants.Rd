@@ -39,7 +39,7 @@ Returns a VDJ format dataframe in which cells with more than one VDJ or VJ chain
 Expand the aberrant cells in a VDJ dataframe by converting them into additional rows. Aberrant cells consist of cells with more than 1 VDJ or VJ chain.
 }
 \examples{
-VDJ_expand_aberrants(VDJ = small_vgm[[1]],
+VDJ_expand_aberrants(VDJ = Platypus::small_vgm[[1]],
 chain.to.expand='VDJ.VJ',
 add.barcode.prefix=TRUE, recalculate.clonotype.frequency=FALSE)
 

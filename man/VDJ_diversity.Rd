@@ -34,17 +34,14 @@ Calculates and plots common diversity and overlap measures for repertoires and a
 }
 \examples{
 
-#Calculate shannon index for VDJ CDR3s by sample
 plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 ,metric = "shannon")
 
-#Calculate Gini-simpson and Simpson index for VDJ and VJ CDR3s by sample
 VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 ,feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa"), grouping.column = "sample_id"
 ,metric = "ginisimpson")
 
-#Calculate Jaccard index of J gene usage between two samples
 VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 ,feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 ,metric = "jaccard")

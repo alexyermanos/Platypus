@@ -37,11 +37,11 @@ Loads in and converts input AIRR-compatible tsv file(s) into the Platypus VGM ob
 Note on TRUST4 input: TRUST4 (https://doi.org/10.1038/s41592-021-01142-n2) is a newly alignment tool for VDJ data by the Shirley lab. It is able to also extract VDJ sequences from 10x GEX data. We are actively testing TRUST4 as an alternative to Cellranger and can not give recommendations as of now. This function does support the conversion of TRUST4 airr output data into the Platypus VGM format. In that case, an extra column will be added describing whether the full length VDJ sequence was extracted for any given cell and chain.
 }
 \examples{
-\dontrun{
-
+\donttest{
+try({
 VGM <- PlatypusDB_AIRR_to_VGM(AIRR.input =
 list("~/pathto/s1/airr_rearrangement.tsv", "~pathto/s2/airr_rearrangement.tsv"),
 VDJ.combine = TRUE, group.id = c(1,2), filter.overlapping.barcodes.VDJ = TRUE)
+})
 }
-
 }

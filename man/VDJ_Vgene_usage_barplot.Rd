@@ -36,8 +36,7 @@ Returns a list of ggplot objects which show the distribution of IgH and IgK/L V 
 Produces a barplot with the most frequently used IgH and IgK/L Vgenes.
 }
 \examples{
-\dontrun{
 VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vgm[[1]],
 HC.gene.number = 2, platypus.version = "v3")
-}
+
 }

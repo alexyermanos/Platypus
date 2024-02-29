@@ -42,7 +42,6 @@ Returns a list of ggplot objects which show the stacked distribution of IgH and 
 Produces a stacked barplot with the fraction of the most frequently used IgH and IgK/L Vgenes. This function can be used in combination with the VDJ_Vgene_usage_barplot to vizualize V gene usage per sample and among samples.
 }
 \examples{
-#Platypus v3
 example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
 VDJ = Platypus::small_vgm[[1]], LC.Vgene = TRUE
 ,HC.gene.number = 15, Fraction.HC = 1, platypus.version = "v3")

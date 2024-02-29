@@ -23,7 +23,6 @@ An output object from the VDJ_GEX_matrix function with added columns in VDJ or G
 }
 \examples{
 
-#Adding a new clonotyping method to VDJ
 small_vgm[[1]] <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 clone.strategy="cdr3.nt",
 hierarchical = "single.chains", global.clonotype = TRUE)
@@ -31,15 +30,10 @@ hierarchical = "single.chains", global.clonotype = TRUE)
 small_vgm <- VGM_integrate(
 VGM = small_vgm,
 columns.to.transfer = NULL) #transfer all new columns
-#and update clonotype_id and clonotype_frequency column
-#(as does VDJ_clonotype_v3 in VDJ)
 
 small_vgm <- VGM_integrate(
 VGM = small_vgm,
 columns.to.transfer = c("global_clonotype_id_cdr3.nt"))
-#transfer only selected columns
-
-#Pull genes from GEX and add as metadata column to VDJ
 
 small_vgm <- VGM_integrate(
 small_vgm, genes.to.VDJ = c("CD19","CD24A"),seurat.slot = "counts")

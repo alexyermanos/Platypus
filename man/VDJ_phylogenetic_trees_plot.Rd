@@ -35,7 +35,13 @@ Function to plot phylogenetic trees obtained from VDJ_phylogenetic_trees
 !Requires the ggtree package to be loaded! Plots trees from function VDJ_phylogenetic_trees
 }
 \examples{
-\dontrun{
+\donttest{
+try({
+tree.dfs <- VDJ_phylogenetic_trees(VDJ=Platypus::small_vgm[[1]], sequence.type='VDJ.VJ',
+trimmed=TRUE, as.nucleotide=TRUE, include.germline=TRUE,
+additional.feature.columns=NULL, tree.level='intraclonal',
+output.format='tree.df.list')
 VDJ_phylogenetic_trees_plot(tree.dfs,color.by='clonotype_id', size.by='sequence_frequency')
+})
 }
 }

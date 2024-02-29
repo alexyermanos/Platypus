@@ -66,10 +66,9 @@ Returns a circos plot and a list object with the following elememts for N sample
 Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
 }
 \examples{
-\dontrun{
- usage_circos_VDJVJ <- VDJ_VJ_usage_circos(vgm[[1]])
-
- # print plot:
+\donttest{
+ usage_circos_VDJVJ <- VDJ_VJ_usage_circos(Platypus::small_vgm[[1]])
  usage_circos_VDJVJ[[1]]
 }
+
 }

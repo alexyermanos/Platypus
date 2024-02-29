@@ -34,7 +34,6 @@ Integrates VDJ and gene expression libraries by providing cluster membership seq
 ! For platypus.version == "v3" and VDJ_GEX_matrix output the function will iterate over entries in the sample_id column of the GEX by default.
 }
 \examples{
-#For testing: only a single clonotype in two samples
 small_vgm_cl <- Platypus::small_vgm
 small_vgm_cl[[2]]$clonotype_id_10x <- "clonotype1"
 GEX_phenotype_per_clone(GEX = small_vgm_cl[[2]]

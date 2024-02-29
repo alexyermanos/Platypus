@@ -39,10 +39,9 @@ A list of a ggplot (out[[1]]), the source table or matrix for the plot out[[2]] 
 Yields overlap heatmap and datatable of features or combined features for different samples or groups
 }
 \examples{
-#To test the overlap of CDR3s between multiple samples
 overlap <- VDJ_overlap_heatmap(VDJ = Platypus::small_vgm[[1]]
 ,feature.columns = c("VDJ_cdr3s_aa"),
 grouping.column = "sample_id", axis.label.size = 15
-, plot.type = "ggplot")
+,plot.type = "ggplot")
 
 }

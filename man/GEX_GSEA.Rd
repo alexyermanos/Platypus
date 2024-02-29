@@ -14,8 +14,7 @@ GEX_GSEA(
   Enrichment.Plots,
   my.own.geneset,
   eps,
-  platypus.version,
-  verbose
+  platypus.version
 )
 }
 \arguments{
@@ -23,7 +22,7 @@ GEX_GSEA(
 
 \item{MT.Rb.filter}{Logical, should Mitotic and Ribosomal genes be filtered out of the geneset. True by default.}
 
-\item{filter}{Character vector containing the identifying symbol sequence for the genes which should be filtered out, if MT.Rb.filter == T. By default set to c("MT-", "RPL", "RPS").}
+\item{filter}{Character vector containing the identifying symbol sequence for the genes which should be filtered out, if MT.Rb.filter == TRUE. By default set to c("MT-", "RPL", "RPS").}
 
 \item{path.to.pathways}{Either a path to gmt file containing the gene sets (can be downloaded from MSigDB) or vector where first element specifies species and second element specifies the MSigDB collection abbreviation. E.g.: c("Homo sapiens", "H"). Mouse C7 (immunologic signature) gene set will be used by default.}
 
@@ -38,8 +37,6 @@ GEX_GSEA(
 \item{eps}{Numeric, specifying boundary for calculating the p value in the GSEA.}
 
 \item{platypus.version}{Function works with V2 and V3, no need to set this parameter.}
-
-\item{verbose}{Print run parameters and status to console}
 }
 \value{
 Returns a list containing a tibble with the gene sets and their enrichment scores and Enrichment plots. List element [[1]]: Dataframe with Genesets and statistics. [[2]]: Enrichment plots of top10 Up regulated genesets. [[3]]: Enrichment plots of top10 Down regulated genesets. [[4]]: Enrichment plots of submited gene-sets in parameter Enrichment.Plot.
@@ -50,21 +47,19 @@ Works with the output of GEX_genes_cluster or a custom data frame containing the
 The name of the column containing the metric has to be declared via the input metric.colname.
 }
 \examples{
-\dontrun{
-df <- GEX_cluster_genes(gex_combined[[1]])
+\donttest{
+try({
+df <- GEX_cluster_genes(Platypus::small_vgm[[2]])
 
-#Using gmt file to perform gsea
 output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = TRUE
 , path.to.pathways = "./c5.go.bp.v7.2.symbols.gmt")
 cowplot::plot_grid(plotlist=output[[2]], ncol=2)
-View(gex_gsea[[1]])
 
-#Directly downloading gene set collection from MSigDB to perform gsea
 output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = TRUE
 , path.to.pathways = c("Mus musculus", "C7"))
 
-#Using your own gene list to perform gsea
 output <- GEX_GSEA(GEX.cluster.genes.output =  df[[1]], MT.Rb.filter = TRUE
 , my.own.geneset = my_geneset)
+})
 }
 }

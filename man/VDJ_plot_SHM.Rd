@@ -36,16 +36,13 @@ Returns a list of ggplot objects. out\[\[1\]\] is a boxplot comparing SHM by gro
 Plots for SHM based on MIXCR output generated using the VDJ_call_MIXCR function and appended to the VDJ.GEX.matrix.output
 }
 \examples{
-#Simulating SHM data
 small_vgm <- Platypus::small_vgm
 small_vgm[[1]]$VDJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
 small_vgm[[1]]$VJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
 
-#Standard plots
 SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 , group.by = "sample_id", quantile.label = 0.9)
 
-#Group by transcriptional cluster and label only top 1\\%
 SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 , group.by = "seurat_clusters", quantile.label = 0.99)
 

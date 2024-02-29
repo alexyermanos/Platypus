@@ -39,9 +39,8 @@ A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] be
 Produces and saves a list of volcano plots with each showing differentially expressed genes between pairs groups. If e.g. seurat_clusters used as group.by, a plot will be generated for every pairwise comparison of clusters. For large numbers of this may take longer to run. Only available for platypus v3
 }
 \examples{
-\dontrun{
 GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
 ,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
 ,save.plot = FALSE, save.csv = FALSE)
-}
+
 }

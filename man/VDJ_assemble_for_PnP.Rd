@@ -31,12 +31,12 @@ VDJ_assemble_for_PnP(
 
 \item{write.to.disk}{Boolean. Defaults to TRUE. Whether to save assembled sequences to working directory}
 
-\item{filename}{Character. Output file name for .fasta and .csv files if write.to.disk == T. Defaults to PnP_assembled_seqs.fasta/.csv}
+\item{filename}{Character. Output file name for .fasta and .csv files if write.to.disk == TRUE. Defaults to PnP_assembled_seqs.fasta/.csv}
 
 \item{verbose}{Print runtime message to console. Defaults to FALSE}
 }
 \value{
-Returns the input VGM matrix with one additional column containing the assembles sequences. If write.to.disk == T writes a CSV containing key columns of the VGM as well as a .FASTA file to the current working director (getwd())
+Returns the input VGM matrix with one additional column containing the assembles sequences. If write.to.disk == TRUE writes a CSV containing key columns of the VGM as well as a .FASTA file to the current working director (getwd())
 ! Important notes on column content:
 1. The column "seq_length_check" contains either "passed" or "FAILED". If FAILED, this means that at least one of the sequences (e.g. FRL1) was shorter than 9NTs and therefore considered invalid. Please check for missing sequences if you find any warnings
 2. The column "seq_codon_check" is deemed "passed" if all CDR and FR input sequences of a cell contain only full codons (i.e. are divisible by 3)
@@ -52,11 +52,11 @@ Returns the input VGM matrix with one additional column containing the assembles
 Assembles sequences from MIXCR output into inserts for expression in PnP cells. For detailes check https://doi.org/10.1038/ncomms12535 ! ALWAYS VALIDATE INDIVIDUAL SEQUENCE IN GENEIOUS OR OTHER SOFTWARE BEFORE ORDERING SEQUENCES FOR EXPRESSION ! Check notes on column content below ! Only cells with 1 VDJ and 1 VJ sequence are considered. Warnings are issued if sequences do not pass necessary checks
 }
 \examples{
-\dontrun{
-
+\donttest{
+try({
 VGM_with_PnP_seq <- VDJ_assemble_for_PnP(VDJ.mixcr.matrix = VDJ_call_MIXCR.output
 , id.column = "barcode",species = "mouse", manual_IgKC = "none", manual_2A = "none"
-, manual_VDJLeader = "none", write.to.disk = TRUE, filename = "PnP_seq_example")
-
+, manual_VDJLeader = "none", write.to.disk = FALSE, filename = "PnP_seq_example")
+})
 }
 }

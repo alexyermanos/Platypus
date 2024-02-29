@@ -27,7 +27,8 @@ Large nested list object containing all needed Cellranger outputs to run the VDJ
 Utility function for loading in local dataset as VDJ_GEX_matrix and PlatypusDB compatible R objects. Especially useful when wanting to integrate local and public datasets. This function only imports and does not make changes to format, row and column names. Exception: filtered_contig.fasta are appended to the filtered_contig_annotations.csv as a column for easy access
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 VDJ.in <- list()
 VDJ.in[[1]] <- c("~/VDJ/S1/")
 VDJ.in[[2]] <- c("~/VDJ/S2/")
@@ -35,5 +36,6 @@ GEX.in <- list()
 GEX.in[[1]] <- c("~/GEX/S1/")
 GEX.in[[2]] <- c("~/GEX/S2/")
 PlatypusDB_load_from_disk(VDJ.out.directory.list = VDJ.in, GEX.out.directory.list = GEX.in)
+})
 }
 }

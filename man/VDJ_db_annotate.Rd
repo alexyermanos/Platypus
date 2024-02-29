@@ -26,7 +26,9 @@ VDJ with new columns - antigen information integrated from the antigen databases
 Wraps the VDJ_antigen_integrate function and uses it to annotate a VDJ dataframe with antigen information. Needs to VDJ_db_load to be executed first, with preprocess=T and vgm.names=T to obtain the same column names as in the VDJ (to allow for sequence matching).
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 VDJ_db_annotate(VDJ=VDJ,db.list=db.list,database.features='Epitope',match='cdr3.aa',homology=FALSE)
+})
 }
 }

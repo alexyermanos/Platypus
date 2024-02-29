@@ -33,7 +33,6 @@ Returns a heatmap via Seurat::DoHeatmap of gene expression per clonotype
 Produces a heatmap containing gene expression information at the clonotype level. The rows correspond to different genes that can either be determined by pre-made sets of B or T cell markers, or can be customized by the user. The columns correspond to individual cells and the colors correspond to the different clonotype families.
 }
 \examples{
-#prep the small_vgm sample dataset
 small_vgm <- Platypus::small_vgm
 small_vgm[[2]]$clone_rank <- c(1:nrow(small_vgm[[2]]@meta.data))
 GEX_heatmap(GEX = small_vgm[[2]],b.or.t = "custom"

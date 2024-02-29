@@ -16,17 +16,12 @@ GEX_coexpression_coefficient(GEX, genes, subsample.n, plot.dotmap)
 \item{plot.dotmap}{Boolean. Whether to return a plot}
 }
 \value{
-Returns a dataframe if pot.dotmap == F or a ggplot if plot.dotmap == T detailing the coexpression levels of selected genes within the given cell population
+Returns a dataframe if pot.dotmap == FALSE or a ggplot if plot.dotmap == TRUE detailing the coexpression levels of selected genes within the given cell population
 }
 \description{
 Returns eiter a plot or numeric data of coexpression levels of selected genes.Coexpression \% is calculated as the quotient of double positive cells (counts \> 0) and the sum of total cells positive for either genes.
 }
 \examples{
-#To return a dataframe with coefficients
-#GEX_coexpression_coefficient(GEX = VDJ_GEX_matrix.output[[2]]
-#, genes = c("CD19", "EBF1","SDC1"), subsample.n = "none", plot.dotmap = FALSE)
-
-#To return a dotplot detailing coexpression and overall expression
 GEX_coexpression_coefficient(GEX = Platypus::small_vgm[[2]]
 , genes = c("CD19", "CD83"), subsample.n = "none", plot.dotmap = FALSE)
 }

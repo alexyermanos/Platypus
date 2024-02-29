@@ -41,31 +41,18 @@ However, if majority barcode assignment is used AND "i1-TotalSeq-C0953" is not t
 --> e.g., if 15 cells belong to clonotype1: 3 cells have no assigned barcode, 2 are assigned to "i1-TotalSeq-C0953" and 10 are assigned to "i1-TotalSeq-C0951" --> all 15 cells will have the new sample_id "s1_0951".
 }
 \examples{
-#For Platypus version 3
-
-# 1. If only vdj data (vgm[[1]]) and
-#strict feature barcode assignment is used:
 vgm_expanded_fb <- VGM_expand_featurebarcodes(
 vgm = small_vgm[[1]],
 by.majority.barcodes = FALSE,
 integrate.in.gex=FALSE, vdj.only= TRUE)
 
-# 2. If whole vgm and strict fb assignment is used
-#(gex and vdj - necessary if gene expression analysis
-# of sub-samples is desired):
 vgm_expanded_fb <- VGM_expand_featurebarcodes(
 vgm = small_vgm,
 by.majority.barcodes = FALSE,
 integrate.in.gex=TRUE, vdj.only= FALSE)
 
-# 3. If whole vgm and majority barcode assignement is used
-#(gex and vdj) - necessary if gene expression analysis
-#of sub-samples is desired):
 vgm_expanded_fb <- VGM_expand_featurebarcodes(vgm = small_vgm,
 by.majority.barcodes = TRUE,
 integrate.in.gex=TRUE, vdj.only= FALSE)
 
-#Note: Majority barcode assignment is recommended
-#if the assumption that all cells within one clonotype
-#originate from the same sample sub-group is feasible.
 }

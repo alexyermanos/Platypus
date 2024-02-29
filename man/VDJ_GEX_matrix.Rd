@@ -49,7 +49,7 @@ VDJ_GEX_matrix(
 )
 }
 \arguments{
-\item{VDJ.out.directory.list}{List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: filtered_contig_annotations.csv, clonotypes.csv, concat_ref.fasta, all_contig_annotations.csv (only if trim.and.align == T) and metrics_summary.csv (Optional, will be appended to stats table if get.VDJ.stats == T)}
+\item{VDJ.out.directory.list}{List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: filtered_contig_annotations.csv, clonotypes.csv, concat_ref.fasta, all_contig_annotations.csv (only if trim.and.align == TRUE) and metrics_summary.csv (Optional, will be appended to stats table if get.VDJ.stats == TRUE)}
 
 \item{GEX.out.directory.list}{List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ. These may be paths to cellranger aggr or cellranger multi output directories. In that case, additional matrices found, will be loaded as either GEX or FB (Feature barcodes) depending on the number of features in the matrix.}
 
@@ -132,19 +132,15 @@ VDJ_GEX_matrix(
 \item{verbose}{if TRUE prints runtime info to console. Defaults to TRUE}
 }
 \value{
-Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == F, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
+Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == FALSE, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
 }
 \description{
 This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
 [FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
 }
 \examples{
-\dontrun{
-
-#FOR EXAMPLES see Platypus vignette at https://alexyermanos.github.io/Platypus/index.html
-
-#Run from local directory input. For run from PlatypusDB input see
-#PlatypusDB vignette
+\donttest{
+try({
 VDJ.out.directory.list <- list()
 VDJ.out.directory.list[[1]] <- c("~/VDJ/S1/")
 VDJ.out.directory.list[[2]] <- c("~/VDJ/S2/")
@@ -166,54 +162,6 @@ VDJ.out.directory.list = VDJ.out.directory.list
 ,subsample.barcodes = F
 ,trim.and.align = F
 ,group.id = c(1,2))
-
-# With Feature Barcodes
-## Option 1: Cellranger multi or Cellranger count with --libraries output
-VDJ.out.directory.list <- list()
-VDJ.out.directory.list[[1]] <- "~/VDJ/S1/" #point to outs or per_sample_outs directory content
-VDJ.out.directory.list[[2]] <- "~/VDJ/S2/"
-GEX.out.directory.list <- list()
-GEX.out.directory.list[[1]] <- "~/GEX/S1/"
-GEX.out.directory.list[[2]] <- "~/GEX/S2/" #These directories contain two matrices (GEX and FB)
-VGM <- VDJ_GEX_matrix(
-VDJ.out.directory.list = VDJ.out.directory.list
-,GEX.out.directory.list = GEX.out.directory.list,
-FB.ratio.threshold = 2)
-
-##Option 2: Separate input of FB data from separate Cellranger count run
-VDJ.out.directory.list <- list()
-VDJ.out.directory.list[[1]] <- "~/VDJ/S1/"
-VDJ.out.directory.list[[2]] <- "~/VDJ/S2/"
-GEX.out.directory.list <- list()
-GEX.out.directory.list[[1]] <- "~/GEX/S1/"
-GEX.out.directory.list[[2]] <- "~/GEX/S2/"
-GEX.out.directory.list <- list()
-FB.out.directory.list[[1]] <- "~FB/S1/"
-FB.out.directory.list[[2]] <- "~FB/S1/"
-VGM <- VDJ_GEX_matrix(
-VDJ.out.directory.list = VDJ.out.directory.list,
-GEX.out.directory.list = GEX.out.directory.list,
-FB.out.directory.list = FB.out.directory.list,
-FB.ratio.threshold = 2)
-
-##Option 3: FB input for two datasets of which only one contains FB data
-VDJ.out.directory.list <- list()
-VDJ.out.directory.list[[1]] <- "~/study1/VDJ/S1/"
-VDJ.out.directory.list[[2]] <- "~/study2/VDJ/S1/"
-VDJ.out.directory.list[[3]] <- "~/study2/VDJ/S2/"
-GEX.out.directory.list <- list()
-GEX.out.directory.list[[1]] <- "~/study1/GEX/S1/"
-GEX.out.directory.list[[2]] <- "~/study2/GEX/S1/"
-GEX.out.directory.list[[2]] <- "~/study2/GEX/S2/"
-GEX.out.directory.list <- list()
-FB.out.directory.list[[1]] <- "PLACEHOLDER" #Study 1 does not contain FB data
-FB.out.directory.list[[2]] <- "~/study2/FB/S1/"
-FB.out.directory.list[[3]] <- "~/study2/FB/S2/"
-VGM <- VDJ_GEX_matrix(
-VDJ.out.directory.list = VDJ.out.directory.list,
-GEX.out.directory.list = GEX.out.directory.list,
-FB.out.directory.list = FB.out.directory.list,
-FB.ratio.threshold = 2)
-
+})
 }
 }

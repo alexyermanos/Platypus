@@ -30,31 +30,23 @@ A list of length of samples in VGM containing a AIRR-compatible dataframe for ea
 Exports AIRR compatible tables supplemented with VDJ and GEX information from the Platypus VGM object and the cellranger output airr_rearrangements.tsv
 }
 \examples{
-\dontrun{
-#complete workflow below
-
-#usage with airr rearrangement tables from PlatypusDB_load_from_disk
-#or PlatypusDB_fetch list object
+\donttest{
+try({
 airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 , VDJ.features.to.append = c("VDJ_cdr3s_aa")
 , GEX.features.to.append = c("CTLA4", "TOX"), airr.rearrangements = Data.in)
 
-#usage with airr rearrangement tables from disk
 airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 , VDJ.features.to.append = c("VDJ_cdr3s_aa")
 , GEX.features.to.append = c("CTLA4", "TOX"),
 airr.rearrangements =list("~/path_to/s1/airr.rearrangement.tsv"
 ,"~/path_to/s2/airr_rearrangement.tsv"))
 
-#usage with airr rearrangement tables from objects in R environment
 airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 , VDJ.features.to.append = c("VDJ_cdr3s_aa")
 , GEX.features.to.append = c("CTLA4", "TOX"),
 airr.rearrangements = list(airr_rearrangements.s1, airr_rearrangements_2))
 
-#Complete workflow
-#set paths of cellranger directories containing
-#also the airr_rearrangements.tsv file
 VDJ.out.directory.list <- list()
 VDJ.out.directory.list[[1]] <- c("~/cellrangerVDJ/s1")
 VDJ.out.directory.list[[2]] <- c("~/cellrangerVDJ/s2")
@@ -62,22 +54,17 @@ VDJ.out.directory.list[[2]] <- c("~/cellrangerVDJ/s2")
 GEX.out.directory.list <- list()
 GEX.out.directory.list[[1]] <- c("~/cellrangerGEX/s1")
 GEX.out.directory.list[[2]] <- c("~/cellrangerGEX/s2")
-#Run VGM with GEX and VDJ integration
 VGM <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 GEX.out.directory.list = GEX.out.directory.list,
 GEX.integrate = TRUE, VDJ.combine = TRUE, integrate.GEX.to.VDJ = TRUE
 , integrate.VDJ.to.GEX = TRUE,
 get.VDJ.stats = FALSE, trim.and.align = FALSE)
-#Generate AIRR compatible table supplemented by GEX information
 airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM,
 VDJ.features.to.append = c("VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed"),
 GEX.features.to.append = c("UMAP_1","UMAP_2","CTLA4", "TOX"),
 airr.rearrangements = c("~/cellrangerVDJ/s1/airr_rearrangement.tsv"
 ,"~/cellrangerVDJ/s2/airr_rearrangement.tsv"))
-
-#To save a dataframe as .tsv
-write.table(airr_dataframe, file = "supplemented_airr_rearrangements.tsv"
-, sep='\t', row.names = FALSE, quote=FALSE)
+})
 }
 
 }

@@ -23,7 +23,6 @@ Adds discrete columns containing TRUE / FALSE on whether a given cell is part of
 }
 \examples{
 
-#Add info to whole VGM object
 VGM <- VGM_expanded_clones(
 VGM = Platypus::small_vgm, add.to.VDJ = TRUE, add.to.GEX = TRUE,
 expansion.threshold = 1)

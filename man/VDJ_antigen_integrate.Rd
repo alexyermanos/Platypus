@@ -52,9 +52,11 @@ Either the original VDJ dataframe with additional columns of the antigen feature
 Integrate antigen-specific information from a list of antigen dataframes or antigen csv file paths. The antigen data should contain either the clonotypes, cell barcodes, or sequences with the specific column names of the VDJ/VDJ.GEX.matrix[[1]] object. These columns will be used to rematch the binder information at the cell, sequence, or clonotype level into the main VDJ.GEX.matrix[[1]].
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 VDJ_antigen_integrate(VDJ,antigen.directory.list=antigen.directory.list,
 antigen.feature=c('elisa', 'affinity'),VDJ.VJ.1chain=T,
 match.by='clonotype',sample.id=T, output.format='vgm')
+})
 }
 }

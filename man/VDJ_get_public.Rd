@@ -39,7 +39,7 @@ Either a dataframe of public elements across multiple repertoires or a list.
 Function to get shared elements across multiple repertoires, specified by the feature.columns parameter (a column of the VDJ matrix). If two columns are specified in feature.columns, the resulting shared features will combine the values from each column (at a per-cell level).
 }
 \examples{
-VDJ_get_public(VDJ = small_vgm[[1]],
+VDJ_get_public(VDJ = Platypus::small_vgm[[1]],
 feature.columns='VDJ_cdr3s_aa', find.public.all=TRUE,
 output.format='df')
 

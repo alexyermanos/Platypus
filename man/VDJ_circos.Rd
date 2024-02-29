@@ -51,15 +51,15 @@ Returns a circos plot.
 Plots a Circos diagram from an adjacency matrix. Uses the Circlize chordDiagram function. Is called by VDJ_clonotype_clusters_circos(), VDJ_alpha_beta_Vgene_circos() and VDJ_VJ_usage_circos() functions or works on its own when supplied with an adjacency matrix.
 }
 \examples{
-\dontrun{
-# manual replotting of Circos plot:
-VDJ_circos(Adj_matrix =  VDJ_alpha_beta_Vgene_circos_output[[2]][[1]], 
-  grid.col = VDJ_alpha_beta_Vgene_circos_output[[3]], 
-  group = VDJ_alpha_beta_Vgene_circos_output[[4]], 
-  c.count.label.size = 0.4, 
-  gene.label.size = 0.5, 
-  arr.col = data.frame(c("TRBV10"),c("TRBJ2-7"), c("black")), 
+\donttest{
+try({
+VDJ_circos(Adj_matrix =  VDJ_alpha_beta_Vgene_circos_output[[2]][[1]],
+  grid.col = VDJ_alpha_beta_Vgene_circos_output[[3]],
+  group = VDJ_alpha_beta_Vgene_circos_output[[4]],
+  c.count.label.size = 0.4,
+  gene.label.size = 0.5,
+  arr.col = data.frame(c("TRBV10"),c("TRBJ2-7"), c("black")),
   axis="percent")
-
+})
 }
 }

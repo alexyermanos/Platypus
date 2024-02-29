@@ -24,11 +24,13 @@ data frame with column names that match the VDJ_GEX_matrix output. Can be append
 Formats "VDJ_contigs_annotations.csv" files from cell ranger to match the VDJ_GEX_matrix output using only cells with 1VDJ and 1VJ chain
 }
 \examples{
-\dontrun{
+\donttest{
+try({
 directory.list <- list()
 directory.list[[1]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
 directory.list[[2]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
 filtered_contig_vgm <- VDJ_contigs_to_vgm(directory = directory.list,
 sample.names = c(s3,s4), celltype = "Tcells")
+})
 }
 }
