@@ -28,9 +28,9 @@ AntibodyForests_compare <- function(input,
   
   #2. Check if the input is correct
   if ((length(input) != 2) ||
-      (within.clonotypes == F && class(input[[1]][[1]][[1]][[3]]) != "igraph" && 
+      (within.clonotypes == F && class(input[[1]][[1]][[1]][["igraph"]]) != "igraph" && 
        !("matrix" %in% class(input[[2]]))) ||
-      (within.clonotypes == T && class(input[[1]][[1]][[1]][[1]][[3]]) != "igraph" &&
+      (within.clonotypes == T && class(input[[1]][[1]][[1]][[1]][["igraph"]]) != "igraph" &&
        !("matrix" %in% class(input[[2]][[1]])))){
     stop("The input is not in the correct format.")}
   if(within.clonotypes == T && !(all(names(input[[2]]) %in% names(input[[1]])))){
@@ -92,8 +92,8 @@ AntibodyForests_compare <- function(input,
     for(sample in names(af)){
       for(clonotype in names(af[[sample]])){
         #Only keep trees with a minimum number of nodes (min.nodes)
-        if (igraph::vcount(af[[sample]][[clonotype]][['lineage.tree']]) >= min.nodes){
-          phylo_tree <- AntibodyForests_phylo(af[[sample]][[clonotype]][['lineage.tree']], solve_multichotomies = F)
+        if (igraph::vcount(af[[sample]][[clonotype]][['igraph']]) >= min.nodes){
+          phylo_tree <- AntibodyForests_phylo(af[[sample]][[clonotype]][['igraph']], solve_multichotomies = F)
           phylo_list[[paste0(sample,".",clonotype)]] <- phylo_tree
         }
       }
@@ -104,7 +104,7 @@ AntibodyForests_compare <- function(input,
   }
   
   plot_PC <- function(df, color, name){
-    p <- ggplot2::ggplot(df, aes(x=PC1,y=PC2, color=.data[[color]], label = tree)) +
+    p <- ggplot2::ggplot(df, ggplot2::aes(x=PC1,y=PC2, color=.data[[color]], label = tree)) +
       ggplot2::geom_point(size=5) +
       ggrepel::geom_label_repel()+
       ggplot2::theme_minimal() +

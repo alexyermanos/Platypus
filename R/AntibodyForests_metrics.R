@@ -32,7 +32,7 @@ AntibodyForests_metrics <- function(input,
   if(missing(parallel)){parallel <- FALSE}
   #Check if the input is in the correct format.
   #If multiple.objects is TRUE, multiple AntibodyForests-objects should be in the input list, where the third item in the nested AntibodyForest-object should be of class "igraph"
-  if((multiple.objects == F && class(input[[1]][[1]][[3]]) != "igraph")|| (multiple.objects == T && class(input[[1]][[1]][[1]][[3]]) != "igraph")){
+  if((multiple.objects == F && class(input[[1]][[1]][["igraph"]]) != "igraph")|| (multiple.objects == T && class(input[[1]][[1]][[1]][["igraph"]]) != "igraph")){
     stop("The input is not in the correct AntibodyForests-object format.")}
   # If 'parallel' is set to TRUE but 'num.cores' is not specified, the number of cores is set to all available cores - 1
   if(parallel == TRUE && missing(num.cores)){num.cores <- parallel::detectCores() -1}
@@ -75,7 +75,7 @@ AntibodyForests_metrics <- function(input,
   
   calculate_spectral_density <- function(tree){
     #transform igraph network into bifurcating phylo tree
-    phylo_tree <- AntibodyForests_phylo(tree, solve_multichotomies = F)
+    phylo_tree <- AntibodyForests_phylo(tree, solve_multichotomies = T)
     #Calculate the spectral density of the tree
     sd <- RPANDA::spectR(phylo_tree, meth = "standard")
     return(sd)
@@ -84,35 +84,35 @@ AntibodyForests_metrics <- function(input,
   #Calculate the metrics for a clonotype
   calculate_metrics <- function(clonotype, min.nodes, metrics){
     
-    if (igraph::vcount(clonotype$lineage.tree) >= min.nodes){
+    if (igraph::vcount(clonotype$igraph) >= min.nodes){
       #Create empty vector to store metrics
       metrics_vector <- c()
       
       if ("mean.depth" %in% metrics){
         #Calculate the mean depth for all nodes except the germline
-        depth <- calculate_mean_depth(clonotype$lineage.tree, 
-                                      nodes = igraph::V(clonotype$lineage.tree)[names(igraph::V(clonotype$lineage.tree)) != "germline"])
+        depth <- calculate_mean_depth(clonotype$igraph, 
+                                      nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
         #Add to the metrics vector
         metrics_vector["mean_depth"] <- depth
       }
       
       if ("all.depth" %in% metrics){
         #Calculate the depth for all nodes except the germline
-        all_depth <- calculate_all_depth(clonotype$lineage.tree,
-                                         nodes = igraph::V(clonotype$lineage.tree)[names(igraph::V(clonotype$lineage.tree)) != "germline"])
+        all_depth <- calculate_all_depth(clonotype$igraph,
+                                         nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
         #Add to the metrics vector
         metrics_vector["all_depth"] <- all_depth
       }
       
       if ("sackin.index" %in% metrics){
-        si <- calculate_sackin_index(clonotype$lineage.tree)
+        si <- calculate_sackin_index(clonotype$igraph)
         #Add to the metrics vector
         metrics_vector["sackin_index"] <- si
       }
       
       if ("spectral.density" %in% metrics){
-        if (igraph::vcount(clonotype$lineage.tree) > 3){
-          spectr <- calculate_spectral_density(clonotype$lineage.tree)
+        if (igraph::vcount(clonotype$igraph) > 3){
+          spectr <- calculate_spectral_density(clonotype$igraph)
           #Add to the metrics vector
           metrics_vector["spectral_peakedness"] <- spectr$peakedness
           metrics_vector["spectral_asymmetry"] <- spectr$asymmetry
@@ -145,7 +145,7 @@ AntibodyForests_metrics <- function(input,
               metrics_vector[paste0(feature,"_", group,"_depth")] <- NA
             }else{
               #Calcute the mean depth for the nodes that have this group
-              depth <- calculate_mean_depth(clonotype$lineage.tree, nodes = igraph::V(clonotype$lineage.tree)[nodes])
+              depth <- calculate_mean_depth(clonotype$igraph, nodes = igraph::V(clonotype$igraph)[nodes])
               #Add to the metrics vector
               metrics_vector[paste0(feature,"_", group,"_depth")] <- depth
             }
@@ -156,8 +156,8 @@ AntibodyForests_metrics <- function(input,
       }
       
       # if ("colless.number" %in% metrics){
-      #   if (igraph::vcount(clonotype$lineage.tree) > 2){
-      #     colless <- calculate_colless_number(clonotype$lineage.tree)
+      #   if (igraph::vcount(clonotype$igraph) > 2){
+      #     colless <- calculate_colless_number(clonotype$igraph)
       #     metrics_vector["colless_number"] <- colless
       #   } else {
       #     warning("Tree needs at least 2 nodes (additional to germline) to calculate the colless number.")
@@ -167,7 +167,7 @@ AntibodyForests_metrics <- function(input,
       
       #Standard metrics
       #Total number of nodes
-      nodes <- igraph::vcount(clonotype$lineage.tree)
+      nodes <- igraph::vcount(clonotype$igraph)
       metrics_vector["nr_nodes"] <- nodes
       
       #Total number of cells

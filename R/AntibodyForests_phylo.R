@@ -92,17 +92,17 @@ AntibodyForests_phylo <- function(tree,
   
   #Transform the edge matrix into a phylo tree
   #If there is a node called "germline", root the tree on the germline, otherwise don't root the tree
-  if(any(node_df$node_type == 'germline')){
-    if(length(which(node_df$node_type == 'germline')) > 1){
+  if(any(node_df$name == 'germline')){
+    if(length(which(node_df$name == 'germline')) > 1){
       stop('Cannot create phylo objects for trees with multiple germlines / trees joined with multiple germlines')
     }
-    phylo <- to_phylo(x = edge_matrix, root.edge = which(node_df$node_type == 'germline'))
+    phylo <- to_phylo(x = edge_matrix, root.edge = which(node_df$name == 'germline'))
   }else{
     phylo <- to_phylo(x = edge_matrix)
   }
   
   #Add edge lengths as branch length to the phylo object
-  phylo$edge.length <- edge_df$length
+  phylo$edge.length <- edge_df$edge.length
   
   #Transform polytomies into series of bifurcations
   if(solve_multichotomies){
