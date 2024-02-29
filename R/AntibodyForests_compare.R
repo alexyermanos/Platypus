@@ -8,7 +8,8 @@
 #' 'euclidean'      : Euclidean distance of the number of edges for each leaf (depth) between different trees of the same clonotype.
 #' 'jensen-shannon' : Jensen-Shannon distance between spectral density profilesof trees.
 #' @param visualization.methods The methods to analyze similarity (default PCA)
-#' 'PCA'
+#' 'PCA'            : Scatterplot of the first two principal components. This is usefull when distance.method is "none".
+#' 'MDS'            : Scatterplot of the first two dimensions using multidimensional scaling. Usefull for all distance methods
 #' @param metrics.to.visualize Other metrics from the input to use for visualization.
 #' @return If within.clonotypes = TRUE: Returns a list of distance matrices for each clonotype and various plots based on visualization.methods and metrics.to.visualize. If within.clonotypes = FALSE returns a single distance matrix and various plots based on visualization.methods and metrics.to.visualize.
 #' @export
@@ -79,12 +80,30 @@ AntibodyForests_compare <- function(input,
   calculate_PC <- function(df, to.scale){
     #Run a PCA and save the PCs in a dataframe
     pca_results <- as.data.frame(stats::prcomp(df)$x, scale. = to.scale)
-    
+    #Keep the first two PCs
+    pca_results <- pca_results[,1:2]
+    colnames(pca_results) <- c("Dim1", "Dim2")
     #Add tree names to the dataframe
     pca_results$tree <- rownames(pca_results)
     
     return(pca_results)
   }
+  
+  #Multidimensional scaling
+  calculate_MDS <- function(df, distance.method){
+    #If distance method is "none", a (euclidean) distance structure should first be computed
+    if(distance.method == "none"){
+      distance_matrix <- stats::dist(df, method = "euclidean", diag = T, upper = T)
+    }
+    #Compute classical metric multidimensional scaling
+    results <- as.data.frame(stats::cmdscale(distance_matrix))
+    colnames(results) <- c("Dim1", "Dim2")
+    #Add tree names to the dataframe
+    results$tree <- rownames(results)
+    
+    return(results)
+  }
+  
   
   calculate_JS <- function(af, min.nodes){
     #Convert the igraph trees to phylo trees and store in list
@@ -103,8 +122,8 @@ AntibodyForests_compare <- function(input,
     return(distance_matrix)
   }
   
-  plot_PC <- function(df, color, name){
-    p <- ggplot2::ggplot(df, ggplot2::aes(x=PC1,y=PC2, color=.data[[color]], label = tree)) +
+  plot <- function(df, color, name){
+    p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=.data[[color]], label = tree)) +
       ggplot2::geom_point(size=5) +
       ggrepel::geom_label_repel()+
       ggplot2::theme_minimal() +
@@ -126,40 +145,50 @@ AntibodyForests_compare <- function(input,
     if (distance.method == "none"){
       #Row with NA will be removed for visualization
       distance_matrix <- stats::na.omit(input[[2]])
-    }
+      }
     #If distance.method is "jensen-shannon" use the trees with at least min.nodes in the AntibodyForests-object to calculate distance
     else if (distance.method == "jensen-shannon"){
       distance_matrix <- calculate_JS(input[[1]], min.nodes)
-    }
+      }
     #Store distance matrix (or metric dataframe when distance.method is "none") in the final output
     output[["distance_matrix"]] <- distance_matrix
     
     #2. Visualization
     #Create empty list to store plots
     plot_list <- list()
+    #Create empty list to store dimension reduction results
+    results_list <- list()
     
     if ("PCA" %in% visualization.methods){
       #Calculate the principal components
-      pca_results <- calculate_PC(distance_matrix, to.scale = T)
+      results <- calculate_PC(distance_matrix, to.scale = T)
+      #Store results
+      results_list[["PCA"]] <- results
+      }
+    
+    if ("MDS" %in% visualization.methods){
+      #Calculate the principal components
+      results <- calculate_MDS(distance_matrix, distance.method)
+      #Store results
+      results_list[["MDS"]] <- results
+      }
+    
+    for (method in visualization.methods){
+      #Plot the default and store in plot list
+      plot_list[[paste0(method, "_default")]] <- plot(results_list[[method]], color = "tree", name = method)
       
-      #Plot the PCA, color on tree (default) and store in plot list
-      plot_list[["default"]] <- plot_PC(pca_results, color = "tree", name = "all")
-      
-      #Plot the PCA colored on optional metrics
+      #Plot colored on optional metrics
       if (all(metrics.to.visualize != "none")){
         for (metric in metrics.to.visualize){
-          #Add this metric to the PCA output dataframe
+          #Add this metric to the output dataframe
           metric_df <- stats::na.omit(input[[2]])
-          pca_results[metric] <- as.numeric(metric_df[,metric])
-          
-          #Add extra PCA plot to the output list
-          #Plot the PC1 and PC2 of the distance between the trees and color on metric
-          plot_list[[metric]] <- plot_PC(pca_results, color = metric,
-                                         name = "All trees")
-          }
+          results_list[[method]][metric] <- as.numeric(metric_df[,metric])
+          #Add extra plot to the output list
+          plot_list[[paste0(method, "_", metric)]] <- plot(results_list[[method]], color = metric,
+                                         name = method)
+        }
       }
     }
-    
     #Add the plot list to the output
     output[["plots"]] <- plot_list
   }else if(within.clonotypes == T){
