@@ -7,6 +7,7 @@
 #' 'nr.nodes'         : The total number of nodes
 #' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
+#' 'mean.edge.length' : Mean of the edge lengths between each node and the germline
 #' 'all.depth'        : Number of edges connecting each node to the germline
 #' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
@@ -45,6 +46,16 @@ AntibodyForests_metrics <- function(input,
     depth <- mean(unlist(lapply(paths$epath, length)))
     return(depth)
   }
+  
+  calculate_mean_edge_length <- function(tree, nodes){
+    #Get the total length of shortest paths between each node and the germline
+    distance <- igraph::distances(tree, v = "germline", to = nodes, algorithm = "dijkstra",
+                                    weights = as.numeric(igraph::edge_attr(tree)$edge.length))
+    #Take the mean of these distances
+    distance <- mean(distance)
+    return(distance)
+  }
+    
   
   calculate_all_depth <- function(tree, nodes){
     paths <- igraph::shortest_paths(tree, from = "germline", to = nodes, output = "both")
@@ -102,6 +113,13 @@ AntibodyForests_metrics <- function(input,
                                          nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
         #Add to the metrics vector
         metrics_vector["all_depth"] <- all_depth
+      }
+      
+      if ("mean.edge.length" %in% metrics){
+        mean_edge_length <- calculate_mean_edge_length(clonotype$igraph, 
+                                                       nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
+        #Add to the metrics vector
+        metrics_vector["mean_edge_length"] <- mean_edge_length
       }
       
       if ("sackin.index" %in% metrics){
