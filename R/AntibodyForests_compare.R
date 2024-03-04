@@ -6,7 +6,7 @@
 #' @param distance.method The method to calculate distance (default ...)
 #' 'none'           : No distance metric, analyze similarity directly from tree metrics in the input dataframe(s)
 #' 'euclidean'      : Euclidean distance of the number of edges for each leaf (depth) between different trees of the same clonotype.
-#' 'jensen-shannon' : Jensen-Shannon distance between spectral density profilesof trees.
+#' 'jensen-shannon' : Jensen-Shannon distance between spectral density profiles of trees.
 #' @param visualization.methods The methods to analyze similarity (default PCA)
 #' 'PCA'            : Scatterplot of the first two principal components. This is usefull when distance.method is "none".
 #' 'MDS'            : Scatterplot of the first two dimensions using multidimensional scaling. Usefull for all distance methods
@@ -118,7 +118,7 @@ AntibodyForests_compare <- function(input,
       }
     }
     #Calculate distance 
-    distance_matrix <- RPANDA::JSDtree(phylo = phylo_list, meth = c("standard"))
+    distance_matrix <- RPANDA::JSDtree(phylo = phylo_list, meth = c("normal1"))
     return(distance_matrix)
   }
   
