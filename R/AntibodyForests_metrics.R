@@ -89,7 +89,7 @@ AntibodyForests_metrics <- function(input,
     #transform igraph network into bifurcating phylo tree
     phylo_tree <- AntibodyForests_phylo(tree, solve_multichotomies = F)
     #Calculate the spectral density of the tree
-    sd <- RPANDA::spectR(phylo_tree, meth = "standard")
+    sd <- RPANDA::spectR(phylo_tree, meth = "normal")
     return(sd)
   }
   
