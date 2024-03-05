@@ -8,6 +8,7 @@
 #' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'mean.edge.length' : Mean of the edge lengths between each node and the germline
+#' 'root.edge.length' : Lenght of the edge between the germline and the first node
 #' 'all.depth'        : Number of edges connecting each node to the germline
 #' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
@@ -122,6 +123,12 @@ AntibodyForests_metrics <- function(input,
         metrics_vector["mean_edge_length"] <- mean_edge_length
       }
       
+      if ("root.edge.length" %in% metrics){
+        root_edge_length <- igraph::edge_attr(clonotype$igraph)$edge.length[1]
+        #Add to the metrics vector
+        metrics_vector["root_edge_length"] <- root_edge_length
+      }
+      
       if ("sackin.index" %in% metrics){
         si <- calculate_sackin_index(clonotype$igraph)
         #Add to the metrics vector
@@ -134,11 +141,15 @@ AntibodyForests_metrics <- function(input,
           #Add to the metrics vector
           metrics_vector["spectral_peakedness"] <- spectr$peakedness
           metrics_vector["spectral_asymmetry"] <- spectr$asymmetry
+          metrics_vector["spectral_principal_eigenvalue"] <- spectr$principal_eigenvalue
+          metrics_vector["modalities"] <- spectr$eigengap
         }else {
           warning("Tree needs at least 2 nodes (additional to germline) to calculate spectral density.")
           #Add NA to the metrics vector
           metrics_vector["spectral_peakedness"] <- NA
           metrics_vector["spectral_asymmetry"] <- NA
+          metrics_vector["spectral_principal_eigenvalue"] <- NA
+          metrics_vector["modalities"] <-NA
         }
       }
       

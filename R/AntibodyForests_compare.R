@@ -7,6 +7,7 @@
 #' 'none'           : No distance metric, analyze similarity directly from tree metrics in the input dataframe(s)
 #' 'euclidean'      : Euclidean distance of the number of edges for each leaf (depth) between different trees of the same clonotype.
 #' 'jensen-shannon' : Jensen-Shannon distance between spectral density profiles of trees.
+#' @param distance.metrics If distance.method is "none", these metrics from the metric dataframe will be used to calculate PCA/MDS dimensions.
 #' @param visualization.methods The methods to analyze similarity (default PCA)
 #' 'PCA'            : Scatterplot of the first two principal components. This is usefull when distance.method is "none".
 #' 'MDS'            : Scatterplot of the first two dimensions using multidimensional scaling. Usefull for all distance methods
@@ -18,6 +19,7 @@ AntibodyForests_compare <- function(input,
                                     within.clonotypes,
                                     min.nodes,
                                     distance.method,
+                                    distance.metrics,
                                     visualization.methods,
                                     metrics.to.visualize){
   
@@ -26,6 +28,7 @@ AntibodyForests_compare <- function(input,
   if(missing(within.clonotypes)){within.clonotypes = F}
   if(missing(visualization.methods)){visualization.methods = "PCA"}
   if(missing(metrics.to.visualize)){metrics.to.visualize = "none"}
+  if(missing(distance.metrics)){distance.metrics = "all"}
   
   #2. Check if the input is correct
   if ((length(input) != 2) ||
@@ -78,8 +81,10 @@ AntibodyForests_compare <- function(input,
   
   #Calculate principle components
   calculate_PC <- function(df, to.scale){
+    #make al columns numeric
+    df <- apply(df, 2, as.numeric)
     #Run a PCA and save the PCs in a dataframe
-    pca_results <- as.data.frame(stats::prcomp(df)$x, scale. = to.scale)
+    pca_results <- as.data.frame(stats::prcomp(df, scale. = to.scale)$x)
     #Keep the first two PCs
     pca_results <- pca_results[,1:2]
     colnames(pca_results) <- c("Dim1", "Dim2")
@@ -94,7 +99,7 @@ AntibodyForests_compare <- function(input,
     #If distance method is "none", a (euclidean) distance structure should first be computed
     if(distance.method == "none"){
       distance_matrix <- stats::dist(df, method = "euclidean", diag = T, upper = T)
-    }
+    }else{distance_matrix <- df}
     #Compute classical metric multidimensional scaling
     results <- as.data.frame(stats::cmdscale(distance_matrix))
     colnames(results) <- c("Dim1", "Dim2")
@@ -118,14 +123,17 @@ AntibodyForests_compare <- function(input,
       }
     }
     #Calculate distance 
-    distance_matrix <- RPANDA::JSDtree(phylo = phylo_list, meth = c("normal1"))
+    distance_matrix <- RPANDA::JSDtree(phylo = phylo_list, meth = c("normal2"))
     return(distance_matrix)
   }
   
   plot <- function(df, color, name){
-    p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=.data[[color]], label = tree)) +
+    p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=.data[[color]])) +
       ggplot2::geom_point(size=5) +
-      ggrepel::geom_label_repel()+
+      # ggrepel::geom_label_repel(aes(label = tree))+
+      # ggrepel::geom_label_repel(data = . %>% dplyr::mutate(label = ifelse(tree %in% c("reclonotyped.clonotype41", "reclonotyped.clonotype46"),
+      #                                                              tree, "")),
+      #                           aes(label = label))+
       ggplot2::theme_minimal() +
       ggplot2::theme(text = element_text(size = 20)) +
       ggplot2::ggtitle(name)
@@ -145,6 +153,7 @@ AntibodyForests_compare <- function(input,
     if (distance.method == "none"){
       #Row with NA will be removed for visualization
       distance_matrix <- stats::na.omit(input[[2]])
+      if (all((distance.metrics != "all"))){distance_matrix <- distance_matrix[,distance.metrics]}
       }
     #If distance.method is "jensen-shannon" use the trees with at least min.nodes in the AntibodyForests-object to calculate distance
     else if (distance.method == "jensen-shannon"){
