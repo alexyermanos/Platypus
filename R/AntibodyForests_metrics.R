@@ -153,7 +153,7 @@ AntibodyForests_metrics <- function(input,
         }
       }
       
-      if ("group.depth" %in% metrics){
+      if ("group.node.depth" %in% metrics){
         #Get the unique node features in the input
         if (multiple.objects){
           features <- unique(unlist(lapply(input[[1]],function(a){lapply(a,function(b){lapply(b$nodes, function(c){names(c)[-(1:3)]})})})))
@@ -171,12 +171,12 @@ AntibodyForests_metrics <- function(input,
             nodes <- names(which(lapply(clonotype$nodes, function(x){group %in% x[feature]}) == TRUE))
             if (identical(nodes, character(0))){
               #Add NA to the metrics vector
-              metrics_vector[paste0(feature,"_", group,"_depth")] <- NA
+              metrics_vector[paste0(group,"_node_depth")] <- NA
             }else{
               #Calcute the mean depth for the nodes that have this group
               depth <- calculate_mean_depth(clonotype$igraph, nodes = igraph::V(clonotype$igraph)[nodes])
               #Add to the metrics vector
-              metrics_vector[paste0(feature,"_", group,"_depth")] <- depth
+              metrics_vector[paste0(group,"_node_depth")] <- depth
             }
             
           }
