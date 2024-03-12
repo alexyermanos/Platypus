@@ -85,13 +85,20 @@ AntibodyForests_compare <- function(input,
   # }
   
   calculate_euclidean <- function(df){
+    #save names
+    names <- rownames(df)
+    #make all columns numeric
+    df <- apply(df, 2, as.numeric)
+    #calculate euclidean distance on the scaled dataframe
     distance_matrix <- stats::dist(scale(df), method = "euclidean", diag = T, upper = T)
+
     return(distance_matrix)
   }
   
   #Calculate principle components
   calculate_PC <- function(df, to.scale){
-    #make al columns numeric
+    names <- rownames(df)
+    #make all columns numeric
     df <- apply(df, 2, as.numeric)
     #Run a PCA and save the PCs in a dataframe
     pca_results <- as.data.frame(stats::prcomp(df, scale. = to.scale)$x)
@@ -99,13 +106,14 @@ AntibodyForests_compare <- function(input,
     pca_results <- pca_results[,1:2]
     colnames(pca_results) <- c("Dim1", "Dim2")
     #Add tree names to the dataframe
-    pca_results$tree <- rownames(pca_results)
+    pca_results$tree <- names
     
     return(pca_results)
   }
   
   #Multidimensional scaling
   calculate_MDS <- function(df, distance.method){
+    names <- rownames(df)
     #If distance method is "none", a (euclidean) distance structure should first be computed
     if(distance.method == "none"){
       distance_matrix <- calculate_euclidean(df)
@@ -114,7 +122,7 @@ AntibodyForests_compare <- function(input,
     results <- as.data.frame(stats::cmdscale(distance_matrix))
     colnames(results) <- c("Dim1", "Dim2")
     #Add tree names to the dataframe
-    results$tree <- rownames(results)
+    results$tree <- names
     
     return(results)
   }
@@ -143,21 +151,20 @@ AntibodyForests_compare <- function(input,
       distance_matrix <- calculate_euclidean(distance_matrix)
     }else{distance_matrix <- df}
     
-    #Define the optimal number of clusters based on mediods clustering
-    max_cluster <- dim(distance_matrix)[1]-1
+    #Define the max number of clusters
+    max_cluster <- dim(as.matrix(distance_matrix))[1]-1
+    #Perform clustering
     mediods <- fpc::pamk(distance_matrix,krange=1:max_cluster)
-    clusters <- mediods$pamobject$clustering 
-    
+    clusters <- mediods$pamobject$clustering
+    #Assign the clusters to the tree names
+    names(clusters) <- rownames(df)
     return(clusters)
   }
   
   plot <- function(df, color, name){
     p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=.data[[color]])) +
       ggplot2::geom_point(size=5) +
-      # ggrepel::geom_label_repel(aes(label = tree))+
-      # ggrepel::geom_label_repel(data = . %>% dplyr::mutate(label = ifelse(tree %in% c("reclonotyped.clonotype41", "reclonotyped.clonotype46"),
-      #                                                              tree, "")),
-      #                           aes(label = label))+
+      ggrepel::geom_label_repel(aes(label = tree))+
       ggplot2::theme_minimal() +
       ggplot2::theme(text = element_text(size = 20)) +
       ggplot2::ggtitle(name)
