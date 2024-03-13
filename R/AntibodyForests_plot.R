@@ -70,7 +70,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
     unique_values <- unique(unlist(color_values))
     
     #Specific color scheme for isotypes/VDJ_cgene
-    if (node.color %in% c("isotype", "VDJ_cgene")){
+    if (node.color %in% c("isotype", "VDJ_cgene", "Isotype")){
       color_list <- dplyr::case_match(unique_values,
                                       "IgA" ~ "red",
                                        "IgH" ~ "purple",
