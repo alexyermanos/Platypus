@@ -26,7 +26,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(missing(clonotype)) stop('Please input a clonotype name from the AntibodyForests-object')
   if(!(clonotype %in% names(AntibodyForests_object[[sample]]))) stop("Clonotype name is not in the AntibodyForests-object")
   if(missing(node.color)) node.color <- NULL
-  if(node.color != NULL && !(node.color %in% names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[1]]))) stop("node.color is not in the AntibodyForests-object")
+  if(!(is.null(node.color)) && !(node.color %in% names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[1]]))) stop("node.color is not in the AntibodyForests-object")
   
   
   # Retrieve igraph object from AntibodyForests object
