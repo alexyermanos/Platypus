@@ -10,7 +10,9 @@
 #' If the custom.color parameter is NULL (default), Set1 of the RColorBrewer package will be used.
 #' @param node.size string - If set to "expansion" nodes size relates to the number of cells per node/sequence in this clonotype. If NULL, all nodes have similar size (default).
 #' @param node.size.scale integer - scaling factor for the nodes size, default is 10.
+#' @param node.label boolean - If TRUE plots then node number. Default is FALSE.
 #' @param edge.length string - If set to "distance", the distance calculated by AntibodyForests() will be used as edge length. If NULL (default), all edges will have the same length.
+#' @param legend.position string - "topleft" (default), "topright", "bottomleft", or "bottomright"
 #' @export
 #' @examples
 #' \dontrun{
@@ -26,7 +28,9 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                               custom.colors,
                               node.size,
                               node.size.scale,
-                              edge.length){
+                              node.label,
+                              edge.length,
+                              legend.position){
   
   #Check input and set defaults
   if(missing(AntibodyForests_object)) stop('Please input a AntibodyForests-object, output of AntibodyForests()')
@@ -39,15 +43,21 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(missing(custom.colors)) custom.colors <- NULL
   if(missing(node.size)) node.size <- NULL
   if(missing(node.size.scale)) node.size.scale <- 10
+  if(missing(node.label)) node.label <- F
   if(missing(edge.length)) edge.length <- NULL
+  if(missing(legend.position)) legend.position <- "topleft"
   
   #1. Retrieve igraph object and node information from AntibodyForests-object
   tree <- AntibodyForests_object[[sample]][[clonotype]][["igraph"]]
   nodes <- AntibodyForests_object[[sample]][[clonotype]][["nodes"]]
   
-  #2. Set node labels, germline becomes "G" and remove "node" for the rest of the node labels
-  igraph::V(tree)$label <- ifelse(igraph::V(tree)$name == "germline", "G", 
-                                  ifelse(startsWith(igraph::V(tree)$name, "node"), gsub(pattern = "node", replacement = "", igraph::V(tree)$name), igraph::V(tree)$name))
+  #2. Set node labels
+  if (node.label){
+    #germline becomes "G" and remove "node" for the rest of the node labels
+    igraph::V(tree)$label <- ifelse(igraph::V(tree)$name == "germline", "G", 
+                                    ifelse(startsWith(igraph::V(tree)$name, "node"), gsub(pattern = "node", replacement = "", igraph::V(tree)$name), igraph::V(tree)$name))
+  }else{igraph::V(tree)$label <- NA}
+  
   
   #3. Set node size
   if(is.null(node.size)){igraph::V(tree)$size <- 1}
@@ -61,25 +71,27 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # Scale the node size
   igraph::V(tree)$size <- igraph::V(tree)$size * node.size.scale
   
-  
   #5. Set layout as tree and root on the germline
   layout <- igraph::layout_as_tree(tree, root = "germline")
   
-  # Set edge length
-  # weight.scale <- c(1, as.numeric(igraph::E(tree)$edge.length))
-  # layout[,2] <- weight.scale * layout[,2]
+  #4. Set edge length
+  #igraph::E(tree)$length <- as.numeric(igraph::E(tree)$edge.length)
+  
+  edge_df <- data.frame(length = as.numeric(igraph::E(tree)$edge.length), as_edgelist(tree))
+  layout_df <- data.frame(layout, node = V(tree)$name)
+  
+  for (layer in )
   
   #6. Color the nodes
   # No node color based on features, use default colors and no pie charts
   if (is.null(node.color)){
     # Assign default node colors
-    igraph::V(tree)$color <- ifelse(igraph::V(tree)$label == "G", "orange",
+    igraph::V(tree)$color <- ifelse(igraph::V(tree)$name == "germline", "orange",
                                     ifelse(startsWith(igraph::V(tree)$name, "node"), "lightblue", "grey"))
     
     #7. Plot tree
     igraph::plot.igraph(tree, layout = layout,
-                        vertex.label.dist = 0,
-                        vertex.label.cex = 0.8,
+                        vertex.label = igraph::V(tree)$label,
                         edge.arrow.size = 0.1)
   }
   # Color on node features using pie charts
@@ -147,20 +159,12 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                         vertex.shape = "pie",
                         vertex.pie=color_counts,
                         vertex.pie.color=list(color_list),
-                        vertex.label = NA,
+                        vertex.label = igraph::V(tree)$label,
                         vertex.label.cex = 0.8,
                         edge.arrow.size = 0.1)
     #Add a legend
-    graphics::legend("topleft", legend = unique_values, fill = color_list, title = node.color,
+    graphics::legend(legend.position, legend = unique_values, fill = color_list, title = node.color,
                      cex = 0.7)      
         
   }
-
-    
-
-  
-  
-
-  
-
 }
