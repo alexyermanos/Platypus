@@ -77,10 +77,10 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   #4. Set edge length
   #igraph::E(tree)$length <- as.numeric(igraph::E(tree)$edge.length)
   
-  edge_df <- data.frame(length = as.numeric(igraph::E(tree)$edge.length), as_edgelist(tree))
-  layout_df <- data.frame(layout, node = V(tree)$name)
-  
-  for (layer in )
+  # edge_df <- data.frame(length = as.numeric(igraph::E(tree)$edge.length), as_edgelist(tree))
+  # layout_df <- data.frame(layout, node = V(tree)$name)
+  # 
+  # for (layer in )
   
   #6. Color the nodes
   # No node color based on features, use default colors and no pie charts
