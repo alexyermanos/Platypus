@@ -111,7 +111,7 @@ library(devtools)
 install_github("immunogenomics/harmony")
 ```
 
-\#\#Bioconductor Code for installing the packages from Bioconductor:
+## Bioconductor Code for installing the packages from Bioconductor:
 
 ``` r
 if (!requireNamespace("BiocManager", quietly = TRUE))
