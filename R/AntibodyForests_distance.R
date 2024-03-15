@@ -1,17 +1,20 @@
-#' Function to plot the average number of nodes between nodes from specific groups and the germline of lineage trees constructed with AntibodyForests.
+#' Function to make a grouped boxplot of the average number of nodes between nodes from specific groups and the germline of lineage trees constructed with AntibodyForests.
 #' @description Function to compare trees.
-#' @param input AntibodyForests-object with node features of the groups to compare distance to the germline
-#' @param min.nodes The minimum number of nodes for a tree to be included in this analysis
-#' @param groups Which groups to compare. These groups need to columns in the metric_df (and supplied as node.features in AntibodyForests())
+#' @param input AntibodyForests-object with node features to compare distance to the germline
+#' @param min.nodes The minimum number of nodes for a tree to be included in this analysis (this included the germline)
+#' @param groups Which groups to compare. These groups need to be in the node features of the AntibodyForests-object.
+#' If you want to compare IgM and IgG for example, groups should be c("IgM, "IgG") (not "Isotypes")
 #' @param colors Optionally specific colors for the group (Will be matched to the groups/names on alphabetical order).
 #' @param text.size Font size in the plot (default 20).
+#' @param parallel If TRUE, the metric calculations are parallelized across clonotypes. (default FALSE)
 #' @export
 
 AntibodyForests_distance <- function(input, 
                                      min.nodes,
                                      groups, 
                                      colors,
-                                     text.size){
+                                     text.size,
+                                     parallel){
   
   #Set defaults and check for missing input
   if(missing(input)){stop("Please provide an AntibodyForests-object as input.")}
@@ -19,12 +22,13 @@ AntibodyForests_distance <- function(input,
   if(missing(colors)){colors = scales::hue_pal()(length(groups))}
   if(missing(text.size)){text.size = 20}
   if(missing(min.nodes)){min.nodes = 0}
+  if(missing(parallel)){parallel <- F}
   #Check if group are in the metric dataframe
   #if(!(all(groups %in% colnames(metric_df)))){stop("Groups are not in the column names of the metric dataframe.")}
   
   #Calculate the average distance to the germline per group
   metric_df <- AntibodyForests_metrics(input,
-                                       parallel = T,
+                                       parallel = parallel,
                                        min.nodes = min.nodes,
                                        metrics = "group.node.depth")
   
