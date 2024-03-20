@@ -9,7 +9,6 @@
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'mean.edge.length' : Mean of the edge lengths between each node and the germline
 #' 'root.edge.length' : Lenght of the edge between the germline and the first node
-#' 'all.depth'        : Number of edges connecting each node to the germline
 #' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
 #' 'spectral.density' : Assymetry and peakedness of the spectral density profiles (calculated with package RPANDA)
@@ -58,16 +57,6 @@ AntibodyForests_metrics <- function(input,
   }
     
   
-  calculate_all_depth <- function(tree, nodes){
-    paths <- igraph::shortest_paths(tree, from = "germline", to = nodes, output = "both")
-    #Set names to the list of vpath
-    names(paths$epath) <- names(unlist(lapply(paths$vpath, function(x){tail(x,n=1)})))
-    #Reorder the vpaths according to node number
-    paths$epath <- paths$epath[c("germline",sort(names(paths$epath)[names(paths$epath) != "germline"]))]
-    #Concatenate the depths in a string separated by "_"
-    depths <- paste(unlist(lapply(paths$epath, length)), collapse = "_")
-    return(depths)
-  }
   
   calculate_sackin_index <- function(tree){
     #Get the shortest paths between each node and the germline
@@ -108,13 +97,6 @@ AntibodyForests_metrics <- function(input,
         metrics_vector["mean_depth"] <- depth
       }
       
-      if ("all.depth" %in% metrics){
-        #Calculate the depth for all nodes except the germline
-        all_depth <- calculate_all_depth(clonotype$igraph,
-                                         nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
-        #Add to the metrics vector
-        metrics_vector["all_depth"] <- all_depth
-      }
       
       if ("mean.edge.length" %in% metrics){
         mean_edge_length <- calculate_mean_edge_length(clonotype$igraph, 
@@ -178,9 +160,7 @@ AntibodyForests_metrics <- function(input,
               #Add to the metrics vector
               metrics_vector[paste0(group,"_node_depth")] <- depth
             }
-            
           }
-          
         }
       }
       
@@ -203,135 +183,60 @@ AntibodyForests_metrics <- function(input,
       cells <- sum(unlist(lapply(clonotype$nodes, function(x){length(x$barcodes)})))
       metrics_vector["nr_cells"] <- cells
       
-      
       return(metrics_vector)
     }else{
       return(NA)
     }
-    
-
   }
   
 
 
   # If 'parallel' is set to TRUE, the metric calculation is parallelized across the clonotypes
   if(parallel){
-    
     # Retrieve the operating system
     operating_system <- Sys.info()[['sysname']]
-    
     # If the operating system is Linux or Darwin, 'mclapply' is used for parallelization
     if(operating_system %in% c('Linux', 'Darwin')){
-      #Create a list of metric dataframes if there are multiple AntibodyForests-objects in the input
-      if(multiple.objects == T){
-        #Go over each tree in each of the AntibodyForests objects and create a metric list
-        metric_list <- parallel::mclapply(mc.cores = num.cores, input, function(object){
-          t(as.data.frame(parallel::mclapply(mc.cores = num.cores, object, function(sample){
-            parallel::mclapply(mc.cores = num.cores, sample, function(clonotype){
-              calculate_metrics(clonotype, min.nodes, metrics)
-
-            })
-          })))
+      #Go over each tree in the AntibodyForests object and create a metric dataframe
+      metric_df <- t(as.data.frame(parallel::mclapply(mc.cores = num.cores,input, function(sample){
+        parallel::mclapply(mc.cores = num.cores,sample, function(clonotype){
+          calculate_metrics(clonotype, min.nodes, metrics)
         })
-
-        #Only keep rows that have enough nodes (nr_nodes != NA)
-        metric_list <- lapply(metric_list, function(metric_df){
-          metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
-        })
-        return(metric_list)
-      }
-      #Create a single metric dataframe if there is only one AntibodyForests-object in the input
-      else if(multiple.objects == F){
-        #Go over each tree in the AntibodyForests object and create a metric dataframe
-        metric_df <- t(as.data.frame(parallel::mclapply(mc.cores = num.cores,input, function(sample){
-          parallel::mclapply(mc.cores = num.cores,sample, function(clonotype){
-            calculate_metrics(clonotype, min.nodes, metrics)
-
-          })
-        })))
-        #Only keep rows that have enough nodes (nr_nodes != NA)
-        metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
-        return(metric_df)
-      }
+      })))
+      #Only keep rows that have enough nodes (nr_nodes != NA)
+      metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
+      return(metric_df)
     }
-    
     # If the operating system is Windows, "parLapply" is used for parallelization
     if(operating_system == "Windows"){
       # Create cluster
       cluster <- parallel::makeCluster(num.cores)
       
-      if(multiple.objects == T){
-        #Go over each tree in each of the AntibodyForests objects and create a metric list
-        metric_list <- parallel::parLapply(cluster, input, function(object){
-          t(as.data.frame(parallel::parLapply(cluster, object, function(sample){
-            parallel::parLapply(cluster, sample, function(clonotype){
-              calculate_metrics(clonotype, min.nodes, metrics)
-
-            })
-          })))
+      #Go over each tree in the AntibodyForests object and create a metric dataframe
+      metric_df <- t(as.data.frame(parallel::parLapply(cluster,input, function(sample){
+        parallel::parLapply(cluster,sample, function(clonotype){
+          calculate_metrics(clonotype, min.nodes, metrics)
         })
-        # Stop cluster
-        parallel::stopCluster(cluster)
-        
-        #Only keep rows that have enough nodes (nr_nodes != NA)
-        metric_list <- lapply(metric_list, function(metric_df){
-          metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
-        })
-        return(metric_list)
-      }
-      #Create a single metric dataframe if there is only one AntibodyForests-object in the input
-      else if(multiple.objects == F){
-        #Go over each tree in the AntibodyForests object and create a metric dataframe
-        metric_df <- t(as.data.frame(parallel::parLapply(cluster,input, function(sample){
-          parallel::parLapply(cluster,sample, function(clonotype){
-            calculate_metrics(clonotype, min.nodes, metrics)
-
-          })
-        })))
-        # Stop cluster
-        parallel::stopCluster(cluster)
-        
-        #Only keep rows that have enough nodes (nr_nodes != NA)
-        metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
-        return(metric_df)
-      }
-
+      })))
+      # Stop cluster
+      parallel::stopCluster(cluster)
+      #Only keep rows that have enough nodes (nr_nodes != NA)
+      metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
+      return(metric_df)
     }
-    
   }
-  
   # If 'parallel' is set to FALSE, the network inference is not parallelized
   if(!parallel){
-    #Create a list of metric dataframes if there are multiple AntibodyForests-objects in the input
-    if(multiple.objects == T){
-      #Go over each tree in each of the AntibodyForests objects and create a metric list
-      metric_list <- lapply(input, function(object){
-        t(as.data.frame(lapply(object, function(sample){
-          lapply(sample, function(clonotype){
-            calculate_metrics(clonotype, min.nodes, metrics)
-          })
-        })))
-      })
-      
-      #Only keep rows that have enough nodes (nr_nodes != NA)
-      metric_list <- lapply(metric_list, function(metric_df){
-        metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
-      })
-      return(metric_list)
-    }
-    #Create a single metric dataframe if there is only one AntibodyForests-object in the input
-    else if(multiple.objects == F){
       #Go over each tree in the AntibodyForests object and create a metric dataframe
       metric_df <- t(as.data.frame(lapply(input, function(sample){
         lapply(sample, function(clonotype){
           calculate_metrics(clonotype, min.nodes, metrics)
         })
       })))
-      
       #Only keep rows that have enough nodes (nr_nodes != NA)
       metric_df <- metric_df[which(is.na(metric_df[,ncol(metric_df)]) == FALSE),]
       return(metric_df)
-    }
+    
   }
   
   
