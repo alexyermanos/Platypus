@@ -116,7 +116,7 @@ AntibodyForests_compare_trees <- function(input,
     mediods <- fpc::pamk(distance_matrix,krange=1:max_cluster)
     clusters <- mediods$pamobject$clustering
     #Assign the clusters to the tree names
-    names(clusters) <- rownames(df)
+    names(clusters) <- labels(df)
     return(clusters)
   }
   
@@ -147,12 +147,30 @@ AntibodyForests_compare_trees <- function(input,
   
   #Plot the first two dimensions of a PCA or MDS
   plot <- function(df, color, name){
-    p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=.data[[color]])) +
+    p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=as.factor(.data[[color]]))) +
       ggplot2::geom_point(size=5) +
       ggrepel::geom_label_repel(ggplot2::aes(label = tree))+
       ggplot2::theme_minimal() +
       ggplot2::theme(text = ggplot2::element_text(size = 20)) +
       ggplot2::ggtitle(name)
+    
+    return(p)
+  }
+  
+  #Plot a heatmap of the distance matrix
+  heatmap <- function(df, clusters){
+    #If there are clusters make clustered heatmap
+    if(!(is.null(clusters))){
+      #Make df of the clusters
+      clusters <- as.data.frame(clusters)
+      colnames(clusters) <- "cluster"
+      clusters$cluster <- as.factor(clusters$cluster)
+      #Plot the clustered heatmap
+      p <- pheatmap::pheatmap(as.matrix(df),
+                         annotation_col = clusters)
+    }
+    #If there are no clusters
+    else{p <- pheatmap::pheatmap(as.matrix(df))}
     
     return(p)
   }
@@ -297,7 +315,21 @@ AntibodyForests_compare_trees <- function(input,
         }else{
           temp_list[["MDS"]] = "Need at least 3 trees to compute MDS"
         }
-
+      }
+      #Heatmap
+      if("heatmap" %in% visualization.methods){
+        #If there are clusters calculated
+        if(!(is.null(clustering.method))){
+          #Create plot
+          hm <- heatmap(distance_matrix, clusters = clusters)
+        }
+        #If there are no clusters
+        else{
+          #Create plot
+          hm <- heatmap(distance_matrix, clusters = NULL)
+        }
+        #Add to the list
+        temp_list[["Heatmap"]] <- hm
       }
       
     }
