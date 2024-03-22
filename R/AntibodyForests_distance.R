@@ -32,6 +32,9 @@ AntibodyForests_distance <- function(input,
                                        min.nodes = min.nodes,
                                        metrics = "group.node.depth")
   
+  #Error if zero or only one tree is in the metric_df
+  if(is.null(nrow(metric_df))){stop("Your AntibodyForests-object does not have enough trees that pass the min.nodes threshold.")}
+
   #Get the column of the groups to compare
   df <- as.data.frame(metric_df[,paste0(groups,"_node_depth")])
   

@@ -11,7 +11,11 @@
 #' 'root.edge.length' : Lenght of the edge between the germline and the first node
 #' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
-#' 'spectral.density' : Assymetry and peakedness of the spectral density profiles (calculated with package RPANDA)
+#' 'spectral.density' : Metrics of the spectral density profiles (calculated with package RPANDA)
+#'    - peakedness            : Tree balance
+#'    - asymmetry             : Shallow or deep branching events
+#'    - principal eigenvalue  : Phylogenetic diversity
+#'    - modalities            : The number of different structures within the tree
 #' 'colless.number'   : Sum of the absolute difference between the number of left- and right descendants for each node (this requires a tree to be binary!)
 #' @param parallel If TRUE, the metric calculations are parallelized across AntibodyForests-objects. (default FALSE)
 #' @param num.cores Number of cores to be used when parallel = TRUE. (Defaults to all available cores - 1)
