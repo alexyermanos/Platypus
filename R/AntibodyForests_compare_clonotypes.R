@@ -1,29 +1,32 @@
 #' Function to compare tree topology of B cell lineages
 #' @description Function to compare trees of clonotypes.
-#' @param input Alist with an AntibodyForests-object (input[[1]]) and a metrics-dataframe (input[[2]]).
-#' @param min.nodes The minimum number of nodes in a tree to include in the comparison
-#' @param distance.method The method to calculate distance (default ...)
+#' @param input - list - A list with an AntibodyForests-object (input[[1]]) and a metrics-dataframe (input[[2]]).
+#' @param min.nodes - integer - The minimum number of nodes in a tree to include in the comparison
+#' @param distance.method - string - The method to calculate distance (default ...)
 #' 'none'           : No distance metric, analyze similarity directly from tree metrics in the input dataframe(s)
 #' 'euclidean'      : 
 #' 'jensen-shannon' : Jensen-Shannon distance between spectral density profiles of trees.
-#' @param distance.metrics If distance.method is "none", these metrics from the metric dataframe will be used to calculate PCA/MDS dimensions.
-#' @param clustering.method Method to cluster trees (default none)
+#' @param distance.metrics - string - If distance.method is "none" or "euclidean", these metrics from the metric dataframe will be used to calculate clusters and PCA/MDS dimensions.
+#' @param clustering.method - string - Method to cluster trees (default none)
 #' 'none'           : No clustering
 #' 'mediods'        : Clustering based on the k-mediods method. The number of clusters is estimated based on the optimum average silhouette.
-#' @param visualization.methods The methods to analyze similarity (default PCA)
+#' @param visualization.methods - string - The methods to analyze similarity (default PCA)
 #' 'PCA'            : Scatterplot of the first two principal components. This is usefull when distance.method is "none".
 #' 'MDS'            : Scatterplot of the first two dimensions using multidimensional scaling. Usefull for all distance methods
-#' @param metrics.to.visualize Other metrics from the input to use for visualization.
-#' @return Returns a distance matrix and various plots based on visualization.methods and metrics.to.visualize.
+#' 'heatmap'        : A (clustered) heatmap of the distance between clonotypes. If distance.method is "none", euclidean distance will be calculated.
+#' @param metrics.to.visualize - string - Other metrics from the input to use for visualization.
+#' @param plot.label - boolean - Label clonotypes in the PCA/MDS plot (default FALSE)
+#' @return - list - Returns a distance matrix, clustering, and various plots based on visualization.methods and metrics.to.visualize.
 #' @export
 
-AntibodyForests_compare <- function(input,
+AntibodyForests_compare_clonotypes <- function(input,
                                     min.nodes,
                                     distance.method,
                                     distance.metrics,
                                     clustering.method,
                                     visualization.methods,
-                                    metrics.to.visualize){
+                                    metrics.to.visualize,
+                                    plot.label){
   
   #1. Set defaults and check for missing input
   if(missing(input)){stop("Please provide a valid input object.")}
@@ -31,6 +34,7 @@ AntibodyForests_compare <- function(input,
   if(missing(metrics.to.visualize)){metrics.to.visualize = "none"}
   if(missing(distance.metrics)){distance.metrics = "all"}
   if(missing(clustering.method)){clustering.method = "none"}
+  if(missing(plot.label)){plot.label = F}
   
   #2. Check if the input is correct
   if ((length(input) != 2) ||
@@ -48,6 +52,8 @@ AntibodyForests_compare <- function(input,
     names <- rownames(df)
     #make all columns numeric
     df <- apply(df, 2, as.numeric)
+    #Add rownames
+    rownames(df) <- names
     #calculate euclidean distance on the scaled dataframe
     distance_matrix <- stats::dist(scale(df), method = "euclidean", diag = T, upper = T)
 
@@ -56,6 +62,9 @@ AntibodyForests_compare <- function(input,
   
   #Calculate principle components
   calculate_PC <- function(df, to.scale){
+    #Make sure df is a matrix
+    df <- as.matrix(df)
+    #Save names for later
     names <- rownames(df)
     #make all columns numeric
     df <- apply(df, 2, as.numeric)
@@ -66,7 +75,6 @@ AntibodyForests_compare <- function(input,
     colnames(pca_results) <- c("Dim1", "Dim2")
     #Add tree names to the dataframe
     pca_results$tree <- names
-    
     return(pca_results)
   }
   
@@ -116,17 +124,38 @@ AntibodyForests_compare <- function(input,
     mediods <- fpc::pamk(distance_matrix,krange=1:max_cluster)
     clusters <- mediods$pamobject$clustering
     #Assign the clusters to the tree names
-    names(clusters) <- rownames(df)
+    names(clusters) <- labels(as.matrix(distance_matrix))[[1]]
     return(clusters)
   }
   
-  plot <- function(df, color, name){
+  plot <- function(df, color, name, plot.label){
     p <- ggplot2::ggplot(df, ggplot2::aes(x=Dim1,y=Dim2, color=.data[[color]])) +
       ggplot2::geom_point(size=5) +
-      ggrepel::geom_label_repel(ggplot2::aes(label = tree))+
       ggplot2::theme_minimal() +
       ggplot2::theme(text = ggplot2::element_text(size = 20)) +
       ggplot2::ggtitle(name)
+    
+    if(plot.label){
+      p <- p + ggrepel::geom_label_repel(ggplot2::aes(label = tree))
+    }
+    
+    return(p)
+  }
+  
+  #Plot a heatmap of the distance matrix
+  heatmap <- function(df, clusters){
+    #If there are clusters make clustered heatmap
+    if(!(is.null(clusters))){
+      #Make df of the clusters
+      clusters <- as.data.frame(clusters)
+      colnames(clusters) <- "cluster"
+      clusters$cluster <- as.factor(clusters$cluster)
+      #Plot the clustered heatmap
+      p <- pheatmap::pheatmap(as.matrix(df),
+                              annotation_col = clusters)
+    }
+    #If there are no clusters
+    else{p <- pheatmap::pheatmap(as.matrix(df))}
     
     return(p)
   }
@@ -187,14 +216,22 @@ AntibodyForests_compare <- function(input,
   plot_list <- list()
   for (method in visualization.methods){
     #Plot the default and store in plot list
-    plot_list[[paste0(method, "_default")]] <- plot(results_list[[method]], color = "tree", name = method)
+    if(method == "heatmap" && clustering.method == "none"){
+      plot_list[[paste0(method, "_default")]] <- heatmap(distance_matrix, cluster = NULL)
+    }else if(method != "heatmap"){
+      plot_list[[paste0(method, "_default")]] <- plot(results_list[[method]], color = "tree", name = method, plot.label) 
+    }
     
     #Plot the clustering
     if (clustering.method != "none"){
-      #Connect the clustering to the dimensions
-      cluster_df <- cbind(results_list[[method]], cluster = as.factor(output[["clustering"]]))
-      #Plot the clusters and store in plot list
-      plot_list[[paste0(method, "_clusters")]] <- plot(cluster_df, color = "cluster", name = method)
+      if(method == "heatmap"){
+        plot_list[[paste0(method, "_clusters")]] <- heatmap(distance_matrix, cluster = clusters)
+      }else{
+        #Connect the clustering to the dimensions
+        cluster_df <- cbind(results_list[[method]], cluster = as.factor(output[["clustering"]]))
+        #Plot the clusters and store in plot list
+        plot_list[[paste0(method, "_clusters")]] <- plot(cluster_df, color = "cluster", name = method, plot.label)
+      }
     }
     
     #Plot colored on optional metrics
@@ -205,7 +242,7 @@ AntibodyForests_compare <- function(input,
         results_list[[method]][metric] <- as.numeric(metric_df[,metric])
         #Add extra plot to the output list
         plot_list[[paste0(method, "_", metric)]] <- plot(results_list[[method]], color = metric,
-                                       name = method)
+                                       name = method, plot.label)
       }
     }
   }
