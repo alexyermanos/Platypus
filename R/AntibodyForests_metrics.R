@@ -3,7 +3,7 @@
 #' @param input AntibodyForests-object(s), output from AntibodyForests()
 #' @param min.nodes The minimum number of nodes in a tree to calculate metrics.
 #' @param multiple.objects If TRUE: input should contain multiple AntibodyForests-objects (default FALSE)
-#' @param metrics The metrics to be calculated (default mean.depth)
+#' @param metrics The metrics to be calculated (default mean.depth and nr.nodes)
 #' 'nr.nodes'         : The total number of nodes
 #' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
@@ -17,7 +17,7 @@
 #'    - principal eigenvalue  : Phylogenetic diversity
 #'    - modalities            : The number of different structures within the tree
 #' 'colless.number'   : Sum of the absolute difference between the number of left- and right descendants for each node (this requires a tree to be binary!)
-#' @param parallel If TRUE, the metric calculations are parallelized across AntibodyForests-objects. (default FALSE)
+#' @param parallel If TRUE, the metric calculations are parallelized (default FALSE)
 #' @param num.cores Number of cores to be used when parallel = TRUE. (Defaults to all available cores - 1)
 #' @return Returns a dataframe where the rows are trees and the columns are metrics
 #' @export
@@ -33,7 +33,7 @@ AntibodyForests_metrics <- function(input,
   if(missing(input)){stop("Please provide a valid input object.")}
   #Set defaults
   if(missing(multiple.objects)){multiple.objects = F}
-  if(missing(metrics)){metrics <- "mean.depth"}
+  if(missing(metrics)){metrics <- c("mean.depth", "nr.nodes")}
   if(missing(parallel)){parallel <- FALSE}
   #Check if the input is in the correct format.
   #If multiple.objects is TRUE, multiple AntibodyForests-objects should be in the input list, where the third item in the nested AntibodyForest-object should be of class "igraph"
@@ -98,7 +98,7 @@ AntibodyForests_metrics <- function(input,
         depth <- calculate_mean_depth(clonotype$igraph, 
                                       nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
         #Add to the metrics vector
-        metrics_vector["mean_depth"] <- depth
+        metrics_vector["mean.depth"] <- depth
       }
       
       
@@ -106,35 +106,35 @@ AntibodyForests_metrics <- function(input,
         mean_edge_length <- calculate_mean_edge_length(clonotype$igraph, 
                                                        nodes = igraph::V(clonotype$igraph)[names(igraph::V(clonotype$igraph)) != "germline"])
         #Add to the metrics vector
-        metrics_vector["mean_edge_length"] <- mean_edge_length
+        metrics_vector["mean.edge.length"] <- mean_edge_length
       }
       
       if ("root.edge.length" %in% metrics){
         root_edge_length <- igraph::edge_attr(clonotype$igraph)$edge.length[1]
         #Add to the metrics vector
-        metrics_vector["root_edge_length"] <- root_edge_length
+        metrics_vector["root.edge.length"] <- root_edge_length
       }
       
       if ("sackin.index" %in% metrics){
         si <- calculate_sackin_index(clonotype$igraph)
         #Add to the metrics vector
-        metrics_vector["sackin_index"] <- si
+        metrics_vector["sackin.index"] <- si
       }
       
       if ("spectral.density" %in% metrics){
         if (igraph::vcount(clonotype$igraph) > 3){
           spectr <- calculate_spectral_density(clonotype$igraph)
           #Add to the metrics vector
-          metrics_vector["spectral_peakedness"] <- spectr$peakedness
-          metrics_vector["spectral_asymmetry"] <- spectr$asymmetry
-          metrics_vector["spectral_principal_eigenvalue"] <- spectr$principal_eigenvalue
+          metrics_vector["spectral.peakedness"] <- spectr$peakedness
+          metrics_vector["spectral.asymmetry"] <- spectr$asymmetry
+          metrics_vector["spectral.principal.eigenvalue"] <- spectr$principal_eigenvalue
           metrics_vector["modalities"] <- spectr$eigengap
         }else {
           warning("Tree needs at least 2 nodes (additional to germline) to calculate spectral density.")
           #Add NA to the metrics vector
-          metrics_vector["spectral_peakedness"] <- NA
-          metrics_vector["spectral_asymmetry"] <- NA
-          metrics_vector["spectral_principal_eigenvalue"] <- NA
+          metrics_vector["spectral.peakedness"] <- NA
+          metrics_vector["spectral.asymmetry"] <- NA
+          metrics_vector["spectral.principal.eigenvalue"] <- NA
           metrics_vector["modalities"] <-NA
         }
       }
@@ -178,14 +178,18 @@ AntibodyForests_metrics <- function(input,
       #   }
       # }
       
-      #Standard metrics
+
       #Total number of nodes
-      nodes <- igraph::vcount(clonotype$igraph)
-      metrics_vector["nr_nodes"] <- nodes
+      if ("nr.nodes" %in% metrics){
+        nodes <- igraph::vcount(clonotype$igraph)
+        metrics_vector["nr.nodes"] <- nodes
+      }
       
       #Total number of cells
-      cells <- sum(unlist(lapply(clonotype$nodes, function(x){length(x$barcodes)})))
-      metrics_vector["nr_cells"] <- cells
+      if ("nr.cells" %in% metrics){
+        cells <- sum(unlist(lapply(clonotype$nodes, function(x){length(x$barcodes)})))
+        metrics_vector["nr.cells"] <- cells
+      }
       
       return(metrics_vector)
     }else{
