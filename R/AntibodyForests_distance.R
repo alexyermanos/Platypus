@@ -41,7 +41,7 @@ AntibodyForests_distance <- function(input,
   if(is.null(nrow(metric_df))){stop("Your AntibodyForests-object does not have enough trees that pass the min.nodes threshold.")}
   
   #Get the column of the groups to compare
-  df <- as.data.frame(metric_df[,paste0(groups,"_node_depth")])
+  df <- as.data.frame(metric_df[,paste0(groups,".node.depth")])
   
   #Add clonotype as column
   df$clonotype <- rownames(df)
@@ -65,7 +65,7 @@ AntibodyForests_distance <- function(input,
     ggplot2::theme_classic() +
     ggplot2::theme(text = ggplot2::element_text(size = text.size),
                    legend.position = "none")  +
-    ggplot2::scale_x_discrete(breaks=paste0(groups,"_node_depth"),
+    ggplot2::scale_x_discrete(breaks=paste0(groups,".node.depth"),
                      labels=groups) +
     ggplot2::ggtitle(paste0("Distance (", distance, ") to germline"))
 
