@@ -8,7 +8,6 @@
 #' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'mean.edge.length' : Mean of the edge lengths between each node and the germline
-#' 'root.edge.length' : Lenght of the edge between the germline and the first node
 #' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
 #' 'spectral.density' : Metrics of the spectral density profiles (calculated with package RPANDA)
@@ -109,11 +108,6 @@ AntibodyForests_metrics <- function(input,
         metrics_vector["mean.edge.length"] <- mean_edge_length
       }
       
-      if ("root.edge.length" %in% metrics){
-        root_edge_length <- igraph::edge_attr(clonotype$igraph)$edge.length[1]
-        #Add to the metrics vector
-        metrics_vector["root.edge.length"] <- root_edge_length
-      }
       
       if ("sackin.index" %in% metrics){
         si <- calculate_sackin_index(clonotype$igraph)
@@ -157,12 +151,41 @@ AntibodyForests_metrics <- function(input,
             nodes <- names(which(lapply(clonotype$nodes, function(x){group %in% x[feature]}) == TRUE))
             if (identical(nodes, character(0))){
               #Add NA to the metrics vector
-              metrics_vector[paste0(group,"_node_depth")] <- NA
+              metrics_vector[paste0(group,".node.depth")] <- NA
             }else{
               #Calcute the mean depth for the nodes that have this group
               depth <- calculate_mean_depth(clonotype$igraph, nodes = igraph::V(clonotype$igraph)[nodes])
               #Add to the metrics vector
-              metrics_vector[paste0(group,"_node_depth")] <- depth
+              metrics_vector[paste0(group,".node.depth")] <- depth
+            }
+          }
+        }
+      }
+      
+      if ("group.edge.length" %in% metrics){
+        #Get the unique node features in the input
+        if (multiple.objects){
+          features <- unique(unlist(lapply(input[[1]],function(a){lapply(a,function(b){lapply(b$nodes, function(c){names(c)[-(1:3)]})})})))
+        }else{features <- unique(unlist(lapply(input,function(a){lapply(a,function(b){lapply(b$nodes, function(c){names(c)[-(1:3)]})})})))}
+        
+        #Loop over the node features
+        for (feature in features){
+          #Get the unique elements in this group
+          if (multiple.objects){
+            groups <- unique(unlist(lapply(input[[1]],function(a){lapply(a,function(b){lapply(b$nodes, function(c){c[[feature]]})})})))
+          }else{groups <- unique(unlist(lapply(input,function(a){lapply(a,function(b){lapply(b$nodes, function(c){c[[feature]]})})})))}
+          
+          for (group in groups){
+            #Take the nodes have a cell of this group
+            nodes <- names(which(lapply(clonotype$nodes, function(x){group %in% x[feature]}) == TRUE))
+            if (identical(nodes, character(0))){
+              #Add NA to the metrics vector
+              metrics_vector[paste0(group,".node.depth")] <- NA
+            }else{
+              #Calcute the mean depth for the nodes that have this group
+              depth <- calculate_mean_edge_length(clonotype$igraph, nodes = igraph::V(clonotype$igraph)[nodes])
+              #Add to the metrics vector
+              metrics_vector[paste0(group,".node.depth")] <- depth
             }
           }
         }

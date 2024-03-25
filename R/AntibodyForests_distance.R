@@ -1,6 +1,9 @@
-#' Function to make a grouped boxplot of the average number of nodes between nodes from specific groups and the germline of lineage trees constructed with AntibodyForests.
+#' Function to make a grouped boxplot of distance between nodes from specific groups and the germline of lineage trees constructed with AntibodyForests.
 #' @description Function to compare trees.
 #' @param input AntibodyForests-object with node features to compare distance to the germline
+#' @param distance - string - How to calculate the distance to the germline.
+#' 'node.depth'     : Average of the sum of nodes on the shortest parth between germline and nodes from this group. (Default)
+#' 'edge.length'    : Average of the sum of edge length of the shortest path between germline and nodes from this group.
 #' @param min.nodes The minimum number of nodes for a tree to be included in this analysis (this included the germline)
 #' @param groups Which groups to compare. These groups need to be in the node features of the AntibodyForests-object.
 #' If you want to compare IgM and IgG for example, groups should be c("IgM, "IgG") (not "Isotypes")
@@ -9,7 +12,8 @@
 #' @param parallel If TRUE, the metric calculations are parallelized across clonotypes. (default FALSE)
 #' @export
 
-AntibodyForests_distance <- function(input, 
+AntibodyForests_distance <- function(input,
+                                     distance,
                                      min.nodes,
                                      groups, 
                                      colors,
@@ -20,6 +24,7 @@ AntibodyForests_distance <- function(input,
   if(missing(input)){stop("Please provide an AntibodyForests-object as input.")}
   if(missing(groups)){stop("Please provide groups to compare.")}
   if(missing(colors)){colors = scales::hue_pal()(length(groups))}
+  if(missing(distance)){distance = "node.depth"}
   if(missing(text.size)){text.size = 20}
   if(missing(min.nodes)){min.nodes = 0}
   if(missing(parallel)){parallel <- F}
@@ -30,11 +35,11 @@ AntibodyForests_distance <- function(input,
   metric_df <- AntibodyForests_metrics(input,
                                        parallel = parallel,
                                        min.nodes = min.nodes,
-                                       metrics = "group.node.depth")
+                                       metrics = paste0("group.",distance))
   
   #Error if zero or only one tree is in the metric_df
   if(is.null(nrow(metric_df))){stop("Your AntibodyForests-object does not have enough trees that pass the min.nodes threshold.")}
-
+  
   #Get the column of the groups to compare
   df <- as.data.frame(metric_df[,paste0(groups,"_node_depth")])
   
@@ -62,6 +67,6 @@ AntibodyForests_distance <- function(input,
                    legend.position = "none")  +
     ggplot2::scale_x_discrete(breaks=paste0(groups,"_node_depth"),
                      labels=groups) +
-    ggplot2::ggtitle("Node distance to germline")
+    ggplot2::ggtitle(paste0("Distance (", distance, ") to germline"))
 
 }
