@@ -11,7 +11,6 @@
 #' 'nr.cells'         : The total number of cells in this clonotype
 #' 'mean.depth'       : Mean of the number of edges connecting each node to the germline
 #' 'mean.edge.length' : Mean of the edge lengths between each node and the germline
-#' 'root.edge.length' : Lenght of the edge between the germline and the first node
 #' 'group.depth'      : Mean of the number of edges connecting each node per group (node.features of the AntibodyForests-object) to the germline. (default FALSE)
 #' 'sackin.index'     : Sum of the number of nodes between each node and the germline
 #' 'spectral.density' : Metrics of the spectral density profiles (calculated with package RPANDA)
@@ -243,6 +242,13 @@ AntibodyForests_compare_clonotypes <- function(input,
         #Plot the clusters and store in plot list
         plot_list[[paste0(method, "_clusters")]] <- plot(cluster_df, color = "cluster", name = method, plot.label)
         
+        #Exchange spectral.density for specific density metrics
+        if ("spectral.density" %in% distance.metrics){
+          #remove spectral.density
+          distance.metrics <- distance.metrics[distance.metrics != "spectral.density"]
+          #Add density specific metrics
+          distance.metrics <- c(distance.metrics, "spectral.peakedness","spectral.asymmetry","spectral.principal.eigenvalue","modalities")
+        }
         #Plot colored on optional metrics
         for (metric in distance.metrics){
           #Add this metric to the output dataframe
