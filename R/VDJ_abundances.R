@@ -299,7 +299,7 @@ VDJ_abundances <- function(VDJ,
   }
 
   if(VDJ.VJ.1chain==TRUE){
-    VDJ <- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VDJ_chains==1),]
+    VDJ <- VDJ[which(VDJ$VDJ_chain_count ==1 & VDJ$VJ_chain_count ==1),]
   }
 
 
@@ -356,6 +356,7 @@ VDJ_abundances <- function(VDJ,
      all_feature_dfs <- list()
      for(j in 1:length(feature.columns)){
        single_feature_dfs <- lapply(unique_groups, function(x) get_count_df_for_group(df=sample_dfs[[i]], group=x, feature=feature.columns[[j]]))
+
        single_feature_dfs <- single_feature_dfs[!sapply(single_feature_dfs,is.null)]
        all_feature_dfs[[j]] <- do.call('rbind', single_feature_dfs)
 
