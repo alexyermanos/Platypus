@@ -93,7 +93,7 @@ VDJ_rarefaction <- function(VDJ,
 
     inext_object <- iNEXT::iNEXT(inext_rep_list, q=hill.numbers, datatype='abundance', nboot = number.resamples, endpoint = endpoint, size = sample.sizes)
 
-    output_plots[[1]] <- iNEXT::ggiNEXT(inext_object, type=rarefaction_type_dict[rarefaction.type], facet.var='order') +
+    output_plots[[1]] <- iNEXT::ggiNEXT(inext_object, type=as.numeric(rarefaction_type_dict[rarefaction.type]), facet.var="Order.q") +
                          ggplot2::theme_bw() +
                          ggplot2::theme_classic() +
                          ggplot2::theme(panel.background = ggplot2::element_blank(), panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank(), axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1)) +
@@ -103,7 +103,7 @@ VDJ_rarefaction <- function(VDJ,
 
 
 
-    output_plots[[2]] <- iNEXT::ggiNEXT(inext_object, type=rarefaction_type_dict[rarefaction.type], facet.var='site') +
+    output_plots[[2]] <- iNEXT::ggiNEXT(inext_object, type=as.numeric(rarefaction_type_dict[rarefaction.type]), facet.var="Assemblage") +
                          ggplot2::theme_bw() +
                          ggplot2::theme_classic() +
                          ggplot2::theme(panel.background = ggplot2::element_blank(), panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank(), axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1)) +

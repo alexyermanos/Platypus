@@ -25,8 +25,8 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
 
   Vgene <- NULL
   Percentage <- NULL
-  Nr_of_VDJ_chains <- NULL
-  Nr_of_VJ_chains <- NULL
+  VDJ_chain_count <- NULL
+  VJ_chain_count <- NULL
   sample_id <- NULL
   HC_Vgene_usage <- list()
   HC_Vgene_usage_plot <- list()
@@ -97,7 +97,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
 
     if(is.bulk == FALSE){
       #filtering for max 1VDJ 1VJ chain
-      VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
+      VDJ.matrix <- subset(VDJ.matrix, VDJ_chain_count == 1 & VJ_chain_count == 1)
     }
 
     if(missing(group.by)) group.by <- "sample_id"

@@ -143,7 +143,7 @@ VDJ_clonal_expansion <- function(VDJ,
           clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
           #get essential info from VDJ_GEX_matrix
-          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
+          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3_aa", "VJ_cdr3_aa")]
           names(curr_rep_iso)[3] <- "isotype"
 
           if(color.by != "isotype"){ #add color info in case its needed
@@ -194,7 +194,7 @@ VDJ_clonal_expansion <- function(VDJ,
                   curr_clone$isotype <- "None"
                 }
 
-                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 6), "Color"=rep("", 6), "Isotype"=rep("", 6), "ClonalRank"=rep("", 6), "clonotype_id" = rep(curr_clone$clonotype_id[1],6), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],6), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],6), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),6))  #to maintain clonotype information
+                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 6), "Color"=rep("", 6), "Isotype"=rep("", 6), "ClonalRank"=rep("", 6), "clonotype_id" = rep(curr_clone$clonotype_id[1],6), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],6), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],6), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),6))  #to maintain clonotype information
 
                 clones_per_isotype[[j]]$Counts[1] <- sum(stringr::str_count(curr_clone$isotype, "IGHG"))
                 clones_per_isotype[[j]]$Counts[2] <- sum(stringr::str_count(curr_clone$isotype, "IGHM"))
@@ -216,7 +216,7 @@ VDJ_clonal_expansion <- function(VDJ,
                 color_cur_clone <- unique(curr_rep_iso$colors)
                 n_color_cur_clone <- length(unique(curr_rep_iso$colors))
 
-                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],n_color_cur_clone), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
+                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],n_color_cur_clone), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
 
                 for(k in 1:nrow(clones_per_isotype[[j]])){
 
@@ -568,7 +568,7 @@ VDJ_clonal_expansion <- function(VDJ,
           clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
           #get essential info from VDJ_GEX_matrix
-          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
+          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3_aa", "VJ_cdr3_aa")]
           curr_rep_iso$VDJ_cgene[is.null(curr_rep_iso$VDJ_cgene)] <- "none"
           names(curr_rep_iso)[3] <- "isotype"
           #no substring here, just splitting on a ; to exclude multiple isotypes of one clone
@@ -611,7 +611,7 @@ VDJ_clonal_expansion <- function(VDJ,
                 curr_clone$isotype <- "None"
               }
 
-              clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 14), "Color"=rep("", 14), "Isotype"=rep("", 14), "ClonalRank"=rep("", 14), "clonotype_id" = rep(curr_clone$clonotype_id[1],14), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],14), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],14), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),14))  #to maintain clonotype information
+              clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 14), "Color"=rep("", 14), "Isotype"=rep("", 14), "ClonalRank"=rep("", 14), "clonotype_id" = rep(curr_clone$clonotype_id[1],14), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],14), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],14), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),14))  #to maintain clonotype information
 
               clones_per_isotype[[j]]$Counts[1] <- sum(stringr::str_count(curr_clone$isotype, "IGHG1"))
               clones_per_isotype[[j]]$Counts[2] <- sum(stringr::str_count(curr_clone$isotype, "IGHG2"))
@@ -993,7 +993,7 @@ VDJ_clonal_expansion <- function(VDJ,
       clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
       #get essential info from VDJ_GEX_matrix
-      curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
+      curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cdr3_aa", "VJ_cdr3_aa")]
 
       if(color.by[1] != "isotype"){ #add color info in case its needed
         curr_rep_iso$colors <- as.character(VDJ.matrix[,color.by]) #get as character
@@ -1020,7 +1020,7 @@ VDJ_clonal_expansion <- function(VDJ,
           color_cur_clone <- unique(curr_clone$colors)
           n_color_cur_clone <- length(unique(curr_clone$colors))
 
-          clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],n_color_cur_clone), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
+          clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],n_color_cur_clone), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
 
 
           if(color.by[1] == "isotype"){

@@ -109,7 +109,7 @@ VDJ_VJ_usage_circos <- function(VGM,
 
       #filter for 1H1L
       if(filter1H1L==TRUE){
-        VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][which((VDJ.GEX.matrix[[1]]$Nr_of_VDJ_chains==1)&(VDJ.GEX.matrix[[1]]$Nr_of_VJ_chains==1)),]
+        VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][which((VDJ.GEX.matrix[[1]]$VDJ_chain_count==1)&(VDJ.GEX.matrix[[1]]$VJ_chain_count==1)),]
       }
 
       #filter out clonotypes with less then c.threshold cells

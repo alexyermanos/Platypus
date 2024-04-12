@@ -84,9 +84,9 @@ VDJ_kmers <- function(VDJ,
 
     for(i in 1:length(unique_groups)){
       sequences <- unname(unlist(VDJ[sequence.column][which(VDJ[[grouping.column]] == unique_groups[i]),]))
-      if(any(stringr::str_detect(sequences, ';'))) {
-        sequences <- sapply(sequences, function(x) unlist(stringr::str_split(x, ';')))
-      }
+      #if(any(stringr::str_detect(sequences, ';'))) {
+      #  sequences <- sapply(sequences, function(x) unlist(stringr::str_split(x, ';')))
+      #}
 
       if(!aa){
         out_dfs[[i]] <- as.data.frame(colSums(kmer::kcount(ape::as.DNAbin(Biostrings::DNAStringSet(sequences)), k = kmer.k)))
@@ -170,7 +170,8 @@ VDJ_kmers <- function(VDJ,
       plot <- ggplot2::ggplot(data = pca_out) +
                   ggplot2::geom_vline(xintercept = c(0), color = "grey70", linetype = 2, size = 0.75) +
                   ggplot2::geom_hline(yintercept = c(0), color = "grey70", linetype = 2, size = 0.75) +
-                  ggplot2::geom_point(ggplot2::aes(x = PC1, y = PC2, color = group), size = 6, alpha = 0.8) +
+                  ggplot2::geom_point(ggplot2::aes(x = PC1, y = PC2, fill = group), size = 6, alpha = 1, shape = 21, colour = 'black') +
+                  #ggplot2::geom_point(ggplot2::aes(x = PC1, y = PC2), shape = 1, size = 6, alpha = 1, colour = 'black') +
                   ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
                            panel.background = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "black")) +
                   ggplot2::labs(title = paste0('PCA reduction of ', sequence.column, ' ', kmer.k, '-kmers'), color = paste0(grouping.column))
