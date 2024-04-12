@@ -13,7 +13,6 @@
 #' @return Returns a list of ggplot objects which show the stacked distribution of IgH and IgK/L V genes for the most used V genes. Returns an empty plot if the Fraction.HC or Fraction.LC that were selected were too high, resulting in the exclusion of all the genes.
 #' @export
 #' @examples
-#' #Platypus v3
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
 #' VDJ = Platypus::small_vgm[[1]], LC.Vgene = TRUE
 #' ,HC.gene.number = 15, Fraction.HC = 1, platypus.version = "v3")
@@ -31,13 +30,13 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
   Vgene <- NULL
   Percentage <- NULL
-  Nr_of_VDJ_chains <- NULL
-  Nr_of_VJ_chains <- NULL
+  VDJ_chain_count <- NULL
+  VJ_chain_count <- NULL
   sample_id <- NULL
   Sample <- NULL
   Frequency <- NULL
 
-  if(missing(is.bulk)) is.bulk <- F
+  if(missing(is.bulk)) is.bulk <- FALSE
   if (missing(Fraction.HC)) Fraction.HC <- 0
   if (missing(HC.gene.number)) HC.gene.number <- 10
   if (missing(LC.Vgene)) LC.Vgene <- FALSE
@@ -103,7 +102,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
     HC_Vgene_usage_top[[i]] <- data.frame("Vgene"=rep("", length(top_Vgenes)), "Frequency"=rep(0, length(top_Vgenes)))
     HC_Vgene_usage_top[[i]]$Vgene <- top_Vgenes
     for (j in 1:nrow(HC_Vgene_usage_top[[i]])){
-      if (HC_Vgene_usage_top[[i]]$Vgene[j] %in% HC_Vgene_usage[[i]]$Vgene == TRUE){
+      if (HC_Vgene_usage_top[[i]]$Vgene[j] %in% HC_Vgene_usage[[i]]$Vgene ==TRUE){
         HC_Vgene_usage_top[[i]]$Frequency[j] <- HC_Vgene_usage[[i]][which(HC_Vgene_usage[[i]]$Vgene == paste0(HC_Vgene_usage_top[[i]]$Vgene[j])),]$Frequency
       }
     }
@@ -176,7 +175,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
       LC_Vgene_usage_top[[i]] <- data.frame("Vgene"=rep("", length(top_Vgenes)), "Frequency"=rep(0, length(top_Vgenes)))
       LC_Vgene_usage_top[[i]]$Vgene <- top_Vgenes
       for (j in 1:nrow(LC_Vgene_usage_top[[i]])){
-        if (LC_Vgene_usage_top[[i]]$Vgene[j] %in% LC_Vgene_usage[[i]]$Vgene == TRUE){
+        if (LC_Vgene_usage_top[[i]]$Vgene[j] %in% LC_Vgene_usage[[i]]$Vgene ==TRUE){
           LC_Vgene_usage_top[[i]]$Frequency[j] <- LC_Vgene_usage[[i]][which(LC_Vgene_usage[[i]]$Vgene == paste0(LC_Vgene_usage_top[[i]]$Vgene[j])),]$Frequency
         }
       }
@@ -205,16 +204,16 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
   } else if(platypus.version == "v3"){
 
-    if(is.bulk == F){
+    if(is.bulk == FALSE){
       #filtering for max 1VDJ 1VJ chain
-      VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
+      VDJ.matrix <- subset(VDJ.matrix, VDJ_chain_count == 1 & VJ_chain_count == 1)
     }
 
     if(missing(group.by)) group.by <- "sample_id"
     if(group.by != "sample_id"){
       if(group.by %in% names(VDJ.matrix)){
         VDJ.matrix$sample_id <- as.character(VDJ.matrix[,group.by])
-        if(any(is.na(VDJ.matrix$sample_id)) == T){
+        if(any(is.na(VDJ.matrix$sample_id)) == TRUE){
           VDJ.matrix <- VDJ.matrix[!is.na(VDJ.matrix$sample_id),]
           warning(paste0("Filtered out cells with 'NA' in grouping column"))
         }
@@ -227,12 +226,12 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
     for(i in 1:length(unique(VDJ.matrix$sample_id))){
       clonotype.list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
       #get unique clones
-      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id) == F,]
+      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id) == FALSE,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
     message(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
 
-    if(LC.Vgene == F){
+    if(LC.Vgene == FALSE){
 
     Vgene_usage_plot <- list()
     HC_Vgene_usage <- list()
@@ -283,7 +282,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
       HC_Vgene_usage_top[[i]] <- data.frame("Vgene"=rep("", length(top_Vgenes)), "Frequency"=rep(0, length(top_Vgenes)))
       HC_Vgene_usage_top[[i]]$Vgene <- top_Vgenes
       for (j in 1:nrow(HC_Vgene_usage_top[[i]])){
-        if (HC_Vgene_usage_top[[i]]$Vgene[j] %in% HC_Vgene_usage[[i]]$Vgene == TRUE){
+        if (HC_Vgene_usage_top[[i]]$Vgene[j] %in% HC_Vgene_usage[[i]]$Vgene ==TRUE){
           HC_Vgene_usage_top[[i]]$Frequency[j] <- HC_Vgene_usage[[i]][which(HC_Vgene_usage[[i]]$Vgene == paste0(HC_Vgene_usage_top[[i]]$Vgene[j])),]$Frequency
         }
       }
@@ -356,7 +355,7 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
         LC_Vgene_usage_top[[i]] <- data.frame("Vgene"=rep("", length(top_Vgenes)), "Frequency"=rep(0, length(top_Vgenes)))
         LC_Vgene_usage_top[[i]]$Vgene <- top_Vgenes
         for (j in 1:nrow(LC_Vgene_usage_top[[i]])){
-          if (LC_Vgene_usage_top[[i]]$Vgene[j] %in% LC_Vgene_usage[[i]]$Vgene == TRUE){
+          if (LC_Vgene_usage_top[[i]]$Vgene[j] %in% LC_Vgene_usage[[i]]$Vgene ==TRUE){
             LC_Vgene_usage_top[[i]]$Frequency[j] <- LC_Vgene_usage[[i]][which(LC_Vgene_usage[[i]]$Vgene == paste0(LC_Vgene_usage_top[[i]]$Vgene[j])),]$Frequency
           }
         }
@@ -382,4 +381,3 @@ VDJ_Vgene_usage_stacked_barplot <- function(VDJ,
 
   }
 }
-
