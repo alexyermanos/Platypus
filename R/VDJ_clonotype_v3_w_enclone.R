@@ -181,30 +181,30 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
   #### ENCLONE VERSION #### - SUBROUTINE 3: merge the new clonotypes into the sample dfs, using the stripped_barcodes column. Recalculate clonotype frequencies, reorder sample df, clean-up
   merge_enclone_clonotypes <- function(enclone_out){
     new_clonotypes <- utils::read.csv(enclone_out$csv_file)
-    new_clonotypes <- new_clonotypes[c('group_id', 'barcode')]
+    #new_clonotypes <- new_clonotypes[c('group_id', 'barcode')]
     names(new_clonotypes)[names(new_clonotypes) == 'group_id'] <- 'new_group_id'
     names(new_clonotypes)[names(new_clonotypes) == 'barcode'] <- 'stripped_barcodes'
     new_clonotypes$stripped_barcodes <- lapply(new_clonotypes$stripped_barcodes, function(x) unlist(stringr::str_split(x, '-'))[1])
 
 
     sample_df <- enclone_out$sample_df
-    sample_df <- strip_barcodes(sample_df)
-
+    #sample_df <- strip_barcodes(sample_df)
+    sample_df$stripped_barcodes <- sample_df$barcode
     sample_out <- merge(sample_df, new_clonotypes, by='stripped_barcodes', all.x = T)
     sample_out$new_group_id <- unlist(lapply(sample_out$new_group_id, function(x) paste0('clonotype', x)))
-    
+
     #keep previous clonotype (10x)
     sample_out$clonotype_id_10x <- sample_out$clonotype_id
-    
+
     #assign new clonotype
     sample_out$clonotype_id <- sample_out$new_group_id
-    
+
     #recalculated new clonotype frequency
     sample_out$clonotype_frequency <- unlist(lapply(sample_out$clonotype_id, function(x) length(which(sample_out$clonotype_id == x))))
 
     sample_out$stripped_barcodes <- NULL
     sample_out$new_group_id <- NULL
-                                                    
+
     #Remove duplicated barcodes
     sample_out <- sample_out[!(sample_out$X %in% sample_out$X[duplicated(sample_out$X)]),]
 
@@ -304,11 +304,11 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     sample_files <- list.files(VDJ.directory)
     sample_files <- unlist(lapply(sample_files, function(x) tolower(x)))
-    #for(sample in samples_to_clonotype){
-    #  if(!(tolower(sample) %in% sample_files)){
-    #    stop(paste0('Unable to find the VDJ out file for sample ', sample))
-    #  }
-    #}
+    for(sample in samples_to_clonotype){
+      if(!(tolower(sample) %in% sample_files)){
+        stop(paste0('Unable to find the VDJ out file for sample ', sample))
+      }
+    }
   }
 
 
@@ -892,7 +892,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     enclone_outs <- lapply(sample_dfs, function(x) get_enclone_output(x))
     sample_outs <- lapply(enclone_outs, function(x) merge_enclone_clonotypes(x))
-
+    #return(list(enclone_outs, sample_outs))
     unlink(temp_dir, recursive = T)
 
     VDJ.GEX.matrix <- do.call('rbind', sample_outs)
