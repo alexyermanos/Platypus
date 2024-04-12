@@ -23,7 +23,6 @@
 #' @param platypus.version Only "v3" available
 #' @param operating.system Character - operating system on which enclone will be run. 'Windows' for Windows, 'Linux' for Linux, 'Darwin' for MacOS.
 #' @return Returns a VGM[[1]]-type dataframe. The columns clonotype_id and clonotype_frequency are updated with the new clonotyping strategy. They represent the "active strategy" that downstream functions will use. Furthermore extra columns are added with clonotyping information.New columns are named by clonotyping strategy so to allow for multiple clonotyping identifiers to be present in the same VDJ dataframe and make comparisons between these straighforward.
-#' @importFrom dplyr %>%
 #' @export
 #' @examples
 #' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
@@ -182,16 +181,16 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
   #### ENCLONE VERSION #### - SUBROUTINE 3: merge the new clonotypes into the sample dfs, using the stripped_barcodes column. Recalculate clonotype frequencies, reorder sample df, clean-up
   merge_enclone_clonotypes <- function(enclone_out){
     new_clonotypes <- utils::read.csv(enclone_out$csv_file)
-    new_clonotypes <- new_clonotypes[c('group_id', 'barcode')]
+    #new_clonotypes <- new_clonotypes[c('group_id', 'barcode')]
     names(new_clonotypes)[names(new_clonotypes) == 'group_id'] <- 'new_group_id'
     names(new_clonotypes)[names(new_clonotypes) == 'barcode'] <- 'stripped_barcodes'
     new_clonotypes$stripped_barcodes <- lapply(new_clonotypes$stripped_barcodes, function(x) unlist(stringr::str_split(x, '-'))[1])
 
 
     sample_df <- enclone_out$sample_df
-    sample_df <- strip_barcodes(sample_df)
-
-    sample_out <- merge(sample_df, new_clonotypes, by='stripped_barcodes', all.x = TRUE)
+    #sample_df <- strip_barcodes(sample_df)
+    sample_df$stripped_barcodes <- sample_df$barcode
+    sample_out <- merge(sample_df, new_clonotypes, by='stripped_barcodes', all.x = T)
     sample_out$new_group_id <- unlist(lapply(sample_out$new_group_id, function(x) paste0('clonotype', x)))
 
     #keep previous clonotype (10x)
@@ -217,19 +216,19 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
   #### Parameter setup ####
   platypus.version <- "v3"
-  if(missing(global.clonotype)) global.clonotype <- FALSE
+  if(missing(global.clonotype)) global.clonotype <- F
   if(missing(clone.strategy)) clone.strategy <- "cdr3.aa"
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- TRUE
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
   if(missing(VDJ)) stop("Please provide input data as VDJ")
   if(missing(hierarchical)) hierarchical <- "none"
   if(missing(homology.threshold)) homology.threshold <- 0.3
   if(missing(triple.chain.count.threshold)) triple.chain.count.threshold <- 5
 
-  if(hierarchical == FALSE){
+  if(hierarchical == F){
     hierarchical <- "none"
     message("After function updates, please set hierachical to either 'none', 'single.chains', 'double.and.single.chains'. hierarchical was set to 'none' based on your current input for backwards compatibility")
   }
-  if(hierarchical == TRUE){
+  if(hierarchical == T){
     hierarchical <- "single.chains"
     message("After function updates, please set hierachical to either 'none', 'single.chains', 'double.and.single.chains'. hierarchical was set to 'single.chains' based on your current input for backwards compatibility")
   }
@@ -260,7 +259,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
   if(missing(samples.to.combine)) samples.to.combine <- NULL
 
   #### ENCLONE VERSION #### - Added same.origin parameter - enclone treats samples from the same donor but with the same/different origins slightly differently.
-  if(missing(same.origin)) same.origin <- FALSE
+  if(missing(same.origin)) same.origin <- F
 
 
   #### ENCLONE VERSION #### - this ensures sample names will match the sample file names in the VDJ directory (all to lowercase); will also need X to keep old VDJ order
@@ -305,11 +304,11 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     sample_files <- list.files(VDJ.directory)
     sample_files <- unlist(lapply(sample_files, function(x) tolower(x)))
-    #for(sample in samples_to_clonotype){
-    #  if(!(tolower(sample) %in% sample_files)){
-    #    stop(paste0('Unable to find the VDJ out file for sample ', sample))
-    #  }
-    #}
+    for(sample in samples_to_clonotype){
+      if(!(tolower(sample) %in% sample_files)){
+        stop(paste0('Unable to find the VDJ out file for sample ', sample))
+      }
+    }
   }
 
 
@@ -354,7 +353,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       }
     }
 
-    if(!"sample_id" %in% names(VDJ) & global.clonotype == FALSE){
+    if(!"sample_id" %in% names(VDJ) & global.clonotype == F){
       stop("sample_id column needed for clonotyping by sample was not found in the input dataframe")
     }
     if(!"sample_id" %in% names(VDJ) & hierarchical != "none" ){
@@ -414,8 +413,8 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
             #order CDR3s alphabetically
             for(z in 1:nrow(triple_aberrant)){
-              triple_aberrant$VDJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VDJ_cdr3s_nt[z], ";", simplify = TRUE)[1,]), collapse = "")
-              triple_aberrant$VJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VJ_cdr3s_nt[z], ";", simplify = TRUE)[1,]), collapse = "")
+              triple_aberrant$VDJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VDJ_cdr3s_nt[z], ";", simplify = T)[1,]), collapse = "")
+              triple_aberrant$VJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VJ_cdr3s_nt[z], ";", simplify = T)[1,]), collapse = "")
             }
             #add new checking feature
             triple_aberrant$thresh_check_feature <- paste0(triple_aberrant$VDJ_cdr3s_nt_check, triple_aberrant$VJ_cdr3s_nt_check)
@@ -451,9 +450,9 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
                   curr[,j] <- gsub(";$", "", curr[,j])
                   curr[!stringr::str_detect(curr[,j], ";"),j] <- paste0(curr[!stringr::str_detect(curr[,j], ";"),j], ";",curr[!stringr::str_detect(curr[,j], ";"),j])
                   #For cells in row 1 = make those equal to the first "chain" of the aberrant cell
-                  curr[1,j] <- stringr::str_split(curr[1,j], ";", simplify = TRUE)[1,1]
+                  curr[1,j] <- stringr::str_split(curr[1,j], ";", simplify = T)[1,1]
                   #For cells in row 2 = make those equal to the second "chain" of the aberrant cell
-                  curr[2,j] <- stringr::str_split(curr[2,j], ";", simplify = TRUE)[1,2]
+                  curr[2,j] <- stringr::str_split(curr[2,j], ";", simplify = T)[1,2]
                 }
               }
               #updating nchar values
@@ -489,7 +488,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
 
   #### prep for global clonotying ####
-  #if(global.clonotype==FALSE){ # loop through each repertoire individually
+  #if(global.clonotype==F){ # loop through each repertoire individually
   #  repertoire.number <- unique(as.character(VDJ$sample_id))
   #  sample_dfs <- list()
   #  sample_aberrant <- list()
@@ -785,7 +784,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
                   #now find the original cells that made up the pseudocells with this clonal feature and add the updated clonal feature
                   all_matching_orig_ids <- pseudo_cells$unique_id_internal[pseudo_cells$new_clonal_feature %in% curr_clonotypes]
                   #additional filtering step required: we only keep those original cells of which we have two rows aka BOTH pseudocells in that table. This way we only group exact matches but not extra pseudocells which may match this clonotype, but of which the original cell contained a non matching chain
-                  full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == TRUE]
+                  full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == T]
 
                   original_aberrant[[j]] <- subset(backup_double_aberrant, unique_id_internal %in% full_matching_orig_ids)
                   original_aberrant[[j]]$new_clonal_feature <- update_clonotype_feature
@@ -801,7 +800,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
                   #now find the original cells that made up the pseudocells with this clonal feature and add the updated clonal feature
                   all_matching_orig_ids <- pseudo_cells$unique_id_internal[pseudo_cells$new_clonal_feature %in% curr_clonotypes]
                   #additional filtering step required: we only keep those original cells of which we have two rows aka BOTH pseudocells in that table. This way we only group exact matches but not extra pseudocells which may match this clonotype, but of which the original cell contained a non matching chain
-                  full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == TRUE]
+                  full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == T]
 
                   original_aberrant[[j]] <- subset(backup_double_aberrant, unique_id_internal %in% full_matching_orig_ids)
                   original_aberrant[[j]]$new_clonal_feature <- update_clonotype_feature
@@ -821,7 +820,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       }
 
       clones_g <- as.data.frame(sample_dfs[[i]] %>% dplyr::group_by(new_clonal_feature) %>% dplyr::summarise(new_clonal_frequency = dplyr::n()))
-      clones_g <- clones_g[order(clones_g$new_clonal_frequency, decreasing = TRUE),]
+      clones_g <- clones_g[order(clones_g$new_clonal_frequency, decreasing = T),]
       clones_g$new_clonotype_id <- paste0("clonotype", 1:nrow(clones_g))
       sample_dfs[[i]] <- merge(sample_dfs[[i]], clones_g, by = "new_clonal_feature")
       #Order by frequency
@@ -893,8 +892,8 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     enclone_outs <- lapply(sample_dfs, function(x) get_enclone_output(x))
     sample_outs <- lapply(enclone_outs, function(x) merge_enclone_clonotypes(x))
-
-    unlink(temp_dir, recursive = TRUE)
+    #return(list(enclone_outs, sample_outs))
+    unlink(temp_dir, recursive = T)
 
     VDJ.GEX.matrix <- do.call('rbind', sample_outs)
     VDJ.GEX.matrix <- rbind(VDJ.GEX.matrix, samples_not_clonotyped)
