@@ -6,7 +6,7 @@
 #' @param file.path.list list - list containing the paths to the 'filtered_contig_igblast_db-pass.tsv' files, in which the names of each item should refer to an sample ID.
 #' @param method string - denotes the way the IgBLAST germline annotations from the 'filtered_contig_igblast_db-pass.tsv' files should be appended to the VDJ dataframe. Options: 'replace' or 'attach'. Defaults to 'append'.
 #' 'replace'  : The original annotation columns in the VDJ dataframe are replaced with the IgBLAST annotations. The original columns are kept with the suffix '_10x'.
-#' 'attach'   : The IgBLAST annotation columns are stored in columns with the suffix '_IgBLAST'.
+#' 'append'   : The IgBLAST annotation columns are stored in columns with the suffix '_IgBLAST'.
 #' @return The VDJ dataframe with the appended IgBLAST annotations and alignments.
 #' @examples
 #' \dontrun{
@@ -15,10 +15,10 @@
 #'}
 
 
-import_igblast_annotations <- function(VDJ,
-                                       VDJ.directory,
-                                       file.path.list,
-                                       method){
+VDJ_import_igblast_annotations <- function(VDJ,
+                                           VDJ.directory,
+                                           file.path.list,
+                                           method){
   
   # If no 'VDJ' dataframe is provided, a message is returned and execution is stopped
   if(missing(VDJ)){stop("ERROR: Please provide a VDJ dataframe as obtained from the 'minimal_VDJ()' function in Platypus.")}

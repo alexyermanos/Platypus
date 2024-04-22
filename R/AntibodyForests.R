@@ -1,6 +1,6 @@
 #' Function to infer B cell evolutionary networks for all clonotypes in VDJ dataframe as obtained from the 'minimal_VDJ()' function.
 #' Authors: Valentijn Tromp, Daphne van Ginneken
-#' @description This function takes a VDJ dataframe and uses the specified sequence columns to build a tree/network for each clonotype and stores them in an AntibodyForests object, together with the sequences and other specified features. These trees/networks provide insights into the evolutiontrary relationships between B cell sequences from each clonotype. The resulting object of class 'AntibodyForests' can be used for downstream analysis as input for...
+#' @description This function takes a VDJ dataframe and uses the specified sequence columns to build a tree/network for each clonotype and stores them in an AntibodyForests object, together with the sequences and other specified features. These trees/networks provide insights into the evolutionary relationships between B cell sequences from each clonotype. The resulting object of class 'AntibodyForests' can be used for downstream analysis as input for...
 #' @param VDJ dataframe - VDJ object as obtained from the minimal_VDJ() function in Platypus, or object of class dataframe that contains the columns specified in 'sequence.columns', 'germline.columns', and 'node.features'.
 #' @param sequence.columns string or vector of strings - denotes the sequence column(s) in the VDJ dataframe that contain the sequences that will be used to infer B cell lineage trees. Nodes in the trees will represent unique combinations of the selected sequences. Defaults to 'c("VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed")'.
 #' @param germline.columns string or vector of strings - denotes the germline column(s) in the VDJ dataframe that contain the sequences that will be used as starting points of the trees. The columns should be in the same order as in 'sequence.columns'. Defaults to 'c("VDJ_germline_nt_trimmed", "VJ_germline_nt_trimmed")'.
@@ -80,8 +80,6 @@
 #'                 parallel = TRUE)
 #'}
 
-original_working_directory <- getwd()
-
 AntibodyForests <- function(VDJ,
                             sequence.columns,
                             germline.columns,
@@ -103,7 +101,7 @@ AntibodyForests <- function(VDJ,
   original_working_directory <- getwd()
   
   # If no 'VDJ' dataframe is provided, a message is returned and execution is stopped
-  if(missing(VDJ)){stop("ERROR: Please provide a VDJ dataframe as obtained from the 'minimal_VDJ()' function in Platypus.")}
+  if(missing(VDJ)){stop("ERROR: Please provide a VDJ dataframe as obtained from the 'minimal_VDJ()' function in Platypus, or a similar dataframe containing the specified sequence and germline colums.")}
   
   # If the 'sequence.columns' parameter is not specified, and no IgPhyML output file is provided, the 'VDJ_sequence_nt_trimmed' and 'VJ_sequence_nt_trimmed' columns are selected, and a message is returned
   if(missing(sequence.columns) && missing(IgPhyML.output.file)){sequence.columns <- c("VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed"); message("WARNING: No sequence columns are specified. Defaults to 'VDJ_sequence_nt_trimmed' and 'VJ_sequence_nt_trimmed'.")}
@@ -124,13 +122,10 @@ AntibodyForests <- function(VDJ,
   # If the columns in 'germline.columns' do not correspond to the columns in 'sequence.columns', a warning is returned
   if(!all(sequence.columns == gsub("germline", "sequence", germline.columns))){message("WARNING: Please double check whether the columns in 'germline.columns' correspond to the columns in 'sequence.columns'.\n")}
   
-  # Store the four nucleotides in the 'nucleotides' vector and store the twenty amino acids in the 'amino_acids' vector
-  nucleotides <- c("A", "C", "G", "T")
-  amino_acids <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V")
   # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns'
-  if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides)))))){
+  if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) grepl(pattern = "^[ACTG]+$", VDJ[y, x])))))){
     sequence_type <- "DNA"
-  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) all(strsplit(VDJ[y, x], split = "")[[1]] %in% amino_acids))))) && all(sapply(c(sequence.columns, germline.columns), function(x) sapply(1:nrow(VDJ), function(y) !all(strsplit(VDJ[y, x], split = "")[[1]] %in% nucleotides))))){
+  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) (grepl(pattern = "^[ARNDCQEGHILKMFPSTWYV*]+$", VDJ[y, x]) && !grepl(pattern = "^[ACTG]+$", VDJ[y, x]))))))){
     sequence_type <- "AA"
   } else{
     # If the 'sequence_type' cannot be defined, a message is returned and execution is stopped
@@ -161,18 +156,20 @@ AntibodyForests <- function(VDJ,
   # If an IgPhyML output file is provided, while the 'construction.method' parameter is set to a different method than 'phylo.tree.IgPhyML', a message is returned and execution is stopped
   if(!missing(IgPhyML.output.file) && construction.method != "phylo.tree.IgPhyML"){stop("ERROR: If the path to an IgPhyML output file is specified, the 'construction.method' parameter can only be set to 'phylo.tree.IgPhyML' or be left empty.")}
   
-  # If the 'construction.method' is set to 'phylo.network.default', but non-relevant parameters are specified ('codon.model', and/or 'remove.internal.nodes'), a warning message is returned
-  if(construction.method == "phylo.network.default" && (!missing(codon.model) | !missing(remove.internal.nodes))){warning("WARNING: If the 'construction.method' parameter is set to 'phylo.network.default', the 'codon.model', and 'remove.internal.nodes' parameters are not being used.")}
-  # If the 'construction.method' is set to 'phylo.network.mst', but non-relevant parameters are specified ('codon.model', 'resolve.ties', and/or 'remove.internal.nodes'), a warning message is returned
-  if(construction.method == "phylo.network.mst" && (!missing(codon.model) | !missing(resolve.ties) | !missing(remove.internal.nodes))){warning("WARNING: If the 'construction.method' parameter is set to 'phylo.network.mst', the 'codon.model', 'resolve.ties', and 'remove.internal.nodes' parameters are not being used.")}
-  # If the 'construction.method' is set to 'phylo.tree.nj', but non-relevant parameters are specified ('codon.model', and/or 'resolve.ties'), a warning message is returned
-  if(construction.method == "phylo.tree.nj" && (!missing(codon.model) | !missing(resolve.ties))){warning("WARNING: If the 'construction.method' parameter is set to 'phylo.tree.nj', the 'codon.model', and 'resolve.ties' parameters are not being used.")}
-  # If the 'construction.method' is set to 'phylo.tree.mp', but non-relevant parameters are specified ('string.dist.metric', 'dna.model', 'aa.model', 'codon.model', and/or 'resolve.ties'), a warning message is returned
-  if(construction.method == "phylo.tree.mp" && (!missing(string.dist.metric) | !missing(dna.model) | !missing(aa.model) | !missing(codon.model) | !missing(resolve.ties))){warning("WARNING: If the 'construction.method' parameter is set to 'phylo.tree.mp', the 'string.dist.metric, 'dna.model', 'aa.model', 'codon.model', and 'resolve.ties' parameters are not being used.")}
-  # If the 'construction.method' is set to 'phylo.tree.mp', but non-relevant parameters are specified ('string.dist.metric', and/or 'resolve.ties'), a warning message is returned
-  if(construction.method == "phylo.tree.ml" && (!missing(string.dist.metric) | !missing(resolve.ties))){warning("WARNING: If the 'construction.method' parameter is set to 'phylo.tree.ml', the 'string.dist.metric', and 'resolve.ties' parameters are not being used.")}
-  # If the 'construction.method' is set to 'phylo.tree.IgPhyML' and if an IgPhyML output file is provided, but other non-relevant parameters are specified ('construction.method', 'string.dist.metric', 'dna.model', 'aa.model', 'codon.model', and/or 'resolve.ties'), a warning message is returned
-  if(construction.method == "phylo.tree.IgPhyML" && (!missing(string.dist.metric) | !missing(dna.model) | !missing(aa.model) | !missing(codon.model) | !missing(resolve.ties))){warning("WARNING: If a IgPhyML output file is provided, the 'string.dist.metric', 'dna.model', 'aa.model', 'codon.model', and 'resolve.ties' parameters are not being used.")}
+  # If the 'construction.method' parameter is set to 'phylo.network.default', but non-relevant parameters are specified ('codon.model', and/or 'remove.internal.nodes'), a warning message is returned
+  if(construction.method == "phylo.network.default" && (!missing(codon.model) | !missing(remove.internal.nodes))){stop("ERROR: If the 'construction.method' parameter is set to 'phylo.network.default', the 'codon.model' and 'remove.internal.nodes' parameters cannot be specified.")}
+  # If the 'construction.method' parameter is set to 'phylo.network.mst', but non-relevant parameters are specified ('codon.model', 'resolve.ties', and/or 'remove.internal.nodes'), a warning message is returned
+  if(construction.method == "phylo.network.mst" && (!missing(codon.model) | !missing(resolve.ties) | !missing(remove.internal.nodes))){stop("ERROR: If the 'construction.method' parameter is set to 'phylo.network.mst', the 'codon.model', 'resolve.ties', and 'remove.internal.nodes' parameters cannot be specified.")}
+  # If the 'construction.method' parameter is set to 'phylo.tree.nj', but non-relevant parameters are specified ('codon.model', and/or 'resolve.ties'), a warning message is returned
+  if(construction.method == "phylo.tree.nj" && (!missing(codon.model) | !missing(resolve.ties))){stop("ERROR: If the 'construction.method' parameter is set to 'phylo.tree.nj', the 'codon.model', and 'resolve.ties' cannot be specified.")}
+  # If the 'construction.method' parameter is to a distance-based method, but both the 'string.dist.metric' and 'dna.model' or 'aa.model' are specified, a message is returned and execution is stopped
+  if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.network.nj") && !missing(string.dist.metric) && !(missing(dna.model) | missing(aa.model))){stop("ERROR: Both a string distance metric and a model are specified, please choose one.")}
+  # If the 'construction.method' parameter is set to 'phylo.tree.mp', but non-relevant parameters are specified ('string.dist.metric', 'dna.model', 'aa.model', 'codon.model', and/or 'resolve.ties'), a warning message is returned
+  if(construction.method == "phylo.tree.mp" && (!missing(string.dist.metric) | !missing(dna.model) | !missing(aa.model) | !missing(codon.model) | !missing(resolve.ties))){stop("ERROR: If the 'construction.method' parameter is set to 'phylo.tree.mp', the 'string.dist.metric, 'dna.model', 'aa.model', 'codon.model', and 'resolve.ties' parameters cannot be specified.")}
+  # If the 'construction.method' parameter is set to 'phylo.tree.mp', but non-relevant parameters are specified ('string.dist.metric', and/or 'resolve.ties'), a warning message is returned
+  if(construction.method == "phylo.tree.ml" && (!missing(string.dist.metric) | !missing(resolve.ties))){stop("ERROR: If the 'construction.method' parameter is set to 'phylo.tree.ml', the 'string.dist.metric', and 'resolve.ties' parameters cannot be speciied.")}
+  # If the 'construction.method' parameter is set to 'phylo.tree.IgPhyML' and if an IgPhyML output file is provided, but other non-relevant parameters are specified ('construction.method', 'string.dist.metric', 'dna.model', 'aa.model', 'codon.model', and/or 'resolve.ties'), a warning message is returned
+  if(construction.method == "phylo.tree.IgPhyML" && (!missing(string.dist.metric) | !missing(dna.model) | !missing(aa.model) | !missing(codon.model) | !missing(resolve.ties))){warning("ERROR: If a IgPhyML output file is provided, the 'string.dist.metric', 'dna.model', 'aa.model', 'codon.model', and 'resolve.ties' parameters cannot be specified.")}
   
   # If the 'construction.method' is set to a distance-based construction method, but the 'string.dist.metric', 'dna.model', and  'aa.model' parameters are all missing, the 'string.dist.metric' is set to 'lv', which means that a pairwise Levensthein distance matrix will be computed with the 'stringdist::stringdistmatrix()' function 
   if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && missing(string.dist.metric) && missing(dna.model) && missing(aa.model)){string.dist.metric <- "lv"}
@@ -287,7 +284,7 @@ AntibodyForests <- function(VDJ,
       
       # Save input edge matrix in 'edge_matrix'
       edge_matrix <- edge.matrix
-      
+
       # Count number of edges by finding path from 'node2' to 'node1' (thereby moving upwards in the network)
       current_node <- node2
       
@@ -295,10 +292,10 @@ AntibodyForests <- function(VDJ,
       edge_count <- 0
       
       # Keep counting edges until the 'current_node' is equal to 'node1'
-      while(current_node != node1){
-        
+      while(sum(current_node == node1) >= 1){
+
         # Find node to which the 'current_node' is connected (the 'current_node' will be present in second column, while the node to which the 'current_node' is connected will be present in the first column)
-        next_node <- edge_matrix[edge_matrix[, 2] == current_node, 1]
+        next_node <- edge_matrix[edge_matrix[, 2] %in% current_node, 1]
         
         # Update 'edge_count' and 'current_node'
         edge_count <- edge_count+1
@@ -573,8 +570,8 @@ AntibodyForests <- function(VDJ,
             if(length(node_to_connect_to) != 1){
               
               # Append warning message to 'warnings' list
-              warnings <- c(warnings, paste0(c("Not all ties could be resolved in ", clone, " !!!")))
-              
+              warnings <- c(warnings, paste0("Not all ties could be resolved in ", strsplit(clone, split="_")[[1]][2], " of ", strsplit(clone, split="_")[[1]][1], "!"))
+              print("yes")
               # The currently unlinked node is connected to both linked nodes in the tree, thereby creating a cyclic graph
               for(i in node_to_connect_to){
                 edges <- rbind(edges, c(i, node, dist_matrix_backup[i, node]))
@@ -619,7 +616,7 @@ AntibodyForests <- function(VDJ,
       igraph_object <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
       
       # Create matrix containing the edges of tree tree between internal nodes (first column) and terminal nodes (second column)
-      edges <- igraph::get.edgelist(igraph_object)
+      edges <- igraph::as_edgelist()(igraph_object)
       
       # Create dataframe containing the edges plus a third column containing the length of the edges
       edges <- data.frame(do.call(rbind, lapply(1:nrow(edges), function(x) c(edges[x, 1], edges[x, 2], as.numeric(dist_matrix_backup[edges[x, 1], edges[x, 2]])))))
@@ -695,7 +692,7 @@ AntibodyForests <- function(VDJ,
     # 2.5 If the approach is set to 'tree' and the 'ml' algorithm is specified, a maximum likelihood tree is constructed with the 'phangorn::pml_bb()' function
     if(approach == "tree" && algorithm == "ml"){
       
-      # A maximum parsimony tree can only be build if there are 3 or more sequences
+      # A maximum likelihood tree can only be build if there are 3 or more sequences
       if(length(msa) > 2){
         
         # If there are over 4 nodes, next to the germline, bootstrapping is allowed during maximum likelihood tree inference, and 'rearrangement_method' is set to 'stochastic'
@@ -704,15 +701,15 @@ AntibodyForests <- function(VDJ,
         # If there are 4 nodes or less, no bootstrapping is conducted, to prevent the creation of trees with less than three edges (such a tree cannot be unrooted)
         if(length(msa) <= 4){rearrangement_method <- "NNI"}
         
-        # Create maximum likelihood tree with the 'phangorn::pml_bb()' function (and hide in-function printed message),  and store the best model according to the BIC value from the 'phangorn::modelTest()' function in the 'metrics' list
+        # Create maximum likelihood tree with the 'phangorn::pml_bb()' function (and hide in-function printed message), and store the best model according to the BIC value from the 'phangorn::modelTest()' function in the 'metrics' list
         if(sequence.type == "DNA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = dna.model), rearrangement = rearrangement_method))); metrics["dna.model"] <- ml_tree[["model"]]}
         if(sequence.type == "AA"){base::invisible(utils::capture.output(ml_tree <- phangorn::pml_bb(phangorn::modelTest(object = msa, model = aa.model), rearrangement = rearrangement_method))); metrics["aa.model"] <- ml_tree[["model"]]}
-        
-        # Store the tree of class 'phylo' in 'phylo_object'
+  
+        # Store the tree of class 'phylo' in the 'phylo_object'
         phylo_object <- ml_tree[["tree"]]
         
         # If codon models are specified in the 'codon.model' parameter...
-        if(!all(is.na(codon.model))){
+        if(!all(is.na(codon.model)) & !is.null(phylo_object)){
           
           # Convert the multiple sequence alignment into a matrix and remove '-' characters and save in 'codon_msa'
           codon_msa <- do.call(rbind, lapply(names(msa), function(x){strsplit(gsub(pattern = "-", replacement = "", do.call(paste0, as.list(as.character(msa)[x,]))), split = "")[[1]]}))
@@ -774,6 +771,9 @@ AntibodyForests <- function(VDJ,
         # Check whether all nodes in the 'nodes.list' could be found in the igraph object, and check whether all terminal nodes are found once
         igraph_object_check <- (all(names(nodes.list) %in% igraph::V(IgPhyML_igraph_object)$name) && all(table(igraph::V(IgPhyML_igraph_object)$name)[unique(grep(pattern = "^node|germline", igraph::V(IgPhyML_igraph_object)$name, value = TRUE))] == 1))
       } else{igraph_object_check <- FALSE}
+      
+      # If no igraph object could be found in the 'IgPhyML.trees' object, append warning message to warnings 'list'
+      warnings <- c(warnings, paste(c("The tree of", strsplit(clone, split="_")[[1]][], "of", strsplit(clone, split="_")[[1]][1], "could not be found in the specified IgPhyML output file!")))
       
       # If the igraph object is checked succesfully, onvert the object of class 'igraph' into an object of class 'phylo' using the 'igraph_to_phylo()' function
       if(igraph_object_check){phylo_object <- igraph_to_phylo(IgPhyML_igraph_object)}
@@ -1190,10 +1190,10 @@ AntibodyForests <- function(VDJ,
       names(seqs) <- names(nodes_list)
       
       # If a pairwise distance matrix needs to be computed, while the 'string.dist.metric' parameter is specified, the distance matrix is computed with the 'stringdist::stringdistmatrix()' function using the 'seqs' list as input
-      if((construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && !is.na(string.dist.metric)) | ("dist" %in% include && !is.na(string.dist.metric))){dist_matrix <- suppressWarnings(stringdist::stringdistmatrix(seqs, seqs, method = string.dist.metric, useNames = "names"))}
+      if((construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && !is.na(string.dist.metric))){dist_matrix <- suppressWarnings(stringdist::stringdistmatrix(seqs, seqs, method = string.dist.metric, useNames = "names"))}
       
       # If a multiple sequence alignment needs to be made, the 'msa::msa()' function is used
-      if((construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && is.na(string.dist.metric) && (!is.na(dna.model) | !is.na(aa.model))) | construction.method %in% c("phylo.tree.mp", "phylo.tree.ml") | "msa" %in% include){
+      if((construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && (!is.na(dna.model) | !is.na(aa.model))) | construction.method %in% c("phylo.tree.mp", "phylo.tree.ml")){
         
         # If the 'sequence.type' is set to "DNA"...
         if(sequence.type == "DNA"){
@@ -1220,10 +1220,10 @@ AntibodyForests <- function(VDJ,
       }
       
       # If a pairwise distance matrix needs to be computed, while the 'dna.model' parameter is specified, the distance matrix is computed with the 'ape::dist.dna()' function using the 'msa' as input
-      if((construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") | "dist" %in% include) && (is.na(string.dist.metric) && !is.na(dna.model) && is.na(aa.model))){dist_matrix <- ape::dist.dna(ape::as.DNAbin(msa), model = dna.model, as.matrix = TRUE)}
+      if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && !all(is.na(dna.model))){dist_matrix <- ape::dist.dna(ape::as.DNAbin(msa), model = dna.model, as.matrix = TRUE)}
       
       # If a pairwise distance matrix needs to be computed, while the 'aa.model' parameter is specified, the distance matrix is computed with the 'phangorn::dist.ml()' function using the 'seqs' list as input
-      if((construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") | "dist" %in% include) && (is.na(string.dist.metric) && is.na(dna.model) && !is.na(aa.model))){dist_matrix <- as.matrix(phangorn::dist.ml(phangorn::as.phyDat(msa, type = "AA"), model = aa.model))}
+      if(construction.method %in% c("phylo.network.default", "phylo.network.mst", "phylo.tree.nj") && !all(is.na(aa.model))){dist_matrix <- as.matrix(phangorn::dist.ml(phangorn::as.phyDat(msa, type = "AA"), model = aa.model))}
       
       # If a distance matrix is computed, sort the columns and rows to enable proper summation later on
       if(exists("dist_matrix")){dist_matrix <- dist_matrix[names(nodes_list), names(nodes_list)]}
@@ -1282,18 +1282,21 @@ AntibodyForests <- function(VDJ,
     # 4. Create and return an output list containing the requested objects specified in the 'include' parameter
     
     # Create empty list to store output objects
-    output_list <- list()
+    output_objects <- list()
     
     # For each possible option, check whether it is present in the 'include' vector, and if so, append it to the 'output_list'
-    if("nodes" %in% include){output_list["nodes"] <- list(nodes_list)}
-    if("dist" %in% include){output_list["distance.matrices"] <- list(dist_matrices)}
-    if("msa" %in% include){output_list["multiple.sequence.alignments"] <- list(multiple_sequence_alignments)}
-    if("phylo" %in% include){output_list["phylo"] <- lineage_tree["phylo"]}
-    if("igraph" %in% include){output_list["igraph"] <- lineage_tree["igraph"]}
-    if("igraph.with.inner.nodes" %in% include){output_list["igraph.with.inner.nodes"] <- lineage_tree["igraph.with.inner.nodes"]}
-    if("edges" %in% include){output_list["edges"] <- lineage_tree["edges"]}
-    if("edges.with.inner.nodes" %in% include){output_list["edges.with.inner.nodes"] <- lineage_tree["edges.with.inner.nodes"]}
-    if("metrics" %in% include){output_list["metrics"] <- lineage_tree["metrics"]}
+    if("nodes" %in% include){output_objects["nodes"] <- list(nodes_list)}
+    if("dist" %in% include){output_objects["distance.matrices"] <- list(dist_matrices)}
+    if("msa" %in% include){output_objects["multiple.sequence.alignments"] <- list(multiple_sequence_alignments)}
+    if("phylo" %in% include){output_objects["phylo"] <- lineage_tree["phylo"]}
+    if("igraph" %in% include){output_objects["igraph"] <- lineage_tree["igraph"]}
+    if("igraph.with.inner.nodes" %in% include){output_objects["igraph.with.inner.nodes"] <- lineage_tree["igraph.with.inner.nodes"]}
+    if("edges" %in% include){output_objects["edges"] <- lineage_tree["edges"]}
+    if("edges.with.inner.nodes" %in% include){output_objects["edges.with.inner.nodes"] <- lineage_tree["edges.with.inner.nodes"]}
+    if("metrics" %in% include){output_objects["metrics"] <- lineage_tree["metrics"]}
+    
+    # Create an output list that contains the output objects and the warnings in two separate sublists
+    output_list <- list(output.objects = output_objects, warnings = lineage_tree["warnings"])
     
     # Return the 'output_list'
     return(output_list)
@@ -1379,7 +1382,7 @@ AntibodyForests <- function(VDJ,
   reorganized_output_list <- lapply(sample_list, function(sample){
     # Select all clonotypes from one sample
     matching_sublists <- grep(paste0("^",sample), names(output_list), value = TRUE)
-    # Retrieve the networks from 'output_list' of one sample and store in 'sample_sublist'
+    # Retrieve the output objects from the 'output_list' of one sample and store them in the 'sample_sublist' 
     sample_sublist <- output_list[matching_sublists]
     # Rename the networks in 'sample_sublist' to their original clonotype ID
     names(sample_sublist) <- sub(paste0("^", sample, "_"), "", matching_sublists)
@@ -1393,9 +1396,13 @@ AntibodyForests <- function(VDJ,
   # Convert 'reorganized_output_list' of class 'list' into object of class 'AntibodyForests'
   AntibodyForests_object <- base::structure(reorganized_output_list, class = "AntibodyForests")
   
-  # Return the 'reorganized_output_list'
-  return(AntibodyForests_object)
+  # Retrieve the warnings from the 'output_list' and print them
+  warnings <- unlist(lapply(names(output_list), function(x) output_list[[x]][["warnings"]]))
+  for(i in warnings){message(paste("WARNING:", i))}
   
   # Reset the working directory
   setwd(original_working_directory)
+  
+  # Return the 'reorganized_output_list'
+  return(AntibodyForests_object)
 }
