@@ -6,7 +6,7 @@
 #' @param remove.divergent.cells bool - if TRUE, cells with more than one VDJ transcript or more than one VJ transcript will be excluded. This could be due to multiple cells being trapped in one droplet or due to light chain dual expression (concerns ~2-5% of B cells, see DOI:10.1084/jem.181.3.1245). Defaults to FALSE.
 #' @param complete.cells.only bool - if TRUE, only cells with both a VDJ transcripts and a VJ transcript are included in the VDJ dataframe. Keeping only cells with 1 VDJ and 1 VJ transcript could be preferable for downstream analysis. Defaults to FALSE.
 #' @param trim.germlines bool - if TRUE, the raw germline sequences of each clone will be trimmed using the the consensus sequences of that clone as reference seqeunces (using Biostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost). Defaults to FALSE.
-#' @param gap.opening.cost float or Inf - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Defaults to Inf (gapless alignment).
+#' @param gap.opening.cost float - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Defaults to 10.
 #' @param parallel bool - if TRUE, the per-sample VDJ building is executed in parallel (parallelized across samples). Defaults to FALSE.
 #' @param num.cores integer - number of cores to be used when parallel = TRUE. Defaults to all available cores - 1 or the number of sample folders in 'VDJ.directory' (depending which number is smaller).
 #' @return Returns the VDJ dataframe / VGM[[1]] object. Each row in this dataframe represent one cell, or one unique cell barcode.
@@ -25,7 +25,7 @@ VDJ_build <- function(VDJ.directory,
                       remove.divergent.cells = FALSE,
                       complete.cells.only = FALSE,
                       trim.germlines = FALSE,
-                      gap.opening.cost = Inf,
+                      gap.opening.cost = 10,
                       parallel = FALSE,
                       num.cores = NULL){
 
@@ -107,13 +107,13 @@ VDJ_build <- function(VDJ.directory,
   }
 
 
-  trim_seq <- function(seq1, seq2, gap.opening.cost = Inf){
+  trim_seq <- function(seq1, seq2, gap.opening.cost = 10){
 
     # Perform global-local alignment with seq1 and seq2 and thereby trim seq2 (subject) using seq1 (pattern)
     # Arguments:
     # - seq1: sequence used as reference during pairwise alignment
     # - seq2: sequence that will be trimmeded during pairwise alignment
-    # - gap.opening.cost: cost for opening a gap in Biostrings::pairwiseAlignment (defaults to Inf for gapless alignments, as suggested by Anamay Saman)
+    # - gap.opening.cost: cost for opening a gap in Biostrings::pairwiseAlignment
     # Authors: Evgenios Kladis, Valentijn Tromp
 
     # If 'seq1' or 'seq2' is missing, an empty string is returned
@@ -131,7 +131,62 @@ VDJ_build <- function(VDJ.directory,
     return(as.character(alignment@subject))
     }
   }
-
+  
+  translate_DNA<- function(sequence){
+    
+    #Translate a nucleotide sequence into an amino acid sequence
+    #Arguments:
+    #- sequence: nucleotide sequence to be translated
+    
+    if (sequence == ""){
+      return("")
+    }
+    
+    #Genetic code
+    genetic_code <- list(
+      "TTT"="F", "TTC"="F", "TTA"="L", "TTG"="L",
+      "TCT"="S", "TCC"="S", "TCA"="S", "TCG"="S",
+      "TAT"="Y", "TAC"="Y", "TAA"="*", "TAG"="*",
+      "TGT"="C", "TGC"="C", "TGA"="*", "TGG"="W",
+      "CTT"="L", "CTC"="L", "CTA"="L", "CTG"="L",
+      "CCT"="P", "CCC"="P", "CCA"="P", "CCG"="P",
+      "CAT"="H", "CAC"="H", "CAA"="Q", "CAG"="Q",
+      "CGT"="R", "CGC"="R", "CGA"="R", "CGG"="R",
+      "ATT"="I", "ATC"="I", "ATA"="I", "ATG"="M",
+      "ACT"="T", "ACC"="T", "ACA"="T", "ACG"="T",
+      "AAT"="N", "AAC"="N", "AAA"="K", "AAG"="K",
+      "AGT"="S", "AGC"="S", "AGA"="R", "AGG"="R",
+      "GTT"="V", "GTC"="V", "GTA"="V", "GTG"="V",
+      "GCT"="A", "GCC"="A", "GCA"="A", "GCG"="A",
+      "GAT"="D", "GAC"="D", "GAA"="E", "GAG"="E",
+      "GGT"="G", "GGC"="G", "GGA"="G", "GGG"="G"
+    )
+    #Split the sequence into codons
+    codons <- strsplit(sequence, "(?<=.{3})", perl=TRUE)[[1]]
+    
+    #Translate the codons
+    for (codon_id in 1:length(codons)){
+      #Remove codons that are not complete
+      if(nchar(codons[codon_id]) < 3){
+        codons[codon_id] = ""
+      }
+      #Codons that contain "-" are replaced with "-"
+      else if (grepl("-", codons[codon_id], fixed = TRUE)){
+        codons[codon_id] = "-"
+      }
+      #Translate codons according to the genetic code
+      else{
+        codons[codon_id] = genetic_code[[codons[codon_id]]]
+      }
+    }
+    
+    #Paste the codons together
+    sequence <- paste(codons, collapse="")
+    
+    #Return the sequence
+    return(sequence)
+  }
+  
 
   make_VDJ_sample <- function(VDJ.sample.directory,
                               remove.divergent.cells,
@@ -145,7 +200,7 @@ VDJ_build <- function(VDJ.directory,
     # - remove.divergent.cells bool - if TRUE, cells with more than one VDJ transcript or more than one VJ transcript will be excluded. This could be due to multiple cells being trapped in one droplet or due to light chain dual expression (concerns ~2-5% of B cells, see DOI:10.1084/jem.181.3.1245). Defaults to FALSE.
     # - complete.cells.only bool - if TRUE, only cells with both a VDJ transcripts and a VJ transcript are included in the VDJ dataframe. Keeping only cells with 1 VDJ and 1 VJ transcript could be preferable for downstream analysis. Defaults to FALSE.
     # - trim.germlines bool - if TRUE, the raw germline sequences of each clone will be trimmed using the the consensus sequences of that clone as reference seqeunces (using BIostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost). Defaults to FALSE.
-    # - gap.opening.cost float or Inf - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Defaults to Inf (gapless alignment).
+    # - gap.opening.cost float - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Defaults to 10.
     # Authors: Tudor-Stefan Cotet, Aurora Desideri Perea, Anamay Samant, Valentijn Tromp
 
     # 1. Read in the following files from Cell Ranger output and store in list 'out':
@@ -204,7 +259,7 @@ VDJ_build <- function(VDJ.directory,
           dplyr::rename(sequence_nt_trimmed = sequence_trimmed)
         # Translate trimmed nt sequences into aa sequences
         out[[1]]$sequence_aa_trimmed[which(!is.na(out[[1]]$sequence_nt_trimmed))]  <- sapply(out[[1]]$sequence_nt_trimmed[which(!is.na(out[[1]]$sequence_nt_trimmed))], function(x){
-          aa_sequence <- suppressWarnings(Biostrings::translate(Biostrings::DNAString(x)))
+          aa_sequence <- suppressWarnings(translate_DNA(x))
           return(as.character(aa_sequence))})
       # If the 'all_contig_annotations.json' file is absent in the sample directory, a warning message is returned and 'sequence_nt_trimmed' and 'sequence_aa_trimmed' columns are set to NA
       } else{
@@ -254,7 +309,7 @@ VDJ_build <- function(VDJ.directory,
           dplyr::rename(consensus_nt_trimmed = sequence_trimmed)
         # Translate trimmed nt sequences into aa sequences
         out[[3]]$consensus_aa_trimmed[which(!is.na(out[[3]]$consensus_nt_trimmed))]  <- sapply(out[[3]]$consensus_nt_trimmed[which(!is.na(out[[3]]$consensus_nt_trimmed))], function(x){
-          aa_sequence <- suppressWarnings(Biostrings::translate(Biostrings::DNAString(x)))
+          aa_sequence <- suppressWarnings(translate_DNA(x))
           return(as.character(aa_sequence))})
         # If the 'consensus_annotations.json' file is absent in the sample directory, a warning message is returned and 'consensus_nt_trimmed' and 'consensus_aa_trimmed' columns are set to NA
       } else{
@@ -298,10 +353,10 @@ VDJ_build <- function(VDJ.directory,
 
     # If 'trim.germlines' is set to TRUE, perform pairwise alignment with 'trim_seq' function in parallel with 'mapply'
     if(trim.germlines){
-      consensuses$germline_nt_trimmed <- mapply(trim_seq, consensuses$consensus_nt_trimmed, consensuses$germline_nt_raw)
+      consensuses$germline_nt_trimmed <- mapply(trim_seq, consensuses$consensus_nt_trimmed, consensuses$germline_nt_raw, gap.opening.cost)
       # Translate trimmed nt sequences into aa sequences
       consensuses$germline_aa_trimmed[which(!is.na(consensuses$germline_nt_trimmed))] <- sapply(consensuses$germline_nt_trimmed[which(!is.na(consensuses$germline_nt_trimmed))], function(x){
-        aa_sequence <- suppressWarnings(Biostrings::translate(Biostrings::DNAString(x)))
+        aa_sequence <- suppressWarnings(translate_DNA(x))
         return(as.character(aa_sequence))
       })
     # If 'trim.germlines' is set to FALSE (default), 'germline_nt_trimmed' and 'germline_aa_trimmed' columns are set to NA
