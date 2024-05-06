@@ -10,17 +10,14 @@
 #' @export
 #' @examples
 #'
-#' #Calculate shannon index for VDJ CDR3s by sample
 #' plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 #' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
 #' ,metric = "shannon")
 #'
-#' #Calculate Gini-simpson and Simpson index for VDJ and VJ CDR3s by sample
 #' VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 #' ,feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa"), grouping.column = "sample_id"
 #' ,metric = "ginisimpson")
 #'
-#' #Calculate Jaccard index of J gene usage between two samples
 #' VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 #',feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 #',metric = "jaccard")
@@ -38,16 +35,16 @@ VDJ_diversity <- function(VDJ,
   if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3s_aa'
   if(missing(grouping.column)) grouping.column <- 'sample_id'
   if(missing(metric)) metric <- 'richness'
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
-  if(missing(subsample.to.same.n)) subsample.to.same.n <- T
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- TRUE
+  if(missing(subsample.to.same.n)) subsample.to.same.n <- TRUE
 
   ############## UTILITY 1: internal wrapper for VDJ_abundances (get cell counts of unique features per grouping column) ##############
   get_abundances <- function(VDJ, feature.columns, grouping.column, VDJ.VJ.1chain){
 
     if(length(feature.columns) > 1){
-      combine.features <- T
+      combine.features <- TRUE
     }else{
-      combine.features <- F
+      combine.features <- FALSE
     }
 
     abundance_df <- VDJ_abundances(VDJ,
@@ -300,7 +297,7 @@ VDJ_diversity <- function(VDJ,
 
 
   ############## EVENESS METRICS ##############
-  bulla_evenness <- function(abundance_vector, ignore.zeros = T){
+  bulla_evenness <- function(abundance_vector, ignore.zeros = TRUE){
 
     if(ignore.zeros){
       abundance_vector <- abundance_vector[abundance_vector > 0]
@@ -316,7 +313,7 @@ VDJ_diversity <- function(VDJ,
 
   }
 
-  camargo_evenness <- function(abundance_vector, ignore.zeros = T){
+  camargo_evenness <- function(abundance_vector, ignore.zeros = TRUE){
 
     if(ignore.zeros){
       abundance_vector <- abundance_vector[abundance_vector > 0]
@@ -334,7 +331,7 @@ VDJ_diversity <- function(VDJ,
     return(evenness)
   }
 
-  smithwilson_evenness <- function(abundance_vector, ignore.zeros = T){
+  smithwilson_evenness <- function(abundance_vector, ignore.zeros = TRUE){
 
     #missing variable definitions
     x <- NULL
@@ -371,7 +368,7 @@ VDJ_diversity <- function(VDJ,
 
     title <- unique(metric_df$metric_name)
     plot_out <- ggplot2::ggplot(metric_df, ggplot2::aes(x = group, y = metric, fill = colors)) +
-                ggplot2::geom_bar(show.legend = F, stat = "identity", width=0.6, color="black") +
+                ggplot2::geom_bar(show.legend = FALSE, stat = "identity", width=0.6, color="black") +
                 ggplot2::labs(title = title, x = "", y = title) +
                 ggplot2::theme(panel.background = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank(), legend.position = "none")
 

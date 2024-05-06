@@ -23,7 +23,7 @@
 #'or a barplot of the counts/proportions per feature, per group.
 #' @export
 #' @examples
-#' VDJ_abundances(VDJ = small_vgm[[1]],
+#' VDJ_abundances(VDJ = Platypus::small_vgm[[1]],
 #' feature.columns='VDJ_cgene', proportions='absolute',
 #' grouping.column='clonotype_id', specific.groups='none',
 #' output.format='plot')
@@ -55,11 +55,11 @@ VDJ_abundances <- function(VDJ,
   if(missing(max.groups)) max.groups <- NULL
   if(missing(specific.groups)) specific.groups <- 'none'
   if(missing(sample.column)) sample.column <- 'sample_id'
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- F
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- FALSE
   if(missing(treat.incomplete.groups)) treat.incomplete.groups <- 'exclude' #exclude - excludes groups with no cells for the specific features, #unknown - sets them as unknown
   if(missing(treat.incomplete.features)) treat.incomplete.features <- 'exclude'
-  if(missing(combine.features)) combine.features <- F
-  if(missing(treat.combined.features) & combine.features==T) treat.combined.features <- 'exclude' #will be treated similarly to incomplete features, or include and will be treated as a new feature
+  if(missing(combine.features)) combine.features <- FALSE
+  if(missing(treat.combined.features) & combine.features==TRUE) treat.combined.features <- 'exclude' #will be treated similarly to incomplete features, or include and will be treated as a new feature
   if(missing(treat.combined.groups) & length(grouping.column) > 1) treat.combined.groups <- 'exclude'
   if(missing(specific.feature.colors)) specific.feature.colors <- NULL
   if(missing(output.format)) output.format <- 'plots' #or abundance.df
@@ -73,9 +73,9 @@ VDJ_abundances <- function(VDJ,
 
 
   ###############################UTILITY FUNCTIONS FOR LAPPLY###########################################
-  get_feature_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';', combine.sequences=F){
-   if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
-   if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
+  get_feature_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';', combine.sequences=FALSE){
+   if(split.x==TRUE) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
+   if(split.y==TRUE) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
 
    ccombs <- expand.grid(x,y)
    if(!combine.sequences){
@@ -270,7 +270,7 @@ VDJ_abundances <- function(VDJ,
   sample_dfs <- list()
 
   if(('CDR3aa' %in% feature.columns) & !('CDR3aa' %in% colnames(VDJ))){
-    VDJ$CDR3aa <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T, combine.sequences=T), VDJ$VDJ_cdr3s_aa, VDJ$VJ_cdr3s_aa)
+    VDJ$CDR3aa <- mapply(function(x,y) get_feature_combinations(x,y,split.x=TRUE,split.y=TRUE, combine.sequences=TRUE), VDJ$VDJ_cdr3s_aa, VDJ$VJ_cdr3s_aa)
   }
 
   for(i in 1:length(feature.columns)){
@@ -298,8 +298,8 @@ VDJ_abundances <- function(VDJ,
    stop("The provided grouping.column was not found in VDJ. Please provide a valid name or 'none' to avoid grouping")
   }
 
-  if(VDJ.VJ.1chain==T){
-    VDJ <- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VDJ_chains==1),]
+  if(VDJ.VJ.1chain==TRUE){
+    VDJ <- VDJ[which(VDJ$VDJ_chain_count ==1 & VDJ$VJ_chain_count ==1),]
   }
 
 
@@ -319,12 +319,12 @@ VDJ_abundances <- function(VDJ,
   }
 
 
-  if(length(feature.columns)==2 & combine.features==T){
+  if(length(feature.columns)==2 & combine.features==TRUE){
    for(i in 1:length(sample_dfs)){
      if(treat.combined.features=='exclude'){
-       combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=T,split.y=T)} else '', sample_dfs[[i]][,feature.columns[[1]]], sample_dfs[[i]][,feature.columns[[2]]])
+       combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=TRUE,split.y=TRUE)} else '', sample_dfs[[i]][,feature.columns[[1]]], sample_dfs[[i]][,feature.columns[[2]]])
      }else{
-       combined_features <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T), sample_dfs[[i]][,feature.columns[[1]]], sample_dfs[[i]][,feature.columns[[2]]])
+       combined_features <- mapply(function(x,y) get_feature_combinations(x,y,split.x=TRUE,split.y=TRUE), sample_dfs[[i]][,feature.columns[[1]]], sample_dfs[[i]][,feature.columns[[2]]])
      }
      sample_dfs[[i]]$new_feature <- combined_features
      new_feature <- paste0(feature.columns[[1]], '/', feature.columns[[2]])
@@ -348,7 +348,7 @@ VDJ_abundances <- function(VDJ,
 
          group_frequencies <- unlist(group_frequencies)
 
-         sorted_unique_groups <- unlist(unique_groups)[order(group_frequencies, decreasing=T)]
+         sorted_unique_groups <- unlist(unique_groups)[order(group_frequencies, decreasing=TRUE)]
          unique_groups <- sorted_unique_groups[1:max.groups]
        }
      }
@@ -356,6 +356,7 @@ VDJ_abundances <- function(VDJ,
      all_feature_dfs <- list()
      for(j in 1:length(feature.columns)){
        single_feature_dfs <- lapply(unique_groups, function(x) get_count_df_for_group(df=sample_dfs[[i]], group=x, feature=feature.columns[[j]]))
+
        single_feature_dfs <- single_feature_dfs[!sapply(single_feature_dfs,is.null)]
        all_feature_dfs[[j]] <- do.call('rbind', single_feature_dfs)
 
@@ -379,7 +380,7 @@ VDJ_abundances <- function(VDJ,
    plots <- list()
    for(i in 1:length(sample_ids)){
      sample_dfs[[i]] <- abundance_df[which(abundance_df$sample==sample_ids[i]),]
-     #sample_dfs[[i]] <- sample_dfs[[i]][order(sample_dfs[[i]]$group_frequency, decreasing=T),]
+     #sample_dfs[[i]] <- sample_dfs[[i]][order(sample_dfs[[i]]$group_frequency, decreasing=TRUE),]
 
      #ranks <- 1:length(unique(sample_dfs[[i]]$group))
      #unique_groups <- unique(sample_dfs[[i]]$group)

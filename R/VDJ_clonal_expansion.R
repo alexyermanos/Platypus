@@ -16,16 +16,11 @@
 #' @return Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing also barcode and CDR3 information
 #' @export
 #' @examples
-#'#Standard B cell plot for platypus version v3
-#'#Will generate one plot per sample (from sample_id column)
 #'clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]],
 #'  celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
 #'  ,treat.incomplete.clones = "exclude"
 #'  ,treat.incomplete.cells = "proportional")
 #'
-#'#Regrouped and recolored plot in v3
-#'#Will generate a plot for each sample.
-#'#Bars are filled by the sample with the highest proportion of cells in a given clonotype
 #'clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
 #', celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
 #',treat.incomplete.clones = "exclude"
@@ -33,24 +28,8 @@
 #',color.by = "seurat_clusters") #change grouping with group.by = "column name"
 #'clonal_out[[1]] #list of plots
 #'clonal_out[[2]] #list of source dataframes
-#'
-#'#T cell plot with recoloring by vgene
-#'#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-#'#,celltype = "Tcells", clones = 30, group.by = "sample_id"
-#'#,color_by = "VDJ_vgene")
-#'
-#'#Plotting only IgD clones. Increased the value for clones to scan more of the dataset
-#'#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-#'#,celltype = "Bcells", clones = 150,subtypes = FALSE
-#'#,species = "Mouse",treat.incomplete.clones = "include"
-#'#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHD")
-#'
-#'#Plotting only clones containing cells with the IGHG2c isotype (For murine data only!)
-#'#VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-#'#,celltype = "Bcells", clones = 150,subtypes = TRUE, species = "Mouse"
-#'#,treat.incomplete.clones = "exclude"
-#'#,treat.incomplete.cells = "proportional", isotypes.to.plot = "IGHG2c")
-#'
+
+
 VDJ_clonal_expansion <- function(VDJ,
                                            celltype,
                                            clones,
@@ -65,6 +44,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
   #Adding compatibility with input naming scheme
   VDJ.matrix <- VDJ
+  VDJ.matrix[is.na(VDJ.matrix)] <- 'unknown'
   VDJ <- NULL
 
   ClonalRank <- NULL
@@ -160,10 +140,10 @@ VDJ_clonal_expansion <- function(VDJ,
           VDJ.matrix <- subset(VDJ.matrix.all, VDJ.matrix.all[,group.by] == sample.names[i])
           #get clonotype frequency table
           clono_freq <- as.data.frame(table(VDJ.matrix$clonotype_id))
-          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),]
+          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
           #get essential info from VDJ_GEX_matrix
-          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
+          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3_aa", "VJ_cdr3_aa")]
           names(curr_rep_iso)[3] <- "isotype"
 
           if(color.by != "isotype"){ #add color info in case its needed
@@ -198,10 +178,10 @@ VDJ_clonal_expansion <- function(VDJ,
               if(color.by == "isotype"){
 
                 #str_split and discard potentially second chain to avoid overcounting in the case of a cell having 2 HC with 2 different isotypes
-                curr_clone$isotype <- stringr::str_split(curr_clone$isotype, ";", simplify = T)[,1]
+                curr_clone$isotype <- stringr::str_split(curr_clone$isotype, ";", simplify = TRUE)[,1]
 
-                if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==T){ #check that there is at least one IG entry
-                  props <- table(curr_clone$isotype[which(stringr::str_detect(curr_clone$isotype, pattern = "IG")==T)]) #getting proportions
+                if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==TRUE){ #check that there is at least one IG entry
+                  props <- table(curr_clone$isotype[which(stringr::str_detect(curr_clone$isotype, pattern = "IG")==TRUE)]) #getting proportions
                   n_total <- nrow(curr_clone) #getting total number of cells in clonotype
                   props <- round(props / sum(props) * n_total,0) #calculating new number of each isotype to match proportions
                   if(sum(props) > n_total){props[which.max(props)] <- props[which.max(props)] - 1
@@ -209,12 +189,12 @@ VDJ_clonal_expansion <- function(VDJ,
 
                   curr_clone$isotype <- rep.int(names(props), props) #new isotype column with the new number of isotypes. ! these are not in the original order !
 
-                } else if (treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==F){ #if no entry is present
+                } else if (treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==FALSE){ #if no entry is present
 
                   curr_clone$isotype <- "None"
                 }
 
-                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 6), "Color"=rep("", 6), "Isotype"=rep("", 6), "ClonalRank"=rep("", 6), "clonotype_id" = rep(curr_clone$clonotype_id[1],6), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],6), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],6), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),6))  #to maintain clonotype information
+                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 6), "Color"=rep("", 6), "Isotype"=rep("", 6), "ClonalRank"=rep("", 6), "clonotype_id" = rep(curr_clone$clonotype_id[1],6), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],6), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],6), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),6))  #to maintain clonotype information
 
                 clones_per_isotype[[j]]$Counts[1] <- sum(stringr::str_count(curr_clone$isotype, "IGHG"))
                 clones_per_isotype[[j]]$Counts[2] <- sum(stringr::str_count(curr_clone$isotype, "IGHM"))
@@ -236,7 +216,7 @@ VDJ_clonal_expansion <- function(VDJ,
                 color_cur_clone <- unique(curr_rep_iso$colors)
                 n_color_cur_clone <- length(unique(curr_rep_iso$colors))
 
-                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],n_color_cur_clone), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
+                clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],n_color_cur_clone), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
 
                 for(k in 1:nrow(clones_per_isotype[[j]])){
 
@@ -297,7 +277,7 @@ VDJ_clonal_expansion <- function(VDJ,
         names(clones_per_isotype_all) <- sample.names
         return(list(output_plot,clones_per_isotype_all))
       }
-      if(variant.plot == TRUE){
+      if(variant.plot ==TRUE){
         for (i in 1:length(sample.names)){
 
           message(paste0("Starting sample ", i, "/", length(sample.names)))
@@ -319,7 +299,7 @@ VDJ_clonal_expansion <- function(VDJ,
           VDJ.matrix$clonotype_id = paste0("old", VDJ.matrix$clonotype_id)
 
           rank_raw <- as.data.frame(VDJ.matrix %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = n()))
-          rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+          rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
           #rank_raw <- rank_raw[order(rank_raw$n, decreasing = T),]
 
           rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
@@ -334,18 +314,18 @@ VDJ_clonal_expansion <- function(VDJ,
 
           #get clonotype frequency table
           clono_freq <- as.data.frame(table(VDJ.matrix$clonotype_id))
-          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),]
+          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
           is.trimmed = VDJ.matrix$VJ_sequence_nt_trimmed
 
           #Define the variants
-          if (is.null(is.trimmed) == F){
+          if (is.null(is.trimmed) == FALSE){
             VDJ.matrix$pasted_variants = paste(VDJ.matrix$VDJ_sequence_nt_trimmed, VDJ.matrix$VJ_sequence_nt_trimmed, sep = ";")
             message(paste0("Trimmed sequences found for sample ", sample.names[i]))
             message("Variants are obtained as VDJ_sequence_nt_trimmed;VJ_sequence_nt_trimmed")
           }
 
-          if (is.null(is.trimmed) == T){
+          if (is.null(is.trimmed) == TRUE){
             VDJ.matrix$pasted_variants = paste(VDJ.matrix$VDJ_sequence_nt_raw, VDJ.matrix$VJ_sequence_nt_raw, sep = ";")
             message(paste0("Trimmed sequences not found for sample ", sample.names[i]))
             message("Variants are obtained as VDJ_sequence_nt_raw;VJ_sequence_nt_raw")
@@ -398,7 +378,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
               #Delete the clones that are incomplete
               curr_rep_iso$match = curr_rep_iso$clonotype_id %in% clones_to_del
-              curr_rep_iso <- subset(curr_rep_iso, subset = match == F)
+              curr_rep_iso <- subset(curr_rep_iso, subset = match == FALSE)
               curr_rep_iso$match = NULL
 
               curr_rep_iso= curr_rep_iso[order(curr_rep_iso$clonotype_id),]
@@ -408,7 +388,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
               #Re rank the clonotypes
               rank_raw <- as.data.frame(curr_rep_iso %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = n()))
-              rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+              rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
               rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
               rank_raw$new_clonotype = paste0("newclonotype", sprintf("%05d", rank_raw$new_clonotype))
 
@@ -457,10 +437,10 @@ VDJ_clonal_expansion <- function(VDJ,
           s_id_num = NULL
 
 
-          if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(variant_df$isotype,collapse = ";"), pattern = "IG")==T){ #check that there is at least one IG entry
+          if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(variant_df$isotype,collapse = ";"), pattern = "IG")==TRUE){ #check that there is at least one IG entry
 
             for (clone_number in 1:clones){
-              subset_clone_variant_with_isotype =  variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==T),]
+              subset_clone_variant_with_isotype =  variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==TRUE),]
               subset_clone_variant = variant_df[which(variant_df$clonotype_id == clone_number),]
 
               variants <- c()
@@ -473,17 +453,17 @@ VDJ_clonal_expansion <- function(VDJ,
                 }
 
                 proportional_variants = c()
-                for (variantes in 1:length(which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==F))){
+                for (variantes in 1:length(which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==FALSE))){
                   proportional_variants= c(proportional_variants, sample(variants, 1))
                 }
 
-                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==F),]$isotype = proportional_variants
+                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==FALSE),]$isotype = proportional_variants
               } else if ((nrow(subset_clone_variant_with_isotype) < nrow(subset_clone_variant)) & (nrow(subset_clone_variant_with_isotype) == 0)){
 
                 proportional_variants = c()
                 proportional_variants = c(proportional_variants, rep("Unknown", nrow(subset_clone_variant)))
 
-                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==F),]$isotype = proportional_variants
+                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==FALSE),]$isotype = proportional_variants
               }
 
             }
@@ -492,7 +472,7 @@ VDJ_clonal_expansion <- function(VDJ,
           if(treat.incomplete.cells == "exclude" & color.by == "isotype"){
 
             variant_df$match_ex_crit <- variant_df$isotype == ""
-            variant_df <- subset(variant_df, subset = match_ex_crit == F)
+            variant_df <- subset(variant_df, subset = match_ex_crit == FALSE)
             variant_df$match_ex_crit = NULL
 
             variant_df$original_clonotypes = variant_df$clonotype_id
@@ -502,7 +482,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
 
             rank_raw <- as.data.frame(variant_df %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = sum(n)))
-            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
 
             rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
             rank_raw$new_clonotype = sprintf("%05d", rank_raw$new_clonotype)
@@ -523,7 +503,7 @@ VDJ_clonal_expansion <- function(VDJ,
             if(!any(isotypes.to.plot %in% unique(variant_df$isotype))){stop("isotype.to.plot input not found in dataframe. Please check if the isotype is spelled correctly")}
 
             variant_df$match_ex_crit <- variant_df$isotype %in% isotypes.to.plot
-            variant_df <- subset(variant_df, subset = match_ex_crit == T)
+            variant_df <- subset(variant_df, subset = match_ex_crit == TRUE)
             variant_df$match_ex_crit = NULL
 
             variant_df$original_clonotypes = variant_df$clonotype_id
@@ -533,7 +513,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
 
             rank_raw <- as.data.frame(variant_df %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = sum(n)))
-            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
 
             rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
             rank_raw$new_clonotype = sprintf("%05d", rank_raw$new_clonotype)
@@ -574,7 +554,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
     }
 
-    if(subtypes == TRUE & color.by == "isotype"){
+    if(subtypes ==TRUE & color.by == "isotype"){
 
       if(variant.plot == FALSE){
         for (i in 1:length(sample.names)){
@@ -585,14 +565,14 @@ VDJ_clonal_expansion <- function(VDJ,
 
           #get clonotype frequency table
           clono_freq <- as.data.frame(table(VDJ.matrix$clonotype_id))
-          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),]
+          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
           #get essential info from VDJ_GEX_matrix
-          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
+          curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cgene", "VDJ_cdr3_aa", "VJ_cdr3_aa")]
           curr_rep_iso$VDJ_cgene[is.null(curr_rep_iso$VDJ_cgene)] <- "none"
           names(curr_rep_iso)[3] <- "isotype"
           #no substring here, just splitting on a ; to exclude multiple isotypes of one clone
-          curr_rep_iso$isotype <- stringr::str_split(curr_rep_iso$isotype, ";", simplify = T)[,1]
+          curr_rep_iso$isotype <- stringr::str_split(curr_rep_iso$isotype, ";", simplify = TRUE)[,1]
 
           if(treat.incomplete.clones == "exclude"){
             clones_to_del <-c()
@@ -603,7 +583,7 @@ VDJ_clonal_expansion <- function(VDJ,
             }
             if(length(clones_to_del > 0)){
               clono_freq <- clono_freq[-clones_to_del,]} #remove these clones entirely
-            clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),] #reorder, to make sure
+            clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),] #reorder, to make sure
           }
 
 
@@ -615,10 +595,10 @@ VDJ_clonal_expansion <- function(VDJ,
             if(nrow(curr_clone) > 0){
 
               #str_split and discard potentially second chain to avoid overcounting in the case of a cell having 2 HC with 2 different isotypes
-              curr_clone$isotype <- stringr::str_split(curr_clone$isotype, ";", simplify = T)[,1]
+              curr_clone$isotype <- stringr::str_split(curr_clone$isotype, ";", simplify = TRUE)[,1]
 
-              if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==T){ #check that there is at least one IG entry
-                props <- table(curr_clone$isotype[which(stringr::str_detect(curr_clone$isotype, pattern = "IG")==T)]) #getting proportions
+              if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==TRUE){ #check that there is at least one IG entry
+                props <- table(curr_clone$isotype[which(stringr::str_detect(curr_clone$isotype, pattern = "IG")==TRUE)]) #getting proportions
                 n_total <- nrow(curr_clone) #getting total number of cells in clonotype
                 props <- round(props / sum(props) * n_total,0) #calculating new number of each isotype to match proportions
                 if(sum(props) > n_total){props[which.max(props)] <- props[which.max(props)] - 1
@@ -626,12 +606,12 @@ VDJ_clonal_expansion <- function(VDJ,
 
                 curr_clone$isotype <- rep.int(names(props), props) #new isotype column with the new number of isotypes. ! these are not in the original order !
 
-              } else if (treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==F){ #if no entry is present
+              } else if (treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(curr_clone$isotype,collapse = ";"), pattern = "IG")==FALSE){ #if no entry is present
 
                 curr_clone$isotype <- "None"
               }
 
-              clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 14), "Color"=rep("", 14), "Isotype"=rep("", 14), "ClonalRank"=rep("", 14), "clonotype_id" = rep(curr_clone$clonotype_id[1],14), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],14), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],14), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),14))  #to maintain clonotype information
+              clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, 14), "Color"=rep("", 14), "Isotype"=rep("", 14), "ClonalRank"=rep("", 14), "clonotype_id" = rep(curr_clone$clonotype_id[1],14), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],14), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],14), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),14))  #to maintain clonotype information
 
               clones_per_isotype[[j]]$Counts[1] <- sum(stringr::str_count(curr_clone$isotype, "IGHG1"))
               clones_per_isotype[[j]]$Counts[2] <- sum(stringr::str_count(curr_clone$isotype, "IGHG2"))
@@ -721,7 +701,7 @@ VDJ_clonal_expansion <- function(VDJ,
         names(clones_per_isotype_all) <- sample.names
         return(list(output_plot,clones_per_isotype_all))
       }
-      if(variant.plot == TRUE){
+      if(variant.plot ==TRUE){
         for (i in 1:length(sample.names)){
 
           message(paste0("Starting sample ", i, "/", length(sample.names)))
@@ -757,18 +737,18 @@ VDJ_clonal_expansion <- function(VDJ,
 
           #get clonotype frequency table
           clono_freq <- as.data.frame(table(VDJ.matrix$clonotype_id))
-          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),]
+          clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
           is.trimmed = VDJ.matrix$VJ_sequence_nt_trimmed
 
           #Define the variants
-          if (is.null(is.trimmed) == F){
+          if (is.null(is.trimmed) == FALSE){
             VDJ.matrix$pasted_variants = paste(VDJ.matrix$VDJ_sequence_nt_trimmed, VDJ.matrix$VJ_sequence_nt_trimmed, sep = ";")
             message(paste0("Trimmed sequences found for sample ", sample.names[i]))
             message("Variants are obtained as VDJ_sequence_nt_trimmed;VJ_sequence_nt_trimmed")
           }
 
-          if (is.null(is.trimmed) == T){
+          if (is.null(is.trimmed) == TRUE){
             VDJ.matrix$pasted_variants = paste(VDJ.matrix$VDJ_sequence_nt_raw, VDJ.matrix$VJ_sequence_nt_raw, sep = ";")
             message(paste0("Trimmed sequences not found for sample ", sample.names[i]))
             message("Variants are obtained as VDJ_sequence_nt_raw;VJ_sequence_nt_raw")
@@ -780,7 +760,7 @@ VDJ_clonal_expansion <- function(VDJ,
           names(curr_rep_iso)[3] <- "isotype"
 
           #no substring here, just splitting on a ; to exclude multiple isotypes of one clone
-          curr_rep_iso$isotype <- stringr::str_split(curr_rep_iso$isotype, ";", simplify = T)[,1]
+          curr_rep_iso$isotype <- stringr::str_split(curr_rep_iso$isotype, ";", simplify = TRUE)[,1]
 
 
 
@@ -813,7 +793,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
               #Delete the clones that are incomplete
               curr_rep_iso$match = curr_rep_iso$clonotype_id %in% clones_to_del
-              curr_rep_iso <- subset(curr_rep_iso, subset = match == F)
+              curr_rep_iso <- subset(curr_rep_iso, subset = match == FALSE)
               curr_rep_iso$match = NULL
 
               curr_rep_iso= curr_rep_iso[order(curr_rep_iso$clonotype_id),]
@@ -823,7 +803,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
               #Re rank the clonotypes
               rank_raw <- as.data.frame(curr_rep_iso %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = n()))
-              rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+              rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
               rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
               rank_raw$new_clonotype = paste0("newclonotype", sprintf("%05d", rank_raw$new_clonotype))
 
@@ -863,10 +843,10 @@ VDJ_clonal_expansion <- function(VDJ,
           s_id = NULL
           s_id_num = NULL
 
-          if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(variant_df$isotype,collapse = ";"), pattern = "IG")==T){ #check that there is at least one IG entry
+          if(treat.incomplete.cells == "proportional" & stringr::str_detect(paste0(variant_df$isotype,collapse = ";"), pattern = "IG")==TRUE){ #check that there is at least one IG entry
 
             for (clone_number in 1:clones){
-              subset_clone_variant_with_isotype =  variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==T),]
+              subset_clone_variant_with_isotype =  variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==TRUE),]
               subset_clone_variant = variant_df[which(variant_df$clonotype_id == clone_number),]
 
               variants <- c()
@@ -879,17 +859,17 @@ VDJ_clonal_expansion <- function(VDJ,
                 }
 
                 proportional_variants = c()
-                for (variantes in 1:length(which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==F))){
+                for (variantes in 1:length(which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==FALSE))){
                   proportional_variants= c(proportional_variants, sample(variants, 1))
                 }
 
-                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==F),]$isotype = proportional_variants
+                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==FALSE),]$isotype = proportional_variants
               } else if ((nrow(subset_clone_variant_with_isotype) < nrow(subset_clone_variant)) & (nrow(subset_clone_variant_with_isotype) == 0)){
 
                 proportional_variants = c()
                 proportional_variants = c(proportional_variants, rep("Unknown", nrow(subset_clone_variant)))
 
-                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==F),]$isotype = proportional_variants
+                variant_df[which(variant_df$clonotype_id == clone_number & stringr::str_detect(variant_df$isotype, pattern = "IG")==FALSE),]$isotype = proportional_variants
               }
 
             }
@@ -898,7 +878,7 @@ VDJ_clonal_expansion <- function(VDJ,
           if(treat.incomplete.cells == "exclude" & color.by == "isotype"){
 
             variant_df$match_ex_crit <- variant_df$isotype == ""
-            variant_df <- subset(variant_df, subset = match_ex_crit == F)
+            variant_df <- subset(variant_df, subset = match_ex_crit == FALSE)
             variant_df$match_ex_crit = NULL
 
             variant_df$original_clonotypes = variant_df$clonotype_id
@@ -908,7 +888,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
 
             rank_raw <- as.data.frame(variant_df %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = sum(n)))
-            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
 
             rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
             rank_raw$new_clonotype = sprintf("%05d", rank_raw$new_clonotype)
@@ -928,7 +908,7 @@ VDJ_clonal_expansion <- function(VDJ,
             if(!any(isotypes.to.plot %in% unique(variant_df$isotype))){stop("isotype.to.plot input not found in dataframe. Please check if the isotype is spelled correctly")}
 
             variant_df$match_ex_crit <- variant_df$isotype %in% isotypes.to.plot
-            variant_df <- subset(variant_df, subset = match_ex_crit == T)
+            variant_df <- subset(variant_df, subset = match_ex_crit == TRUE)
             variant_df$match_ex_crit = NULL
 
             variant_df$original_clonotypes = variant_df$clonotype_id
@@ -938,7 +918,7 @@ VDJ_clonal_expansion <- function(VDJ,
 
 
             rank_raw <- as.data.frame(variant_df %>% dplyr::group_by(clonotype_id) %>% dplyr::summarise(n = sum(n)))
-            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = T),]
+            rank_raw <- rank_raw[order(rank_raw$n, rank_raw$clonotype_id, decreasing = TRUE),]
 
             rank_raw$new_clonotype <- 1:length(rank_raw$clonotype_id)
             rank_raw$new_clonotype = sprintf("%05d", rank_raw$new_clonotype)
@@ -1010,10 +990,10 @@ VDJ_clonal_expansion <- function(VDJ,
       VDJ.matrix <- subset(VDJ.matrix.all, VDJ.matrix.all[,group.by] == sample.names[i])
       #get clonotype frequency table
       clono_freq <- as.data.frame(table(VDJ.matrix$clonotype_id))
-      clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = T),]
+      clono_freq <- clono_freq[order(clono_freq$Freq, decreasing = TRUE),]
 
       #get essential info from VDJ_GEX_matrix
-      curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cdr3s_aa", "VJ_cdr3s_aa")]
+      curr_rep_iso <- VDJ.matrix[,c("barcode","clonotype_id", "VDJ_cdr3_aa", "VJ_cdr3_aa")]
 
       if(color.by[1] != "isotype"){ #add color info in case its needed
         curr_rep_iso$colors <- as.character(VDJ.matrix[,color.by]) #get as character
@@ -1040,7 +1020,7 @@ VDJ_clonal_expansion <- function(VDJ,
           color_cur_clone <- unique(curr_clone$colors)
           n_color_cur_clone <- length(unique(curr_clone$colors))
 
-          clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3s_aa" = rep(curr_clone$VDJ_cdr3s_aa[which(curr_clone$VDJ_cdr3s_aa != "")][1],n_color_cur_clone), "VJ_cdr3s_aa" = rep(curr_clone$VJ_cdr3s_aa[which(curr_clone$VJ_cdr3s_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
+          clones_per_isotype[[j]] <- data.frame("Counts"=rep(0, n_color_cur_clone), "Color"= color_cur_clone, "ClonalRank"=rep("", n_color_cur_clone), "clonotype_id" = rep(curr_clone$clonotype_id[1],n_color_cur_clone), "VDJ_cdr3_aa" = rep(curr_clone$VDJ_cdr3_aa[which(curr_clone$VDJ_cdr3_aa != "")][1],n_color_cur_clone), "VJ_cdr3_aa" = rep(curr_clone$VJ_cdr3_aa[which(curr_clone$VJ_cdr3_aa != "")][1],n_color_cur_clone), "barcode" = rep(paste0(curr_clone$barcode, collapse = ";"),n_color_cur_clone))
 
 
           if(color.by[1] == "isotype"){

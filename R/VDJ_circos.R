@@ -14,22 +14,22 @@
 #' @return Returns a circos plot.
 #' @export
 #' @examples
-#' \dontrun{
-#' # manual replotting of Circos plot:
-#' VDJ_circos(Adj_matrix =  VDJ_alpha_beta_Vgene_circos_output[[2]][[1]], 
-#'   grid.col = VDJ_alpha_beta_Vgene_circos_output[[3]], 
-#'   group = VDJ_alpha_beta_Vgene_circos_output[[4]], 
-#'   c.count.label.size = 0.4, 
-#'   gene.label.size = 0.5, 
-#'   arr.col = data.frame(c("TRBV10"),c("TRBJ2-7"), c("black")), 
+#' \donttest{
+#' try({
+#' VDJ_circos(Adj_matrix =  VDJ_alpha_beta_Vgene_circos_output[[2]][[1]],
+#'   grid.col = VDJ_alpha_beta_Vgene_circos_output[[3]],
+#'   group = VDJ_alpha_beta_Vgene_circos_output[[4]],
+#'   c.count.label.size = 0.4,
+#'   gene.label.size = 0.5,
+#'   arr.col = data.frame(c("TRBV10"),c("TRBJ2-7"), c("black")),
 #'   axis="percent")
-#' 
+#'})
 #'}
 
 VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold, axis, c.count.label, arr.col, arr.direction, gene.label.size, gene.label, c.count.label.size){
 
   #### Initailize Variables ####
-  
+
   df <- NULL
   df1 <- NULL
   ylim <- NULL
@@ -45,42 +45,42 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
   by <- NULL
   xrange <- NULL
 
-  
-  
-  if(missing(Adj_matrix)){print("Error: No Adjacency matrix supplied.")}
+
+
+  if(missing(Adj_matrix)){stop("Error: No Adjacency matrix supplied.")}
   if(missing(axis)){axis <- "max"}
   if(missing(label.threshold)){label.threshold <- 0}
   if(missing(grid.col)){grid.col <- stats::setNames(grDevices::rainbow(length(union(rownames(Adj_matrix), colnames(Adj_matrix)))),sample(union(rownames(Adj_matrix), colnames(Adj_matrix))))}
-  if(missing(c.count.label)){c.count.label <- T}
+  if(missing(c.count.label)){c.count.label <- TRUE}
   if(missing(c.count.label.size)){c.count.label.size <- 0.6}
   if(missing(arr.col)){arr.col <- data.frame(c("dummy1"), c("dummy2"), c(""))}
   if(missing(arr.direction)){arr.direction <- 1}
   if(missing(gene.label.size)){gene.label.size <- "undef"}
-  if(missing(gene.label)){gene.label <- T}
+  if(missing(gene.label)){gene.label <- TRUE}
   if(missing(platy.theme)){platy.theme <- "pretty"}
-  
-  
+
+
   if(platy.theme == "pretty"){
-    
+
   #### Rearrange Adj Matrix ####
-  
+
     df <- reshape2::melt(Adj_matrix)
     df1 <- data.frame(Var = c(rownames(Adj_matrix), colnames(Adj_matrix)), value= c(rowSums(Adj_matrix), colSums(Adj_matrix)))
     df1 <- df1[order(df1$value),] #does not really work if group argument is used at the same time...
-    
+
     gene.label.length <- max(nchar(gsub("^\\D+", "", gsub("TRAV", "", gsub("TRBV", "",  gsub("TRAJ", "", gsub("TRBJ", "", gsub("IGKV", "", gsub("IGLV", "", gsub("IGHV", "", gsub("IGKJ", "", gsub("IGLJ", "", gsub("IGHJ", "", append(dimnames(Adj_matrix)[[1]], dimnames(Adj_matrix)[[2]])))))))))))))) # Determine length of longest gene label
 
   #### Draw Circos-Plot ####
-  
+
     circlize::circos.clear()
     circlize::circos.par(points.overflow.warning=FALSE)
-    
+
     circlize::chordDiagram(df,
-                 link.sort = T,
-                 link.decreasing = T,
+                 link.sort = TRUE,
+                 link.decreasing = TRUE,
                  order = df1$Var,
                  group = group,
-                 directional = arr.direction, 
+                 directional = arr.direction,
                  direction.type = c("arrows"),
                  link.arr.col = arr.col,
                  link.arr.length = 0.2,
@@ -93,7 +93,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
                    list(track.height = circlize::mm_h(3.5), track.margin = c(0.01, 0))),   # track 4: clone count
                  grid.col = grid.col)
     # circlize::circos.info()
-   
+
 
   #### Add Gene/Cluster labels to circos plot ####
     if(gene.label){
@@ -102,7 +102,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
           ycenter <- circlize::get.cell.meta.data("ycenter")
           xcenter <- circlize::get.cell.meta.data("xcenter")
           sector.index <- circlize::get.cell.meta.data("sector.index")
-          
+
           sector.index <- gsub("TRAV", "", sector.index)
           sector.index <- gsub("TRBV", "", sector.index)
           sector.index <- gsub("TRAJ", "", sector.index)
@@ -114,7 +114,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
           sector.index <- gsub("IGLJ", "", sector.index)
           sector.index <- gsub("IGHJ", "", sector.index)
           sector.index <- gsub("^\\D+", "", sector.index)
-          
+
           if(gene.label.size=="undef"){
             if(nchar(sector.index)>2){
               label.cex <- 0.6
@@ -126,9 +126,9 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
               label.cex <- 0.7
             }
           }else{label.cex <- gene.label.size}
-          
+
           circlize::circos.text(xcenter, ycenter-circlize::mm_h(7+gene.label.length*0.1), sector.index,
-                                facing = "clockwise", niceFacing = TRUE, col="black", font = 2, cex=label.cex) 
+                                facing = "clockwise", niceFacing = TRUE, col="black", font = 2, cex=label.cex)
         }else{
           # ylim <- circlize::get.cell.meta.data("ylim")
           # xcenter <- circlize::get.cell.meta.data("xcenter")
@@ -137,19 +137,19 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
           #                       facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col="white")
         }
       }, bg.border = NA) # here set bg.border to NA is important
-      
+
     }
-    
-    
+
+
     #### Add Group labels to circos plot ####
-    
+
     for(p in unique(unname(group))) {
-      
+
       sub_group = names(group[group == p])
-      sector_indices <- circlize::get.all.sector.index() 
+      sector_indices <- circlize::get.all.sector.index()
       sub_group <- sub_group[which(sub_group %in% sector_indices)]
-      
-      circlize::highlight.sector(sector.index = sub_group, 
+
+      circlize::highlight.sector(sector.index = sub_group,
                                  track.index = 2,
                                  col = "black",
                                  text = p,
@@ -159,10 +159,10 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
                                  facing = "bending.inside",
                                  niceFacing = TRUE)
     }
-    
-    
+
+
     #### Add axis to circos plot ####
-    
+
     if(axis=="basic"){
       for(si in circlize::get.all.sector.index()) {
         circlize::circos.axis(h = "top", labels.cex = c.count.label.size, sector.index = si, track.index = 5)
@@ -174,7 +174,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
         ylim = circlize::get.cell.meta.data("ylim")
         sector.name = circlize::get.cell.meta.data("sector.index")
         xplot = circlize::get.cell.meta.data("xplot")
-        
+
         circlize::circos.lines(xlim, c(min(ylim), min(ylim)), lty = 4) # dotted line
         by = ifelse(abs(xplot[2] - xplot[1]) > 30, 0.2, 0.5)
         for(p in seq(by, 1, by = by)) {
@@ -192,7 +192,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
         ylim = circlize::get.cell.meta.data("ylim")
         sector.name = circlize::get.cell.meta.data("sector.index")
         xrange = circlize::get.cell.meta.data("xrange")
-        
+
         #circos.lines(xlim, c(min(ylim), min(ylim)), lty = 1)
         if(c.count.label){
           if(circlize::get.cell.meta.data("xrange")> label.threshold){
@@ -202,31 +202,31 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
         }
       }, bg.border = NA)
     }
-    
-    
+
+
   }
 
   if(platy.theme == "spiky"){
-    
+
     #### Rearrange Adj Matrix ####
-    
+
     df <- reshape2::melt(Adj_matrix)
     df1 <- data.frame(Var = c(rownames(Adj_matrix), colnames(Adj_matrix)), value= c(rowSums(Adj_matrix), colSums(Adj_matrix)))
     df1 <- df1[order(df1$value),] #does not really work if group argument is used at the same time...
-    
+
     gene.label.length <- max(nchar(gsub("^\\D+", "", gsub("TRAV", "", gsub("TRBV", "",  gsub("TRAJ", "", gsub("TRBJ", "", gsub("IGKV", "", gsub("IGLV", "", gsub("IGHV", "", gsub("IGKJ", "", gsub("IGLJ", "", gsub("IGHJ", "", append(dimnames(Adj_matrix)[[1]], dimnames(Adj_matrix)[[2]])))))))))))))) # Determine length of longest gene label
-    
+
     #### Draw Circos-Plot ####
-    
+
     circlize::circos.clear()
     circlize::circos.par(points.overflow.warning=FALSE)
-    
+
     circlize::chordDiagram(df,
-                           link.sort = T,
-                           link.decreasing = T,
+                           link.sort = TRUE,
+                           link.decreasing = TRUE,
                            order = df1$Var,
                            group = group,
-                           directional = arr.direction, 
+                           directional = arr.direction,
                            direction.type = c("arrows"),
                            link.arr.col = arr.col,
                            link.arr.length = 0.2,
@@ -234,14 +234,14 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
                            preAllocateTracks = list(track.height = circlize::mm_h(5), track.margin = c(circlize::mm_h(5), 0)),
                            grid.col = grid.col)
     # circlize::circos.info()
-    
-    
+
+
     #### Add Gene/Cluster labels to circos plot ####
-    
+
     if(gene.label.size == "undef"){
       gene.label.size <- 0.5
     }
-    
+
     if(gene.label){
         circlize::circos.track(track.index = 1, panel.fun = function(x, y) {
           if(circlize::get.cell.meta.data("xrange")> label.threshold){
@@ -258,16 +258,16 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
           #                       facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.6), cex=0.5, col="white")
         }
       }, bg.border = NA) # here set bg.border to NA is important
-      
-    
-    
-    
+
+
+
+
     #### Add Group labels to circos plot ####
-  
+
       # no group labels
-    
+
     #### Add axis to circos plot ####
-    
+
     if(axis=="basic"){
       for(si in circlize::get.all.sector.index()) {
         circlize::circos.axis(h = "top", labels.cex = c.count.label.size, sector.index = si, track.index = 2)
@@ -279,7 +279,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
         ylim = circlize::get.cell.meta.data("ylim")
         sector.name = circlize::get.cell.meta.data("sector.index")
         xplot = circlize::get.cell.meta.data("xplot")
-        
+
         circlize::circos.lines(xlim, c(min(ylim), min(ylim)), lty = 4) # dotted line
         by = ifelse(abs(xplot[2] - xplot[1]) > 30, 0.2, 0.5)
         for(p in seq(by, 1, by = by)) {
@@ -297,7 +297,7 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
         ylim = circlize::get.cell.meta.data("ylim")
         sector.name = circlize::get.cell.meta.data("sector.index")
         xrange = circlize::get.cell.meta.data("xrange")
-        
+
         #circos.lines(xlim, c(min(ylim), min(ylim)), lty = 1)
         if(c.count.label){
           if(circlize::get.cell.meta.data("xrange")> label.threshold){
@@ -307,13 +307,12 @@ VDJ_circos <- function(Adj_matrix, platy.theme, group, grid.col, label.threshold
         }
       }, bg.border = NA)
     }
-    
+
     }
-    
+
   }
-  
+
   #### Return Plot ####
-  
+
   return(plot)
 }
-

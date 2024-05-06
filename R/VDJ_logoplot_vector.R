@@ -14,9 +14,17 @@
 
 VDJ_logoplot_vector <- function(cdr3.vector,
                                 length_cdr3,
-                                seq_type) {
+                                seq_type,
+                                namespace,
+                                font,
+                                method) {
   if(missing(length_cdr3)) length_cdr3 <- "auto"
   if(missing(seq_type)) seq_type <- "auto"
+  if(missing(namespace)) namespace <- NULL
+  if(missing(font)) font <- 'roboto_medium'
+  if(missing(method)) method <- 'bits'
+
+
 
   cdr3.vector <- as.character(cdr3.vector)
   cdr3.vector[is.na(cdr3.vector)] <- ""
@@ -35,5 +43,5 @@ VDJ_logoplot_vector <- function(cdr3.vector,
     length_cdr3 <- as.numeric(names(which.max(table(nchar(cdr3.vector)))))
   }
   message(paste0("Returning logoplot based on ", length(cdr3.vector[which(nchar(cdr3.vector)==length_cdr3)]), " sequences of a total ", length(cdr3.vector), " input sequences"))
-  return(ggseqlogo::ggseqlogo(cdr3.vector[which(nchar(cdr3.vector)==length_cdr3)], method='prob', seq_type= seq_type))
+  return(ggseqlogo::ggseqlogo(cdr3.vector[which(nchar(cdr3.vector)==length_cdr3)], method=method, seq_type= seq_type, namespace=namespace, font= font))
 }

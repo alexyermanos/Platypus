@@ -11,10 +11,9 @@
 #' @param is.bulk logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_Vgene_usage_barplot function is compatible for use with bulk data. Defaults to False (F).
 #' @export
 #' @examples
-#' \dontrun{
 #' VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vgm[[1]],
 #' HC.gene.number = 2, platypus.version = "v3")
-#'}
+#'
 
 VDJ_Vgene_usage_barplot <- function(VDJ,
                                     group.by,
@@ -26,15 +25,15 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
 
   Vgene <- NULL
   Percentage <- NULL
-  Nr_of_VDJ_chains <- NULL
-  Nr_of_VJ_chains <- NULL
+  VDJ_chain_count <- NULL
+  VJ_chain_count <- NULL
   sample_id <- NULL
   HC_Vgene_usage <- list()
   HC_Vgene_usage_plot <- list()
   LC_Vgene_usage <- list()
   LC_Vgene_usage_plot <- list()
 
-  if(missing(is.bulk)) is.bulk <- F
+  if(missing(is.bulk)) is.bulk <- FALSE
   if(missing(LC.Vgene)) LC.Vgene <- FALSE
   if(missing(platypus.version)) platypus.version <- "v3"
   if(missing(HC.gene.number)) HC.gene.number <- 10
@@ -66,7 +65,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
 
 #  }
 
-    if(LC.Vgene==T){
+    if(LC.Vgene==TRUE){
 
       for (i in 1:length(clonotype.list)){
 
@@ -96,16 +95,16 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
 
   } else if(platypus.version == "v3"){
 
-    if(is.bulk == F){
+    if(is.bulk == FALSE){
       #filtering for max 1VDJ 1VJ chain
-      VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
+      VDJ.matrix <- subset(VDJ.matrix, VDJ_chain_count == 1 & VJ_chain_count == 1)
     }
 
     if(missing(group.by)) group.by <- "sample_id"
     if(group.by != "sample_id"){
       if(group.by %in% names(VDJ.matrix)){
         VDJ.matrix$sample_id <- as.character(VDJ.matrix[,group.by])
-        if(any(is.na(VDJ.matrix$sample_id)) == T){
+        if(any(is.na(VDJ.matrix$sample_id)) == TRUE){
           VDJ.matrix <- VDJ.matrix[!is.na(VDJ.matrix$sample_id),]
           warning(paste0("Filtered out cells with 'NA' in grouping column"))
         }
@@ -118,7 +117,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
     for(i in 1:length(unique(VDJ.matrix$sample_id))){
       clonotype.list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
       #removing extra cells cells to leave only 1 per clonotype
-      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == F,]
+      clonotype.list[[i]] <- clonotype.list[[i]][duplicated(clonotype.list[[i]]$clonotype_id_10x) == FALSE,]
     }
     names(clonotype.list) <- unique(VDJ.matrix$sample_id)
     message(paste0("Sample order: ", paste0(unique(VDJ.matrix$sample_id), collapse = " ; ")))
@@ -145,7 +144,7 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
 
     #  }
 
-    if(LC.Vgene==T){
+    if(LC.Vgene==TRUE){
 
       for (i in 1:length(clonotype.list)){
 
@@ -172,4 +171,3 @@ VDJ_Vgene_usage_barplot <- function(VDJ,
     return(Vgene_usage_plot)
   }
 }
-

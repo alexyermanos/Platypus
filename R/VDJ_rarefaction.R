@@ -13,11 +13,11 @@
 #' @export
 #' @examples
 #'
-#' \dontrun{
-#' #Rarefaction analysis of CDRH3 across samples
+#' \donttest{
+#' try({
 #' plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
 #' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id")
-#'
+#'})
 #'}
 
 
@@ -37,7 +37,7 @@ VDJ_rarefaction <- function(VDJ,
   if(missing(VDJ)) stop('Please input your data as a VDJ matrix')
   if(missing(feature.columns)) feature.columns <- c('VDJ_cdr3s_aa')
   if(missing(grouping.column)) grouping.column <- 'sample_id' # or =='none'
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- F
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- FALSE
   if(missing(rarefaction.type)) rarefaction.type <- 'sample.size' #vs coverage.based and sample.completeness
   if(missing(hill.numbers)) hill.numbers <- c(0,1,2)
   if(missing(number.resamples)) number.resamples <- 50
@@ -52,9 +52,9 @@ VDJ_rarefaction <- function(VDJ,
   get_abundances <- function(VDJ, feature.columns, grouping.column, VDJ.VJ.1chain){
 
     if(length(feature.columns) > 1){
-      combine.features <- T
+      combine.features <- TRUE
     }else{
-      combine.features <- F
+      combine.features <- FALSE
     }
 
     abundance_df <- VDJ_abundances(VDJ,
@@ -93,7 +93,7 @@ VDJ_rarefaction <- function(VDJ,
 
     inext_object <- iNEXT::iNEXT(inext_rep_list, q=hill.numbers, datatype='abundance', nboot = number.resamples, endpoint = endpoint, size = sample.sizes)
 
-    output_plots[[1]] <- iNEXT::ggiNEXT(inext_object, type=rarefaction_type_dict[rarefaction.type], facet.var='order') +
+    output_plots[[1]] <- iNEXT::ggiNEXT(inext_object, type=as.numeric(rarefaction_type_dict[rarefaction.type]), facet.var="Order.q") +
                          ggplot2::theme_bw() +
                          ggplot2::theme_classic() +
                          ggplot2::theme(panel.background = ggplot2::element_blank(), panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank(), axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1)) +
@@ -103,7 +103,7 @@ VDJ_rarefaction <- function(VDJ,
 
 
 
-    output_plots[[2]] <- iNEXT::ggiNEXT(inext_object, type=rarefaction_type_dict[rarefaction.type], facet.var='site') +
+    output_plots[[2]] <- iNEXT::ggiNEXT(inext_object, type=as.numeric(rarefaction_type_dict[rarefaction.type]), facet.var="Assemblage") +
                          ggplot2::theme_bw() +
                          ggplot2::theme_classic() +
                          ggplot2::theme(panel.background = ggplot2::element_blank(), panel.grid.major=ggplot2::element_blank(), panel.grid.minor=ggplot2::element_blank(), axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1)) +
