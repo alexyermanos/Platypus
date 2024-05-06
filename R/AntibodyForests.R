@@ -27,12 +27,12 @@
 #' 'cosine'   : cosine distance equals to 1 - cosine similarity (the strings are converted into vectors containing the frequency of all single elements (A and B), whereby the cosine similarity (Sc) equals to the dot product of these vectors divided by the product of the magnitude of these vectors, which can be written in a formula as Sc(A, B) = A . B / (||A|| x ||B||)).
 #' 'jaccard'  : Jaccard distance equals to 1 - Jaccard index (the strings are converted into sets of single elements (A and B), whereby the Jaccard index (J) equals to the size of the intersection of the two sets divided by the size of the union of the sets, which can be written in a formula as J(A, B) = |A ∩ B| / |A ∪ B|).
 #' 'jw'       : Jaro-Winkler distance equals to 1 - Jaro-Winkler similarity (Jaro-Winkler similary is calculated with the following formulas: Sw = Sj + P * L * (1-Sj) in which Sw is the Jaro-Winkler similary, Sj is the Jaro similarity, P is the scaling factor (defaults to 0), and L is the length of the matching prefix; and Sj = 1/3 * (m/|s1| + m/|s2| + (m-t)/m) in which Sj is the Jaro similarity, m is the number of matching elements, |s1| and |s2|are the lengths of the strings, and t is the number of transpositions).
-#' @param dna.model string or vector of strings - specifies the DNA models ...
+#' @param dna.model string or vector of strings - specifies the DNA model(s) to be used during distance calculation or maximum likelihood tree inference.
 #' When using one of the distance-based construction methods ('phylo.network.default', 'phylo.network.mst', or 'phylo.tree.nj'), an evolutionary model can be used to compute a pairwise distance matrix from DNA sequences using the 'ape::dist.dna()' function. 
 #' Available DNA models: 'raw', 'N', 'TS', 'TV', 'JC69', 'K80', 'F81', 'K81', 'F84', 'BH87', 'T92', 'TN93', 'GG95', 'logdet', 'paralin', 'indel', and 'indelblock'.
 #' When using the 'phylo.tree.ml' construction method, models are compared with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb()' function to infer the maximum likelihood tree. The best model according to the BIC (Bayesian information criterion) will be used to infer the tree. Defaults to "all" (when nucleotide sequences are found in the specified 'sequence.columns' and the 'germline.columns').
 #' Available DNA models: 'JC', 'F81', 'K80', 'HKY', 'TrNe', 'TrN', 'TPM1', 'K81', 'TPM1u', 'TPM2', 'TPM2u', 'TPM3', 'TPM3u', 'TIM1e', 'TIM1', 'TIM2e', 'TIM2', 'TIM3e', 'TIM3', 'TVMe', 'TVM', 'SYM', and 'GTR'.
-#' @param aa.model string or vector of strings - specifies the AA models...
+#' @param aa.model string or vector of strings - specifies the AA model(s) to be used during distance calculation or maximum likelihood tree inference.
 #' When using one of the distance-based construction methods ('phylo.network.default', 'phylo.network.mst', or 'phylo.tree.nj'), an evolutionary model can be used to compute a pairwise distance matrix from AA sequences using the 'phangorn::dist.ml()' function. 
 #' Available AA models: 'WAG', 'JTT', 'LG', 'Dayhoff', 'cpREV', 'mtmam', 'mtArt', 'MtZoa', 'mtREV24', 'VT', 'RtREV', 'HIVw', 'HIVb', 'FLU', 'Blosum62', 'Dayhoff_DCMut', and 'JTT_DCMut'.
 #' When using the 'phylo.tree.ml' construction method, models are compared with each other with the 'phangorn::modelTest()' function, of which the output will be used as input for the  'phangorn::pml_bb' function to infer the maximum likelihood tree. The best model according to the BIC (Bayesian information criterion) will be used to infer the tree. Defaults to "all" (when protein sequences are found in the specified 'sequence.columns' and the 'germline.columns').
@@ -123,9 +123,9 @@ AntibodyForests <- function(VDJ,
   if(!all(sequence.columns == gsub("germline", "sequence", germline.columns))){message("WARNING: Please double check whether the columns in 'germline.columns' correspond to the columns in 'sequence.columns'.\n")}
   
   # Define the 'sequence_type' (DNA sequence or protein sequence) based on the sequences in the specified 'sequence.columns' and the 'germline.columns'
-  if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) grepl(pattern = "^[ACTG]+$", VDJ[y, x])))))){
+  if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) grepl(pattern = "^[ACTG-]+$", VDJ[y, x])))))){
     sequence_type <- "DNA"
-  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) (grepl(pattern = "^[ARNDCQEGHILKMFPSTWYV*]+$", VDJ[y, x]) && !grepl(pattern = "^[ACTG]+$", VDJ[y, x]))))))){
+  } else if(all(sapply(c(sequence.columns, germline.columns), function(x) all(sapply(1:nrow(VDJ), function(y) (grepl(pattern = "^[ARNDCQEGHILKMFPSTWYV*-]+$", VDJ[y, x]) && !grepl(pattern = "^[ACTG]+$", VDJ[y, x]))))))){
     sequence_type <- "AA"
   } else{
     # If the 'sequence_type' cannot be defined, a message is returned and execution is stopped
@@ -223,15 +223,15 @@ AntibodyForests <- function(VDJ,
   # If the 'codon.model' parameter is specified, while protein sequences are found in the selected 'sequence.columns' and 'germline.columns', a message is returned and execution is stopped
   if(!all(is.na(codon.model)) && sequence_type == "AA"){stop("ERROR: Currently, a codon model can only be used for tree inference, if the sequences in the selected 'sequence.columns' and 'germline.columns' are DNA sequences.")}
   
-  # If the 'include' parameter is missing, specify the output objects based on the specified 'construction.method'
-  if(missing(include) && construction.method == "phylo.network.default"){include <- c("nodes", "dist", "igraph", "edges", "metrics")}
-  if(missing(include) && construction.method == "phylo.network.mst"){include <- c("nodes", "dist", "igraph", "edges")}
-  if(missing(include) && construction.method == "phylo.tree.nj"){include <- c("nodes", "dist", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
-  if(missing(include) && construction.method == "phylo.tree.mp"){include <- c("nodes", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
-  if(missing(include) && construction.method == "phylo.tree.ml"){include <- c("nodes", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics")}
-  if(missing(include) && construction.method == "phylo.tree.IgPhyML"){include <- c("nodes", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
-  # If the 'include' parameter is set to 'all', all output objects will be returned
-  if(all(include == "all")){include <- c("nodes", "dist", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics")}
+  # If the 'include' parameter is missing, it is set to 'all'
+  if(missing(include)){include <- "all"}
+  # If the 'include' parameter is set to 'all', all the object that are created with the specified 'construction.method' will be included in the AntibodyForests object
+  if(all(include == "all") && construction.method == "phylo.network.default"){include <- c("nodes", "dist", "igraph", "edges", "metrics")}
+  if(all(include == "all") && construction.method == "phylo.network.mst"){include <- c("nodes", "dist", "igraph", "edges")}
+  if(all(include == "all") && construction.method == "phylo.tree.nj"){include <- c("nodes", "dist", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
+  if(all(include == "all") && construction.method == "phylo.tree.mp"){include <- c("nodes", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
+  if(all(include == "all") && construction.method == "phylo.tree.ml"){include <- c("nodes", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics")}
+  if(all(include == "all") && construction.method == "phylo.tree.IgPhyML"){include <- c("nodes", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes")}
   # If the 'include' parameter contains output objects that are not created/recognized, a message is returned and execution is stopped
   if(!all(include %in% c("nodes", "dist", "msa", "phylo", "igraph", "igraph.with.inner.nodes", "edges", "edges.with.inner.nodes", "metrics"))){stop("ERROR: Not all specified output objects are recognized. Please choose from the following options: 'nodes', 'dist', 'msa', 'phylo', 'igraph', 'igraph.with.inner.nodes', 'edges', 'edges.with.inner.nodes'', and 'metrics'.")}
   
@@ -616,7 +616,7 @@ AntibodyForests <- function(VDJ,
       igraph_object <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
       
       # Create matrix containing the edges of tree tree between internal nodes (first column) and terminal nodes (second column)
-      edges <- igraph::as_edgelist()(igraph_object)
+      edges <- igraph::as_edgelist(igraph_object)
       
       # Create dataframe containing the edges plus a third column containing the length of the edges
       edges <- data.frame(do.call(rbind, lapply(1:nrow(edges), function(x) c(edges[x, 1], edges[x, 2], as.numeric(dist_matrix_backup[edges[x, 1], edges[x, 2]])))))
@@ -715,7 +715,7 @@ AntibodyForests <- function(VDJ,
           codon_msa <- do.call(rbind, lapply(names(msa), function(x){strsplit(gsub(pattern = "-", replacement = "", do.call(paste0, as.list(as.character(msa)[x,]))), split = "")[[1]]}))
           rownames(codon_msa) <- names(msa)
           
-          # Convert the 'codon_msa' into the phyDat format, which will be the inputfor the 'phangorn::codonTest() function
+          # Convert the 'codon_msa' into the phyDat format, which will be the input for the 'phangorn::codonTest() function
           codon_msa <- phangorn::as.phyDat(codon_msa, type = "CODON")
           
           # Estimate the specified codon models
@@ -1133,7 +1133,7 @@ AntibodyForests <- function(VDJ,
     if(sequence.type == "DNA"){
       # Trim of last one or two nucleotides to make the length of the nucleotide sequences in 'VDJ_subset' multiple of 3
       VDJ_subset[c(sequence_columns, germline_columns)] <- lapply(VDJ_subset[c(sequence_columns, germline_columns)], function(x){
-        ifelse(nchar(x) %% 3 != 0, substring(x, 1, nchar(x) - (nchar(x) %% 3)))
+        ifelse(nchar(x) %% 3 != 0, yes = substring(x, 1, nchar(x) - (nchar(x) %% 3)), no = x)
     })}
     
     # If 'concatenate.sequences' is set to TRUE...
@@ -1337,6 +1337,9 @@ AntibodyForests <- function(VDJ,
                                            resolve.ties = resolve.ties,
                                            remove.internal.nodes = remove.internal.nodes,
                                            include = include)
+    
+    # Reset the working directory and return the output object
+    setwd(original_working_directory)
     return(single_network)
   }
   
@@ -1383,9 +1386,9 @@ AntibodyForests <- function(VDJ,
     # Select all clonotypes from one sample
     matching_sublists <- grep(paste0("^",sample), names(output_list), value = TRUE)
     # Retrieve the output objects from the 'output_list' of one sample and store them in the 'sample_sublist' 
-    sample_sublist <- output_list[matching_sublists]
+    sample_sublist <- lapply(matching_sublists, function(clone) output_list[[clone]][["output.objects"]])
     # Rename the networks in 'sample_sublist' to their original clonotype ID
-    names(sample_sublist) <- sub(paste0("^", sample, "_"), "", matching_sublists)
+    names(sample_sublist) <- sub(pattern = paste0("^", sample, "_"), replacement = "", matching_sublists)
     # Return the 'sample_sublist'
     return(sample_sublist)
   })
@@ -1399,9 +1402,6 @@ AntibodyForests <- function(VDJ,
   # Retrieve the warnings from the 'output_list' and print them
   warnings <- unlist(lapply(names(output_list), function(x) output_list[[x]][["warnings"]]))
   for(i in warnings){message(paste("WARNING:", i))}
-  
-  # Reset the working directory
-  setwd(original_working_directory)
   
   # Return the 'reorganized_output_list'
   return(AntibodyForests_object)
