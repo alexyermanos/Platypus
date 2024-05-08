@@ -1338,8 +1338,7 @@ AntibodyForests <- function(VDJ,
                                            remove.internal.nodes = remove.internal.nodes,
                                            include = include)
     
-    # Reset the working directory and return the output object
-    setwd(original_working_directory)
+    # Return the output object
     return(single_network)
   }
   
@@ -1392,6 +1391,9 @@ AntibodyForests <- function(VDJ,
     # Return the 'sample_sublist'
     return(sample_sublist)
   })
+  
+  # Reset the working directory
+  setwd(original_working_directory)
   
   # Rename the sublists in 'reorganized_output_list' to their original sample ID
   names(reorganized_output_list) <- sample_list
