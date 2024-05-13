@@ -1,11 +1,13 @@
 #' Plots lineage tree of clonotype from AntibodyForests object
 #' Authors: Valentijn Tromp, Daphne van Ginneken
-#' @description ???
+#' @description This function retrieves the igraph object from the provided AntibodyForests object for the specified clone within the specified sample and plots the lineage tree using the specified plotting parameters.
 #' @param AntibodyForests_object AntibodyForests object - AntibodyForests object as obtained from the 'AntibodyForests()' function in Platypus.
 #' @param sample string - denotes the sample that contains the clonotype.
 #' @param clonotype string - denotes the clonotype from which the lineage tree should be plotted.
 #' @param show.inner.nodes boolean - if TRUE, the tree with inner nodes is plotted (only present when the trees are created with the 'phylo.tree.nj', 'phylo.tree.mp', phylo.tree.ml', or 'phylo.tree.IgPhyML' construction algorithm). Defaults to FALSE.
 #' @param color.by string - specifies the feature of the nodes that will be used for coloring the nodes. This sublist should be present in each sublist of each node in the 'nodes' objects within the AntibodyForests object. For each unique value for the selected feature, a unique color will be selected using the 'grDevices::rainbow()' function (unless a color gradient is created, see 'node.color.gradient' parameter). Defaults to NULL.
+#' @param label.by string - specifies what should be plotted on the nodes. Options: 'name', 'size', a feature that is stored in the 'nodes' list, and 'none'. Defaults to 'name'.
+#' @param edge.label string - specifies what distance between the nodes is shown as labels of the edges. Options: 'original' (distance that is stored in the igraph object), 'lv' (Levensthein distance), 'dl' (Damerau-Levenshtein distance), 'osa' (Optimal String Alignment distance), and 'hamming' (Hamming distance). Defaults to 'lv'. 
 #' @param node.size string or integer or list of integers - specifies the size of the nodes. If set to 'expansion', the nodes will get a size that is equivalent to the number of cells that they represent. If set to an integer, all nodes will get this size. If set to a list of integers, in which each item is named to a node, the nodes will get these sizes. Defaults to 'expansion'.
 #' @param node.size.factor integer - factor by which all node sizes are multiplied. Defaults to 1.
 #' @param node.size.scale vector of integers - specifies the minimum and maximum node size in the plot, to which the number of cells will be scaled. Defaults to 10 and 30.
@@ -13,12 +15,10 @@
 #' @param node.color string or list of strings - specifies the color of nodes. If set to 'default', and the 'color.by' parameter is not specified, all the seqeuence-recovered nodes are colored lightblue. If set to 'default', and the 'color.by' parameter is set to a categorical value, the sequence-recovered nodes are colored  If set to a color (a color from the 'grDevices::color()' list or a valid HEX code), all the sequence-recovered nodes will get this color. If set to a list of colors, in which each item is named to a node, the nodes will get these colors. Defaults to 'default'.
 #' @param node.color.gradient vector of strings - specifies the colors of the color gradient, if 'color.by' is set to a numerical feature. The minimum number of colors that need to be specified are 2. Defaults to 'c("#440154", "#481567", "#482677", "#453781", "#404788", "#39568C", "#33638D", "#2D708E", "#287D8E", "#238A8D", "#1F968B", "#20A387", "#29AF7F", "#3CBB75", "#55C667", "#73D055", "#95D840", "#B8DE29", "#DCE319", "#FDE725")'.
 #' @param node.color.gradient.range vector of intgers - specifies the range of values over which the color gradient should be applied.
-#' @param node.label string - specifies what should be plotted on the nodes. Options: 'name', 'size', and 'none'. Defaults to 'name'.
-#' @param edge.label string - specifies what distance should be plotted on the edges. Options: 'dist' and 'none'. Defaults to 'dist'.
 #' @param show.color.legend boolean - if TRUE, a legend is plotted to display the values of the specified node feature matched to the corresponding colors. Defaults to TRUE if the 'color.by' parameter is specified.
 #' @param show.size.legend boolean - if TRUE, a legend is plotted to display the node sizes and the corresponding number of cells represented. Defaults to TRUE if the 'node.size' parameter is set to 'expansion'.
-#' @param title string - specifies the title of the plot. Defaults to NULL.
-#' @param color.legend.title string - specifies the title of the legend showing the color matching. Defaults to the name of the feature specified in the 'color.by' parameter.
+#' @param main.title string - specifies the main title of the plot. Defaults to NULL.
+#' @param color.legend.title string - specifies the title of the legend showing the color matching. Defaults to the (capitalized) name of the feature specified in the 'color.by' parameter (converted by the 'stringr::str_to_title()' function).
 #' @param size.legend.tile string - specifies the title of the legend showing the node sizes. Defaults to 'Expansion (# cells)'.
 #' @return Plots lineage tree for the specified clonotype.
 #' @export
@@ -27,8 +27,8 @@
 #' AntibodyForests_plot(AntibodyForests_object,
 #'                      sample = "S1",
 #'                      clonotype = "clonotype1",
-#'                      color.by = "Isotype",
-#'                      main.title = "S1 clonotype1")
+#'                      color.by = "isotype",
+#'                      main.title = "Lineage tree of S1 clonotype1")
 #'}
 
 AntibodyForests_plot <- function(AntibodyForests_object,
@@ -36,6 +36,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  clonotype,
                                  show.inner.nodes,
                                  color.by,
+                                 label.by,
                                  node.size,
                                  node.size.factor,
                                  node.size.scale,
@@ -43,7 +44,6 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  node.color,
                                  node.color.gradient,
                                  node.color.gradient.range,
-                                 node.label,
                                  edge.label,
                                  show.color.legend,
                                  show.size.legend,
@@ -53,54 +53,149 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   
   predict_node_color_gradient_range <- function(values){
     
-    # [function description]
+    # Determines the most optimal range for a list of numerical values, whereby the range is returned as a vector of two values in scientific notation
     # Arguments:
-    # - values:
+    # - values: list of numerical values (integers and/or floats)
     # Authors: Valentijn Tromp, Daphne van Ginneken
     
-    #
+    # Convert values to numeric
+    values <- as.numeric(values)
+    
+    # Find the minimum and maximum value in the list
     min_value <- min(values)
     max_value <- max(values)
     
-    #
-    nchar(strsplit(as.character(min_value), "\\.")[[1]][2])
+    # Determine the order of magnitude for the minimum and maximum values
+    min_value_order_of_magnitude <- floor(log10(abs(min_value)))
+    max_value_order_of_magnitude <- floor(log10(abs(max_value)))
     
+    # Convert the minimum and maximum value to the scientific notation
+    min_value <- paste(as.character(round(min_value/10^min_value_order_of_magnitude, digits = 1)), "e", sprintf(fmt = "%+03d", min_value_order_of_magnitude), sep = "")
+    max_value <- paste(as.character(round(max_value/10^max_value_order_of_magnitude, digits = 1)), "e", sprintf(fmt = "%+03d", max_value_order_of_magnitude), sep = "")
     
+    # Format minimum and maximum values by making sure there is one digit after the decimal point
+    min_value <- gsub(pattern = ".*e", replacement = paste0(sprintf(fmt = "%.1f", as.numeric(stringr::str_extract(pattern = ".*(?=e)", min_value))), "e"), min_value)
+    max_value <- gsub(pattern = ".*e", replacement = paste0(sprintf(fmt = "%.1f", as.numeric(stringr::str_extract(pattern = ".*(?=e)", max_value))), "e"), max_value)
+    
+    # If the maximum value is rounded to a multiple of 10, correct the scientific notation
+    if(gsub(pattern = "\\..*", replacement = "", max_value) == 10){
+      max_value <- gsub(pattern = "10\\.", replacement = "1.", max_value)
+      max_value <- gsub(pattern = paste0("\\", sprintf(fmt = "%+03d", max_value_order_of_magnitude)), replacement = sprintf(fmt = "%+03d", max_value_order_of_magnitude+1), max_value)
+    }
+    if(gsub(pattern = "\\..*", replacement = "", max_value) == -10){
+      max_value <- gsub(pattern = "-10\\.", replacement = "-1.", max_value)
+      max_value <- gsub(pattern = paste0("\\", sprintf(fmt = "%+03d", max_value_order_of_magnitude)), replacement = sprintf(fmt = "%+03d", max_value_order_of_magnitude-1), max_value)
+    }
+    
+    # If the minimum value is rounded to a multiple of 10, correct the scientific notation
+    if(gsub(pattern = "\\..*", replacement = "", min_value) == 10){
+      min_value <- gsub(pattern = "10\\.", replacement = "1.", min_value)
+      min_value <- gsub(pattern = paste0("\\", sprintf(fmt = "%+03d", min_value_order_of_magnitude)), replacement = sprintf(fmt = "%+03d", min_value_order_of_magnitude+1), min_value)
+    }
+    if(gsub(pattern = "\\..*", replacement = "", min_value) == -10){
+      min_value <- gsub(pattern = "-10\\.", replacement = "-1.", min_value)
+      min_value <- gsub(pattern = paste0("\\", sprintf(fmt = "%+03d", min_value_order_of_magnitude)), replacement = sprintf(fmt = "%+03d", min_value_order_of_magnitude-1), min_value)
+    }
+    
+    # Extract the numbers before and after the decimal point (necessary to determine the appropriate range)
+    min_value_number_before_point <- as.numeric(gsub(pattern = "\\..*", replacement = "", min_value))
+    min_value_number_behind_point <- as.numeric(gsub(pattern = "(.*\\.)|(e.*)", replacement = "", min_value))
+    max_value_number_before_point <- as.numeric(gsub(pattern = "\\..*", replacement = "", max_value))
+    max_value_number_behind_point <- as.numeric(gsub(pattern = "(.*\\.)|(e.*)", replacement = "", max_value))
+    
+    # If the minimum value is positive...
+    if(as.numeric(min_value) > 0){
+      # and if the number behind the decimal point is between 0 and 5, replace this number by 0
+      if(min_value_number_behind_point > 0 && min_value_number_behind_point < 5){
+        min_value <- base::gsub(pattern = "\\.\\de", replacement = ".0e", min_value)
+      }
+      # and if the number behind the decimal point is between 5 and 10, replace this number by 5
+      if(min_value_number_behind_point > 5 && min_value_number_behind_point < 10){
+        min_value <- base::gsub(pattern = "\\.\\de", replacement = ".5e", min_value)
+      }
+    }
+    
+    # If the minimum value is negative...
+    if(as.numeric(min_value) < 0){
+      # and if the number behind the decimal point is between 0 and 5, replace this number by 5
+      if(min_value_number_behind_point > 0 && min_value_number_behind_point < 5){
+        min_value <- base::gsub(pattern = "\\.\\de", replacement = ".5e", min_value)
+      }
+      # and if the number behind the decimal point is between 5 and 10, replace this number by 0 (and subtract -1 from the number before the decimal point)
+      if(min_value_number_behind_point > 5 && min_value_number_behind_point < 10){
+        min_value <- base::gsub(pattern = ".*\\.*", replacement = paste0(as.character(as.numeric(min_value_number_before_point)-1), "."), min_value, perl = TRUE)
+        min_value <- base::gsub(pattern = "\\.\\de", replacement = ".0e", min_value)
+      }
+      # and if -9 became -10 before the decimal point, correct the scientific notation
+      if(gsub(pattern = "\\..*", replacement = "", min_value) == -10){
+        min_value <- gsub(pattern = "-10\\.", replacement = "-1.", min_value)
+        min_value <- gsub(pattern = paste0("\\", sprintf(fmt = "%+03d", min_value_order_of_magnitude)), replacement = sprintf(fmt = "%+03d", min_value_order_of_magnitude-1), min_value)
+      }
+    }
+    
+    # If the maximum value is positive...
+    if(as.numeric(max_value) > 0){
+      # and if the number behind the decimal point is between 0 and 5, replace this number by 5
+      if(max_value_number_behind_point > 0 && max_value_number_behind_point < 5){
+        max_value <- base::gsub(pattern = "\\.\\de", replacement = ".5e", max_value)
+      }
+      # and if the number behind the decimal point is between 0 and 10, replace this number by 0 (and add +1 to the number before the decimal point))
+      if(max_value_number_behind_point > 5 && max_value_number_behind_point < 10){
+        max_value <- base::gsub(pattern = ".*\\.", replacement = paste0(as.character(as.numeric(max_value_number_before_point)+1), "."), max_value)
+        max_value <- base::gsub(pattern = "\\.\\de", replacement = ".0e", max_value)
+      }
+      # and if 9 became 10 before the decimal point, correct the scientific notation
+      if(gsub(pattern = "\\..*", replacement = "", max_value) == 10){
+        max_value <- gsub(pattern = "10\\.", replacement = "1.", max_value)
+        max_value <- gsub(pattern = paste0("\\", sprintf(fmt = "%+03d", max_value_order_of_magnitude)), replacement = sprintf(fmt = "%+03d", max_value_order_of_magnitude+1), max_value)
+      }
+    }
+    
+    # If the maximum value is negative...
+    if(as.numeric(max_value) < 0){
+      # and if the number behind the decimal point is between 0 and 5, replace this number by 0
+      if(max_value_number_behind_point > 0 && max_value_number_behind_point < 5){
+        max_value <- base::gsub(pattern = "\\.\\de.", replacement = ".0e", max_value)
+      }
+      # and if the number behind the decimal point is between 5 and 10, replace this number by 5
+      if(max_value_number_behind_point > 5 && max_value_number_behind_point < 10){
+        max_value <- base::gsub(pattern = "\\.\\de", replacement = ".5e", max_value)
+      }
+    }
+    
+    # Return the range
+    return(c(as.numeric(min_value), as.numeric(max_value)))
   }
   
   predict_node_size_scale_range <- function(values){
     
-    # [function description]
+    # Determines the most optimal range for a list of node sizes, whereby the range is returned as a vector of two integers 
     # Arguments:
-    # - values:
+    # - values: list of integers
     # Authors: Valentijn Tromp, Daphne van Ginneken
     
-    #
+    # Convert values to numeric
+    values <- as.numeric(values)
+    
+    # Find the minimum and maximum value in the list
     min_value <- min(values)
     max_value <- max(values)
     
-    #
-    if(min_value < 10){floor_value <- 1}
-    #
-    else if (min_value < 100){floor_value <- floor(min_value/10)*10}
-    #
-    else{floor_value <- floor(min_value/10)*100}
+    # If the minimum value is below 10, set the minimum value of the range to 1
+    if(min_value < 10){min_value <- 1}
+    # Else, set the minimum value of the range to the nearest lower multiple of the logarithm of the minimum node size
+    else{min_value <- floor(min_value/10^floor(log10(min_value)))*10^floor(log10(min_value))}
     
-    #
-    if(max_value <= 10){ceiling_value <- 10}
-    #
-    else if(max_value <= 50){ceiling_value <- ceiling(max_value/10)*10}
-    #
-    else if(max_value <= 250){ceiling_value <- ceiling(max_value/50)*50}
-    #
-    else if(max_value <= 500){ceiling_value <- ceiling(max_value/100)*100}
-    #
-    else if(max_value <= 2500){ceiling_value <- ceiling(max_value/500)*500}
-    #
-    else{ceiling_value <- ceiling(max_value/1000)*1000}
+    # If the maximum value is equal to or below 10, set the maximum value of the range to 10
+    if(max_value <= 10){min_value <- 10}
+    # Else, set the maximum value of the range to the nearest higher multiple of the logarithm of the maximum node size
+    else{max_value <- ceiling(max_value/10^floor(log10(max_value)))*10^floor(log10(max_value))}
     
-    #
-    return(c(floor_value, ceiling_value))
+    # If the difference between the maximum value of the range and the original maximum value is bigger than 0.5 of the logarithm of the maximum node size, subtract this from the maximum value
+    if((max_value - max(values)) > 0.5*10^floor(log10(max_value))){max_value <- max_value - 0.5*10^floor(log10(max_value))}
+    
+    # Return the range
+    return(c(min_value, max_value))
   }
   
   
@@ -128,6 +223,22 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # If no feature is specified by the 'color.by' parameter, all the nodes will receive 'default' in the 'node.feature.list'
   if(missing(color.by)){node.feature.list <- as.list(sapply(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"], function(x) "default")); names(node.feature.list) <- names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"]}
   
+  # If the 'label.by' parameter is not specified, it is set to 'name'
+  if(missing(label.by)){label.by <- "name"}
+  # If the 'label.by' parameter is not recognized, a message is returned and execution is stopped
+  if(!missing(label.by)){if(!label.by %in% c("name", "size", "none")){if(!(all(sapply(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"], function(x) label.by %in% names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[x]]))))){stop("The feature specified with the 'label.by' parameter could not be found for all nodes.")}}}
+  # Retrieve the features (specified with the 'label.by' parameter) for each node from the AntibodyForests object and store the features in the 'node.feature.list', and replace all NA values with 'unknown'
+  if(!missing(color.by)){if(!label.by %in% c("name", "size", "none")){node.label.list <- as.list(sapply(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"], function(x) unique(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[x]][[label.by]]))); names(node.label.list) <- names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"]; for(i in names(node.label.list)){node.label.list[[i]][is.na(node.label.list[[i]])] <- "unknown"}}}
+  
+  # If the 'edge.label' parameter is not specified, and inner nodes are plotted, it is set to 'original'
+  if(missing(edge.label) && show.inner.nodes){edge.label <- "original"}
+  # If the 'edge.label' parameter is not specified, and no inner nodes are plotted, it is set to 'lv' (Levensthein distance)
+  if(missing(edge.label) && !show.inner.nodes){edge.label <- "lv"}
+  # If the 'edge.label' parameter is not recognized, a message is returned and execution is stopped
+  if(!edge.label %in% c("original", "none", "lv", "dl", "osa", "hamming")){stop("The 'edge.label' parameter is not recognized. Please choose from the following options: 'original', 'none', 'lv', 'dl', 'osa', 'hamming'.")}
+  # If the 'edge.label' is set to string distance metric, while 'show.inner.nodes' is set to TRUE, a message is returned and execution is stopped 
+  if(show.inner.nodes && !edge.label %in% c("original", "none")){stop("When non-recovered internal nodes are present in the tree, the 'edge.label' parameter can only be set to 'original' (to show the distance that is stored in the igraph object), or 'none'.")}
+  
   # If the 'node.size' parameter is not specified, it is set to 'expansion'
   if(missing(node.size)){node.size <- "expansion"}
   # If the 'node.size' parameter is set to 'expansion', retrieve the size of each node from the AntibodyForests object and store the sizes in the 'node.size.list', and give all internal nodes and the germline node a size of 1
@@ -146,7 +257,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # If the 'node.size.factor' parameter is set to a non-numerical or negative value, a message is returned and execution is stopped
   if(!(is.numeric(node.size.factor)) | !(if(is.numeric(node.size.factor)){node.size.factor > 0}else{FALSE})){stop("The 'node.size.factor' parameter only accepts positve numerical values.")}
   
-  # If the 'node.size.scale.range' parameter is not specified, the minimum and maximum node size is set to the minimum and maximum value in the 'node.size.list' (multiplied by the 'node.size.factor')
+  # If the 'node.size.scale.range' parameter is not specified, the scale is determined using the 'predict_node_size_scale()' function
   if(missing(node.size.scale.range)){node.size.scale.range <- predict_node_size_scale_range(unique(unlist(node.size.list)))}
   # If the 'node.size.scale.range' parameter contains non-numerical or negative values, a message is returned and execution is stopped
   if(!(is.numeric(node.size.scale.range) | !(if(is.numeric(node.size.scale.range)){all(node.size.scale.range > 0)}else{FALSE}) | length(node.size.scale.range) != 2)){stop("The 'node.size.scale.range' parameter only accepts a pair of positive numerical values.")}
@@ -207,20 +318,22 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(is.character(node.color)){if(node.color != "default"){node.color.list <- as.list(rep(node.color, length(unique(unlist(node.feature.list))))); names(node.color.list) <- unique(unlist(node.feature.list))}}
   # If a list is provided with the 'node.color' parameter, this list is stored in the 'node.color.list' object
   if(is.list(node.color)){node.color.list <- node.color}
-  # If no color gradient is specified with the 'node.color.gradient', and if not all nodes contain one unique numerical value for the selected feature in the 'node.feature.list', 'node.color.gradient' is set to 'none'
+  
+  # If no color gradient is specified with the 'node.color.gradient' parameter, and if not all nodes contain one unique numerical value for the selected feature in the 'node.feature.list', 'node.color.gradient' is set to 'none'
   if(missing(node.color.gradient)){if(!all(sapply(node.feature.list, function(x) length(unique(x)) == 1)) | !all(grepl(pattern = "^[0-9.-]+$", unique(unlist(node.feature.list))))){node.color.gradient <- "none"; node.color.gradient.range <- "none"; node.color.gradient.scale <- "none"}}
-  # If no color gradient is specified with the 'node.color.gradient', and if all nodes contain only one unique numerical value for the selected feature in the 'node.feature.list', the 'viridis_palette' will be used to color the nodes
+  # If no color gradient is specified with the 'node.color.gradient' parameter, and if all nodes contain only one unique numerical value for the selected feature in the 'node.feature.list', the 'viridis_palette' will be used to color the nodes
   if(missing(node.color.gradient)){if(all(sapply(node.feature.list, function(x) length(unique(x)) == 1)) && all(grepl(pattern = "^[0-9.-]+$", unique(unlist(node.feature.list))))){node.color.gradient <- viridis_palette}}
   # If not all nodes contain one unique numerical value for the selected feature in the 'node.feature.list', but the 'node.color.gradient' is not set to 'none', a message is returned and execution is stopped
   if(!(all(sapply(node.feature.list, function(x) length(unique(x)) == 1)) && all(grepl(pattern = "^[0-9.-]+$", unique(unlist(node.feature.list))))) && all(node.color.gradient != "none")){stop("The 'node.color.gradient' parameter can only be specified when only one unique numerical value is found per node for the feature selected in the 'color.by' parameter.")}
   # If the colors specified by the 'node.color.gradient' parameter are not all recognized, a message is returned and execution is stopped
   if(all(node.color.gradient != "none")){if(!all(node.color %in% grDevices::colors() | !grepl(pattern = "^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$", node.color))){stop("Not all colors specified by the 'node.color.gradient' parameter are recognized. Please provide a vector with colors from 'grDevices::colors()' or with hex codes.")}}
-  # If the 'node.color.gradient.range' is not specified, the min and max values in the 'node.feature.list' are used
-  if(all(node.color.gradient != "none")){if(missing(node.color.gradient.range)){node.color.gradient.range <- c(min(as.numeric(unique(unlist(node.feature.list)))), max(as.numeric(unique(unlist(node.feature.list)))))}}
+  
+  # If the 'node.color.gradient.range' is not specified, the scale is predicted using the 'predict_node_color_gradient_range()' function
+  if(all(node.color.gradient != "none")){if(missing(node.color.gradient.range)){node.color.gradient.range <- predict_node_color_gradient_range(unique(unlist(node.feature.list)))}}
   # If the 'node.color.gradient.range' parameter does not contain a pair of numerical values, a message is returned and execution is stopped
-  if(all(node.color.gradient != "none")){if(!(is.numeric(node.color.gradient.range) && length(node.color.gradient.range) == 2)){stop("The 'node.color.gradient.range' parameter only accepts a pair of numerical values.")}}
+  #if(all(node.color.gradient != "none")){if(!(is.numeric(node.color.gradient.range) && length(node.color.gradient.range) == 2)){stop("The 'node.color.gradient.range' parameter only accepts a pair of numerical values.")}}
   # If the 'node.color.gradient.range' is set to a range that does not contain all values stored in the 'node.feature.list', a message is returned and execution is stopped
-  if(all(node.color.gradient != "none")){if(!all(dplyr::between(c(min(as.numeric(unique(unlist(node.feature.list)))), max(as.numeric(unique(unlist(node.feature.list))))), left = min(node.color.gradient.range), right = max(node.color.gradient.range)))){stop(paste0(c("The range specified with the 'node.color.gradient.range' does not capture all the values of the feature selected in the 'color.by' parameter. The minimum range should be: ", min(as.numeric(unique(unlist(node.feature.list)))), " - ", max(as.numeric(unique(unlist(node.feature.list)))), ".")))}}
+  if(all(node.color.gradient != "none")){if(!all(dplyr::between(c(min(as.numeric(unique(unlist(node.feature.list)))), max(as.numeric(unique(unlist(node.feature.list))))), left = min(as.numeric(node.color.gradient.range)), right = max(as.numeric(node.color.gradient.range))))){stop(paste0(c("The range specified with the 'node.color.gradient.range' does not capture all the values of the feature selected in the 'color.by' parameter. The minimum range should be: ", min(as.numeric(unique(unlist(node.feature.list)))), " - ", max(as.numeric(unique(unlist(node.feature.list)))), ".")))}}
   # If 'node.color' is set to 'default', and all items in the 'node.feature.list' are known isotypes, the 'isotype_colors' list will be used to color the nodes 
   if(is.character(node.color)){if(node.color == "default" && all(node.color.gradient == "none") && all(unique(unlist(node.feature.list)) %in% names(isotype_colors))){node.color.list <- isotype_colors}}
   # If 'node.color' is set to 'default' and the 'node.color.gradient' is set to 'none', all unique values in the 'node.feature.list' will get a (random) color from the 'grDevices::rainbow()' function
@@ -232,27 +345,16 @@ AntibodyForests_plot <- function(AntibodyForests_object,
     # Calculate the largest number of digits after the decimal point, this 'factor' is used to determine how many colors need to be generated
     factor <- 10^max(sapply(numerical_values, function(x) nchar(strsplit(as.character(x), "\\.")[[1]][2])))
     # Calculate the number of colors that need to be generated by multiplying the absolute difference between the values in the 'node.color.gradient.range' vector by the 'factor' and substracting 1
-    number_of_colors <- abs(max(node.color.gradient.range) - min(node.color.gradient.range))*factor-1
+    number_of_colors <- abs(max(as.numeric(node.color.gradient.range)) - min(as.numeric(node.color.gradient.range)))*factor-1
     # Create the color palette using the 'grDevices::colorRampPalette()' function
     color_palette <- grDevices::colorRampPalette(node.color.gradient)(number_of_colors)
     # To each unique numerical value, assign a color using the 'color_palette' vector
-    node.color.list <- lapply(numerical_values, function(x) if(x == min(node.color.gradient.range)){return(color_palette[1])}else{color_palette[(x-min(node.color.gradient.range))*factor]}); names(node.color.list) <- unique(unlist(node.feature.list))
+    node.color.list <- lapply(numerical_values, function(x) if(x == min(node.color.gradient.range)){return(color_palette[1])}else{color_palette[(x-min(as.numeric(node.color.gradient.range)))*factor]}); names(node.color.list) <- unique(unlist(node.feature.list))
   }}
   # If the 'node.color.list' does not contain all the unique values in the 'node.feature.list', a message is returned and execution is stopped
   if(!all(unique(unlist(node.feature.list)) %in% names(node.color.list))){stop(paste(c("Not all values of the feature specified by the 'color.by' parameter are found in the list specified by the 'node.color' paramter. Please specify a color for the following values:", paste(gtools::mixedsort(unique(unlist(node.feature.list))), collapse = ", ")), collapse = " "))}
   # If the 'node.color.list' contains strings that are not recognized as a color, a message is returned and execution is stopped
   if(!all(sapply(unlist(node.color.list), function(x) x %in% grDevices::colors() | grepl(pattern = "^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$", x)))){stop("Not all colors present in the list that is provided with the 'node.color' parameter are recognized.")}
-  
-  # If the 'node.label' parameter is not specified, it is set to 'name'
-  if(missing(node.label)){node.label <- "name"}
-  # If the 'node.label' parameter is not recognized, a message is returned and execution is stopped
-  if(is.character(node.label)){if(!node.label %in% c("name", "size", "none")){stop("The 'node.label' parameter can only be set to 'name', 'size', 'none', or a list containing a size for all the nodes.")}}
-  #
-  if(is.list(node.label)){if(!all(igraph::V(tree)$name %in% names(node.label))){stop("")}}
-  
-  # If the 'show.edge.label' parameter is not specified, it is set to 'size', unless the 'show.inner.nodes' parameter is set to TRUE
-  if(missing(edge.label) && show.inner.nodes){edge.label <- "none"}
-  if(missing(edge.label) && !show.inner.nodes){edge.label <- "size"}
   
   # If the 'show.color.legend' parameter is not specified, it is set to FALSE, unless the 'color.by' parameter is specified
   if(missing(show.color.legend) && missing(color.by)){show.color.legend <- FALSE}
@@ -277,14 +379,24 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # 3. Define the size of the nodes
   
   # Assign the node sizes from the 'node.size.list' to the igraph object
-  igraph::V(tree)$size <- unlist(node.size.list[igraph::V(tree)$name])
+  igraph::V(tree)$size <- sapply(igraph::V(tree)$name, function(x){
+    if(x == "germline"){return(1)}
+    else if(startsWith(x, "node")){return(node.size.list[[x]])}
+    else{return(0.5)}
+  })
   
   # Multiply the node sizes by the 'node.size.factor'
   igraph::V(tree)$size <- igraph::V(tree)$size*node.size.factor
   
   # Scale the node sizes using the 'node.size.scale' and 'node.size.scale.range' parameters (if the minimum size is not equal to the maximum size)
-  if(min(igraph::V(tree)$size) != max(igraph::V(tree)$size)){igraph::V(tree)$size <- (igraph::V(tree)$size - min(node.size.scale.range)) / abs(diff(node.size.scale.range)) * abs(diff(node.size.scale)) + min(node.size.scale)}
-
+  if(min(igraph::V(tree)$size) != max(igraph::V(tree)$size)){
+    igraph::V(tree)$size <- sapply(igraph::V(tree)$name, function(x){
+      if(x == "germline"){return(min(node.size.scale))}
+      else if(startsWith(x, "node")){return((node.size.list[[x]] - min(node.size.scale.range)) / abs(diff(node.size.scale.range)) * abs(diff(node.size.scale)) + min(node.size.scale))}
+      else{return(0.5*min(node.size.scale))}
+    })
+  }
+  
   
   # 4. Define the color of the nodes
   
@@ -330,134 +442,165 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   
   # 5. Define the node and edge labels
   
-  # If 'node.label' is set to 'name', the germline node becomes 'G', the sequence-recovered nodes only keep their node number, and the remaining nodes will loose their label
-  if(is.character(node.label)){if(node.label == "name"){
+  # If 'label.by' is set to 'name', the germline node becomes 'G', the sequence-recovered nodes only keep their node number, and the remaining nodes will loose their label
+  if(label.by == "name"){
     igraph::V(tree)$label <- ifelse(igraph::V(tree)$name == "germline", 
                                     yes = "G", 
                                     no = ifelse(startsWith(igraph::V(tree)$name, "node"), 
                                                 yes = gsub(pattern = "node", replacement = "", igraph::V(tree)$name), 
                                                 no = ""))
-  }}
+  }
   
-  # If 'node.label' is set to 'size', the original number of cells represent by the nodes are displayed as node labels
-  if(is.character(node.label)){if(node.label == "size"){
-    igraph::V(tree)$label <- sapply(igraph::V(tree)$name, function(x) if(x == "germline"){return("G")}else{return(as.character(node.size.list[[as.character(x)]]))})
-  }}
+  # If 'label.by' is set to 'size', the original number of cells represent by the nodes are displayed as node labels
+  if(label.by == "size"){
+    igraph::V(tree)$label <- sapply(igraph::V(tree)$name, function(x){
+      if(x == "germline"){return("G")}
+      else if(startsWith(x, "node")){return(as.character(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[x]][["size"]]))}
+      else{return("")}
+    })
+  }
   
   # If a list is provided as 'node.label' object, the labels of this list are assigned to the nodes
-  if(is.list(node.label)){igraph::V(tree)$label <- node.label[igraph::V(tree)$name]}
+  if(!label.by %in% c("name", "size", "none")){
+    igraph::V(tree)$label <- sapply(igraph::V(tree)$name, function(x){
+      if(x == "germline"){return("G")}
+      else if(startsWith(x, "node")){return(as.character(node.label.list[[x]]))}
+      else{return("")}
+    })
+  }
   
-  # If 'node.label' is set to 'none', the node labels are set to NA before plotting the tree
-  if(is.character(node.label)){if(node.label == "none"){igraph::V(tree)$label <- NA}}
+  # If the 'label.by' parameter is set to 'none', the node labels are set to NA before plotting the tree
+  if(label.by == "none"){igraph::V(tree)$label <- NA}
   
   # For all black nodes, change the color of the label to 'white'
   igraph::V(tree)$label.color[igraph::V(tree)$color == "black"] <- "white"
   
   # Resize the size of the node labels according to the size of the node itself
-  igraph::V(tree)$label.cex <- igraph::V(tree)$size/15
+  igraph::V(tree)$label.cex <- igraph::V(tree)$size/10
+  
+  # If the 'edge.label' is set to 'default', display the edge lengths from the graphs as node labels in the graph
+  if(edge.label == "original"){igraph::E(tree)$label <- as.character(round(as.numeric(igraph::E(tree)$edge.length), 1))}
+  # If the 'edge.label' parameter is set to a string distance metric, calculate the distance between the nodes with the 'stringdist::stringdist()' function
+  if(edge.label %in% c("osa", "lv", "dl", "hamming")){
+    # Retrieve all the items that are stored for each node in the 'nodes' list in the AntibodyForest object
+    node_items <- unique(unlist(sapply(AntibodyForests_object[[sample]][[clonotype]][["nodes"]], function(x) names(x))))
+    # Select the names of the sequences
+    seq_names <- unique(unlist(sapply(node_items, function(x) if(all(sapply(AntibodyForests_object[[sample]][[clonotype]][["nodes"]], function(y) is.character(y[[x]]) && length(y[[x]]) == 1))){return(x)})))
+    # Assign a label to each edge 
+    igraph::E(tree)$label <- sapply(igraph::as_ids(igraph::E(tree)), function(x){
+      # Retrieve the nodes that are connected by this edge
+      nodes <- strsplit(x, split = "\\|")[[1]]
+      # Calculate the distance between these nodes by summing the distance for all sequences
+      dist <- sum(sapply(seq_names, function(y){
+        # Retrieve this sequence for both nodes 
+        seq1 <- AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[(nodes[1])]][[y]]
+        seq2 <- AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[(nodes[2])]][[y]]
+        # Return the distance between nodes used the specified distance metric
+        return(stringdist::stringdist(seq1, seq2, method = edge.label))
+      }))
+    })
+  }
+  # If the 'edge.label' parameter is set to "none", the edge labels are set to NA before plotting the tree
+  if(edge.label == "none"){igraph::E(tree)$label <- NA}
   
   
   # 6. Plot lineage tree
   
   # If a title is specified, add 2 lines of margin on top of the plot, and if the 'show.color.legend' or 'show.size.legend' is set to TRUE, add 6 lines of margin on the right side of the plot
-  if(main.title == "" && !show.color.legend && !show.size.legend){par(mar = c(0, 0, 0, 0), xpd = TRUE)}
-  if(main.title != "" && !show.color.legend && !show.size.legend){par(mar = c(0, 0, 2, 0), xpd = TRUE)}
-  if(main.title == "" && (show.color.legend | show.size.legend)){par(mar = c(0, 0, 0, 6), xpd = TRUE)}
-  if(main.title != "" && (show.color.legend | show.size.legend)){par(mar = c(0, 0, 2, 6), xpd = TRUE)}
+  if(main.title == "" && (show.color.legend | show.size.legend)){par(mar = c(2, 2, 2, 6), xpd = TRUE)}
+  if(main.title != "" && (show.color.legend | show.size.legend)){par(mar = c(2, 2, 4, 6), xpd = TRUE)}
   
   # Plot the tree using the 'igraph::plot.igraph()' function 
-  igraph::plot.igraph(tree,
-                      layout = layout,
-                      vertex.label.dist = 0,
-                      edge.arrow.size = 0.25)
+  igraph::plot.igraph(tree,                     # Plot the tree and its attributes (if present)
+                      layout = layout,          # Place the vertices on the plot using the layout of a lineage tree
+                      vertex.label.dist = 0,    # Center the node labels on the nodes
+                      edge.arrow.size = 0.25)   # Set the size of the arrows
   
   
   # 7. Add legend(s)
-  
-  # If 'show.color.legend' and 'show.size.legend' are both set to TRUE, the color legend is positioned above, while the size legend is positioned below
-  if(show.color.legend && show.size.legend){
-    y_color_legend <- 0.9*par("usr")[4]
-    y_size_legend <- 0 -0.2*par("usr")[4]
-  }
-  # If only the 'show.color.legend' is set to TRUE, the color legend is positioned above
-  else if(show.color.legend && !show.size.legend){
-    y_color_legend <- 0.9*par("usr")[4]
-    y_size_legend <- NA
-  }
-  # If only the 'size.color.legend' is set to TRUE, the size legend is positioned above
-  else if(!show.color.legend && show.size.legend){
-    y_color_legend <- NA
-    y_size_legend <- 0.9*par("usr")[4]
-  }
   
   # If 'show.color.legend' is set to TRUE, add a legend to the plot to show the color matching
   if(show.color.legend){
     # If 'node.color.gradient' is set to 'none', a legend is created showing the matching of the colors with the unique values found for the feature selected in the 'color.by' parameter 
     if(all(node.color.gradient == "none")){
-      #
+      # Retrieve the values of the feature and sort them
       legend_values <- c(gtools::mixedsort(unique(unlist(node.feature.list))))
-      #
+      # Assign the corresponding colors to the values 
       legend_colors <- c(unlist(node.color.list[gtools::mixedsort(unique(unlist(node.feature.list)))]))
-      #
-      color_legend <- graphics::legend(legend = legend_values,       #
-                                       pt.bg = legend_colors,        #
-                                       pch = 21,                     #
-                                       pt.cex = 1.5,                 #
-                                       title = color.legend.title,   #
-                                       title.adj = 0,                #
-                                       bty = "n",                    #
-                                       x = par("usr")[2],            #
-                                       y = y_color_legend,           #
-                                       cex = 0.75)                   #
+      # Create the color legend (without a gradient)
+      color_legend <- graphics::legend(legend = legend_values,       # Assign legend values to the legend points
+                                       pt.bg = legend_colors,        # Specify the colors for the legend points
+                                       pch = 21,                     # Use filled circles as legend points
+                                       pt.cex = 1.5,                 # Set the size of the legend circles
+                                       title = color.legend.title,   # Specify the title of the color legend
+                                       title.cex = 0.75,             # Set the size of the legend title
+                                       title.adj = 0,                # Align the title to the left
+                                       bty = "n",                    # Do not draw a box around the legend
+                                       x = par("usr")[2],            # Set x-position of the legend (right side of the graph)
+                                       y = par("usr")[4]*0.95,       # Set y-position of the legend (top of the graph)
+                                       cex = 0.6)                    # Set the size of the legend
     }
     # If node colors are specified with a gradient, create a legend using a color gradient
     if(all(node.color.gradient != "none")){
-      #
-      gradient_values <- c(min(node.color.gradient.range), rep(NA, 1000), mean(c(min(node.color.gradient.range), mean(node.color.gradient.range))), rep(NA, 1000), mean(node.color.gradient.range), rep(NA, 1000), mean(c(mean(node.color.gradient.range), max(node.color.gradient.range))), rep(NA, 1000), max(node.color.gradient.range))
-      #
-      gradient_values[!is.na(gradient_values)] <- round(gradient_values[!is.na(gradient_values)], 3)
-      #
-      gradient_values[!is.na(gradient_values)] <- format(gradient_values[!is.na(gradient_values)], 3)
-      #
+      # Calculate the five values for the selected feature that will be displayed in the legend, which include the minimum and maximum values from 'node.color.gradient.range', as well as three equally spaced values in between
+      gradient_values <- c(min(as.numeric(node.color.gradient.range)), rep(NA, 1000), mean(c(min(as.numeric(node.color.gradient.range)), mean(as.numeric(node.color.gradient.range)))), rep(NA, 1000), mean(as.numeric(node.color.gradient.range)), rep(NA, 1000), mean(c(mean(as.numeric(node.color.gradient.range)), max(as.numeric(node.color.gradient.range)))), rep(NA, 1000), max(as.numeric(node.color.gradient.range)))
+      # If all absolute values fall within the range of 0.1 to 10, scientific notation is not utilized
+      if(all(abs(min(gradient_values[!is.na(gradient_values)])) > 0.1 && abs(max(gradient_values[!is.na(gradient_values)])) < 100)){
+        gradient_values[!is.na(gradient_values)] <- format(gradient_values[!is.na(gradient_values)], scientific = FALSE, digits = 3)
+      } 
+      # Else, values are not expressed in scientific notation
+      else{
+        gradient_values[!is.na(gradient_values)] <- format(gradient_values[!is.na(gradient_values)], scientific = TRUE, digits = 3)
+      }
+      # Assign the colors to the values 
       gradient_colors <- grDevices::colorRampPalette(node.color.gradient)(4005)
-      #
-      color_legend <- graphics::legend(legend = rev(gradient_values),         #
-                                       fill = rev(gradient_colors),           #
-                                       border = NA,                           #
-                                       y.intersp = c(1, rep(0.0025, 4003)),   #
-                                       title = color.legend.title,            #
-                                       title.adj = 0,                         #
-                                       bty = "n",                             #
-                                       x = par("usr")[2],                     #
-                                       y = y_color_legend,                    #
-                                       cex = 0.75)                            #
+      # Create the color legend (with a gradient)
+      color_legend <- graphics::legend(legend = rev(gradient_values),         # Assign gradient values to the color gradient in reverse order 
+                                       fill = rev(gradient_colors),           # Fill the legend points (boxes) with the gradien colors in reverse order
+                                       border = NA,                           # Do not draw a border around the legend points
+                                       y.intersp = c(1, rep(0.002, 4004)),    # Set the vertical spacing between legend points (which creates the gradient)
+                                       title = color.legend.title,            # Specify the title of the color legend
+                                       title.cex = 0.75,                      # Set the size of the legend title
+                                       title.adj = 0,                         # Align the title to the left
+                                       bty = "n",                             # Do not draw a box around the legend
+                                       x = par("usr")[2],                     # Set x-position of the legend (right side of the graph)
+                                       y = par("usr")[4]*0.95,                # Set y-position of the legend (top of the graph)
+                                       cex = 0.6)                             # Set the size of the legend
     }
+  }
+  
+  # If a color legend is plotted, position the size legend underneath it  
+  if(show.color.legend){
+    y_size_legend <-  par("usr")[4]*0.95 - 1.05*color_legend$rect$h
+  } 
+  # Else, position the size legend in the upper right corner
+  else{
+    y_size_legend <-  par("usr")[4]*0.95
   }
   
   # If 'show.size.legend' is set to TRUE, add a legend to the plot to show the node sizes
   if(show.size.legend){
-    #
+    # Determine the three node sizes that will be displayed in the size legend, which include the min, mean, and max value in the 'node.size.scale.range'
     legend_values <- c(min(node.size.scale.range), mean(node.size.scale.range)-0.5, max(node.size.scale.range))
-    #
+    # Round the legend values
     legend_values <- round(legend_values, 0)
-    #
-    if(max(node.size.scale) > 20){legend_values <- paste(paste(rep(" ", max(node.size.scale)-20)/5, collapse = ""), legend_values)}
-    #
+    # Assign sizes for the legend (dividing the sizes by 200 assures that the node sizes in the legend correspond to the node sizes in the graph, and this factor is retrieved from the source code of the 'igraph::plot.igraph()' function)
     legend_sizes <- c(min(node.size.scale), mean(node.size.scale), max(node.size.scale))/200
-    #
-    size_legend <- graphics::legend(legend = legend_values,                                      #
-                                    pt.cex = 0,                                                  #
-                                    y.intersp = c(1.25, rep(max(node.size.scale)/10+0.25, 2)),   #
-                                    title = size.legend.title,                                   #
-                                    title.adj = 0,                                               #
-                                    bty = "n",                                                   #
-                                    x = par("usr")[2],                                           #
-                                    y = y_size_legend,                                           #
-                                    cex = 0.75)                                                  #
-    #
+    # Create the size legend
+    size_legend <- graphics::legend(legend = legend_values,                                      # Assign legend values to the nodes
+                                    pt.cex = 0,                                                  # Mask legend points by setting size to zero
+                                    y.intersp = c(1.25, rep(max(node.size.scale)/20+1, 2)),      # Set vertical spacing between the text of the legend
+                                    title = size.legend.title,                                   # Specify the title of the size legend
+                                    title.cex = 0.75,                                            # Set the size of the legend title
+                                    title.adj = 0,                                               # Align the title to the left
+                                    bty = "n",                                                   # Do not draw a box around the legend
+                                    x = par("usr")[2],                                           # Set x-position of the legend (right side of the graph)
+                                    y = y_size_legend,                                           # Set y-position of the legend (top of the graph or below size legend)
+                                    cex = 0.6)                                                   # Set the size of the legend
+    # Determine the position of the circles in the plot
     x_positions <- (size_legend$text$x + size_legend$rect$left) / 2
     y_positions <- size_legend$text$y
-    #
+    # Add the circles to the plot
     graphics::symbols(x = x_positions, y = y_positions, circles = legend_sizes, inches = FALSE, add = TRUE, bg = 'black')
   }
   
