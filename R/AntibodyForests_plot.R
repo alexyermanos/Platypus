@@ -5,6 +5,8 @@
 #' @param sample string - denotes the sample that contains the clonotype.
 #' @param clonotype string - denotes the clonotype from which the lineage tree should be plotted.
 #' @param show.inner.nodes boolean - if TRUE, the tree with inner nodes is plotted (only present when the trees are created with the 'phylo.tree.nj', 'phylo.tree.mp', phylo.tree.ml', or 'phylo.tree.IgPhyML' construction algorithm). Defaults to FALSE.
+#' @param x.scaling
+#' @param y.scaling
 #' @param color.by string - specifies the feature of the nodes that will be used for coloring the nodes. This sublist should be present in each sublist of each node in the 'nodes' objects within the AntibodyForests object. For each unique value for the selected feature, a unique color will be selected using the 'grDevices::rainbow()' function (unless a color gradient is created, see 'node.color.gradient' parameter). Defaults to NULL.
 #' @param label.by string - specifies what should be plotted on the nodes. Options: 'name', 'size', a feature that is stored in the 'nodes' list, and 'none'. Defaults to 'name'.
 #' @param edge.label string - specifies what distance between the nodes is shown as labels of the edges. Options: 'original' (distance that is stored in the igraph object), 'none' (no edge labels are shown), 'lv' (Levensthein distance), 'dl' (Damerau-Levenshtein distance), 'osa' (Optimal String Alignment distance), and 'hamming' (Hamming distance). Defaults to 'lv'. 
@@ -34,6 +36,8 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  sample,
                                  clonotype,
                                  show.inner.nodes,
+                                 x.scaling,
+                                 y.scaling,
                                  color.by,
                                  label.by,
                                  node.size,
@@ -48,6 +52,181 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  main.title,
                                  color.legend.title,
                                  size.legend.title){
+  
+  plot_igraph_object <- function(x,
+                                 xlim = c(-3, 3), 
+                                 ylim = c(-2, 2),
+                                 ...){
+    
+    # Save input object as 'graph' and ensure that the input object is an igraph object
+    graph <- x
+    igraph:::ensure_igraph(graph)
+    # Count the number of vertices in the graph
+    vc <- igraph::vcount(graph)
+    # Parse through the plot parameters 
+    params <- igraph:::i.parse.plot.params(graph, list(...))
+    # Retrieve the node size (and divide by 200) and shape
+    vertex.size <- 1/200 * params("vertex", "size")
+    shape <- igraph:::igraph.check.shapes(params("vertex", "shape"))
+    # Retrieve the color palette to use for vertex color (if provided)
+    palette <- params("plot", "palette")
+    if(!is.null(palette)){old_palette <- palette(palette); on.exit(palette(old_palette), add = TRUE)}
+    # Retrieve the node label properties
+    label.family <- params("vertex", "label.family")
+    label.font <- params("vertex", "label.font")
+    label.cex <- params("vertex", "label.cex")
+    label.degree <- params("vertex", "label.degree")
+    label.color <- params("vertex", "label.color")
+    label.dist <- params("vertex", "label.dist")
+    labels <- params("vertex", "label")
+    # Retrieve the edge properties
+    edge.color <- params("edge", "color")
+    edge.width <- params("edge", "width")
+    edge.lty <- params("edge", "lty")
+    arrow.size <- params("edge", "arrow.size")[1]
+    arrow.width <- params("edge", "arrow.width")[1]
+    edge.labels <- params("edge", "label")
+    loop.angle <- params("edge", "loop.angle")
+    # Retrieve and process the arrows (if present) and their mode/direction
+    arrow.mode <- igraph:::i.get.arrow.mode(graph, params("edge", "arrow.mode"))
+    # Retrieve the edge curvature (if provided)
+    curved <- params("edge", "curved")
+    if(is.function(curved)){curved <- curved(graph)}
+    # Retrieve the edge label properties
+    edge.label.font <- params("edge", "label.font")
+    edge.label.family <- params("edge", "label.family")
+    edge.label.cex <- params("edge", "label.cex")
+    edge.label.color <- params("edge", "label.color")
+    elab.x <- params("edge", "label.x")
+    elab.y <- params("edge", "label.y")
+    # Retrieve and process the tree layout
+    layout <- igraph:::i.postprocess.layout(params("plot", "layout"))
+    # Retrieve other plot parameters (margin, scaling, aspect ratio, and frame)
+    margin <- params("plot", "margin")
+    margin <- rep(margin, length.out = 4)
+    rescale <- params("plot", "rescale")
+    asp <- params("plot", "asp")
+    frame.plot <- params("plot", "frame.plot")
+    # Retrieve titles
+    main <- params("plot", "main")
+    sub <- params("plot", "sub")
+    xlab <- params("plot", "xlab")
+    ylab <- params("plot", "ylab")
+    # Retrieve the maximum vertex size
+    maxv <- max(vertex.size)
+    # If 'rescale' is set to TRUE, rescale the layout to the specified 'xlim' and 'ylim'
+    if(rescale){
+      layout <- igraph::norm_coords(layout, xmin = xlim[1], xmax = xlim[2], ymin = ylim[1], ymax = ylim[2])
+    }
+    # Set up the plot 
+    graphics::plot(x = 0, y = 0, type = "n",   # Center the plot and produce no points or lines (yet)
+                   xlim = xlim, ylim = ylim,   # Set the x and y limits
+                   axes = FALSE,               # Draw no axes on the plot
+                   frame.plot = FALSE,         # Draw no box around the plot
+                   asp = asp,                  # Set the y/x aspect ratio
+                   main = main, sub = sub,     # Specicy the main and sub title of the plot
+                   xlab = xlab, ylab = ylab)   # Specify the axis titles
+    # Retrieve a list of the edges in the graph
+    el <- igraph::as_edgelist(graph, names = FALSE)
+    # Retrieve the edge labels 
+    edge.labels <- edge.labels
+    # Create matrix to store edge coordinatores
+    edge.coords <- matrix(0, nrow = nrow(el), ncol = 4)
+    # Prepare edge coordinates
+    edge.coords[, 1] <- layout[, 1][el[, 1]]   # x0 (x top)
+    edge.coords[, 2] <- layout[, 2][el[, 1]]   # y0 (y top)
+    edge.coords[, 3] <- layout[, 1][el[, 2]]   # x1 (x down)
+    edge.coords[, 4] <- layout[, 2][el[, 2]]   # y1 (y down)
+    # If all the nodes have the same shape, clip both ends of the edges to the nodes using the function stored in the 'igraph:::.igraph.shapes' object
+    if(length(unique(shape)) == 1){
+      ec <- igraph:::.igraph.shapes[[shape[1]]]$clip(edge.coords, el, params = params, end = "both")
+    }
+    # If not, clip the ends of the edges separately using the different functions stored in the 'igraph:::.igraph.shapes' object
+    else{
+      shape <- rep(shape, length.out = igraph::vcount(graph))
+      ec <- edge.coords
+      ec[, 1:2] <- t(sapply(seq(length.out = nrow(el)), function(x){
+        igraph:::.igraph.shapes[[shape[el[x, 1]]]]$clip(edge.coords[x, , drop = FALSE], el[x, , drop = FALSE], params = params, end = "from")
+      }))
+      ec[, 3:4] <- t(sapply(seq(length.out = nrow(el)), function(x){
+        igraph:::.igraph.shapes[[shape[el[x, 2]]]]$clip(edge.coords[x, , drop = FALSE], el[x, , drop = FALSE], params = params, end = "to")
+      }))
+    }
+    # Store the edge coordinates in separate objects ('x0', 'y0', 'x1', and 'y1')
+    x0 <- ec[, 1]
+    y0 <- ec[, 2]
+    x1 <- ec[, 3]
+    y1 <- ec[, 4]
+    # Plot edges with the appropriate properties
+    if(length(edge.color) > 1){edge.color <- edge.color}
+    if(length(edge.width) > 1){edge.width <- edge.width}
+    if(length(edge.lty) > 1){edge.lty <- edge.lty}
+    if(length(arrow.mode) > 1){arrow.mode <- arrow.mode}
+    if(length(arrow.size) > 1){arrow.size <- arrow.size}
+    if(length(curved) > 1){curved <- curved}
+    # If the same arrow is to be plotted for all the edges, plot the edges as this type of arrow with the appropriate properties using the 'igraph:::igraph.Arrows()' function
+    if(length(unique(arrow.mode)) == 1){
+      lc <- igraph:::igraph.Arrows(x0, y0, x1, y1, 
+                                   h.col = edge.color, sh.col = edge.color, 
+                                   h.lwd = 1, sh.lwd = edge.width, 
+                                   open = FALSE, 
+                                   code = arrow.mode[1], 
+                                   sh.lty = edge.lty, h.lty = 1, 
+                                   size = arrow.size, width = arrow.width,
+                                   curved = curved)
+      lc.x <- lc$lab.x
+      lc.y <- lc$lab.y
+    }
+    # 
+    else{
+      curved <- rep(curved, length.out = ecount(graph))
+      lc.x <- lc.y <- numeric(length(curved))
+      for(code in 0:3){
+        valid <- arrow.mode == code
+        if(!any(valid)){next}
+        ec <- edge.color
+        if(length(ec) > 1){ec <- ec[valid]}
+        ew <- edge.width
+        if(length(ew) > 1){ew <- ew[valid]}
+        el <- edge.lty
+        if(length(el) > 1){el <- el[valid]}
+        lc <- igraph.Arrows(x0[valid], y0[valid], x1[valid], y1[valid],
+                            code = code, 
+                            sh.col = ec, h.col = ec, 
+                            sh.lwd = ew, h.lwd = 1, 
+                            h.lty = 1, sh.lty = el, 
+                            open = FALSE,
+                            size = arrow.size, width = arrow.width, 
+                            curved = curved[valid])
+        lc.x[valid] <- lc$lab.x
+        lc.y[valid] <- lc$lab.y
+      }
+      # Adjust edge label positions (if specified)
+      if(!is.null(elab.x)){lc.x <- ifelse(is.na(elab.x), lc.x, elab.x)}
+      if(!is.null(elab.y)) {lc.y <- ifelse(is.na(elab.y), lc.y, elab.y)}
+      # Plot the edge labels
+      text(x = lc.x, y = lc.y, labels = edge.labels, col = edge.label.color, family = edge.label.family, font = edge.label.font, cex = edge.label.cex)
+    }
+    # If all the nodes have the same shape, plot the nodes with the appropriate properties using the function stored in the 'igraph:::.igraph.shapes' object
+    if(length(unique(shape)) == 1){igraph:::.igraph.shapes[[shape[1]]]$plot(layout, params = params)}
+    # If not, plot the nodes differently using the functions stored in the 'igraph:::.igraph.shapes' object
+    else{sapply(seq(length.out = igraph::vcount(graph)), function(x){igraph:::.igraph.shapes[[shape[x]]]$plot(layout[x, , drop = FALSE], v = x, params = params)})}
+    # Restore the graphical parameters after function execution
+    old_xpd <- par(xpd = TRUE)
+    on.exit(par(old_xpd), add = TRUE)
+    # Define node label positions
+    x <- layout[, 1]
+    y <- layout[, 2] 
+    # If all the node labels have the same font family, plot all the node labels using this font family
+    if(length(label.family) == 1){text(x, y, labels = labels, col = label.color, family = label.family, font = label.font, cex = label.cex)}
+    # 
+    else{
+      if1 <- function(vect, idx) if (length(vect) == 1) 
+        vect
+      else vect[idx]
+      sapply(seq_len(vcount(graph)), function(v){text(x[v], y[v], labels = if1(labels, v), col = if1(label.color, v), family = if1(label.family, v), font = if1(label.font, v), cex = if1(label.cex, v))
+      })}
+  }
   
   predict_range_labels <- function(values){
     
@@ -213,6 +392,10 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # If no tree could be found for the specified clonotype, a message is returned and execution is stopped
   if(is.null(tree) && !show.inner.nodes){stop(paste0("No tree could be found for ", clonotype, " of ", sample, "."))}
   if(is.null(tree) && show.inner.nodes){stop(paste0("No tree with inner nodes could be found for ", clonotype, " of ", sample, "."))}
+  
+  #
+  if(missing(x.scaling)){x.scaling <- c(-1, 1)}
+  if(missing(y.scaling)){y.scaling <- c(-1, 1)}
   
   # If the feature specified to use for coloring the nodes could not be found for all nodes, a message is returned and execution is stopped
   if(!missing(color.by)){if(!(all(sapply(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"], function(x) color.by %in% names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[x]]))))){stop("The feature specified with the 'color.by' parameter could not be found for all nodes.")}}
@@ -480,10 +663,12 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   else{par(mar = c(2, 2, 2, 2), xpd = TRUE)}
   
   # Plot the tree using the 'igraph::plot.igraph()' function 
-  igraph::plot.igraph(tree,                     # Plot the tree and its attributes (if present)
-                      layout = layout,          # Place the vertices on the plot using the layout of a lineage tree
-                      vertex.label.dist = 0,    # Center the node labels on the nodes
-                      edge.arrow.size = 0.25)   # Set the size of the arrows
+  plot_igraph_object(tree,                     # Plot the tree and its attributes (if present)
+                     layout = layout,          # Place the vertices on the plot using the layout of a lineage tree
+                     xlim = x.scaling,         # Set the limits for the horizontal axis, thereby scaling the horizontal node distance
+                     ylim = y.scaling,         # Set the limits for the vertical acis, thereby scaling the vertical node distance
+                     vertex.label.dist = 0,    # Center the node labels on the nodes
+                     edge.arrow.size = 0.1)    # Set the size of the arrows
   
   
   # 7. Add legend(s)
@@ -576,7 +761,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
     legend_values <- c(min(node.size.range), mean(node.size.range)-0.5, max(node.size.range))
     # Round the legend values
     legend_values <- round(legend_values, 0)
-    # Assign sizes for the legend (dividing the sizes by 200 assures that the node sizes in the legend correspond to the node sizes in the graph, and this factor is retrieved from the source code of the 'igraph::plot.igraph()' function)
+    # Assign sizes for the legend (dividing the sizes by 200 assures that the node sizes in the legend correspond to the node sizes in the graph, and this factor is retrieved from the source code of the 'igraph::plot.igraph()' function, see line 10)
     legend_sizes <- c(min(node.size.scale), mean(node.size.scale), max(node.size.scale))/200
     # Create the size legend
     size_legend <- graphics::legend(legend = legend_values,                                                               # Assign legend values to the nodes
