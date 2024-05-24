@@ -19,6 +19,7 @@
 #' @param show.color.legend boolean - if TRUE, a legend is plotted to display the values of the specified node feature matched to the corresponding colors. Defaults to TRUE if the 'color.by' parameter is specified.
 #' @param show.size.legend boolean - if TRUE, a legend is plotted to display the node sizes and the corresponding number of cells represented. Defaults to TRUE if the 'node.size' parameter is set to 'expansion'.
 #' @param main.title string - specifies the main title of the plot. Defaults to NULL.
+#' @param sub.title string - specifies the sub title of the plot that is to be plotted below the main title. Defaults to NULL.
 #' @param color.legend.title string - specifies the title of the legend showing the color matching. Defaults to the (capitalized) name of the feature specified in the 'color.by' parameter (converted by the 'stringr::str_to_title()' function).
 #' @param size.legend.tile string - specifies the title of the legend showing the node sizes. Defaults to 'Expansion (# cells)'.
 #' @return Plots lineage tree for the specified clonotype.
@@ -50,12 +51,89 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  show.color.legend,
                                  show.size.legend,
                                  main.title,
+                                 sub.title,
                                  color.legend.title,
                                  size.legend.title){
   
+  
+  calculate_optimal_x_scaling <- function(tree){
+    
+    #
+    node_names <- igraph::V(tree)$name
+    
+    #
+    node_sizes <- igraph::V(tree)$size
+    names(node_sizes) <- node_names
+    
+    #
+    node_coordinates <- as.data.frame(igraph::norm_coords(igraph:::i.postprocess.layout(igraph::layout_as_tree(tree, root = "germline")), xmin = -1, xmax = 1, ymin = -1, ymax = 1))
+    rownames(node_coordinates) <- node_names
+    colnames(node_coordinates) <- c("x", "y")
+    
+    #
+    min_distances <- c()
+    min_distances_names <- c()
+    
+    # Loop over all the y coordinates
+    for(i in unique(node_coordinates$y)){
+      # Create an empty vector to store the horizontal distances between the nodes at this height
+      horizontal_distances <- c()
+      # Select the coordinates of the nodes at the current height
+      current_nodes <- node_coordinates[node_coordinates$y == i, ]
+      # If there are multiple nodes present at this height in the lineage tree...
+      if(nrow(current_nodes) > 1){
+        # Loop over these nodes
+        for(j in rownames(current_nodes)){
+          # For each possible pair of nodes at this height...
+          for(k in rownames(current_nodes)[rownames(current_nodes) != j]){
+            # Calculate the distance between the nodes by calculating the absolute difference between the x coordinates and subsequently substracting the node sizes
+            dist <- abs(node_coordinates[j, "x"] - node_coordinates[k, "x"])  - node_sizes[[j]]/200 - node_sizes[[k]]/200
+            names(dist) <- paste(j, k, sep = "-")
+            # Append this distance to the 'horizontal_distances' vector
+            horizontal_distances <- c(horizontal_distances, dist) 
+          }
+        }
+        # Select the minimum distance from the 'horizontal_distances' vector 
+        min_distance <- min(horizontal_distances)
+        min_distance_name <- names(horizontal_distances[horizontal_distances == min_distance])[1]
+        # Add this distance to the 'min_distances' vector
+        min_distances <- c(min_distances, min_distance)
+        min_distances_names <- c(min_distances_names, min_distance_name)
+        names(min_distances) <- min_distances_names
+      }
+    }
+    
+    #
+    if(length(min_distances) != 0){
+      #
+      nodes_with_biggest_overlap <- names(min_distances)[min_distances == min(min_distances)][1]
+      #
+      node_a <- strsplit(nodes_with_biggest_overlap, split = "-")[[1]][1]
+      node_b <- strsplit(nodes_with_biggest_overlap, split = "-")[[1]][2]
+      #
+      current_distance <- abs(node_coordinates[node_a, "x"] - node_coordinates[node_b, "x"])
+      #
+      theoretical_distance <- node_sizes[[node_a]]/200 + node_sizes[[node_b]]/200 + 0.2*min(node_sizes)/200
+      #
+      x_scaling_factor <- theoretical_distance/current_distance
+      #
+      if(x_scaling_factor < 1){x_scaling_factor <- 1}
+      #
+      return(x_scaling_factor)
+    }
+    
+    #
+    if(length(min_distances) == 0){
+      return(1)
+    }
+  }
+  
+  
   plot_igraph_object <- function(x,
-                                 xlim = c(-3, 3), 
-                                 ylim = c(-2, 2),
+                                 xlim, 
+                                 ylim,
+                                 legend,
+                                 title,
                                  ...){
     
     # Save input object as 'graph' and ensure that the input object is an igraph object
@@ -118,6 +196,10 @@ AntibodyForests_plot <- function(AntibodyForests_object,
     if(rescale){
       layout <- igraph::norm_coords(layout, xmin = xlim[1], xmax = xlim[2], ymin = ylim[1], ymax = ylim[2])
     }
+    # If a legend is to be plotted on the right side of the plot, add +1.5 to the upper limit of the horizontal axis
+    if(legend){xlim[2] <- xlim[2]+1.5}
+    # If a title is to be plotted above the plot, add +0.5 to the upper limit of the vertical axis
+    if(title){ylim[2] <- ylim[2]+0.5}
     # Set up the plot 
     graphics::plot(x = 0, y = 0, type = "n",   # Center the plot and produce no points or lines (yet)
                    xlim = xlim, ylim = ylim,   # Set the x and y limits
@@ -164,7 +246,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
     if(length(arrow.mode) > 1){arrow.mode <- arrow.mode}
     if(length(arrow.size) > 1){arrow.size <- arrow.size}
     if(length(curved) > 1){curved <- curved}
-    # If the same arrow is to be plotted for all the edges, plot the edges as this type of arrow with the appropriate properties using the 'igraph:::igraph.Arrows()' function
+    # If the same arrow is to be used for all the edges, plot the edges as this type of arrow with the appropriate properties using the 'igraph:::igraph.Arrows()' function
     if(length(unique(arrow.mode)) == 1){
       lc <- igraph:::igraph.Arrows(x0, y0, x1, y1, 
                                    h.col = edge.color, sh.col = edge.color, 
@@ -177,7 +259,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
       lc.x <- lc$lab.x
       lc.y <- lc$lab.y
     }
-    # 
+    # If different type of arrows are to be used, plot the arrows separately
     else{
       curved <- rep(curved, length.out = ecount(graph))
       lc.x <- lc.y <- numeric(length(curved))
@@ -219,12 +301,13 @@ AntibodyForests_plot <- function(AntibodyForests_object,
     y <- layout[, 2] 
     # If all the node labels have the same font family, plot all the node labels using this font family
     if(length(label.family) == 1){text(x, y, labels = labels, col = label.color, family = label.family, font = label.font, cex = label.cex)}
-    # 
+    # If the node labels have different font families, apply these fonts separately
     else{
-      if1 <- function(vect, idx) if (length(vect) == 1) 
-        vect
-      else vect[idx]
-      sapply(seq_len(vcount(graph)), function(v){text(x[v], y[v], labels = if1(labels, v), col = if1(label.color, v), family = if1(label.family, v), font = if1(label.font, v), cex = if1(label.cex, v))
+      if1 <- function(vect, idx){
+        if(length(vect) == 1){vect}
+        else{vect[idx]}
+      }
+      sapply(seq_len(igraph::vcount(graph)), function(v){text(x[v], y[v], labels = if1(labels, v), col = if1(label.color, v), family = if1(label.family, v), font = if1(label.font, v), cex = if1(label.cex, v))
       })}
   }
   
@@ -393,9 +476,9 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(is.null(tree) && !show.inner.nodes){stop(paste0("No tree could be found for ", clonotype, " of ", sample, "."))}
   if(is.null(tree) && show.inner.nodes){stop(paste0("No tree with inner nodes could be found for ", clonotype, " of ", sample, "."))}
   
-  #
-  if(missing(x.scaling)){x.scaling <- c(-1, 1)}
-  if(missing(y.scaling)){y.scaling <- c(-1, 1)}
+  # If the 'x.scaling' and 'y.sclaing' parameters are not defined, they are set to 'default'
+  if(missing(x.scaling)){x.scaling <- "default"}
+  if(missing(y.scaling)){y.scaling <- "default"}
   
   # If the feature specified to use for coloring the nodes could not be found for all nodes, a message is returned and execution is stopped
   if(!missing(color.by)){if(!(all(sapply(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"], function(x) color.by %in% names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[x]]))))){stop("The feature specified with the 'color.by' parameter could not be found for all nodes.")}}
@@ -425,7 +508,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # If the 'node.size' parameter is set to 'expansion', retrieve the size of each node from the AntibodyForests object and store the sizes in the 'node.size.list', and give all internal nodes and the germline node a size of 1
   if(is.character(node.size)){if(node.size == "expansion"){node.size.list <- as.list(sapply(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"], function(x) AntibodyForests_object[[sample]][[clonotype]][["nodes"]][[x]][["size"]])); names(node.size.list) <- names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])[!names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]]) == "germline"]; for(i in igraph::V(tree)$name){if(!i %in% names(node.size.list)){node.size.list[i] <- 1}}}}
   # If the 'node.size' parameter is set to a numerical value, all nodes will receive this size
-  if(is.numeric(node.size)){node.size.list <- as.list(rep(node.size, length(igraph::V(tree)$name))); names(node.size.list) <- igraph::V(tree)$name}
+  if(is.numeric(node.size)){node.size.list <- as.list(rep(node.size, length(names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])))); names(node.size.list) <- names(AntibodyForests_object[[sample]][[clonotype]][["nodes"]])}
   # If a list is provided with the 'node.size' parameter, this list is stored in the 'node.size.list' list
   if(is.list(node.size)){node.size.list <- node.size}
   # If the 'node.size.list' does not contain all the nodes, a message is returned and execution is stopped
@@ -438,15 +521,19 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # If the 'node.size.factor' parameter is set to a non-numerical or negative value, a message is returned and execution is stopped
   if(!(is.numeric(node.size.factor)) | !(if(is.numeric(node.size.factor)){node.size.factor > 0}else{FALSE})){stop("The 'node.size.factor' parameter only accepts positve numerical values.")}
   
-  # If the 'node.size.range' parameter is not specified, the scale is determined using the 'predict_node_size_scale()' function
-  if(missing(node.size.range)){node.size.range <- predict_node_size_scale_range(unique(unlist(node.size.list)))}
+  #
+  if(missing(node.size.range) && length(unique(node.size.list)) == 1){node.size.range <- c(unlist(unique(node.size.list)), unlist(unique(node.size.list)))}
+  # If the 'node.size.range' parameter is not specified and the 'node.size.list' contains different sizes, the scale is determined using the 'predict_node_size_scale()' function
+  if(missing(node.size.range) && length(unique(node.size.list)) > 1){node.size.range <- predict_node_size_scale_range(unique(unlist(node.size.list)))}
   # If the 'node.size.range' parameter contains non-numerical or negative values, a message is returned and execution is stopped
   if(!(is.numeric(node.size.range) | !(if(is.numeric(node.size.range)){all(node.size.range > 0)}else{FALSE}) | length(node.size.range) != 2)){stop("The 'node.size.range' parameter only accepts a pair of positive numerical values.")}
   # If the 'node.size.range' is set to a range that does not contain all values stored in the 'node.size.list' (multiplied by the 'node.size.factor'), a message is returned and execution is stopped
   if(!all(dplyr::between(c(min(unlist(node.size.list))*node.size.factor, max(unlist(node.size.list)))*node.size.factor, left = min(node.size.range), right = max(node.size.range)))){stop(paste0(c("The range specified with the 'node.size.range' does not capture all the node sizes. The minimum range should be: ", min(unlist(node.size.list))*node.size.factor, " - ", max(unlist(node.size.list))*node.size.factor, ".")))}
   
-  # If the 'node.size.scale' parameter is not specified, it is set to 'c(10, 20)'
-  if(missing(node.size.scale)){node.size.scale <- c(10, 20)}
+  #
+  if(missing(node.size.scale) && length(unique(node.size.list)) == 1){node.size.scale <- c(unlist(unique(node.size.list)), unlist(unique(node.size.list)))}
+  # If the 'node.size.scale' parameter is not specified and the 'node.size.list' contains different sizes, it is set to 'c(10, 20)'
+  if(missing(node.size.scale) && length(unique(node.size.list)) > 1){node.size.scale <- c(10, 20)}
   # If the 'node.size.scale' parameter contains non-numerical or negative values, a message is returned and execution is stopped
   if(!(is.numeric(node.size.scale) | !(if(is.numeric(node.size.scale)){all(node.size.scale >= 0)}else{FALSE}) | length(node.size.scale) != 2)){stop("The 'node.size.scale' parameter only accepts a pair of positive numerical values.")}
   
@@ -515,8 +602,10 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(missing(show.size.legend) && node.size != "expansion"){show.size.legend <- FALSE}
   if(missing(show.size.legend) && node.size == "expansion"){show.size.legend <- TRUE}
   
-  # If the 'title' parameter is not specified, it is set to an empty string
+  # If the 'main.title' or 'sub.title' parameter are not specified, they are set to an empty string
   if(missing(main.title)){main.title <- ""}
+  if(missing(sub.title)){sub.title <- ""}
+  
   # If the legend titles are not specified, the color legend title is set to the feature name and the size legend title is set to 'Expansion (# cells)'
   if(show.color.legend && missing(color.legend.title)){color.legend.title <- paste0(stringr::str_to_title(color.by))}
   if(show.size.legend && missing(size.legend.title)){size.legend.title <- "Expansion (# cells)"}
@@ -531,11 +620,12 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   # 3. Define the size of the nodes
   
   # Assign the node sizes from the 'node.size.list' to the igraph object
-  igraph::V(tree)$size <- sapply(igraph::V(tree)$name, function(x){
-    if(x == "germline"){return(1)}
-    else if(startsWith(x, "node")){return(node.size.list[[x]])}
-    else{return(0.5)}
-  })
+  #igraph::V(tree)$size <- sapply(igraph::V(tree)$name, function(x){
+  #  if(x == "germline"){return(1)}
+  #  else if(startsWith(x, "node")){return(node.size.list[[x]])}
+  #  else{return(0.5)}
+  #})
+  igraph::V(tree)$size <- sapply(igraph::V(tree)$name, function(x) node.size.list[[x]])
   
   # Multiply the node sizes by the 'node.size.factor'
   igraph::V(tree)$size <- igraph::V(tree)$size*node.size.factor
@@ -628,7 +718,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   igraph::V(tree)$label.color[igraph::V(tree)$color == "black"] <- "white"
   
   # Resize the size of the node labels according to the size of the node itself
-  igraph::V(tree)$label.cex <- igraph::V(tree)$size/10
+  igraph::V(tree)$label.cex <- 0.75
   
   # If the 'edge.label' is set to 'default', display the edge lengths from the graphs as node labels in the graph
   if(edge.label == "original"){igraph::E(tree)$label <- as.character(round(as.numeric(igraph::E(tree)$edge.length), 1))}
@@ -656,22 +746,68 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(edge.label == "none"){igraph::E(tree)$label <- NA}
   
   
-  # 6. Plot lineage tree
+  # 6. Define horizontal and vertical scaling
   
-  # Add 2 lines of margin to all sides of the pland, and if the 'show.color.legend' or 'show.size.legend' is set to TRUE, add 6 lines of margin on the right side of the plot
-  if(show.color.legend | show.size.legend){par(mar = c(2, 2, 2, 6), xpd = TRUE)}
-  else{par(mar = c(2, 2, 2, 2), xpd = TRUE)}
+  #
+  if(all(x.scaling == "default")){
+    x.scaling <- c(-calculate_optimal_x_scaling(tree), calculate_optimal_x_scaling(tree))
+  }
+  
+  #
+  if(all(y.scaling == "default")){
+    y.scaling <- c((-length(unique(layout[, 2]))-1)/8, (length(unique(layout[, 2]))-1)/8)
+    if(max(y.scaling) < 1){y.scaling <- c(-1, 1)}
+    if(max(y.scaling) < 0.5*max(x.scaling)){y.scaling <- 0.5*x.scaling}
+  }
+  
+  
+  # 7. Plot lineage tree
   
   # Plot the tree using the 'igraph::plot.igraph()' function 
-  plot_igraph_object(tree,                     # Plot the tree and its attributes (if present)
-                     layout = layout,          # Place the vertices on the plot using the layout of a lineage tree
-                     xlim = x.scaling,         # Set the limits for the horizontal axis, thereby scaling the horizontal node distance
-                     ylim = y.scaling,         # Set the limits for the vertical acis, thereby scaling the vertical node distance
-                     vertex.label.dist = 0,    # Center the node labels on the nodes
-                     edge.arrow.size = 0.1)    # Set the size of the arrows
+  plot_igraph_object(tree,                                              # Plot the tree and its attributes (if present)
+                     layout = layout,                                   # Place the vertices on the plot using the layout of a lineage tree
+                     xlim = x.scaling,                                  # Set the limits for the horizontal axis, thereby scaling the horizontal node distance
+                     ylim = y.scaling,                                  # Set the limits for the vertical axis, thereby scaling the vertical node distance
+                     legend = (show.color.legend | show.size.legend),   # Specify whether empty space should be plotted on the right side 
+                     title = if(main.title != ""){TRUE}else{FALSE},     # Specify whether empty space should be plotted on top 
+                     edge.arrow.size = 0.1)                             # Set the size of the arrows
   
   
-  # 7. Add legend(s)
+  # 8. Add legend(s)
+  
+  # If 'show.size.legend' is set to TRUE, add a legend to the plot to show the node sizes
+  if(show.size.legend){
+    # Determine the three node sizes that will be displayed in the size legend, which include the min, mean, and max value in the 'node.size.range'
+    legend_values <- c(min(node.size.range), mean(node.size.range)-0.5, max(node.size.range))
+    # Round the legend values
+    legend_values <- round(legend_values, 0)
+    #
+    legend_values <- paste0(legend_values, paste(rep(" ", 50), collapse = ""))
+    # Assign sizes for the legend (dividing the sizes by 200 assures that the node sizes in the legend correspond to the node sizes in the graph, and this factor is retrieved from the source code of the 'igraph::plot.igraph()' function, see line 10)
+    legend_node_sizes <- c(min(node.size.scale), mean(node.size.scale), max(node.size.scale))/200
+    #
+    x_positions <- rep(x.scaling[2]+0.2+max(legend_node_sizes), 3)
+    #
+    y_positions <- c(-0.25-legend_node_sizes[1], -0.25-legend_node_sizes[1]*2-0.05-legend_node_sizes[2], -0.25-legend_node_sizes[1]*2-0.05-legend_node_sizes[2]*2-0.05-legend_node_sizes[3])
+    #
+    graphics::text(x = x.scaling[2]+0.2,
+                   y = -0.1,
+                   label = size.legend.title,
+                   adj = 0)
+    #
+    graphics::symbols(x = x_positions,
+                      y = y_positions,
+                      circles = legend_node_sizes, 
+                      inches = FALSE,
+                      bg = "black",
+                      add = TRUE)
+    #
+    graphics::text(x = x_positions + max(legend_node_sizes) + 0.1,
+                   y = y_positions,
+                   labels = legend_values,
+                   adj = 0,
+                   cex = 0.75)
+  }
   
   # If 'show.color.legend' is set to TRUE, add a legend to the plot to show the color matching
   if(show.color.legend){
@@ -681,19 +817,36 @@ AntibodyForests_plot <- function(AntibodyForests_object,
       legend_values <- c(gtools::mixedsort(unique(unlist(node.feature.list))))
       # Assign the corresponding colors to the values 
       legend_colors <- c(unlist(node.color.list[gtools::mixedsort(unique(unlist(node.feature.list)))]))
-      # Create the color legend (without a gradient)
-      color_legend <- graphics::legend(legend = legend_values,       # Assign legend values to the legend points
-                                       pt.bg = legend_colors,        # Specify the colors for the legend points
-                                       pch = 21,                     # Use filled circles as legend points
-                                       pt.cex = 1.5,                 # Set the size of the legend circles
-                                       title = color.legend.title,   # Specify the title of the color legend
-                                       title.cex = 0.8,              # Set the size of the legend title
-                                       title.adj = 0.25,             # Align the title
-                                       bty = "n",                    # Do not draw a box around the legend
-                                       x = par("usr")[2],            # Set x-position of the legend (right side of the graph)
-                                       y = par("usr")[4]*0.8,        # Set y-position of the legend (top of the graph)
-                                       cex = 0.6)                    # Set the size of the legend
+      #
+      legend_circle_size <- 1.0 / length(legend_values) / 2 - 0.025
+      #
+      if(legend_circle_size > 0.1){legend_circle_size <- 0.1}
+      #
+      if(show.size.legend){x_positions <- rep((x.scaling[2]+0.2+max(legend_node_sizes)), length(legend_values))}
+      if(!show.size.legend){x_positions <- rep((x.scaling[2]+0.2+legend_circle_size), length(legend_values))}
+      #
+      y_positions <- sapply(1:length(legend_values), function(x) (y.scaling[2]-0.1) - (x*2-1)*(0.1+0.025))
+      #
+      graphics::text(x = x.scaling[2]+0.2,
+                     y = y.scaling[2]-0.1,
+                     label = color.legend.title,
+                     adj = 0)
+      #
+      graphics::symbols(x = x_positions,
+                        y = y_positions,
+                        circles = rep(legend_circle_size, length(legend_values)), 
+                        inches = FALSE,
+                        bg = legend_colors,
+                        add = TRUE)
+      #
+      graphics::text(x = x_positions + legend_circle_size + 0.05,
+                     y = y_positions,
+                     labels = legend_values,
+                     adj = 0,
+                     cex = 0.75)
+      
     }
+    
     # If node colors are specified with a gradient, create a legend using a color gradient
     if(all(node.color.gradient != "none")){
       # Create the colors of the gradient with the 'scales::pal_seq_gradient()' function
@@ -710,78 +863,59 @@ AntibodyForests_plot <- function(AntibodyForests_object,
       else{
         gradient_text_labels <- format(gradient_text_labels, scientific = TRUE, digits = 3)
       }
-      # Calculate a vector in which the five values are matched to the colors in the 'gradient_colors' vector by placing the values at the right position in the vector 
-      gradient_labels <- rep(" ", 1000)
-      # Iterate through the five labels that will be displayed next to the color gradient
-      for(i in gradient_text_labels){
-        # If the label equals to the minimum value of the range, the position of the label is set to 1 (on the bottom)
-        if(as.numeric(i) == min(numerical_values)){
-          position <- 1
-          # At this position in the 'gradient_labels' vector (modified by adding +30 in order to be at the right position next to the color gradient), add the label
-          gradient_labels[position+30] <- i; 
-          # At the three surrounding positions in the 'gradient_colors' vector, change the color to white
-          gradient_colors[position:(position+3)] <- rep("#FFFFFF", 3)
-          }
-        # If the label does not equal to the minimum value, the position of the label needs to be calculated
-        else{
-          position <- round((as.numeric(i)-min(numerical_values))/abs(min(numerical_values) - max(numerical_values))*1000)
-          # At this position in the 'gradient_labels' vector (modified by adding +30 in order to be at the right position next to the color gradient), add the label
-          gradient_labels[position+30] <- i
-          # At the five surrounding positions in the 'gradient_colors' vector, change the color to white
-          gradient_colors[(position-1):(position+1)] <- rep("#FFFFFF", 3)
-          }
-        }
-      # Create the color legend (with a gradient)
-      color_legend <- graphics::legend(legend = rev(gradient_labels),             # Assign gradient values to the color gradient in reverse order 
-                                       fill = rev(gradient_colors),               # Fill the legend points (boxes) with the gradien colors in reverse order
-                                       border = NA,                               # Do not draw a border around the legend points
-                                       y.intersp = c(0.5, rep(0.01, 999)),        # Set the vertical spacing between legend points (which creates the gradient)
-                                       title = paste(color.legend.title, "\n"),   # Specify the title of the color legend
-                                       title.cex = 0.8,                           # Set the size of the legend title
-                                       title.adj = 0.25,                          # Align the title 
-                                       bty = "n",                                 # Do not draw a box around the legend
-                                       x = par("usr")[2],                         # Set x-position of the legend (right side of the graph)
-                                       y = par("usr")[4]*0.8,                     # Set y-position of the legend (top of the graph)
-                                       cex = 0.6)                                 # Set the size of the legend
+      #
+      if(show.size.legend){x_positions <- rep((x.scaling[2]+0.2+max(legend_node_sizes)), 1000)}
+      if(!show.size.legend){x_positions <- rep((x.scaling[2]+0.2+0.1), 1000)}
+      #
+      y_positions <- rev(seq(0.25, y.scaling[2]-0.25, (abs(y.scaling[2])-0.5)/999))
+      #
+      graphics::text(x = x.scaling[2]+0.2,
+                     y = y.scaling[2]-0.1,
+                     label = color.legend.title,
+                     adj = 0)
+      #
+      graphics::symbols(x = x_positions,
+                        y = y_positions,
+                        rectangles = matrix(rep(c(0.2, (y.scaling[2]-0.25)/1000), 1000), ncol = 2, nrow = 1000, byrow = TRUE),
+                        lty = 0, 
+                        inches = FALSE,
+                        bg = rev(gradient_colors),
+                        add = TRUE)
+      #
+      graphics::symbols(x = c(rep(unique(x_positions)+0.075, 5), rep(unique(x_positions)-0.075, 5)),
+                        y = rep(sapply(gradient_text_labels, function(x) return(0.25+round((as.numeric(x)-min(numerical_values))/abs(min(numerical_values) - max(numerical_values))*1000)*(abs(y.scaling[2])-0.5)/999)), 2),
+                        rectangles = matrix(rep(c(0.05, (y.scaling[2]-0.25)/1000*10), 10), ncol = 2, nrow = 10, byrow = TRUE),
+                        lty = 0, 
+                        inches = FALSE,
+                        bg = "white",
+                        add = TRUE)
+      #
+      graphics::text(x = x_positions + 0.15,
+                     y = sapply(gradient_text_labels, function(x) return(0.25+round((as.numeric(x)-min(numerical_values))/abs(min(numerical_values) - max(numerical_values))*1000)*(abs(y.scaling[2])-0.5)/999)),
+                     labels = gradient_text_labels,
+                     adj = 0,
+                     cex = 0.7)
     }
   }
   
-  # If a color legend is plotted, position the size legend underneath it  
-  if(show.color.legend){
-    y_size_legend <-  par("usr")[4]*0.8 - 1.05*color_legend$rect$h
-  } 
-  # Else, position the size legend in the upper right corner
-  else{
-    y_size_legend <-  par("usr")[4]*0.8
-  }
   
-  # If 'show.size.legend' is set to TRUE, add a legend to the plot to show the node sizes
-  if(show.size.legend){
-    # Determine the three node sizes that will be displayed in the size legend, which include the min, mean, and max value in the 'node.size.range'
-    legend_values <- c(min(node.size.range), mean(node.size.range)-0.5, max(node.size.range))
-    # Round the legend values
-    legend_values <- round(legend_values, 0)
-    # Assign sizes for the legend (dividing the sizes by 200 assures that the node sizes in the legend correspond to the node sizes in the graph, and this factor is retrieved from the source code of the 'igraph::plot.igraph()' function, see line 10)
-    legend_sizes <- c(min(node.size.scale), mean(node.size.scale), max(node.size.scale))/200
-    # Create the size legend
-    size_legend <- graphics::legend(legend = legend_values,                                                               # Assign legend values to the nodes
-                                    pt.cex = 0.6,                                                                         # Mask legend points by setting size to zero
-                                    y.intersp = c(1, 0.6*max(node.size.scale)/10+0.1, 0.9*max(node.size.scale)/10+0.1),   # Set vertical spacing between the text of the legend
-                                    title = size.legend.title,                                                            # Specify the title of the size legend
-                                    title.cex = 0.8,                                                                      # Set the size of the legend title
-                                    title.adj = 0.25,                                                                     # Align the title 
-                                    bty = "n",                                                                            # Do not draw a box around the legend
-                                    x = par("usr")[2],                                                                    # Set x-position of the legend (right side of the graph)
-                                    y = y_size_legend,                                                                    # Set y-position of the legend (top of the graph or below size legend)
-                                    cex = 0.8)                                                                            # Set the size of the legend
-    # Determine the position of the circles in the plot
-    x_positions <- (size_legend$text$x + size_legend$rect$left) / 2 
-    y_positions <- size_legend$text$y
-    # Add the circles to the plot
-    graphics::symbols(x = x_positions, y = y_positions, circles = legend_sizes, inches = FALSE, add = TRUE, bg = 'black')
-  }
+  # 9. Add main and sub titles to the plot
+  
+  #
+  if(main.title != ""){graphics::text(x = 0,
+                                      y = max(y.scaling)+0.25,
+                                      adj = 0.5,
+                                      labels = main.title,
+                                      font = 2)}
+  
+  #
+  if(sub.title != ""){graphics::text(x = 0,
+                                     y = max(y.scaling)+0.125,
+                                     adj = 0.5,
+                                     labels = sub.title,
+                                     font = 3,
+                                     cex = 0.75)}
   
   
-  # 8. Add title to the plot
-  if(main.title != ""){mtext(main.title, font = 2)}
+  # 10. 
 }
