@@ -104,19 +104,19 @@ AntibodyForests <- function(VDJ,
   if(missing(VDJ)){stop("ERROR: Please provide a VDJ dataframe as obtained from the 'minimal_VDJ()' function in Platypus, or a similar dataframe containing the specified sequence and germline colums.")}
   
   # If the 'sequence.columns' parameter is not specified, and no IgPhyML output file is provided, the 'VDJ_sequence_nt_trimmed' and 'VJ_sequence_nt_trimmed' columns are selected, and a message is returned
-  if(missing(sequence.columns) && missing(IgPhyML.output.file)){sequence.columns <- c("VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed"); message("WARNING: No sequence columns are specified. Defaults to 'VDJ_sequence_nt_trimmed' and 'VJ_sequence_nt_trimmed'.")}
+  if(missing(sequence.columns) && missing(IgPhyML.output.file)){sequence.columns <- c("VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed"); message("WARNING: No sequence columns are specified. Defaults to 'VDJ_sequence_nt_trimmed' and 'VJ_sequence_nt_trimmed'.\n")}
   # If the 'sequence.columns' parameter is specified, while an IgPhyML output file is provided, a message is returned
   if(!missing(sequence.columns) && !missing(IgPhyML.output.file)){message("NB: The selected sequence column(s) should exactly match the input provided to the IgPhyML tool.")}
   # If the 'sequence.columns' parameter is not specified, while an IgPhyML output file is provided, the 'VDJ_sequence_nt_trimmed' columns is selected, and a message is returned 
-  if(missing(sequence.columns) && !missing(IgPhyML.output.file)){sequence.columns <- c("VDJ_sequence_nt_trimmed"); message("WARNING: No sequence columns are specified. As an IgPhyML output file is provided, only the 'VDJ_sequence_nt_trimmed' column is selected.")}
+  if(missing(sequence.columns) && !missing(IgPhyML.output.file)){sequence.columns <- c("VDJ_sequence_nt_trimmed"); message("WARNING: No sequence columns are specified. As an IgPhyML output file is provided, only the 'VDJ_sequence_nt_trimmed' column is selected.\n")}
   # If the columns specified in the 'sequence.columns' parameter are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
   if(!all(sequence.columns %in% colnames(VDJ))){stop("ERROR: Please provide valid 'sequence.columns' from the input VDJ dataframe.")}
   # If the 'germline.columns' parameter is not specified, and no IgPhyML output file is provided, the 'VDJ_germline_nt_trimmed' and 'VJ_germline_nt_trimmed' columns are selected, and a message is returned
-  if(missing(germline.columns) && missing(IgPhyML.output.file)){germline.columns <- c("VDJ_germline_nt_trimmed", "VJ_germline_nt_trimmed"); message("WARNING: No germline columns are specified. Defaults to 'VDJ_germline_nt_trimmed' and 'VJ_germline_nt_trimmed'.")}
+  if(missing(germline.columns) && missing(IgPhyML.output.file)){germline.columns <- c("VDJ_germline_nt_trimmed", "VJ_germline_nt_trimmed"); message("WARNING: No germline columns are specified. Defaults to 'VDJ_germline_nt_trimmed' and 'VJ_germline_nt_trimmed'.\n")}
   # If the 'germline.columns' parameter is specified, while an IgPhyML output file is provided, a message is returned
   if(!missing(germline.columns) && !missing(IgPhyML.output.file)){message("NB: The selected germline column(s) should exactly match the input provided to the IgPhyML tool.")}
   # If the 'germline.columns' parameter is not specified, while an IgPhyML output file is provided, the 'VDJ_sequence_nt_trimmed' columns is selected, and a message is returned 
-  if(missing(germline.columns) && !missing(IgPhyML.output.file)){germline.columns <- c("VDJ_germline_nt_trimmed"); message("WARNING: No germline columns are specified. As an IgPhyML output file is provided, only the 'VDJ_germline_nt_trimmed' column is selected.")}
+  if(missing(germline.columns) && !missing(IgPhyML.output.file)){germline.columns <- c("VDJ_germline_nt_trimmed"); message("WARNING: No germline columns are specified. As an IgPhyML output file is provided, only the 'VDJ_germline_nt_trimmed' column is selected.\n")}
   # If the columns specified in the 'germline.columns' parameter are not all present in the 'VDJ' dataframe, a message is returned and execution is stopped
   if(!all(germline.columns %in% colnames(VDJ))){stop("ERROR: Please provide valid 'germline.columns' from the input VDJ dataframe.")}
   # If the columns in 'germline.columns' do not correspond to the columns in 'sequence.columns', a warning is returned
@@ -292,7 +292,7 @@ AntibodyForests <- function(VDJ,
       edge_count <- 0
       
       # Keep counting edges until the 'current_node' is equal to 'node1'
-      while(sum(current_node == node1) >= 1){
+      while(sum(current_node == node1) == 0){
 
         # Find node to which the 'current_node' is connected (the 'current_node' will be present in second column, while the node to which the 'current_node' is connected will be present in the first column)
         next_node <- edge_matrix[edge_matrix[, 2] %in% current_node, 1]
@@ -773,7 +773,7 @@ AntibodyForests <- function(VDJ,
       } else{igraph_object_check <- FALSE}
       
       # If no igraph object could be found in the 'IgPhyML.trees' object, append warning message to warnings 'list'
-      warnings <- c(warnings, paste(c("The tree of", strsplit(clone, split="_")[[1]][], "of", strsplit(clone, split="_")[[1]][1], "could not be found in the specified IgPhyML output file!")))
+      warnings <- c(warnings, paste(c("The tree of", strsplit(clone, split="_")[[1]][], "of", strsplit(clone, split="_")[[1]][1], "could not be found in the specified IgPhyML output file!"), collapse = ""))
       
       # If the igraph object is checked succesfully, onvert the object of class 'igraph' into an object of class 'phylo' using the 'igraph_to_phylo()' function
       if(igraph_object_check){phylo_object <- igraph_to_phylo(IgPhyML_igraph_object)}
@@ -1403,7 +1403,7 @@ AntibodyForests <- function(VDJ,
   
   # Retrieve the warnings from the 'output_list' and print them
   warnings <- unlist(lapply(names(output_list), function(x) output_list[[x]][["warnings"]]))
-  for(i in warnings){message(paste("WARNING:", i))}
+  for(i in warnings){message(paste(c("WARNING: ", i, "\n"), collapse = ""))}
   
   # Return the 'reorganized_output_list'
   return(AntibodyForests_object)

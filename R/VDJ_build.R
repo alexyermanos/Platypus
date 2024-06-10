@@ -6,9 +6,9 @@
 #' @param remove.divergent.cells bool - if TRUE, cells with more than one VDJ transcript or more than one VJ transcript will be excluded. This could be due to multiple cells being trapped in one droplet or due to light chain dual expression (concerns ~0.2-0.5% of B cells, see DOI:10.1084/jem.181.3.1245). Defaults to FALSE.
 #' @param complete.cells.only bool - if TRUE, only cells with both a VDJ transcripts and a VJ transcript are included in the VDJ dataframe. Keeping only cells with 1 VDJ and 1 VJ transcript could be preferable for downstream analysis. Defaults to FALSE.
 #' @param trim.germlines bool - if TRUE, the raw germline sequences of each clone will be trimmed using the the consensus sequences of that clone as reference seqeunces (using Biostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost). Defaults to FALSE.
+#' @param fill.germline.CDR3 bool - if TRUE, the CDR3 region in the trimmed germline sequences are replaced by the most frequently observed CDR3 sequences within the clone in order to obtain germline sequences that are more likely to encode producible and productive antibodies.
 #' @param gap.opening.cost float or Inf - the cost for opening a gap in 'Biostrings::pairwiseAlignment()' when aligning and trimming germline sequences. If set to Inf, a gapless alignment will be performed. Defaults to 10.
 #' @param gap.extension.cost float or Inf - the cost for extending a gap in 'Biostrings::pairwiseAlignment()' when aligning and trimming germline sequences. If set to Inf, a gapless alignment will be performed. Defaults to 4.
-#' @param fill.germline.CDR3 bool - if TRUE, the CDR3 region in the trimmed germline sequences are replaced by the most frequently observed CDR3 sequences within the clone in order to obtain germline sequences that are more likely to encode producible and productive antibodies.
 #' @param parallel bool - if TRUE, the per-sample VDJ building is executed in parallel (parallelized across samples). Defaults to FALSE.
 #' @param num.cores integer - number of cores to be used when parallel = TRUE. Defaults to all available cores - 1 or the number of sample folders in 'VDJ.directory' (depending which number is smaller).
 #' @return Returns the VDJ dataframe / VGM[[1]] object. Each row in this dataframe represent one cell, or one unique cell barcode.
@@ -44,15 +44,17 @@ VDJ_build <- function(VDJ.directory,
   # If not specified, the 'remove.divergent.cells' parameter is set to FALSE
   if(missing(remove.divergent.cells)){remove.divergent.cells <- FALSE}
   # If not specified, the 'trim.germlines' parameter is set to FALSE
-  if(missing(trim.germlines)){trim.germlines <- FALSE; fill.germline.CDR3 <- FALSE}
+  if(missing(trim.germlines)){trim.germlines <- FALSE}
+  # If the 'trim.germlines' parameter is set to FALSE, but the 'gap.opening.cost', 'gap.extension.cost'. or 'fill.germline.CDR3' parameters are specified, a message is returned and execution is stopped
+  if(!trim.germlines && (!missing(gap.opening.cost) | !missing(gap.extension.cost) | !missing(fill.germline.CDR3))){stop("When 'trim.germlines' is set to FALSE, the following parameters should not be specified: 'gap.opening.cost', 'gap.extension.cost', and 'fill.germline.CDR3'.")}
+  # If not specified, the 'fill.germline.CDR3' parameter is set to FALSE
+  if(missing(fill.germline.CDR3)){fill.germline.CDR3 <- FALSE}
   # If not specified, the 'gap.opening.cost' parameter is set to 10
   if(trim.germlines && missing(gap.opening.cost)){gap.opening.cost <- 10}
   # If not specified, the 'gap.extension.cost' parameter is set to 4
   if(trim.germlines && missing(gap.extension.cost)){gap.extension.cost <- 4}
   # If not specified, the 'fill.germline.CDR3' parameter is set to FALSE
   if(trim.germlines && missing(fill.germline.CDR3)){fill.germline.CDR3 <- FALSE}
-  # If 'trim.germlines' is set to FALSE, but the 'gap.opening.cost', 'gap.extension.cost'. or 'fill.germline.CDR3' parameters are specified, a warning message is returned
-  if(!trim.germlines && (!missing(gap.opening.cost) | !missing(gap.extension.cost) | !missing(fill.germline.CDR3))){message("WARNING: When 'trim.germlines' is set to FALSE, the following parameters should not be specified: 'gap.opening.cost', 'gap.extension.cost', and 'fill.germline.CDR3'.")}
   # If not specified, the 'parallel' parameter is set to FALSE
   if(missing(parallel)) parallel <- FALSE
   # If the number of cores is not specified, while 'parallel' is set to TRUE, the number is set to the number of CPU cores on the current host, or the number of samples in 'VDJ.sample.list', if this number is lower
@@ -553,6 +555,9 @@ VDJ_build <- function(VDJ.directory,
 
     # Add column 'sample_id' to 'VDJ' dataframe and use name of sample directory folder
     VDJ_df$sample_id <- sample.ID
+    
+    # Remove duplicated values from 'clonotype_id' column
+    VDJ_df$clonotype_id <- sapply(VDJ_df$clonotype_id, function(x) unique(strsplit(x, split = ", ")[[1]]))
 
     # Add column 'celltype' based on chains in 'VDJ_chain' and 'VJ_chain' column ("TRA", "TRB", "TRD", and TRG" --> "T cell"; "IGH", "IGK", and "IGL" --> "B cell")
     VDJ_df$celltype[stringr::str_detect(paste0(VDJ_df$VDJ_chain,VDJ_df$VJ_chain), "TR")] <- "T cell"
@@ -562,7 +567,7 @@ VDJ_build <- function(VDJ.directory,
     VDJ_df <- VDJ_df |>
       dplyr::mutate(
         isotype = ifelse(celltype == "B cell",
-                         sub("^IGH([A-Z])([0-9]*)([A-Z]*)$", "Ig\\1\\2", VDJ_cgene),
+                         paste(sub("^IGH([A-Z])([0-9]*)([A-Z]*)$", "Ig\\1\\2", strsplit(VDJ_cgene, split = ", ")[[1]]), collapse = ", "),
                          NA))
 
     # Add column 'clonotype_frequencies'
@@ -664,12 +669,12 @@ VDJ_build <- function(VDJ.directory,
 
   # Select and print warning messages in 'output_list'
   warnings_output <- unlist(sapply(output_list, function(x) x$warnings))
-  for(warning in warnings_output){message(paste0("Warning: ",warning,"\n"))}
+  for(warning in warnings_output){message(paste(c("WARNING: ", i, "\n"), collapse = ""))}
   
   # Select and row bind filtering counts in 'output_list' 
   filtering_output <- do.call(rbind, lapply(output_list, function(x) x$filtering))
   # Print 'filtering_output' to show number of cells/barcodes excluded (if 'remove.divergent.cells' and/or 'complete.cells.only' is/are set to TRUE)
-  message("Warning: Please be aware of the number of cells excluded, when 'remove.divergent.cells' or 'complete.cells.only' is set to TRUE:")
+  message("WARNING: Please be aware of the number of cells excluded, when 'remove.divergent.cells' or 'complete.cells.only' is set to TRUE:\n")
   print(knitr::kable(filtering_output))
   
   # Select and row bind VDJ dataframes in 'output_list'

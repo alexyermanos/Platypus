@@ -208,7 +208,7 @@ VDJ_import_igblast_annotations <- function(VDJ,
                    "VDJ_junction_nt", "VDJ_junction_aa",
                    "VDJ_sequence_nt_raw", "VDJ_sequence_nt_trimmed", "VDJ_sequence_aa_trimmed",
                    "VDJ_consensus_nt_raw", "VDJ_consensus_nt_trimmed", "VDJ_consensus_aa_trimmed",
-                   "VDJ_germline_nt_raw", "VDJ_germline_nt_trimmed", "VDJ_germline_aa_trimmed",
+                   "VDJ_germline_nt_raw", "VDJ_germline_nt_trimmed", "VDJ_germline_aa_trimmed", "VDJ_germline_nt_cdr3_filled", "VDJ_germline_aa_cdr3_filled",
                    "VDJ_sequence_alignment_nt", "VDJ_sequence_alignment_aa", "VDJ_germline_alignment_nt", "VDJ_germline_alignment_aa",
                    
                    "VJ_chain", "VJ_chain_count", "VJ_umis",
@@ -225,8 +225,12 @@ VDJ_import_igblast_annotations <- function(VDJ,
                    "VJ_junction_nt", "VJ_junction_aa",
                    "VJ_sequence_nt_raw", "VJ_sequence_nt_trimmed", "VJ_sequence_aa_trimmed",
                    "VJ_consensus_nt_raw", "VJ_consensus_nt_trimmed", "VJ_consensus_aa_trimmed",
-                   "VJ_germline_nt_raw", "VJ_germline_nt_trimmed", "VJ_germline_aa_trimmed",
+                   "VJ_germline_nt_raw", "VJ_germline_nt_trimmed", "VJ_germline_aa_trimmed", "VJ_germline_nt_cdr3_filled", "VJ_germline_aa_cdr3_filled",
                    "VJ_sequence_alignment_nt", "VJ_sequence_alignment_aa", "VJ_germline_alignment_nt", "VJ_germline_alignment_aa")
+    
+    # Retrieve the column names from the 'VDJ' dataframe that are not yet included in the 'new_order' vector and add these column names at the end of the vector
+    unrecognized_columns <- colnames(VDJ)[!colnames(VDJ) %in% new_order]
+    new_order <- c(new_order, unrecognized_columns)
     
     # Reorder the VDJ dataframe
     VDJ <- VDJ[, new_order]
@@ -259,13 +263,16 @@ VDJ_import_igblast_annotations <- function(VDJ,
                    "VDJ_fwr3_nt", "VDJ_fwr3_nt_IgBLAST", "VDJ_fwr3_aa", "VDJ_fwr3_aa_IgBLAST",
                    "VDJ_cdr3_nt", "VDJ_cdr3_nt_IgBLAST", "VDJ_cdr3_aa", "VDJ_cdr3_aa_IgBLAST",
                    "VDJ_fwr4_nt", "VDJ_fwr4_nt_IgBLAST", "VDJ_fwr4_aa", "VDJ_fwr4_aa_IgBLAST",
+                   "VDJ_junction_nt_IgBLAST", "VDJ_junction_aa_IgBLAST",
                    "VDJ_sequence_nt_raw", "VDJ_sequence_nt_trimmed", "VDJ_sequence_aa_trimmed",
                    "VDJ_consensus_nt_raw", "VDJ_consensus_nt_trimmed", "VDJ_consensus_aa_trimmed",
-                   "VDJ_germline_nt_raw", "VDJ_germline_nt_trimmed", "VDJ_germline_aa_trimmed",
+                   "VDJ_germline_nt_raw", "VDJ_germline_nt_trimmed", "VDJ_germline_aa_trimmed", "VDJ_germline_nt_cdr3_filled", "VDJ_germline_aa_cdr3_filled",
                    "VDJ_sequence_alignment_nt_IgBLAST", "VDJ_sequence_alignment_aa_IgBLAST", "VDJ_germline_alignment_nt_IgBLAST", "VDJ_germline_alignment_aa_IgBLAST",
                    
                    "VJ_chain", "VJ_chain_count", "VJ_umis",
-                   "VJ_vgene", "VJ_vgene_IgBLAST", "VJ_jgene", "VJ_jgene_IgBLAST", "VJ_cgene", "VJ_cgene_IgBLAST",
+                   "VJ_vgene", "VJ_vgene_IgBLAST", "VJ_vgene_cigar_IgBLAST", "VJ_vgene_start_IgBLAST", "VJ_vgene_end_IgBLAST", "VJ_vgene_germline_start_IgBLAST", "VJ_vgene_germline_end_IgBLAST",
+                   "VJ_jgene", "VJ_jgene_IgBLAST", "VJ_jgene_cigar_IgBLAST", "VJ_jgene_start_IgBLAST", "VJ_jgene_end_IgBLAST", "VJ_jgene_germline_start_IgBLAST", "VJ_jgene_germline_end_IgBLAST",
+                   "VJ_cgene", "VJ_cgene_IgBLAST",
                    "VJ_fwr1_nt", "VJ_fwr1_nt_IgBLAST", "VJ_fwr1_aa", "VJ_fwr1_aa_IgBLAST",
                    "VJ_cdr1_nt", "VJ_cdr1_nt_IgBLAST", "VJ_cdr1_aa", "VJ_cdr1_aa_IgBLAST", 
                    "VJ_fwr2_nt", "VJ_fwr2_nt_IgBLAST", "VJ_fwr2_aa", "VJ_fwr2_aa_IgBLAST",
@@ -273,10 +280,16 @@ VDJ_import_igblast_annotations <- function(VDJ,
                    "VJ_fwr3_nt", "VJ_fwr3_nt_IgBLAST", "VJ_fwr3_aa", "VJ_fwr3_aa_IgBLAST",
                    "VJ_cdr3_nt", "VJ_cdr3_nt_IgBLAST", "VJ_cdr3_aa", "VJ_cdr3_aa_IgBLAST",
                    "VJ_fwr4_nt", "VJ_fwr4_nt_IgBLAST", "VJ_fwr4_aa", "VJ_fwr4_aa_IgBLAST",
+                   "VJ_junction_nt_IgBLAST", "VJ_junction_aa_IgBLAST",
                    "VJ_sequence_nt_raw", "VJ_sequence_nt_trimmed", "VJ_sequence_aa_trimmed",
                    "VJ_consensus_nt_raw", "VJ_consensus_nt_trimmed", "VJ_consensus_aa_trimmed",
-                   "VJ_germline_nt_raw", "VJ_germline_nt_trimmed", "VJ_germline_aa_trimmed",
+                   "VJ_germline_nt_raw", "VJ_germline_nt_trimmed", "VJ_germline_aa_trimmed", "VJ_germline_nt_cdr3_filled", "VJ_germline_aa_cdr3_filled",
                    "VJ_sequence_alignment_nt_IgBLAST", "VJ_sequence_alignment_aa_IgBLAST", "VJ_germline_alignment_nt_IgBLAST", "VJ_germline_alignment_aa_IgBLAST")
+    
+    # Retrieve the column names from the 'VDJ' dataframe that are not yet included in the 'new_order' vector and add these column names at the end of the vector
+    unrecognized_columns <- colnames(VDJ)[!colnames(VDJ) %in% new_order]
+    print(unrecognized_columns)
+    new_order <- c(new_order, unrecognized_columns)
     
     # Reorder the VDJ dataframe 
     VDJ <- VDJ[, new_order]
