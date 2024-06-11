@@ -17,6 +17,7 @@
 #' @param node.color string or list of strings - specifies the color of nodes. If set to 'default', and the 'color.by' parameter is not specified, all the seqeuence-recovered nodes are colored lightblue. If set to 'default', and the 'color.by' parameter is set to a categorical value, the sequence-recovered nodes are colored  If set to a color (a color from the 'grDevices::color()' list or a valid HEX code), all the sequence-recovered nodes will get this color. If set to a list of colors, in which each item is named to a node, the nodes will get these colors. Defaults to 'default'.
 #' @param node.color.gradient vector of strings - specifies the colors of the color gradient, if 'color.by' is set to a numerical feature. The minimum number of colors that need to be specified are 2. Defaults to 'c("#440154", "#481567", "#482677", "#453781", "#404788", "#39568C", "#33638D", "#2D708E", "#287D8E", "#238A8D", "#1F968B", "#20A387", "#29AF7F", "#3CBB75", "#55C667", "#73D055", "#95D840", "#B8DE29", "#DCE319", "#FDE725")'.
 #' @param node.color.range - vector of 2 floats - specifies the range of the color gradient. Defaults to the minimum and maximum value found for the feature selected by the 'color.by' parameter.
+#' @param arrow.size float - specifies the size of the arrows. Defaults to 1.
 #' @param show.color.legend boolean - if TRUE, a legend is plotted to display the values of the specified node feature matched to the corresponding colors. Defaults to TRUE if the 'color.by' parameter is specified.
 #' @param show.size.legend boolean - if TRUE, a legend is plotted to display the node sizes and the corresponding number of cells represented. Defaults to TRUE if the 'node.size' parameter is set to 'expansion'.
 #' @param main.title string - specifies the main title of the plot (to be plotted in a bold font). Defaults to NULL.
@@ -50,6 +51,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  node.color,
                                  node.color.gradient,
                                  node.color.range,
+                                 arrow.size,
                                  edge.label,
                                  show.color.legend,
                                  show.size.legend,
@@ -490,6 +492,8 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(missing(node.size.scale) && length(unique(node.size.list)) > 1){node.size.scale <- c(10, 20)}
   # If the 'node.size.scale' parameter contains non-numerical or negative values, a message is returned and execution is stopped
   if(!(is.numeric(node.size.scale) | !(if(is.numeric(node.size.scale)){all(node.size.scale >= 0)}else{FALSE}) | length(node.size.scale) != 2)){stop("The 'node.size.scale' parameter only accepts a pair of positive numerical values.")}
+  # If the 'arrow.size' parameter is not specified, it is set to 1
+  if(missing(arrow.size)){arrow.size <- 1}
   
   # Import the 'isotype_colors' list that specifies a unique color for each known isotype
   isotype_colors <- list(
@@ -756,7 +760,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                      legend = (show.color.legend | show.size.legend),   # Specify whether empty space (1.5 on the x axis) should be plotted on the right side 
                      title = if(main.title != ""){TRUE}else{FALSE},     # Specify whether empty space (0.5 on the y axis) should be plotted on top 
                      edge.width = 2,                                    # Set the width of the edges
-                     edge.arrow.size = 1,                               # Set the size of the arrows
+                     edge.arrow.size = arrow.size,                               # Set the size of the arrows
                      edge.arrow.width = 1)                              # Set the width of the arrows
   
   
@@ -883,7 +887,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   
   # Plot the main title (if specified)
   if(main.title != ""){graphics::text(x = 0,                     # Center the title horizontally above the lineage tree
-                                      y = max(y.scaling)+0.25,   # Position the title 0.25 points above the maximum y scaling value
+                                      y = max(y.scaling)+0.3,   # Position the title 0.3 points above the maximum y scaling value
                                       adj = 0.5,                 # Center the title
                                       labels = main.title,       # Specify the title
                                       font = 2,                  # Use bold font for the title
