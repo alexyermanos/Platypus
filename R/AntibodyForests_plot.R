@@ -17,6 +17,7 @@
 #' @param node.color string or list of strings - specifies the color of nodes. If set to 'default', and the 'color.by' parameter is not specified, all the seqeuence-recovered nodes are colored lightblue. If set to 'default', and the 'color.by' parameter is set to a categorical value, the sequence-recovered nodes are colored  If set to a color (a color from the 'grDevices::color()' list or a valid HEX code), all the sequence-recovered nodes will get this color. If set to a list of colors, in which each item is named to a node, the nodes will get these colors. Defaults to 'default'.
 #' @param node.color.gradient vector of strings - specifies the colors of the color gradient, if 'color.by' is set to a numerical feature. The minimum number of colors that need to be specified are 2. Defaults to 'c("#440154", "#481567", "#482677", "#453781", "#404788", "#39568C", "#33638D", "#2D708E", "#287D8E", "#238A8D", "#1F968B", "#20A387", "#29AF7F", "#3CBB75", "#55C667", "#73D055", "#95D840", "#B8DE29", "#DCE319", "#FDE725")'.
 #' @param node.color.range - vector of 2 floats - specifies the range of the color gradient. Defaults to the minimum and maximum value found for the feature selected by the 'color.by' parameter.
+#' @param node.label.size float - specifies the font size of the node label. Default scales to the size of the nodes.
 #' @param arrow.size float - specifies the size of the arrows. Defaults to 1.
 #' @param show.color.legend boolean - if TRUE, a legend is plotted to display the values of the specified node feature matched to the corresponding colors. Defaults to TRUE if the 'color.by' parameter is specified.
 #' @param show.size.legend boolean - if TRUE, a legend is plotted to display the node sizes and the corresponding number of cells represented. Defaults to TRUE if the 'node.size' parameter is set to 'expansion'.
@@ -51,6 +52,7 @@ AntibodyForests_plot <- function(AntibodyForests_object,
                                  node.color,
                                  node.color.gradient,
                                  node.color.range,
+                                 node.label.size,
                                  arrow.size,
                                  edge.label,
                                  show.color.legend,
@@ -492,6 +494,8 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   if(missing(node.size.scale) && length(unique(node.size.list)) > 1){node.size.scale <- c(10, 20)}
   # If the 'node.size.scale' parameter contains non-numerical or negative values, a message is returned and execution is stopped
   if(!(is.numeric(node.size.scale) | !(if(is.numeric(node.size.scale)){all(node.size.scale >= 0)}else{FALSE}) | length(node.size.scale) != 2)){stop("The 'node.size.scale' parameter only accepts a pair of positive numerical values.")}
+  # If the 'node.label.size' parameter is not specified, it is set to default
+  if(missing(node.label.size)){node.label.size <- "default"}
   # If the 'arrow.size' parameter is not specified, it is set to 1
   if(missing(arrow.size)){arrow.size <- 1}
   
@@ -687,7 +691,12 @@ AntibodyForests_plot <- function(AntibodyForests_object,
   igraph::V(tree)$label.color[igraph::V(tree)$color == "black"] <- "white"
   
   # Resize the size of the node labels according to the size of the node itself
-  igraph::V(tree)$label.cex <- igraph::V(tree)$size / 10
+  if (node.label.size == "default"){
+    igraph::V(tree)$label.cex <- igraph::V(tree)$size / 10
+  }else{
+  # If the 'node.label.size' parameter is not default, the size of the node labels is set to this value
+    igraph::V(tree)$label.cex <- node.label.size
+    }
   
   # If the 'edge.label' is set to 'default', display the edge lengths from the graphs as node labels in the graph
   if(edge.label == "original"){igraph::E(tree)$label <- as.character(round(as.numeric(igraph::E(tree)$edge.length), 1))}
