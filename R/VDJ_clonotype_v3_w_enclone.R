@@ -49,8 +49,8 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
                              operating.system){
 
   #for CRAN checks
-  Nr_of_VDJ_chains <- NULL
-  Nr_of_VJ_chains <- NULL
+  VDJ_chain_count <- NULL
+  VJ_chain_count <- NULL
   ccombs1 <- NULL
   unique_id_internal <- NULL
   sample_id <- NULL
@@ -66,7 +66,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
       for(cel in 1:nrow(curr_ab)){
         clone_matches <- which(stringr::str_detect(sample_dfs$new_clonal_feature, curr_ab$new_clonal_feature[cel]))
-        if(sample_aberrant$Nr_of_VDJ_chains[cel] == 0){
+        if(sample_aberrant$VDJ_chain_count[cel] == 0){
         }
         if(length(unique(sample_dfs$new_clonal_feature[clone_matches])) > 1){ #This returns TRUE if multiple defined 1VDJ 1VJ clones match the pattern of the aberrant query clone
 
@@ -102,17 +102,17 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
         #now check for homology
         if(length(clone_matches) > 0){
           #Get normalized string distances between the current aberrant cell and the clones with matching v gene usage and cdr3 length
-          if(nchar(curr_ab$VDJ_cdr3s_aa[cel]) != 0){
-            dists_VDJ <- stringdist::stringdist(sample_dfs$VDJ_cdr3s_aa[clone_matches], curr_ab$VDJ_cdr3s_aa[cel]) / nchar(curr_ab$VDJ_cdr3s_nt[cel])
-          } else if(nchar(curr_ab$VDJ_cdr3s_aa[cel]) == 0){
+          if(nchar(curr_ab$VDJ_cdr3_aa[cel]) != 0){
+            dists_VDJ <- stringdist::stringdist(sample_dfs$VDJ_cdr3_aa[clone_matches], curr_ab$VDJ_cdr3_aa[cel]) / nchar(curr_ab$VDJ_cdr3_nt[cel])
+          } else if(nchar(curr_ab$VDJ_cdr3_aa[cel]) == 0){
             if(clone.strategy %in% c("Hvj.Lvj.CDR3length.CDR3.homology", "CDR3.homology")){
               dists_VDJ <- rep(0, length(clone_matches))
             } else if(clone.strategy %in% c("Hvj.Lvj.CDR3length.CDRH3.homology", "CDRH3.homology")){ #problem case: looking for VDJ homology only, but cell has no VDJ chain. Will be its own clonotype
               dists_VDJ <- rep(100, length(clone_matches))
             }
           }
-          if(nchar(curr_ab$VJ_cdr3s_nt[cel]) != 0 & clone.strategy %in% c("Hvj.Lvj.CDR3length.CDR3.homology", "CDR3.homology")){
-            dists_VJ <- stringdist::stringdist(sample_dfs$VJ_cdr3s_aa[clone_matches], curr_ab$VJ_cdr3s_aa[cel]) / nchar(curr_ab$VJ_cdr3s_aa[cel])
+          if(nchar(curr_ab$VJ_cdr3_nt[cel]) != 0 & clone.strategy %in% c("Hvj.Lvj.CDR3length.CDR3.homology", "CDR3.homology")){
+            dists_VJ <- stringdist::stringdist(sample_dfs$VJ_cdr3_aa[clone_matches], curr_ab$VJ_cdr3_aa[cel]) / nchar(curr_ab$VJ_cdr3_aa[cel])
           } else {dists_VJ <- rep(0, length(clone_matches))}
           dists <- dists_VDJ + dists_VJ #getting combined distances and testing vs. threshold
 
@@ -158,20 +158,20 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     path_with_origin <- paste0(VDJ_sample_paths, collapse = merge_origin_sep)
 
     #Get cell type
-    cell_type <- unique(sample_df$celltype)
-    if(length(cell_type) > 1){
+    celltype <- unique(sample_df$celltype)
+    if(length(celltype) > 1){
       stop('Enclone only works on data with a single cell type - ensure your (merged) sample contains a single cell type or do not merge samples with different cell types')
     }
 
-    if(cell_type == 'B cell'){
-      cell_type <- 'BCR'
-    }else if(cell_type == 'T cell'){
-      cell_type <- 'TCR'
+    if(celltype == 'B cell'){
+      celltype <- 'BCR'
+    }else if(celltype == 'T cell'){
+      celltype <- 'TCR'
     }else{
-      stop(paste0('Unrecognized cell type ', cell_type))
+      stop(paste0('Unrecognized cell type ', celltype))
     }
 
-    console_command <- paste0(os_prefix, 'enclone ', cell_type, '=', '"', path_with_origin, '"', ' POUT=', temp_file, ' PCELL PCOLS=barcode,group_id NOPRINT')
+    console_command <- paste0(os_prefix, 'enclone ', celltype, '=', '"', path_with_origin, '"', ' POUT=', temp_file, ' PCELL PCOLS=barcode,group_id NOPRINT')
     system(console_command)
 
     return(list('sample_df'=sample_df, 'sample_names'=sample_names, 'csv_file'=temp_file))
@@ -190,21 +190,22 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     sample_df <- enclone_out$sample_df
     #sample_df <- strip_barcodes(sample_df)
     sample_df$stripped_barcodes <- sample_df$barcode
+
     sample_out <- merge(sample_df, new_clonotypes, by='stripped_barcodes', all.x = T)
     sample_out$new_group_id <- unlist(lapply(sample_out$new_group_id, function(x) paste0('clonotype', x)))
-
+    
     #keep previous clonotype (10x)
     sample_out$clonotype_id_10x <- sample_out$clonotype_id
-
+    
     #assign new clonotype
     sample_out$clonotype_id <- sample_out$new_group_id
-
+    
     #recalculated new clonotype frequency
     sample_out$clonotype_frequency <- unlist(lapply(sample_out$clonotype_id, function(x) length(which(sample_out$clonotype_id == x))))
 
     sample_out$stripped_barcodes <- NULL
     sample_out$new_group_id <- NULL
-
+                                                    
     #Remove duplicated barcodes
     sample_out <- sample_out[!(sample_out$X %in% sample_out$X[duplicated(sample_out$X)]),]
 
@@ -263,7 +264,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
 
   #### ENCLONE VERSION #### - this ensures sample names will match the sample file names in the VDJ directory (all to lowercase); will also need X to keep old VDJ order
-  VDJ$sample_id <- unlist(lapply(VDJ$sample_id, function(x) tolower(x)))
+  #VDJ$sample_id <- unlist(lapply(VDJ$sample_id, function(x) tolower(x)))
   if(!('X' %in% colnames(VDJ))) {
     VDJ$X <- 1:nrow(VDJ)
   }
@@ -283,7 +284,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       merge_origin_sep <- ':'
     }
 
-    samples.to.clonotype <- unlist(lapply(samples.to.clonotype, function(x) tolower(x)))
+    #samples.to.clonotype <- unlist(lapply(samples.to.clonotype, function(x) tolower(x)))
     #Create the temp directory to output the parseable enclone files (per cell)
     temp_dir <- './temp_call_enclone'
     if(!dir.exists(temp_dir)) dir.create(temp_dir)
@@ -303,11 +304,11 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     }
 
     sample_files <- list.files(VDJ.directory)
-    sample_files <- unlist(lapply(sample_files, function(x) tolower(x)))
+    #sample_files <- unlist(lapply(sample_files, function(x) tolower(x)))
     for(sample in samples_to_clonotype){
-      if(!(tolower(sample) %in% sample_files)){
-        stop(paste0('Unable to find the VDJ out file for sample ', sample))
-      }
+     if(!(sample %in% sample_files)){
+       stop(paste0('Unable to find the VDJ out file for sample ', sample))
+     }
     }
   }
 
@@ -339,14 +340,14 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     VDJ$unique_id_internal <- c(paste0("id", 1:nrow(VDJ)))
     VDJ$new_clonal_feature <- NA
     #adding a column for nchars and setting to empty strings if length 0 (makes pasting and comparing strings later easier)
-    VDJ$nchar_VDJ_cdr3s_aa <- nchar(VDJ$VDJ_cdr3s_aa)
-    VDJ$nchar_VDJ_cdr3s_aa[VDJ$nchar_VDJ_cdr3s_aa == 0] <- ""
-    VDJ$nchar_VJ_cdr3s_aa <- nchar(VDJ$VJ_cdr3s_aa)
-    VDJ$nchar_VJ_cdr3s_aa[VDJ$nchar_VJ_cdr3s_aa == 0] <- ""
+    VDJ$nchar_VDJ_cdr3_aa <- nchar(VDJ$VDJ_cdr3_aa)
+    VDJ$nchar_VDJ_cdr3_aa[VDJ$nchar_VDJ_cdr3_aa == 0] <- ""
+    VDJ$nchar_VJ_cdr3_aa <- nchar(VDJ$VJ_cdr3_aa)
+    VDJ$nchar_VJ_cdr3_aa[VDJ$nchar_VJ_cdr3_aa == 0] <- ""
 
     #run through of the columns so to make them all characters and empty strings if neccessary
     for(i in 1:ncol(VDJ)){
-      if(names(VDJ)[i] %in% c("VDJ_cdr3s_aa", "VJ_cdr3s_aa", "VDJ_cdr3s_nt", "VJ_cdr3s_nt", "VDJ_vgene", "VDJ_jgene", "VJ_vgene", "VJ_jgene")){
+      if(names(VDJ)[i] %in% c("VDJ_cdr3_aa", "VJ_cdr3_aa", "VDJ_cdr3_nt", "VJ_cdr3_nt", "VDJ_vgene", "VDJ_jgene", "VJ_vgene", "VJ_jgene")){
         VDJ[,i] <- as.character(VDJ[,i])
         VDJ[is.na(VDJ[,i]),i] <- ""
         VDJ[VDJ[,i] == "NA",i] <- ""
@@ -362,17 +363,17 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     }
 
     #redefining count so to make sure
-    VDJ$Nr_of_VDJ_chains <- 0
-    VDJ$Nr_of_VDJ_chains[nchar(VDJ$VDJ_cdr3s_aa) > 0] <- 1
-    VDJ$Nr_of_VDJ_chains[stringr::str_detect(VDJ$VDJ_cdr3s_aa, ";")] <- 2
-    VDJ$Nr_of_VJ_chains <- 0
-    VDJ$Nr_of_VJ_chains[nchar(VDJ$VJ_cdr3s_aa) > 0] <- 1
-    VDJ$Nr_of_VJ_chains[stringr::str_detect(VDJ$VJ_cdr3s_aa, ";")] <- 2
+    VDJ$VDJ_chain_count <- 0
+    VDJ$VDJ_chain_count[nchar(VDJ$VDJ_cdr3_aa) > 0] <- 1
+    VDJ$VDJ_chain_count[stringr::str_detect(VDJ$VDJ_cdr3_aa, ";")] <- 2
+    VDJ$VJ_chain_count <- 0
+    VDJ$VJ_chain_count[nchar(VDJ$VJ_cdr3_aa) > 0] <- 1
+    VDJ$VJ_chain_count[stringr::str_detect(VDJ$VJ_cdr3_aa, ";")] <- 2
 
     if(hierarchical == "none"){ #NOT hierarchical
       #only include clones with one heavy and one light chain
       if(VDJ.VJ.1chain){
-        VDJ<- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VJ_chains==1),]
+        VDJ<- VDJ[which(VDJ$VDJ_chain_count==1 & VDJ$VJ_chain_count==1),]
       }####STOP strict
     } else { # hierarchical (either all or only single chain)
       #only include clones with one heavy and one light chain
@@ -381,13 +382,13 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       }
       prior_filtering <- nrow(VDJ)
       #filtering cells with 2 VDJ and 2 VJ chains as but not cells with e.g. 2 VJ and 1 VDJ chain. Cells with only 1 chain in total are also kept
-      VDJ <- subset(VDJ,  (VDJ$Nr_of_VDJ_chains == 1 & VDJ$Nr_of_VJ_chains == 0) | (VDJ$Nr_of_VDJ_chains == 1 & VDJ$Nr_of_VJ_chains == 1) | (VDJ$Nr_of_VDJ_chains == 1 & VDJ$Nr_of_VJ_chains == 2) | (VDJ$Nr_of_VDJ_chains == 0 & VDJ$Nr_of_VJ_chains == 2) | (VDJ$Nr_of_VDJ_chains == 0 & VDJ$Nr_of_VJ_chains == 1))
+      VDJ <- subset(VDJ,  (VDJ$VDJ_chain_count == 1 & VDJ$VJ_chain_count == 0) | (VDJ$VDJ_chain_count == 1 & VDJ$VJ_chain_count == 1) | (VDJ$VDJ_chain_count == 1 & VDJ$VJ_chain_count == 2) | (VDJ$VDJ_chain_count == 0 & VDJ$VJ_chain_count == 2) | (VDJ$VDJ_chain_count == 0 & VDJ$VJ_chain_count == 1))
       if(nrow(VDJ) > 0){
         message(paste0("Filtered out ", prior_filtering - nrow(VDJ), " cells containing more than one VDJ AND VJ chain or two VDJ chains, as these likely correspond to doublets"))
       } else {stop("After filtering for doublets, no cells remained")}
 
       #here we pick only single chain cells as aberrant cells. All others are treated as if hierarchical was set to none
-      aberrant <-  subset(VDJ, (VDJ$Nr_of_VDJ_chains == 1 & VDJ$Nr_of_VJ_chains == 0) | (VDJ$Nr_of_VDJ_chains == 0 & VDJ$Nr_of_VJ_chains == 1))
+      aberrant <-  subset(VDJ, (VDJ$VDJ_chain_count == 1 & VDJ$VJ_chain_count == 0) | (VDJ$VDJ_chain_count == 0 & VDJ$VJ_chain_count == 1))
 
       if(nrow(aberrant) > 0){ #check if there are aberrant cells
 
@@ -396,7 +397,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
         if(hierarchical == "double.and.single.chains"){
           #here we pick out two sets: single chain cells and cells with double chains of either VDJ or VJ chains (including those with 3 chains in total)
-          double_aberrant <- subset(VDJ, (VDJ$Nr_of_VDJ_chains > 1 & VDJ$Nr_of_VJ_chains == 0) | (VDJ$Nr_of_VDJ_chains > 1 & VDJ$Nr_of_VJ_chains == 1) | (VDJ$Nr_of_VDJ_chains == 1 & VDJ$Nr_of_VJ_chains > 1) | (VDJ$Nr_of_VDJ_chains == 0 & VDJ$Nr_of_VJ_chains > 1))
+          double_aberrant <- subset(VDJ, (VDJ$VDJ_chain_count > 1 & VDJ$VJ_chain_count == 0) | (VDJ$VDJ_chain_count > 1 & VDJ$VJ_chain_count == 1) | (VDJ$VDJ_chain_count == 1 & VDJ$VJ_chain_count > 1) | (VDJ$VDJ_chain_count == 0 & VDJ$VJ_chain_count > 1))
 
           VDJ <- VDJ[!VDJ$unique_id_internal %in% double_aberrant$unique_id_internal, ]
 
@@ -406,18 +407,18 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
             backup_double_aberrant <- double_aberrant
 
             #### Checking minimal count to use triple aberrant cells as hub cells for clonotypes ####
-            triple_aberrant <- subset(double_aberrant, (double_aberrant$Nr_of_VDJ_chains > 1 & double_aberrant$Nr_of_VJ_chains == 1) | (double_aberrant$Nr_of_VDJ_chains == 1 & double_aberrant$Nr_of_VJ_chains > 1))
+            triple_aberrant <- subset(double_aberrant, (double_aberrant$VDJ_chain_count > 1 & double_aberrant$VJ_chain_count == 1) | (double_aberrant$VDJ_chain_count == 1 & double_aberrant$VJ_chain_count > 1))
 
             #to be able to remap original cells later we keep a copy before making pseudocells
             backup_triple_aberrant <- triple_aberrant
 
             #order CDR3s alphabetically
             for(z in 1:nrow(triple_aberrant)){
-              triple_aberrant$VDJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VDJ_cdr3s_nt[z], ";", simplify = T)[1,]), collapse = "")
-              triple_aberrant$VJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VJ_cdr3s_nt[z], ";", simplify = T)[1,]), collapse = "")
+              triple_aberrant$VDJ_cdr3_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VDJ_cdr3_nt[z], ";", simplify = T)[1,]), collapse = "")
+              triple_aberrant$VJ_cdr3_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VJ_cdr3_nt[z], ";", simplify = T)[1,]), collapse = "")
             }
             #add new checking feature
-            triple_aberrant$thresh_check_feature <- paste0(triple_aberrant$VDJ_cdr3s_nt_check, triple_aberrant$VJ_cdr3s_nt_check)
+            triple_aberrant$thresh_check_feature <- paste0(triple_aberrant$VDJ_cdr3_nt_check, triple_aberrant$VJ_cdr3_nt_check)
             #getting those cells which are higher in frequency then the set threshold
             high_conf_unique_features <- names(table(triple_aberrant$thresh_check_feature)[table(triple_aberrant$thresh_check_feature) > triple.chain.count.threshold])
 
@@ -435,7 +436,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
             #now the key part +> use the unique identifer to split up double chain cells in to 2 normal cells each and pass them trough as normal
             for(i in 1:ncol(double_aberrant)){
-              if(names(double_aberrant)[i] %in% c("VDJ_cdr3s_aa", "VJ_cdr3s_aa", "VDJ_cdr3s_nt", "VJ_cdr3s_nt", "VDJ_vgene", "VDJ_jgene", "VJ_vgene", "VJ_jgene")){
+              if(names(double_aberrant)[i] %in% c("VDJ_cdr3_aa", "VJ_cdr3_aa", "VDJ_cdr3_nt", "VJ_cdr3_nt", "VDJ_vgene", "VDJ_jgene", "VJ_vgene", "VJ_jgene")){
                 double_aberrant[!stringr::str_detect(double_aberrant[,i], ";"),i] <- paste0(double_aberrant[!stringr::str_detect(double_aberrant[,i], ";"),i], ";")
               }
             }
@@ -444,7 +445,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
             for(i in 1:nrow(double_aberrant)){
               curr <- rbind(double_aberrant[i,], double_aberrant[i,]) #make dataframe with two identical rows
               for(j in 1:ncol(curr)){
-                if(names(curr)[j] %in% c("VDJ_cdr3s_aa", "VJ_cdr3s_aa", "VDJ_cdr3s_nt", "VJ_cdr3s_nt", "VDJ_vgene", "VDJ_jgene", "VJ_vgene", "VJ_jgene")){
+                if(names(curr)[j] %in% c("VDJ_cdr3_aa", "VJ_cdr3_aa", "VDJ_cdr3_nt", "VJ_cdr3_nt", "VDJ_vgene", "VDJ_jgene", "VJ_vgene", "VJ_jgene")){
                   #add a ; to chains that do not have one to to make splitting easier
                   #remove ;from the end
                   curr[,j] <- gsub(";$", "", curr[,j])
@@ -456,10 +457,10 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
                 }
               }
               #updating nchar values
-              curr$nchar_VDJ_cdr3s_aa <- nchar(curr$VDJ_cdr3s_aa)
-              curr$nchar_VDJ_cdr3s_aa[curr$nchar_VDJ_cdr3s_aa == 0] <- ""
-              curr$nchar_VJ_cdr3s_aa <- nchar(curr$VJ_cdr3s_aa)
-              curr$nchar_VJ_cdr3s_aa[curr$nchar_VJ_cdr3s_aa == 0] <- ""
+              curr$nchar_VDJ_cdr3_aa <- nchar(curr$VDJ_cdr3_aa)
+              curr$nchar_VDJ_cdr3_aa[curr$nchar_VDJ_cdr3_aa == 0] <- ""
+              curr$nchar_VJ_cdr3_aa <- nchar(curr$VJ_cdr3_aa)
+              curr$nchar_VJ_cdr3_aa[curr$nchar_VJ_cdr3_aa == 0] <- ""
               #adding to list
               pseudo_cells[[i]] <- curr
             }
@@ -467,8 +468,8 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
             pseudo_cells <- dplyr::bind_rows(pseudo_cells)
             #now to distribute these cells into either the normal VDJ or the aberrant cells
 
-            normal_pseudo <- subset(pseudo_cells, pseudo_cells$Nr_of_VDJ_chains != 0 & pseudo_cells$Nr_of_VJ_chains != 0)
-            aberrant_pseudo <- subset(pseudo_cells, pseudo_cells$Nr_of_VDJ_chains == 0 | pseudo_cells$Nr_of_VJ_chains == 0)
+            normal_pseudo <- subset(pseudo_cells, pseudo_cells$VDJ_chain_count != 0 & pseudo_cells$VJ_chain_count != 0)
+            aberrant_pseudo <- subset(pseudo_cells, pseudo_cells$VDJ_chain_count == 0 | pseudo_cells$VJ_chain_count == 0)
 
             #bind with corresponding dataframes
             VDJ <- rbind(VDJ, normal_pseudo)
@@ -532,10 +533,10 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
   }else if(!is.null(samples.to.combine) & global.clonotype){
     remaining_dfs <- 0
-    samples.to.combine <- unlist(lapply(samples.to.combine, function(x) tolower(x)))
+    #samples.to.combine <- unlist(lapply(samples.to.combine, function(x) tolower(x)))
     if(is.vector(samples.to.combine) & !is.list(samples.to.combine)){
       for(i in 1:length(samples.to.combine)){
-        if(!(tolower(samples.to.combine[i]) %in% VDJ$sample_id)){
+        if(!(samples.to.combine[i] %in% VDJ$sample_id)){
           stop(paste0('Sample ', samples.to.combine[i], ' not found in your VDJ object. Ensure the spelling is correct!'))
         }
       }
@@ -544,10 +545,10 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     }else if(is.list(samples.to.combine) & is.vector(samples.to.combine)){
       for(i in 1:length(samples.to.combine)){
-        samples.to.combine[[i]] <- lapply(samples.to.combine[[i]], function(x) tolower(x))
+        #samples.to.combine[[i]] <- lapply(samples.to.combine[[i]], function(x) tolower(x))
 
         for(j in 1:length(samples.to.combine[[i]])){
-          if(!(tolower(samples.to.combine[[i]][[j]]) %in% VDJ$sample_id)){
+          if(!(samples.to.combine[[i]][[j]] %in% VDJ$sample_id)){
             stop(paste0('Sample ', samples.to.combine[[i]][[j]], ' not found in your VDJ object. Ensure the spelling is correct!'))
           }
         }
@@ -571,8 +572,8 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
   samples_not_clonotyped$new_clonal_feature <- NULL
   samples_not_clonotyped$unique_id_internal <- NULL
-  samples_not_clonotyped$nchar_VDJ_cdr3s_aa <- NULL
-  samples_not_clonotyped$nchar_VJ_cdr3s_aa <- NULL
+  samples_not_clonotyped$nchar_VDJ_cdr3_aa <- NULL
+  samples_not_clonotyped$nchar_VJ_cdr3_aa <- NULL
 
 
 
@@ -594,14 +595,14 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       } #### STOP default 10x
       else if(clone.strategy=="cdr3.nt"){ ####START cdr3.nt
 
-        sample_dfs[[i]]$new_clonal_feature <- paste(sample_dfs[[i]]$VDJ_cdr3s_nt,
-                                                    sample_dfs[[i]]$VJ_cdr3s_nt, sep="")
+        sample_dfs[[i]]$new_clonal_feature <- paste(sample_dfs[[i]]$VDJ_cdr3_nt,
+                                                    sample_dfs[[i]]$VJ_cdr3_nt, sep="")
 
         if(hierarchical != "none"){ ####START Hierarchical single cdr3.nt
 
           #define clonal features
-          sample_aberrant[[i]]$new_clonal_feature <- paste(sample_aberrant[[i]]$VDJ_cdr3s_nt,
-                                                           sample_aberrant[[i]]$VJ_cdr3s_nt, sep="")
+          sample_aberrant[[i]]$new_clonal_feature <- paste(sample_aberrant[[i]]$VDJ_cdr3_nt,
+                                                           sample_aberrant[[i]]$VJ_cdr3_nt, sep="")
 
           #match to main dataframe and update clonal features accordingly
           sample_aberrant[[i]] <- match_ab_single(sample_dfs[[i]], sample_aberrant[[i]])
@@ -609,14 +610,14 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       } ####STOP cdr3.nt
       else if(clone.strategy=="cdr3.aa"){ ####START cdr3.aa
 
-        sample_dfs[[i]]$new_clonal_feature <- paste(sample_dfs[[i]]$VDJ_cdr3s_aa,
-                                                    sample_dfs[[i]]$VJ_cdr3s_aa, sep="")
+        sample_dfs[[i]]$new_clonal_feature <- paste(sample_dfs[[i]]$VDJ_cdr3_aa,
+                                                    sample_dfs[[i]]$VJ_cdr3_aa, sep="")
 
         if(hierarchical != "none"){ ####START Hierarchical single cdr3.aa
 
           #define clonal features
-          sample_aberrant[[i]]$new_clonal_feature <- paste(sample_aberrant[[i]]$VDJ_cdr3s_aa,
-                                                           sample_aberrant[[i]]$VJ_cdr3s_aa, sep="")
+          sample_aberrant[[i]]$new_clonal_feature <- paste(sample_aberrant[[i]]$VDJ_cdr3_aa,
+                                                           sample_aberrant[[i]]$VJ_cdr3_aa, sep="")
 
           #match to main dataframe and update clonal features accordingly
           sample_aberrant[[i]] <- match_ab_single(sample_dfs[[i]], sample_aberrant[[i]])
@@ -642,19 +643,19 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       else if(clone.strategy=="hvj.lvj.cdr3lengths"){ ####START hvj.lvj.cdr3lengths
         sample_dfs[[i]]$new_clonal_feature <- paste(sample_dfs[[i]]$VDJ_vgene,
                                                     sample_dfs[[i]]$VDJ_jgene,
-                                                    sample_dfs[[i]]$nchar_VDJ_cdr3s_aa,
+                                                    sample_dfs[[i]]$nchar_VDJ_cdr3_aa,
                                                     sample_dfs[[i]]$VJ_vgene,
                                                     sample_dfs[[i]]$VJ_jgene,
-                                                    sample_dfs[[i]]$nchar_VJ_cdr3s_aa,sep="")
+                                                    sample_dfs[[i]]$nchar_VJ_cdr3_aa,sep="")
 
         if(hierarchical != "none"){ ####START Hierarchical single hvj.lvj.cdr3lengths
 
           sample_aberrant[[i]]$new_clonal_feature <- paste(sample_aberrant[[i]]$VDJ_vgene,
                                                            sample_aberrant[[i]]$VDJ_jgene,
-                                                           sample_aberrant[[i]]$nchar_VDJ_cdr3s_aa,
+                                                           sample_aberrant[[i]]$nchar_VDJ_cdr3_aa,
                                                            sample_aberrant[[i]]$VJ_jgene,
                                                            sample_aberrant[[i]]$VJ_jgene,
-                                                           sample_aberrant[[i]]$nchar_VJ_cdr3s_aa,sep="")
+                                                           sample_aberrant[[i]]$nchar_VJ_cdr3_aa,sep="")
 
           sample_aberrant[[i]] <- match_ab_single(sample_dfs[[i]], sample_aberrant[[i]]) #match to main dataframe and update clonal features accordingly
         } #### Stop hierarchical single hvj.lvj.cdr3lengths
@@ -663,24 +664,24 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
         sample_dfs[[i]]$new_clonal_feature <- paste(sample_dfs[[i]]$VDJ_vgene,
                                                     sample_dfs[[i]]$VDJ_jgene,
-                                                    sample_dfs[[i]]$nchar_VDJ_cdr3s_aa,
+                                                    sample_dfs[[i]]$nchar_VDJ_cdr3_aa,
                                                     sample_dfs[[i]]$VJ_vgene,
                                                     sample_dfs[[i]]$VJ_jgene,
-                                                    sample_dfs[[i]]$nchar_VJ_cdr3s_aa,sep="")
+                                                    sample_dfs[[i]]$nchar_VJ_cdr3_aa,sep="")
         #loop over unique new clonal features
         curr_cl <- list()
         for(k in 1:length(unique(sample_dfs[[i]]$new_clonal_feature))){
           curr_cl[[k]] <- subset(sample_dfs[[i]], new_clonal_feature == unique(sample_dfs[[i]]$new_clonal_feature)[k])
           if(nrow(curr_cl[[k]]) > 1){ #only passing ones to hclust which have at least two entries
-            nchars_VDJ <- nchar(curr_cl[[k]]$VDJ_cdr3s_aa)
+            nchars_VDJ <- nchar(curr_cl[[k]]$VDJ_cdr3_aa)
             nchars_VDJ[nchars_VDJ == 0] <- 1 #account for missing chains
             #open stringdist matrix
-            VDJ_distance <- stringdist::stringdistmatrix(curr_cl[[k]]$VDJ_cdr3s_aa, curr_cl[[k]]$VDJ_cdr3s_aa,method = "lv")/nchars_VDJ
+            VDJ_distance <- stringdist::stringdistmatrix(curr_cl[[k]]$VDJ_cdr3_aa, curr_cl[[k]]$VDJ_cdr3_aa,method = "lv")/nchars_VDJ
             if (clone.strategy=="Hvj.Lvj.CDR3length.CDR3.homology"){
-              nchars_VJ <- nchar(curr_cl[[k]]$VJ_cdr3s_aa)
+              nchars_VJ <- nchar(curr_cl[[k]]$VJ_cdr3_aa)
               nchars_VJ[nchars_VJ == 0] <- 1 #account for missing chains
               #open stringdist matrix
-              VJ_distance <- stringdist::stringdistmatrix(curr_cl[[k]]$VJ_cdr3s_aa,curr_cl[[k]]$VJ_cdr3s_aa,method = "lv")/nchars_VJ
+              VJ_distance <- stringdist::stringdistmatrix(curr_cl[[k]]$VJ_cdr3_aa,curr_cl[[k]]$VJ_cdr3_aa,method = "lv")/nchars_VJ
             } else {VJ_distance <- 0} #in case of Hvj.Lvj.CDR3length.CDRH3.homology clonotyping
             #draw clusters
             combined_distance <- VDJ_distance + VJ_distance
@@ -697,10 +698,10 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
           sample_aberrant[[i]]$new_clonal_feature <- paste(sample_aberrant[[i]]$VDJ_vgene,
                                                            sample_aberrant[[i]]$VDJ_jgene,
-                                                           sample_aberrant[[i]]$nchar_VDJ_cdr3s_nt,
+                                                           sample_aberrant[[i]]$nchar_VDJ_cdr3_nt,
                                                            sample_aberrant[[i]]$VJ_vgene,
                                                            sample_aberrant[[i]]$VJ_jgene,
-                                                           sample_aberrant[[i]]$nchar_VDJ_cdr3s_nt,sep="")
+                                                           sample_aberrant[[i]]$nchar_VDJ_cdr3_nt,sep="")
 
           sample_aberrant[[i]] <- match_ab_single_homology(sample_dfs[[i]], sample_aberrant[[i]], clone.strategy, homology.threshold) #match to main dataframe and update clonal features accordingly
         } #### STOP hierarchical single hvj.lvj.cdr3lengths
@@ -708,16 +709,16 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
       else if (clone.strategy=="CDR3.homology" | clone.strategy=="CDRH3.homology"){####START homology
 
         if(nrow(sample_dfs[[i]]) > 1){ #only passing ones to hclust which have at least two entries
-          nchars_VDJ <- nchar(sample_dfs[[i]]$VDJ_cdr3s_aa)
+          nchars_VDJ <- nchar(sample_dfs[[i]]$VDJ_cdr3_aa)
           nchars_VDJ[nchars_VDJ == 0| is.na(nchars_VDJ)] <- 1 #account for missing chains
-          cdr3_VDJ <- sample_dfs[[i]]$VDJ_cdr3s_aa
+          cdr3_VDJ <- sample_dfs[[i]]$VDJ_cdr3_aa
 
           #open stringdist matrix
           VDJ_distance <- stringdist::stringdistmatrix(cdr3_VDJ, cdr3_VDJ,method = "lv")/nchars_VDJ
           if (clone.strategy=="CDR3.homology"){
-            nchars_VJ <- nchar(sample_dfs[[i]]$VJ_cdr3s_aa)
+            nchars_VJ <- nchar(sample_dfs[[i]]$VJ_cdr3_aa)
             nchars_VJ[nchars_VJ == 0 | is.na(nchars_VJ)] <- 1 #account for missing chains
-            cdr3_VJ <- sample_dfs[[i]]$VJ_cdr3s_aa
+            cdr3_VJ <- sample_dfs[[i]]$VJ_cdr3_aa
 
             #open stringdist matrix
             VJ_distance <- stringdist::stringdistmatrix(cdr3_VJ,cdr3_VJ,method = "lv")/nchars_VJ
@@ -831,7 +832,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
     VDJ.GEX.matrix <- dplyr::bind_rows(sample_dfs)
 
     #cleanup
-    VDJ.GEX.matrix <- VDJ.GEX.matrix[,-c(which(names(VDJ.GEX.matrix) %in% c("nchar_VDJ_cdr3s_aa", "nchar_VJ_cdr3s_aa","unique_id_internal")))]
+    VDJ.GEX.matrix <- VDJ.GEX.matrix[,-c(which(names(VDJ.GEX.matrix) %in% c("nchar_VDJ_cdr3_aa", "nchar_VJ_cdr3_aa","unique_id_internal")))]
     VDJ.GEX.matrix <- VDJ.GEX.matrix[,c(2:ncol(VDJ.GEX.matrix), 1)]
 
     #Updating the active clonotype!
@@ -892,7 +893,7 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     enclone_outs <- lapply(sample_dfs, function(x) get_enclone_output(x))
     sample_outs <- lapply(enclone_outs, function(x) merge_enclone_clonotypes(x))
-    #return(list(enclone_outs, sample_outs))
+
     unlink(temp_dir, recursive = T)
 
     VDJ.GEX.matrix <- do.call('rbind', sample_outs)
