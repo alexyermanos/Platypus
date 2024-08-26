@@ -1,7 +1,7 @@
 #' Performs ordination/dimensionality reduction for a species incidence matrix, depending on the species selected in the feature.columns parameter.
 
 #' @param VDJ VDJ dataframe output from the VDJ_GEX_matrix function.
-#' @param feature.columns Character vector. One or more column names from the VDJ to indicate the unique species for the incidence/count matrix. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation.
+#' @param feature.columns Character vector. One or more column names from the VDJ to indicate the unique species for the incidence/count matrix. if more than one column is provided (e.g. c("VDJ_cdr3_aa","VJ_cdr3_aa")) these columns will be pasted together before metric calculation.
 #' @param grouping.column Character. Column name of a column to group the ordination by. This could be "sample_id" to reduce across each sample. Indicative of 'sites' in a typical community data matrix/incidence matrix used in community ecology analyses (species by sites).
 #' @param method Character. The ordination method; choose from either: PCA - 'pca', t-SNE - 'tsne', UMAP - 'umap', PCOA/MDS - 'mds', DCA - 'dca'.
 #' @param reduction.level Character. Whether to reduce across groups ('groups'), features/sequences ('features'), or both ('both').
@@ -13,7 +13,7 @@
 #' @export
 #' @examples
 #' plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]]
-#' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
+#' ,feature.columns = c("VDJ_cdr3_aa"), grouping.column = "sample_id"
 #' ,method = "pca", reduction.level = 'groups')
 #'
 
@@ -27,7 +27,7 @@ VDJ_ordination <- function(VDJ,
                            tsne.perplexity){
 
   if(missing(VDJ)) stop('VDJ matrix not found. Please input the VDJ/VGM[[1]] matrix!')
-  if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3s_aa'
+  if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3_aa'
   if(missing(grouping.column)) grouping.column <- 'sample_id'
   if(missing(method)) method <- 'mds'
   if(missing(reduction.level)) reduction.level <- 'both'
