@@ -11,7 +11,6 @@
 #' @seealso VDJ_extract_sequences
 #' @export
 #' @examples
-#' #prep the small_vgm sample dataset
 #' small_vgm <- Platypus::small_vgm
 #' small_vgm[[2]]$clone_rank <- c(1:nrow(small_vgm[[2]]@meta.data))
 #' GEX_heatmap(GEX = small_vgm[[2]],b.or.t = "custom"
@@ -34,7 +33,7 @@ GEX_heatmap <- function(GEX,b.or.t,sample.index,clone.rank.threshold,custom.arra
     GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = c("CD3E","CD8A","CD4","IL7R","CCL5","GZMA","GZMK","GZMB","PRF1","NKG7","SELL","TNFRSF13B","TBX1","PDCD1","ITGAE","LAG3","CD44","ICOS","CX3CR1","MKI67","TCF7","CST7","GNLY","CXCR5","EOMES"),cells = holding_cells,label = F,group.by = "clone_rank",lines.width = 1, slot = slot)
   }
   else if(b.or.t=="custom"){
-    GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = custom.array,cells = holding_cells,label = F,group.by = "clone_rank",lines.width = 1, slot = slot)
+    GEX.heatmap <- Seurat::DoHeatmap(GEX.object,features = custom.array,cells = holding_cells,label = FALSE,group.by = "clone_rank",lines.width = 1, slot = slot)
   }
   return(GEX.heatmap)
 }

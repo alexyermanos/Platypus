@@ -13,8 +13,14 @@
 #' @importFrom ggtree %<+%
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
+#' tree.dfs <- VDJ_phylogenetic_trees(VDJ=Platypus::small_vgm[[1]], sequence.type='VDJ.VJ',
+#' trimmed=TRUE, as.nucleotide=TRUE, include.germline=TRUE,
+#' additional.feature.columns=NULL, tree.level='intraclonal',
+#' output.format='tree.df.list')
 #' VDJ_phylogenetic_trees_plot(tree.dfs,color.by='clonotype_id', size.by='sequence_frequency')
+#' })
 #'}
 
 VDJ_phylogenetic_trees_plot <- function(tree.dfs,

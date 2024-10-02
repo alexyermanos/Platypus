@@ -5,11 +5,13 @@
 #'@return Returns a list. Element [[1]] returns updated GEX object with the inferred pseudotime trajectories per lineage. [[2]] returns the UMAP with the grouped cells. [[3]] and [[4]] show the slingshot inferred trajectories in two different styles.
 #'@export
 #'@examples
-#' \dontrun{
-#' lineage_trajectories <- GEX_lineage_trajectories( VGM$GEX,
+#' \donttest{
+#' try({
+#' lineage_trajectories <- GEX_lineage_trajectories(Platypus::small_vgm[[2]],
 #'  grouping = 'group_id',
-#'   cluster.num = "3")
-#' }
+#'  cluster.num = "3")
+#'})
+#'}
 
 GEX_lineage_trajectories <- function( GEX,
                                       grouping,
@@ -31,7 +33,7 @@ GEX_lineage_trajectories <- function( GEX,
   lineages <- NULL
 
   ########
-  print("generate umap plot...")
+  message("Generate UMAP plot...")
   umap_plot <- Seurat::DimPlot(GEX, reduction = "umap",
                                group.by = grouping, pt.size = 0.5, label = TRUE)
 
@@ -39,11 +41,11 @@ GEX_lineage_trajectories <- function( GEX,
   seu <- Seurat::RunUMAP(GEX, dims = 1:50)
 
 
-  print("convert data into a SingleCellExperiment object for the next steps...")
+  message("Convert data into a SingleCellExperiment object for the next steps...")
   sce<- Seurat::as.SingleCellExperiment(GEX)
 
 
-  print("infer slingshot lineage trajectories...")
+  message("Infer slingshot lineage trajectories...")
   sds <- slingshot::slingshot(sce,
                               clusterLabels = seu$seurat_clusters,
                               reducedDim = 'UMAP',
@@ -66,7 +68,7 @@ GEX_lineage_trajectories <- function( GEX,
   cell_colors_clust <- cell_pal(seu$seurat_clusters, scales::hue_pal())
 
 
-  print("generate lineage trajectories plot...")
+  message("Generate lineage trajectories plot...")
 
   invisible(plot(SingleCellExperiment::reducedDims(sds)$UMAP, col = cell_colors_clust, pch = 16, cex = 0.5))
   invisible(graphics::lines(slingshot::SlingshotDataSet(sds), lwd = 1, type = 'lineages', col = 'black'))
@@ -84,14 +86,7 @@ GEX_lineage_trajectories <- function( GEX,
   }
 
 
-  print("DONE")
+  message("DONE")
   return(list(GEX, umap_plot, lineage_plot, lineage_line_plot))
 
 }
-
-
-
-
-
-
-

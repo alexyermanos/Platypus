@@ -19,8 +19,8 @@
 #' @return Returns a volcano plot from the output of the FindMarkers function from the Seurat package, which is a ggplot object that can be modified or plotted. Infinite p-values are set defined value of the highest -log(p) + 100.
 #' @export
 #' @examples
-#' \dontrun{
-#' #using the findmarkers.output
+#' \donttest{
+#' try({
 #' GEX_volcano(findmarkers.output = FindMarkers.Output
 #' , condition.1 = "cluster1", condition.2 = "cluster2"
 #' , maximum.overlaps = 20)
@@ -29,9 +29,9 @@
 #' , condition.1 = "cluster1", condition.2 = "cluster2"
 #' , n.label.up = 50, n.label.down = 20)
 #'
-#' #using the GEX_cluster_genes output
 #' GEX_volcano(findmarkers.output = GEX_cluster_genes.Output
 #' , cluster.genes.output =TRUE)
+#' })
 #'}
 GEX_volcano <- function(DEGs.input,
                         input.type,
@@ -64,7 +64,7 @@ GEX_volcano <- function(DEGs.input,
     stop("Please provide either a list output of GEX_cluster genes or a table output of FindMarkers for this function")}
   if(missing(input.type)){
     input.type <- "cluster.genes"
-    print("Using GEX_cluster_genes list as input. Specify 'findmakers' as input type to use a table output of the Seurat Findmarkers function")}
+    message("Using GEX_cluster_genes list as input. Specify 'findmakers' as input type to use a table output of the Seurat Findmarkers function")}
   if(!input.type %in% c("cluster.genes", "findmarkers")){
     stop("Please specifiy either 'findmakers' or 'cluster.genes' depending on the input type")}
   if(missing(condition.1)){condition.1 <- ""}
@@ -72,26 +72,26 @@ GEX_volcano <- function(DEGs.input,
   if(condition.1 =="" &  condition.2 == "" & input.type == "findmarkers"){
     warning("Conditions not provided and will not be displayed in plot title")}
   if(missing(explicit.title)){
-    explicit.title <- T}
+    explicit.title <- TRUE}
   if(missing(RP.MT.filter)){
-    RP.MT.filter <- T}
+    RP.MT.filter <- TRUE}
   if(missing(color.p.threshold)){color.p.threshold <- 0.01}
   if(missing(color.log.threshold)){color.log.threshold <- 0.25}
   if(missing(label.p.threshold)){label.p.threshold <- 0.001}
   if(missing(label.logfc.threshold)){label.logfc.threshold <- 0.75}
-  if(missing(n.label.up)){n.label.up <- F}
-  if(missing(n.label.down)){n.label.down <- F}
+  if(missing(n.label.up)){n.label.up <- FALSE}
+  if(missing(n.label.down)){n.label.down <- FALSE}
   if(missing(by.logFC)){
-    by.logFC <- F}
+    by.logFC <- FALSE}
   if(missing(maximum.overlaps)){
     maximum.overlaps <- Inf}
   if(missing(plot.adj.pvalue)){
-    plot.adj.pvalue <- F}
+    plot.adj.pvalue <- FALSE}
 
   platypus.version <- "Does not matter"
 
   ###
-  if(n.label.up == F & n.label.down == F){
+  if(n.label.up == FALSE & n.label.down == FALSE){
   }
 
   class_up <- as.character(class(n.label.up))
@@ -105,18 +105,16 @@ GEX_volcano <- function(DEGs.input,
   } # Assuming the same number of up- and downregulated genes are to be labeled if only one is specified
 
   ###
-  if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")){
-    print(paste0("Top ", n.label.up, " and bottom ",n.label.down, " genes will be labeled"))
-  }
+
 
   findmarkers.output <- DEGs.input
-  if(input.type == "findmarkers") cluster.genes.output <- F
-  if(input.type == "cluster.genes") cluster.genes.output <- T
+  if(input.type == "findmarkers") cluster.genes.output <- FALSE
+  if(input.type == "cluster.genes") cluster.genes.output <- TRUE
 
 
-  if(cluster.genes.output == F) {
+  if(cluster.genes.output == FALSE) {
 
-    if(RP.MT.filter ==T){
+    if(RP.MT.filter ==TRUE){
       exclude <- c()
       for (i in 1:3) {
         exclude <- c(exclude, which(stringr::str_detect(rownames(findmarkers.output), c("MT-", "RPL", "RPS")[i])))
@@ -127,23 +125,23 @@ GEX_volcano <- function(DEGs.input,
 
     findmarkers.output$genes <- rownames(findmarkers.output)
 
-    if(plot.adj.pvalue == F) {
+    if(plot.adj.pvalue == FALSE) {
       findmarkers.output$minus.log10p <- -log10(findmarkers.output$p_val)
       findmarkers.output$minus.log10p[which(findmarkers.output$minus.log10p == Inf)] <- findmarkers.output$minus.log10p[which(sort(findmarkers.output$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
-      if(n.label.up == F & n.label.down == F) {
+      if(n.label.up == FALSE & n.label.down == FALSE) {
         output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p, label = genes)) + ggplot2::geom_point() +
           ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot() + ggplot2::ylab("-log10(p-value)")
       }
 
       if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
-        if(by.logFC == F) {
+        if(by.logFC == FALSE) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
           posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
           negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
         }
-        if(by.logFC == T) {
+        if(by.logFC == TRUE) {
           l <- dim(findmarkers.output)[1]
           findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
           posFC_genes <- findmarkers.output$genes[1:n.label.up]
@@ -157,23 +155,23 @@ GEX_volcano <- function(DEGs.input,
       }
 
     }
-    if(plot.adj.pvalue == T) {
+    if(plot.adj.pvalue == TRUE) {
       findmarkers.output$minus.log10p_adj <- -log10(findmarkers.output$p_val_adj)
       findmarkers.output$minus.log10p_adj[which(findmarkers.output$minus.log10p_adj == Inf)] <- findmarkers.output$minus.log10p_adj[which(sort(findmarkers.output$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
-      if(n.label.up == F & n.label.down == F) {
+      if(n.label.up == FALSE & n.label.down == FALSE) {
         output.plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = genes)) + ggplot2::geom_point() +
           ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
           ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot() + ggplot2::ylab("-log10(adj.p-value)")
       }
 
       if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
-        if(by.logFC == F) {
+        if(by.logFC == FALSE) {
           findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
           posFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
           negFC_genes <- findmarkers.output$genes[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
         }
-        if(by.logFC == T) {
+        if(by.logFC == TRUE) {
           l <- dim(findmarkers.output)[1]
           findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
           posFC_genes <- findmarkers.output$genes[1:n.label.up]
@@ -186,15 +184,15 @@ GEX_volcano <- function(DEGs.input,
       }
     }
 
-    if(explicit.title == F) {
+    if(explicit.title == FALSE) {
       output.plot <- output.plot + ggplot2::ggtitle(paste(condition.2, "vs.", condition.1))
     }
-    if(explicit.title ==T){
+    if(explicit.title ==TRUE){
       output.plot <- output.plot + ggplot2::ggtitle(paste(condition.2 , "(up=-FC)", "vs.", condition.1, "(up=+FC)"))
     }
   }
 
-  if(cluster.genes.output == T){
+  if(cluster.genes.output == TRUE){
 
     output.plot <- list()
 
@@ -212,7 +210,7 @@ GEX_volcano <- function(DEGs.input,
         findmarkers.output <- DEGs.input
       }
 
-      if(RP.MT.filter ==T){
+      if(RP.MT.filter ==TRUE){
         exclude <- c()
         for (j in c("MT-", "RPL", "RPS")) {
           exclude <- c(exclude, stringr::str_which(rownames(findmarkers.output), j))
@@ -222,23 +220,23 @@ GEX_volcano <- function(DEGs.input,
         }
       }
 
-      if(plot.adj.pvalue == F) {
+      if(plot.adj.pvalue == FALSE) {
         findmarkers.output$minus.log10p <- -log10(findmarkers.output$p_val)
         findmarkers.output$minus.log10p[which(findmarkers.output$minus.log10p == Inf)] <- findmarkers.output$minus.log10p[which(sort(findmarkers.output$minus.log10p, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
-        if(n.label.up == F & n.label.down == F) {
+        if(n.label.up == FALSE & n.label.down == FALSE) {
           cluster_plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
             ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot() + ggplot2::ylab("-log10(p-value)")
         }
 
         if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
-          if(by.logFC == F) {
+          if(by.logFC == FALSE) {
             findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
             posFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
             negFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
           }
-          if(by.logFC == T) {
+          if(by.logFC == TRUE) {
             l <- dim(findmarkers.output)[1]
             findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
             posFC_genes <- findmarkers.output$SYMBOL[1:n.label.up]
@@ -253,23 +251,23 @@ GEX_volcano <- function(DEGs.input,
         }
       }
 
-      if(plot.adj.pvalue == T) {
+      if(plot.adj.pvalue == TRUE) {
         findmarkers.output$minus.log10p_adj <- -log10(findmarkers.output$p_val_adj)
         findmarkers.output$minus.log10p_adj[which(findmarkers.output$minus.log10p_adj == Inf)] <- findmarkers.output$minus.log10p_adj[which(sort(findmarkers.output$minus.log10p_adj, decreasing = TRUE) != Inf)[1]]+100 #calculating -log10p and setting the ones that are Inf to defined value
 
-        if(n.label.up == F & n.label.down == F) {
+        if(n.label.up == FALSE & n.label.down == FALSE) {
           cluster_plot <- ggplot2::ggplot(findmarkers.output, ggplot2::aes(x=avg_logFC, y=minus.log10p_adj, label = SYMBOL)) + ggplot2::geom_point() +
             ggplot2::geom_point(data = subset(findmarkers.output, abs(avg_logFC) > color.log.threshold & p_val_adj < color.p.threshold), col= "darkred") +
             ggrepel::geom_text_repel(data =subset(findmarkers.output, abs(avg_logFC) > label.logfc.threshold & p_val_adj < label.p.threshold),  color = 'black', hjust = 0, direction = "y", max.overlaps = maximum.overlaps) + cowplot::theme_cowplot()+ ggplot2::ylab("-log10(adj.p-value)")
         }
 
         if(inherits(n.label.up,"numeric") & inherits(n.label.down,"numeric")) {
-          if(by.logFC == F) {
+          if(by.logFC == FALSE) {
             findmarkers.output <- findmarkers.output[order(findmarkers.output$p_val_adj),]
             posFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC > 0)][1:n.label.up]
             negFC_genes <- findmarkers.output$SYMBOL[which(findmarkers.output$avg_logFC < 0)][1:n.label.down]
           }
-          if(by.logFC == T) {
+          if(by.logFC == TRUE) {
             l <- dim(findmarkers.output)[1]
             findmarkers.output <- findmarkers.output[order(findmarkers.output$avg_logFC),]
             posFC_genes <- findmarkers.output$SYMBOL[1:n.label.up]
@@ -283,10 +281,10 @@ GEX_volcano <- function(DEGs.input,
         }
       }
 
-      if(explicit.title == F) {
+      if(explicit.title == FALSE) {
         output.plot[[i]] <- cluster_plot + ggplot2::ggtitle(paste("All clusters vs.", "cluster", i-1))
       }
-      if(explicit.title ==T){
+      if(explicit.title ==TRUE){
         output.plot[[i]] <- cluster_plot + ggplot2::ggtitle(paste("All clusters (up=-FC)", "vs.", "cluster", i-1,"(up=+FC)"))
       }
     }

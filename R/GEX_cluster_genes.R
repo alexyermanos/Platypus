@@ -9,14 +9,10 @@
 #' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene. Ech element in the list corresponds to the clusters in numerical order. For example, the first element in the list output[[1]] corresponds to the genes deferentially expressed in cluster 0 in GEX
 #' @export
 #' @examples
-#' #Platypus version v2
-#' #GEX_cluster_genes(GEX =automate_GEX_output[[i]], min.pct = .25
-#' #, filter = c("MT-", "RPL", "RPS"))
-#'
-#' #Platypus version v3
 #' GEX_cluster_genes(GEX = subset(Platypus::small_vgm[[2]], seurat_clusters %in% c(0,1)), min.pct = .25
 #' , filter = c("MT-", "RPL", "RPS"))
 #'
+
 GEX_cluster_genes <- function(GEX,
                               min.pct,
                               filter,
@@ -45,4 +41,3 @@ GEX_cluster_genes <- function(GEX,
   }
   return(cluster_markers)
 }
-

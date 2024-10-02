@@ -7,12 +7,14 @@
 #' @return data frame with column names that match the VDJ_GEX_matrix output. Can be appended to the VDJ_GEX_matrix output
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' directory.list <- list()
 #' directory.list[[1]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
 #' directory.list[[2]] <- c("~/Dataset_1/filtered_contig_annotations.csv")
 #' filtered_contig_vgm <- VDJ_contigs_to_vgm(directory = directory.list,
 #' sample.names = c(s3,s4), celltype = "Tcells")
+#' })
 #' }
 
 VDJ_contigs_to_vgm <- function(directory,
@@ -31,14 +33,14 @@ VDJ_contigs_to_vgm <- function(directory,
     stop("Please specify celltype")
   }
   if(missing(FB)){
-    FB <- F
+    FB <- FALSE
   }
   platypus.version <- "v3"
 
   chain_vdj <- NULL
   chain_vj <- NULL
 
-  print(Sys.time())
+  message(Sys.time())
   all_formatted_df <- list()
   for (k in 1:length(directory)) {
     filtered_contig_annotations <- utils::read.csv(file = directory[[k]]) #read in csv
@@ -81,13 +83,13 @@ VDJ_contigs_to_vgm <- function(directory,
       paired_df$chain_vj[which(paired_df$chain != "IGH")] <- paired_df$chain[which(paired_df$chain != "IGH")]
 
 
-      if(FB == F){
+      if(FB == FALSE){
         unique_barcodes <- unique(paired_df$barcode)
         colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
         colnames(formatted_df) <- colnames
       }
-      if(FB == T){
+      if(FB == TRUE){
         unique_barcodes <- unique(paired_df$barcode)
         colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
@@ -132,14 +134,14 @@ VDJ_contigs_to_vgm <- function(directory,
       paired_df <- subset(paired_df, !paired_df$barcode%in%index_remove)
       #now only cells with 1TRA and one 1TRB are left
 
-      if(FB == F){
+      if(FB == FALSE){
         #start making data frame that resembles vgm
         unique_barcodes <- unique(paired_df$barcode)
         colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
         formatted_df <- data.frame(matrix(ncol = length(colnames), nrow = length(unique_barcodes)))
         colnames(formatted_df) <- colnames
       }
-      if(FB == T){
+      if(FB == TRUE){
         #start making data frame that resembles vgm
         unique_barcodes <- unique(paired_df$barcode)
         colnames <- c("barcode", "orig_barcode", "sample_id", "FB_assignment","group_id", "clonotype_id_10x", "celltype", "Nr_of_VDJ_chains","Nr_of_VJ_chains","VDJ_cdr3s_aa", "VJ_cdr3s_aa","VDJ_cdr3s_nt","VJ_cdr3s_nt","VDJ_chain_contig","VJ_chain_contig","VDJ_chain","VJ_chain", "VDJ_vgene", "VJ_vgene","VDJ_dgene","VDJ_jgene", "VJ_jgene","VDJ_cgene","VJ_cgene","VDJ_sequence_nt_raw","VJ_sequence_nt_raw","VDJ_sequence_nt_trimmed", "VJ_sequence_nt_trimmed","VDJ_sequence_aa","VJ_sequence_aa","VDJ_trimmed_ref","VJ_trimmed_ref","VDJ_raw_consensus_id","VJ_raw_consensus_id","clonotype_frequency","specifity","affinity","GEX_available","orig.ident","orig_barcode_GEX","seurat_clusters","PC_1","PC_2","UMAP_1", "UMAP_2","tSNE_1","tSNE_2","batch_id","clonotype_id")
@@ -174,7 +176,7 @@ VDJ_contigs_to_vgm <- function(directory,
     all_formatted_df[[k]] <- formatted_df #save
   }
   output_df <- do.call("rbind", all_formatted_df) #combine all data frames
-  print("Done")
-  print(Sys.time())
+  message("Done")
+  message(Sys.time())
   return(output_df)
 }

@@ -12,11 +12,10 @@
 #' @return A nested list with out[[i]][[1]] being ggplot volcano plots and out[[i]][[2]] being source DEG dataframes.
 #' @export
 #' @examples
-#' \dontrun{
 #' GEX_pairwise_DEGs(GEX = Platypus::small_vgm[[2]],group.by = "sample_id"
 #' ,min.pct = 0.25,RP.MT.filter = TRUE,label.n.top.genes = 2,genes.to.label = c("CD24A")
 #' ,save.plot = FALSE, save.csv = FALSE)
-#'}
+#'
 
 GEX_pairwise_DEGs <- function(GEX,
                               group.by,
@@ -36,9 +35,9 @@ GEX_pairwise_DEGs <- function(GEX,
   if(missing(genes.to.label)) genes.to.label <- "none"
   if(missing(group.by)) group.by <- "sample_id"
   if(missing(min.pct)) min.pct <- 0.25
-  if(missing(RP.MT.filter)) RP.MT.filter <- T
-  if(missing(save.plot)) save.plot <- F
-  if(missing(save.csv)) save.csv <- F
+  if(missing(RP.MT.filter)) RP.MT.filter <- TRUE
+  if(missing(save.plot)) save.plot <- FALSE
+  if(missing(save.csv)) save.csv <- FALSE
 
   if(!group.by %in% names(GEX@meta.data)){stop("Please enter valid metadata column name")}
 
@@ -61,14 +60,13 @@ GEX_pairwise_DEGs <- function(GEX,
   plot.list <- list()
   for(i in 1:nrow(combs)){
     message(paste0("Calculating pairwise DEGs ", i, " of ", nrow(combs)))
-    print(combs[i,1])
-    print(combs[i,2])
+
     degs <- Seurat::FindMarkers(GEX, ident.1 = combs[i,1], ident.2 = combs[i,2],min.pct = min.pct)
 
     degs$gene <- rownames(degs)
 
-    if(RP.MT.filter == T){
-      degs <- subset(degs, stringr::str_detect(degs$gene, "(^RPL)|(^MRPL)|(^MT-)|(^RPS)") == F)
+    if(RP.MT.filter == TRUE){
+      degs <- subset(degs, stringr::str_detect(degs$gene, "(^RPL)|(^MRPL)|(^MT-)|(^RPS)") == FALSE)
     }
 
     #choose which points to label
@@ -84,10 +82,10 @@ GEX_pairwise_DEGs <- function(GEX,
 
     plot.out <- ggplot2::ggplot(degs, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), col = avg_log2FC)) + ggplot2::geom_point(show.legend = F, size = 3, alpha = 0.7) + cowplot::theme_cowplot() + ggplot2::theme(legend.position = "none") + ggplot2::labs(title = paste0("DEGs ", combs[i,1], " vs. ", combs[i,2]), x = "log2(FC)", y = "-log10(adj p)")+ ggrepel::geom_text_repel(data = degs_rel, ggplot2::aes(x = avg_log2FC, y = -log10(p_val_adj), label = gene), inherit.aes = F, size = 6, segment.alpha = 1, max.overlaps = 50) + ggplot2::scale_colour_viridis_c(option = "B")
 
-    if(save.plot == T){
+    if(save.plot == TRUE){
       ggplot2::ggsave(plot.out, filename = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".png"), dpi = 300, width = 12, height = 12)
     }
-    if(save.csv == T){
+    if(save.csv == TRUE){
       utils::write.csv(degs, file = paste0("DEGs_", combs[i,1], "_vs_", combs[i,2],".csv"))
     }
     degs.list[[i]] <- degs
@@ -95,4 +93,3 @@ GEX_pairwise_DEGs <- function(GEX,
   }
   return(list(plot.list, degs.list))
 }
-

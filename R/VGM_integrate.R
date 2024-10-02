@@ -9,7 +9,6 @@
 #' @export
 #' @examples
 #'
-#' #Adding a new clonotyping method to VDJ
 #' small_vgm[[1]] <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
 #' clone.strategy="cdr3.nt",
 #' hierarchical = "single.chains", global.clonotype = TRUE)
@@ -17,15 +16,10 @@
 #' small_vgm <- VGM_integrate(
 #' VGM = small_vgm,
 #' columns.to.transfer = NULL) #transfer all new columns
-#' #and update clonotype_id and clonotype_frequency column
-#' #(as does VDJ_clonotype_v3 in VDJ)
 #'
 #' small_vgm <- VGM_integrate(
 #' VGM = small_vgm,
 #' columns.to.transfer = c("global_clonotype_id_cdr3.nt"))
-#' #transfer only selected columns
-#'
-#' #Pull genes from GEX and add as metadata column to VDJ
 #'
 #' small_vgm <- VGM_integrate(
 #' small_vgm, genes.to.VDJ = c("CD19","CD24A"),seurat.slot = "counts")
@@ -54,7 +48,7 @@ VGM_integrate <- function(VGM,
 
   if(length(intersect(colnames(VGM[[2]]), VGM[[1]]$barcode)) == 0) stop("No barcode overlap between VDJ barcode column and GEX colnames. Please verify that barcodes or cell names have not been altered")
 
-  if(missing(genes.to.VDJ) == T){ #if no genes to be extracted to VDJ
+  if(missing(genes.to.VDJ) == TRUE){ #if no genes to be extracted to VDJ
 
   #Keeping original GEX names.
   #As we add VDJ -> GEX first, we need to keep track of original columns in GEX so no "backintegration" happens
@@ -86,7 +80,7 @@ VGM_integrate <- function(VGM,
     VGM[[1]][,"int_merge_bc"] <- VGM[[1]]$barcode
 
     to_merge <- VGM[[1]][,c("int_merge_bc",cl_VDJ_to_GEX)]
-    new_GEX_meta <- merge(VGM[[2]]@meta.data, to_merge, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
+    new_GEX_meta <- merge(VGM[[2]]@meta.data, to_merge, by = "int_merge_bc", all.x = TRUE, all.y = FALSE, sort = FALSE)
     rownames(new_GEX_meta) <- new_GEX_meta$int_merge_bc
     new_GEX_meta <- new_GEX_meta[,names(new_GEX_meta) != "int_merge_bc"]
     VGM[[1]] <- VGM[[1]][,names(VGM[[1]]) != "int_merge_bc"]
@@ -112,7 +106,7 @@ VGM_integrate <- function(VGM,
     VGM[[2]]@meta.data[,"int_merge_bc"] <- colnames(VGM[[2]])
     VGM[[1]][,"int_merge_bc"] <- VGM[[1]]$barcode
     to_merge <- VGM[[2]]@meta.data[,c("int_merge_bc",cl_GEX_to_VDJ)]
-    new_VDJ <- merge(VGM[[1]], to_merge, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
+    new_VDJ <- merge(VGM[[1]], to_merge, by = "int_merge_bc", all.x = TRUE, all.y = FALSE, sort = FALSE)
     VGM[[2]]@meta.data <- VGM[[2]]@meta.data[,names(VGM[[2]]@meta.data) != "int_merge_bc"]
     new_VDJ <- new_VDJ[,names(new_VDJ) != "int_merge_bc"]
 
@@ -129,7 +123,7 @@ VGM_integrate <- function(VGM,
     fetched[,"int_merge_bc"] <- rownames(fetched)
     VGM[[1]][,"int_merge_bc"] <- VGM[[1]]$barcode
 
-    new_VDJ <- merge(VGM[[1]], fetched, by = "int_merge_bc", all.x = T, all.y = F, sort = F)
+    new_VDJ <- merge(VGM[[1]], fetched, by = "int_merge_bc", all.x = TRUE, all.y = FALSE, sort = FALSE)
     new_VDJ <- new_VDJ[,names(new_VDJ) != "int_merge_bc"]
     VGM[[1]] <- new_VDJ
     message(paste0("Added columns to VDJ: ", paste0(colnames(fetched)[1:ncol(fetched)-1], collapse = "; ")))

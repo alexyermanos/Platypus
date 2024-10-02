@@ -10,6 +10,7 @@
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage(VDJ =
 #' Platypus::small_vgm[[1]], platypus.version = "v3")
 #'
+
 VDJ_Vgene_usage <- function(VDJ,
                             group.by,
                             platypus.version){
@@ -82,7 +83,7 @@ VDJ_Vgene_usage <- function(VDJ,
       if(group.by != "sample_id"){
         if(group.by %in% names(VDJ.matrix)){
           VDJ.matrix$sample_id <- as.character(VDJ.matrix[,group.by])
-          if(any(is.na(VDJ.matrix$sample_id)) == T){
+          if(any(is.na(VDJ.matrix$sample_id)) == TRUE){
             VDJ.matrix <- VDJ.matrix[!is.na(VDJ.matrix$sample_id),]
             warning(paste0("Filtered out cells with 'NA' in grouping column"))
           }
@@ -95,7 +96,7 @@ VDJ_Vgene_usage <- function(VDJ,
       for(i in 1:length(unique(VDJ.matrix$sample_id))){
         sample_list[[i]] <- subset(VDJ.matrix, sample_id == unique(VDJ.matrix$sample_id)[i])
         #removing extra cells cells to leave only 1 per clonotype
-        sample_list[[i]] <- sample_list[[i]][duplicated(sample_list[[i]]$clonotype_id_10x) == F,]
+        sample_list[[i]] <- sample_list[[i]][duplicated(sample_list[[i]]$clonotype_id_10x) == FALSE,]
       }
 
       for (k in 1:length(sample_list)){
@@ -131,5 +132,3 @@ VDJ_Vgene_usage <- function(VDJ,
       return(Vgene_usage_matrix)
     }
 }
-
-

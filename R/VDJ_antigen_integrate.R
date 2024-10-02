@@ -18,10 +18,12 @@
 #' @export
 
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' VDJ_antigen_integrate(VDJ,antigen.directory.list=antigen.directory.list,
 #' antigen.feature=c('elisa', 'affinity'),VDJ.VJ.1chain=T,
 #' match.by='clonotype',sample.id=T, output.format='vgm')
+#' })
 #'}
 
 
@@ -43,12 +45,12 @@ VDJ_antigen_integrate <- function(VDJ,
   if(missing(antigen.data.list)) stop('Please provide a list of antigen data file(s) or a list of antigen dataframes')
   if(missing(antigen.features)) stop('Please provide the features to be extracted form the antigen data')
   if(missing(binder.threshold)) binder.threshold <- list()
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- F
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- FALSE
   if(missing(match.by)) match.by <- 'clonotype'
   if(missing(matching.type)) matching.type <- 'exact'
   if(missing(distance.threshold)) distance.threshold <- 3
-  if(missing(sample.id)) sample.id <- T
-  if(missing(aberrant.chosen.sequences)) aberrant.chosen.sequences <- T
+  if(missing(sample.id)) sample.id <- TRUE
+  if(missing(aberrant.chosen.sequences)) aberrant.chosen.sequences <- TRUE
   if(missing(output.format)) output.format <- 'vgm'
   if(missing(cores))  cores <- parallel::detectCores()
 
@@ -67,8 +69,8 @@ VDJ_antigen_integrate <- function(VDJ,
 
 
   get_sequence_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';'){
-   if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
-   if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
+   if(split.x==TRUE) x <- stringr::str_split(x, split.by ,simplify=TRUE)[1,]
+   if(split.y==TRUE) y <- stringr::str_split(y, split.by ,simplify=TRUE)[1,]
 
    ccombs <- expand.grid(x,y)
    ccombs<-paste0(ccombs[,1], ccombs[,2])
@@ -258,13 +260,13 @@ VDJ_antigen_integrate <- function(VDJ,
     antigen_names <- lapply(antigen.data.list, function(x) stringr::str_match(x, pattern='([A-Z0-9]+)')[1])
   }
 
-  if(VDJ.VJ.1chain==T){
+  if(VDJ.VJ.1chain==TRUE){
     VDJ <- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VJ_chains==1),]
   }
 
   sample_dfs <- list()
 
-  if(sample.id==T){
+  if(sample.id==TRUE){
     repertoire.number <- unique(VDJ$sample_id)
 
     for(i in 1:length(repertoire.number)){

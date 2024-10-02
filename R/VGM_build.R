@@ -10,13 +10,14 @@
 #' @return An output VGM object: a list with the first element - the VDJ object; second element - the GEX/Seurat object. Additonal elements are appended to the list if additional.dataframes is not null.
 #' @export
 #' @examples
-#'\dontrun{
+#'\donttest{
+#'try({
 #' small_vgm <- VGM_build(
 #' VDJ = small_vgm[[1]],
 #' GEX = small_vgm[[2]],
 #' columns.to.transfer = 'all') #transfer all new columns
+#' })
 #'}
-
 
 
 VGM_build <- function(VDJ,
@@ -78,7 +79,7 @@ VGM_build <- function(VDJ,
         # Subset the data frame that will be added/merged by only the columns to merge and column that will be the merging pivot
         to_merge <- from.df[, c(by, columns)]
         # Perform merge using R's merge() function. Will append all columns in the to.df and no columns from the from.df
-        new_df <- merge(to.df, to_merge, by = by, all.x = T, all.y = F, sort = F)
+        new_df <- merge(to.df, to_merge, by = by, all.x = TRUE, all.y = FALSE, sort = FALSE)
       }else{
         # If there are no columns to merge, will output the to.df instead (unmerged).
         new_df <- to.df
@@ -131,7 +132,6 @@ VGM_build <- function(VDJ,
         GEX_df <- simple_merge(VDJ, GEX_df, merge.by, cl_VDJ_to_GEX)
       }
 
-      GEX@meta.data <- GEX_df
       # Merge GEX to VDJ
       # Extract columns in GEX not already present in VDJ
       cl_GEX_to_VDJ <- extract_columns(GEX_df, VDJ, columns.to.transfer)
@@ -142,6 +142,14 @@ VGM_build <- function(VDJ,
       if(length(cl_GEX_to_VDJ) > 0){
         VDJ <- simple_merge(GEX_df, VDJ, merge.by, cl_GEX_to_VDJ)
       }
+
+      #Remove duplicate columns (merge still adds them...)
+      GEX_df$clonotype_id.1 <- NULL
+      GEX_df$clonotype_frequency.1 <- NULL
+      VDJ$clonotype_id.1 <- NULL
+      VDJ$clonotype_frequency.1 <- NULL
+
+      GEX@meta.data <- GEX_df
 
     }else{
       message("Could not find GEX/ Seurat object")

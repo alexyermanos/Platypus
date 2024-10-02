@@ -17,37 +17,22 @@
 #' @export
 #' @examples
 #'
-#' #To return a single plot with top clones across samples
 #' overlay_clones_plot <- VDJ_GEX_overlay_clones(
 #' GEX = Platypus::small_vgm[[2]], reduction = "umap"
 #' ,n.clones = 5, by.sample = FALSE
 #' ,by.other.group = "none", pt.size = 1,split.plot.and.legend = FALSE)
 #'
-#' #To return a facet plot with top clones for each sample
 #' overlay_clones_plot <- VDJ_GEX_overlay_clones(
 #' GEX = Platypus::small_vgm[[2]], reduction = "umap"
 #' ,n.clones = 5, by.sample = TRUE, by.other.group = "none"
 #' ,pt.size = 1,ncol.facet = 2, split.plot.and.legend = FALSE)
 #'
-#' #To return a facet plot and the legend separately with top clones for each group
 #' overlay_clones_plot <- VDJ_GEX_overlay_clones(
 #' GEX = Platypus::small_vgm[[2]], reduction = "umap"
 #' ,n.clones = 5, by.sample = TRUE, by.other.group = "group_id", pt.size = 1
 #' ,ncol.facet = 2, split.plot.and.legend = TRUE)
 #'
-#' #To print both:
-#' #overlay_clones_plot[[1]] #Plot
-#' #gridExtra::grid.arrange(overlay_clones_plot[[2]]) #Legend
-#' #To save, ggsave() is applicable to both
-#'
-#' #To return a single plot with selected clones
-#' #add a clonotype_to_plot column
-#' #GEX@meta.data$clonotype_to_plot <- GEX$VJ_vgene == "TRAV5-1"
-#' #Column with TRUE for all clones with a particular V gene
-#' #overlay_clones_plot <- VDJ_GEX_overlay_clones(GEX = GEX, reduction = "umap"
-#' #, clones.to.plot = "clonotype_to_plot", by.sample = TRUE, by.other.group = "none"
-#' #, split.plot.and.legend = FALSE, pt.size = 1.5)
-#'
+
 
 VDJ_GEX_overlay_clones <- function(GEX,
                                    reduction,
@@ -71,19 +56,19 @@ VDJ_GEX_overlay_clones <- function(GEX,
   if(missing(clones.to.plot)) clones.to.plot <- "none"
   if(missing(n.clones)) n.clones <- 5
   if(n.clones > 10) n.clones <- 10
-  if(missing(by.sample)) by.sample <- T
+  if(missing(by.sample)) by.sample <- TRUE
   if(missing(by.other.group)) by.other.group <- "none"
-  if(by.sample == T & by.other.group != "none"){by.other.group <- "none"}
+  if(by.sample == TRUE & by.other.group != "none"){by.other.group <- "none"}
   if(missing(reduction)) reduction <- "umap"
   if(missing(ncol.facet)) ncol.facet <- 2
-  if(missing(split.plot.and.legend)) split.plot.and.legend <- F
+  if(missing(split.plot.and.legend)) split.plot.and.legend <- FALSE
   if(missing(pt.size)) pt.size <- 1
   if(missing(others.color)) others.color <- "grey80"
 
   if(by.other.group %in% names(GEX@meta.data)){
-    by.group <- T
+    by.group <- TRUE
     GEX@meta.data$group_id <- GEX@meta.data[,by.other.group]
-  } else{by.group <- F}
+  } else{by.group <- FALSE}
 
 
   if(!clones.to.plot %in% names(GEX@meta.data) & clones.to.plot != "none"){
@@ -103,15 +88,15 @@ VDJ_GEX_overlay_clones <- function(GEX,
   GEX@meta.data$s_cl <- paste0(GEX@meta.data$sample_id, GEX@meta.data$clonotype_id)
 
   #get subset unique that column + frequency
-  cl_unique <- GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == F),c("s_cl", "sample_id","group_id", "clonotype_id", "clonotype_frequency")]
+  cl_unique <- GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == FALSE),c("s_cl", "sample_id","group_id", "clonotype_id", "clonotype_frequency")]
   if(clones.to.plot != "none"){ #if clones to plot is specified bind that column to cl_unique as well
-    cl_unique <- cbind(cl_unique, GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == F),c(clones.to.plot)])
+    cl_unique <- cbind(cl_unique, GEX@meta.data[which(duplicated(GEX@meta.data$s_cl) == FALSE),c(clones.to.plot)])
     names(cl_unique)[ncol(cl_unique)] <- "clonotype_to_plot"
   }
   #order by frequency
   cl_unique <- cl_unique[order(cl_unique$clonotype_frequency, decreasing = T),]
 
-  if(by.sample == F & by.group == F){
+  if(by.sample == FALSE & by.group == FALSE){
 
     if(clones.to.plot == "none"){
       #get top n.clones
@@ -124,7 +109,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #remove any empty columns
-    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == F,]
+    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == FALSE,]
 
     #open new column in original df
     GEX@meta.data$cl_to_plot <- "Not selected"
@@ -158,7 +143,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     #dimplot with cols + grey30 to color in the non selected clones
     #out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors, others.color), shuffle = F, order = c("Not selected","selected"), pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "")
     #check whether plot and legend should be split
-    if(split.plot.and.legend == F){
+    if(split.plot.and.legend == FALSE){
       return(out.plot)
     } else {
       out.leg <- cowplot::get_legend(out.plot)
@@ -167,7 +152,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
   }
 
-  if(by.sample == T){
+  if(by.sample == TRUE){
     #same routine but now faceted by sample
 
     if(clones.to.plot == "none"){
@@ -187,7 +172,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #remove any empty columns
-    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == F,]
+    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == FALSE,]
 
     #open new column in original df
     GEX@meta.data$cl_to_plot <- "Not selected"
@@ -228,7 +213,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$sample_id, ncol = ncol.facet)
     #! Bug in the current version of seurat: shuffle = T does not work with split_by or + facet_wrap(). The bug is reported and should be fixed soon (13.4.21) https://github.com/satijalab/seurat/issues/4300
 
-    if(split.plot.and.legend == F){
+    if(split.plot.and.legend == FALSE){
       return(out.plot)
     } else {
       out.leg <- cowplot::get_legend(out.plot)
@@ -238,7 +223,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
 
   }
 
-  if(by.group == T){
+  if(by.group == TRUE){
     #same routine but now faceted by group
 
     if(clones.to.plot == "none"){
@@ -258,7 +243,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     }
 
     #remove any empty columns
-    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == F,]
+    cl_unique <- cl_unique[is.na(cl_unique$clonotype_id) == FALSE,]
 
     #open new column in original df
     GEX@meta.data$cl_to_plot <- "Not selected"
@@ -294,7 +279,7 @@ VDJ_GEX_overlay_clones <- function(GEX,
     out.plot <- Seurat::DimPlot(GEX,reduction = reduction, group.by = "cl_to_plot", cols = c(clone.colors,others.color), shuffle = F, pt.size = pt.size) + ggplot2::labs(col = "Rank / Group id / Sample id / Clonotype / Frequency", title = "") + ggplot2::facet_wrap(~GEX@meta.data$group_id, ncol = ncol.facet)
     #! Bug in the current version of seurat: shuffle = T does not work with split_by or + facet_wrap(). The bug is reported and should be fixed soon (13.4.21) https://github.com/satijalab/seurat/issues/4300
 
-    if(split.plot.and.legend == F){
+    if(split.plot.and.legend == FALSE){
       return(out.plot)
     } else {
       out.leg <- cowplot::get_legend(out.plot)

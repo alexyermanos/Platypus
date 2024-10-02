@@ -12,7 +12,6 @@
 #' @return Either a dataframe of public elements across multiple repertoires or a list.
 #' @export
 
-
 #' @examples
 #' VDJ_get_public(VDJ = small_vgm[[1]],
 #' feature.columns='VDJ_cdr3s_aa', find.public.all=TRUE,
@@ -20,8 +19,6 @@
 #'
 
 
-
-#ADD VENN DIAGRAMS TO PUBLICS
 
 
 VDJ_public <- function(VDJ,
@@ -37,14 +34,14 @@ VDJ_public <- function(VDJ,
   if(missing(feature.columns)) feature.columns <- 'CDR3aa'
   if(missing(grouping.column)) grouping.column <- 'sample_id'
   if(missing(specific.groups)) specific.groups <- NULL
-  if(missing(find.public.all)) find.public.all <- T
+  if(missing(find.public.all)) find.public.all <- TRUE
   if(missing(find.public.percentage)) find.public.percentage <- list(0.6, NULL)
   if(missing(treat.combined.features) & length(feature.columns==2)) treat.combined.features <- 'exclude'
   if(missing(output.format)) output.format <- 'plot'
 
-  get_feature_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';', combine.sequences=F){
-   if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
-   if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
+  get_feature_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';', combine.sequences=FALSE){
+   if(split.x==TRUE) x <- stringr::str_split(x, split.by ,simplify=TRUE)[1,]
+   if(split.y==TRUE) y <- stringr::str_split(y, split.by ,simplify=TRUE)[1,]
 
    ccombs <- expand.grid(x,y)
    if(!combine.sequences){
@@ -59,7 +56,7 @@ VDJ_public <- function(VDJ,
   }
 
   if(('CDR3aa' %in% feature.columns) & !('CDR3aa' %in% colnames(VDJ))){
-    VDJ$CDR3aa <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=T,split.y=T, combine.sequences=T)} else '', VDJ$VDJ_cdr3s_aa, VDJ$VJ_cdr3s_aa)
+    VDJ$CDR3aa <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=TRUE,split.y=TRUE, combine.sequences=TRUE)} else '', VDJ$VDJ_cdr3s_aa, VDJ$VJ_cdr3s_aa)
   }
 
   for(i in 1:length(feature.columns)){
@@ -70,9 +67,9 @@ VDJ_public <- function(VDJ,
 
   if(length(feature.columns)==2){
    if(treat.combined.features=='exclude'){
-     combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=T,split.y=T)} else '', VDJ[,feature.columns[[1]]], VDJ[,feature.columns[[2]]])
+     combined_features <- mapply(function(x,y) if(!is.null(x) & !is.null(y) & !is.na(x) & !is.na(y) & x!='' & y!='') {get_feature_combinations(x,y,split.x=TRUE,split.y=TRUE)} else '', VDJ[,feature.columns[[1]]], VDJ[,feature.columns[[2]]])
    }else{
-     combined_features <- mapply(function(x,y) get_feature_combinations(x,y,split.x=T,split.y=T), VDJ[,feature.columns[[1]]], VDJ[,feature.columns[[2]]])
+     combined_features <- mapply(function(x,y) get_feature_combinations(x,y,split.x=TRUE,split.y=TRUE), VDJ[,feature.columns[[1]]], VDJ[,feature.columns[[2]]])
      VDJ$new_feature <- combined_features
      new_feature <- paste0(feature.columns[[1]], '/', feature.columns[[2]])
      names(sample_dfs[[i]])[names(VDJ)=='new_feature'] <- new_feature

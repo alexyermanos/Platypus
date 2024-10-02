@@ -9,7 +9,6 @@
 #' @export
 #' @examples
 #'
-#' #Add info to whole VGM object
 #' VGM <- VGM_expanded_clones(
 #' VGM = Platypus::small_vgm, add.to.VDJ = TRUE, add.to.GEX = TRUE,
 #' expansion.threshold = 1)
@@ -20,9 +19,9 @@ VGM_expanded_clones <- function(VGM,
                                 add.to.GEX,
                                 expansion.threshold){
 
-  if(missing(add.to.VDJ)) add.to.VDJ <- T
-  if(missing(add.to.GEX)) add.to.GEX <- T
-  if(missing(expansion.threshold)) expansion.threshold <- T
+  if(missing(add.to.VDJ)) add.to.VDJ <- TRUE
+  if(missing(add.to.GEX)) add.to.GEX <- TRUE
+  if(missing(expansion.threshold)) expansion.threshold <- TRUE
 
   #VERSION is set for now:
   platypus.version <- "v3"
@@ -70,5 +69,3 @@ VGM_expanded_clones <- function(VGM,
   }
   return(VGM)
 }
-
-

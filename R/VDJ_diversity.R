@@ -1,6 +1,6 @@
 #' Calculates and plots common diversity and overlap measures for repertoires and alike. Requires the vegan package
 
-#' @param VDJ VDJ dataframe output from the VDJ_GEX_matrix function.
+#' @param VDJ VDJ dataframe output from the VDJ_build function.
 #' @param feature.columns Character vector. One or more column names from the VDJ of which diversity or overlap metrics are calculated. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation.
 #' @param grouping.column Character. Column name of a column to group metrics by. This could be "sample_id" to calculate the metric for each sample. This column is required if metric = "simpson". If so, the simpson overlap index will be calculated pairwise for all combinations of elements in the grouping.column. Defaults to "none".
 #' @param metric Character. Diversity or overlap metric to calculate. Can be c("richness", "bergerparker", "simpson", "ginisimpson", "shannon", "shannonevenness", "jaccard"). Defaults to "shannon". If jaccard is selected, a heatmap with the pairwise comparisons between all groups is returned. If any of the others is selected, a dotplot is returned
@@ -8,17 +8,18 @@
 #' @param VDJ.VJ.1chain Boolean defaults to TRUE. Whether to filter out aberrant cells (more than 1 VDJ or VJ chain).
 #' @return Returns a ggplot with the calculated metric for each group (if provided).
 #' @export
+#' @importFrom magrittr %>%
 #' @examples
 #'
-#' plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
-#' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
+#' plot <- VDJ_diversity(VDJ = Platypus::small_vdj,
+#' ,feature.columns = c("VDJ_cdr3_aa"), grouping.column = "sample_id"
 #' ,metric = "shannon")
 #'
-#' VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
-#' ,feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa"), grouping.column = "sample_id"
+#' VDJ_diversity(VDJ = Platypus::small_vdj,
+#' ,feature.columns = c("VDJ_cdr3_aa","VJ_cdr3_aa"), grouping.column = "sample_id"
 #' ,metric = "ginisimpson")
 #'
-#' VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
+#' VDJ_diversity(VDJ = Platypus::small_vdj,
 #',feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 #',metric = "jaccard")
 #'
@@ -46,7 +47,7 @@ VDJ_diversity <- function(VDJ,
     }else{
       combine.features <- FALSE
     }
-
+    
     abundance_df <- VDJ_abundances(VDJ,
                                    feature.columns = feature.columns,
                                    proportions = 'absolute',

@@ -8,10 +8,10 @@
 #' @return Returns a list with a ggplot for each group.by element.
 #' @export
 #' @examples
-#' \dontrun{
-#' out <- VDJ_expansion_stackedbarplot(VDJ, counts.to.use = "clonotype_id_10x",group.by = "sample_id")
-#' do.call("grid.arrange", c(out, ncol = 6))
-#' }
+#' out <- VDJ_clonal_barplot(Platypus::small_vgm[[1]],
+#' counts.to.use = "clonotype_id_10x",group.by = "sample_id")
+#'
+
 VDJ_clonal_barplot <- function(VDJ,
                                counts.to.use,
                                group.by,
@@ -65,7 +65,7 @@ VDJ_clonal_barplot <- function(VDJ,
             axis.text.y = ggplot2::element_blank(),
             axis.title.x = ggplot2::element_blank(),
             axis.title.y = ggplot2::element_blank()) +
-      ggplot2::guides(fill = FALSE)
+      ggplot2::guides(fill = "none")
     #Add the ggplot to the output list
     output_list[[group]] <- p
   }

@@ -8,11 +8,12 @@
 #' @param platypus.version This is coded for \"v3\" only, but in practice any Seurat Object can be fed in
 #' @return Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.
 #' @export
+#' @importFrom magrittr %>%
 #' @examples
-#' #To return a plot detailing the expression of common genes by seurat cluster
 #'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
 #'group.by = "seurat_clusters", threshold.to.plot = 5)
 #'
+
 GEX_dottile_plot <- function(GEX,
                              genes,
                              group.by,
@@ -72,8 +73,7 @@ GEX_dottile_plot <- function(GEX,
 
   to_plot_sum_f$perc_expressing_cells[to_plot_sum_f$perc_expressing_cells < threshold.to.plot] <- NA
 
-  plot_out <- ggplot2::ggplot(to_plot_sum_f, ggplot2::aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + ggplot2::geom_point(show.legend = T) + cowplot::theme_cowplot()  + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1), legend.position = "right",axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.95, hjust=1)) + ggplot2::labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + ggplot2::scale_color_viridis_c(option = "B", end = 0.9) + ggplot2::scale_size_binned(range = c(1,9.5))
+  plot_out <- ggplot2::ggplot(to_plot_sum_f, ggplot2::aes(x = group, y = name, col = mean_scaled_expression, size = perc_expressing_cells)) + ggplot2::geom_point(show.legend = TRUE) + cowplot::theme_cowplot()  + ggplot2::theme(panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1), legend.position = "right",axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.95, hjust=1)) + ggplot2::labs(title = paste0("Expression by ", group.by), x = "", y = "", color = "Scaled expression", size = "% of expressing cells")  + ggplot2::scale_color_viridis_c(option = "B", end = 0.9) + ggplot2::scale_size_binned(range = c(1,9.5))
 
-    return(plot_out)
+  return(plot_out)
 }
-

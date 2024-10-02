@@ -11,16 +11,13 @@
 #' @return Returns a list of ggplot objects. out\[\[1\]\] is a boxplot comparing SHM by group.by. out\[\[2\]\] to out\[\[n\]\] are plots for each group that visualize VDJ and VJ SHM distribution for each group. Data for any plot can be accessed via out \[\[any\]\]$data
 #' @export
 #' @examples
-#'#Simulating SHM data
 #'small_vgm <- Platypus::small_vgm
 #'small_vgm[[1]]$VDJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
 #'small_vgm[[1]]$VJ_SHM <- as.integer(rnorm(nrow(small_vgm[[1]]), mean = 5, sd = 3))
 #'
-#' #Standard plots
 #' SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 #' , group.by = "sample_id", quantile.label = 0.9)
 #'
-#' #Group by transcriptional cluster and label only top 1\%
 #' SHM_plots <- VDJ_plot_SHM(VDJ = small_vgm[[1]]
 #' , group.by = "seurat_clusters", quantile.label = 0.99)
 #'
@@ -46,7 +43,7 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
   if(missing(group.by)) group.by <- "sample_id"
   if(missing(point.size)) point.size <- 2
   if(missing(mean.line.color)) mean.line.color <- "black"
-  if(missing(stats.to.console)) stats.to.console <- F
+  if(missing(stats.to.console)) stats.to.console <- FALSE
 
   VDJ.matrix <- VDJ.mixcr.matrix
 
@@ -55,7 +52,7 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
     stop("VDJ_SHM or VJ_SHM column not found in the input dataframe. Please provide a output dataframe of the VDJ_call_MIXCR function")
   }
 
-  if((group.by %in% names(VDJ.matrix)) == F){
+  if((group.by %in% names(VDJ.matrix)) == FALSE){
     stop(paste0("Specified group.by column " , group.by, " was not found in VDJ.matrix input dataframe. Please provide a valid column name"))
   }
 
@@ -71,7 +68,7 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
 
   means <- to_plot_long %>% dplyr::group_by(name, group) %>% dplyr::summarise(m= mean(value))
 
-  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_jitter(alpha = 0.4, width = 0.35, size = point.size) + ggplot2::geom_errorbar(inherit.aes = F, data = means, ggplot2::aes(ymax = m, ymin = m, x = group), color = mean.line.color, size = 1.6, width = 0.85) + ggplot2::theme_bw() + cowplot::theme_cowplot() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = ggplot2::element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name)
+  box_plot <- ggplot2::ggplot(to_plot_long, ggplot2::aes(color = group, y= value, x= group)) + ggplot2::geom_jitter(alpha = 0.4, width = 0.35, size = point.size) + ggplot2::geom_errorbar(inherit.aes = FALSE, data = means, ggplot2::aes(ymax = m, ymin = m, x = group), color = mean.line.color, size = 1.6, width = 0.85) + ggplot2::theme_bw() + cowplot::theme_cowplot() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("SHM") + ggplot2::xlab("") + ggplot2::ggtitle(label = paste0("SHM per ", group.by))+ ggplot2::theme(strip.background = ggplot2::element_rect(color = "white", fill = "white")) + ggplot2::facet_wrap(~name)
 
   #SIGNIFICANCE TESTING
 
@@ -128,7 +125,7 @@ VDJ_plot_SHM <- function(VDJ.mixcr.matrix,
 
     pos <- ggplot2::position_jitter(width = 0.3, seed = 2)
 
-    out.list[[j+1]] <- ggplot2::ggplot(curr_to_plot, ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + ggplot2::geom_jitter(show.legend = T, size = 3, alpha = 0.8, position = pos) + ggplot2::theme_bw() + cowplot::theme_cowplot() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ ggrepel::geom_text_repel(inherit.aes = F, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black", position = pos) + ggplot2::scale_color_viridis_c(option = "B", end = 0.9)
+    out.list[[j+1]] <- ggplot2::ggplot(curr_to_plot, ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, col = VDJ_SHM + VJ_SHM)) + ggplot2::geom_jitter(show.legend = TRUE, size = 3, alpha = 0.8, position = pos) + ggplot2::theme_bw() + cowplot::theme_cowplot() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::ylab("VJ SHM") + ggplot2::xlab("VDJ SHM") + ggplot2::ggtitle(label = paste0("SHM in ", unique(to_plot$group)[j]))+ ggrepel::geom_text_repel(inherit.aes = FALSE, data = subset(curr_to_plot, VDJ_SHM > qx_HC | VJ_SHM > qx_LC), ggplot2::aes(x = VDJ_SHM, y = VJ_SHM, label = barcode), color = "black", position = pos) + ggplot2::scale_color_viridis_c(option = "B", end = 0.9)
 
   }
   return(out.list)

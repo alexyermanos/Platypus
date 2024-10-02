@@ -40,4 +40,3 @@ scatter <- ggplot2::ggplot(for_dot, ggplot2::aes(x = for_dot[,1], y = for_dot[,2
 
 return(gridExtra::grid.arrange(hist_x, empty , scatter, hist_y, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4)))
 }
-

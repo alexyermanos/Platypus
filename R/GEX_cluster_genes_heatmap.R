@@ -12,18 +12,20 @@
 #' @return Returns a heatmap from the function DoHeatmap from the package Seurat, which is a ggplot object that can be modified or plotted. The number of genes is determined by the n.genes parameter and the number of cells per cluster is determined by the max.cell argument. This function gives a visual description of the top genes differentially expressed in each cluster.
 #' @export
 #' @examples
-#' \dontrun{
-#' #For Platypus version 2
-#' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = automate_GEX_output[[i]]
+#'\donttest{
+#'try({
+#' GEX_cluster_genes_output <- GEX_cluster_genes(GEX =
+#' subset(Platypus::small_vgm[[2]],
+#' seurat_clusters %in% c(0,1)), min.pct = .25
+#' , filter = c("MT-", "RPL", "RPS"))
+#'
+#' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX =
+#' Platypus::small_vgm[[2]]
 #' ,GEX_cluster_genes.output=GEX_cluster_genes_output
 #' ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
-#'
-#' #For Platypus version 3
-#'
-#' cluster_defining_gene_heatmap <- GEX_cluster_genes_heatmap(GEX = VDJ_GEX_matrix.output[[2]]
-#' ,GEX_cluster_genes.output=GEX_cluster_genes_output
-#' ,n.genes.per.cluster=5,metric="p.value",max.cell=5)
+#' })
 #'}
+
 GEX_cluster_genes_heatmap <- function(GEX,
                                       GEX_cluster_genes.output,
                                       n.genes.per.cluster,
@@ -57,10 +59,10 @@ GEX_cluster_genes_heatmap <- function(GEX,
   }
   ## Sample cells if too many
   sample_cells <- list()
-  unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = F)
+  unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = FALSE)
   for(i in 1:length(unique_clusters)){
     if(length(which(GEX$seurat_clusters==unique_clusters[i]))>max.cell){
-      sample_cells[[i]] <- sample(which(GEX$seurat_clusters==unique_clusters[i]),size = max.cell,replace = F)
+      sample_cells[[i]] <- sample(which(GEX$seurat_clusters==unique_clusters[i]),size = max.cell,replace = FALSE)
     }
     else{
       sample_cells[[i]] <- which(GEX$seurat_clusters==unique_clusters[i])

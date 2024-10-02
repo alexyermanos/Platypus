@@ -1,7 +1,7 @@
 #' Performs ordination/dimensionality reduction for a species incidence matrix, depending on the species selected in the feature.columns parameter.
 
-#' @param VDJ VDJ dataframe output from the VDJ_GEX_matrix function.
-#' @param feature.columns Character vector. One or more column names from the VDJ to indicate the unique species for the incidence/count matrix. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation.
+#' @param VDJ VDJ dataframe output from the VDJ_build function.
+#' @param feature.columns Character vector. One or more column names from the VDJ to indicate the unique species for the incidence/count matrix. if more than one column is provided (e.g. c("VDJ_cdr3_aa","VJ_cdr3_aa")) these columns will be pasted together before metric calculation.
 #' @param grouping.column Character. Column name of a column to group the ordination by. This could be "sample_id" to reduce across each sample. Indicative of 'sites' in a typical community data matrix/incidence matrix used in community ecology analyses (species by sites).
 #' @param method Character. The ordination method; choose from either: PCA - 'pca', t-SNE - 'tsne', UMAP - 'umap', PCOA/MDS - 'mds', DCA - 'dca'.
 #' @param reduction.level Character. Whether to reduce across groups ('groups'), features/sequences ('features'), or both ('both').
@@ -12,12 +12,11 @@
 #' @return Returns a ggplot with the ordination analysis performer across features, groups, or both
 #' @export
 #' @examples
-#'
-#' #PCA dimensionality reduction across samples for CDRH3
-#' plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]],
-#' ,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
+#' plot <- VDJ_ordination(VDJ = Platypus::small_vdj
+#' ,feature.columns = c("VDJ_cdr3_aa"), grouping.column = "sample_id"
 #' ,method = "pca", reduction.level = 'groups')
 #'
+
 VDJ_ordination <- function(VDJ,
                            feature.columns,
                            grouping.column,
@@ -27,15 +26,12 @@ VDJ_ordination <- function(VDJ,
                            umap.n.neighbours,
                            tsne.perplexity){
 
-  #TO ADD: clustering (kmeans, dbscan, spectral) and cluster plotting (possibly via fviz_cluster).
-  #        option to color groups/features by other columns (e.g., if features = sequences, color them by isotype/ color by shared samples) in the output ordination plot.
-
   if(missing(VDJ)) stop('VDJ matrix not found. Please input the VDJ/VGM[[1]] matrix!')
-  if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3s_aa'
+  if(missing(feature.columns)) feature.columns <- 'VDJ_cdr3_aa'
   if(missing(grouping.column)) grouping.column <- 'sample_id'
   if(missing(method)) method <- 'mds'
   if(missing(reduction.level)) reduction.level <- 'both'
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- TRUE
   if(missing(umap.n.neighbours)) umap.n.neighbours <- 3
   if(missing(tsne.perplexity)) tsne.perplexity <- 1
 
@@ -43,9 +39,9 @@ VDJ_ordination <- function(VDJ,
   get_abundances <- function(VDJ, feature.columns, grouping.column, VDJ.VJ.1chain){
 
     if(length(feature.columns) > 1){
-      combine.features <- T
+      combine.features <- TRUE
     }else{
-      combine.features <- F
+      combine.features <- FALSE
     }
 
     abundance_df <- VDJ_abundances(VDJ,
@@ -128,7 +124,7 @@ VDJ_ordination <- function(VDJ,
 
        if(reduction.level == 'groups' | reduction.level == 'both'){
          #requireNamespace('Rtsne')
-         groups_ordination <- Rtsne::Rtsne(incidence_df, perplexity = tsne.perplexity, check_duplicates = F)$Y
+         groups_ordination <- Rtsne::Rtsne(incidence_df, perplexity = tsne.perplexity, check_duplicates = FALSE)$Y
          groups_ordination <- as.data.frame(groups_ordination)
 
          colnames(groups_ordination) <- c('DIM1', 'DIM2')
@@ -139,7 +135,7 @@ VDJ_ordination <- function(VDJ,
 
        if(reduction.level == 'features' | reduction.level == 'both'){
          #requireNamespace('Rtsne')
-         features_ordination <- Rtsne::Rtsne(t(incidence_df), perplexity = tsne.perplexity, check_duplicates = F)$Y
+         features_ordination <- Rtsne::Rtsne(t(incidence_df), perplexity = tsne.perplexity, check_duplicates = FALSE)$Y
          features_ordination <- as.data.frame(features_ordination)
 
          colnames(features_ordination) <- c('DIM1', 'DIM2')

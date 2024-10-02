@@ -110,7 +110,7 @@ for(j in 1:length(unique(grouping$split))){
   }
   out_vars[,"mean variants distance"] <- round(out_vars[,"mean variants distance"],2)
 
-  out_vars <- out_vars[order(out_vars[,"n variants"], decreasing = T),]
+  out_vars <- out_vars[order(out_vars[,"n variants"], decreasing = TRUE),]
 
   out_list[[j]] <- out_vars
   names(out_list)[[j]] <- unique(grouping$split)[j]

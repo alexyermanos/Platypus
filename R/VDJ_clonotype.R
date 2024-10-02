@@ -31,6 +31,7 @@
 #' clone.strategy="cdr3.homology", homology.threshold = 0.5,
 #' hierarchical = "single.chains", global.clonotype = TRUE)
 #'
+
 VDJ_clonotype <- function(VDJ,
                              clone.strategy,
                              homology.threshold,
@@ -122,9 +123,9 @@ VDJ_clonotype <- function(VDJ,
   }
   #### Parameter setup ####
   platypus.version <- "v3"
-  if(missing(global.clonotype)) global.clonotype <- F
+  if(missing(global.clonotype)) global.clonotype <- FALSE
   if(missing(clone.strategy)) clone.strategy <- "cdr3.aa"
-  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
+  if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- TRUE
   if(missing(VDJ)) stop("Please provide input data as VDJ")
   if(missing(hierarchical)) hierarchical <- "none"
   if(missing(homology.threshold)) homology.threshold <- 0.3
@@ -133,11 +134,11 @@ VDJ_clonotype <- function(VDJ,
   if(!missing(output.format)){
     message("Parameter output.format is deprecated. Standard output is VGM style VDJ by cell dataframe")
   }
-  if(hierarchical == F){
+  if(hierarchical == FALSE){
     hierarchical <- "none"
     message("After function updates, please set hierachical to either 'none', 'single.chains', 'double.and.single.chains'. hierarchical was set to 'none' based on your current input for backwards compatibility")
   }
-  if(hierarchical == T){
+  if(hierarchical == TRUE){
     hierarchical <- "single.chains"
     message("After function updates, please set hierachical to either 'none', 'single.chains', 'double.and.single.chains'. hierarchical was set to 'single.chains' based on your current input for backwards compatibility")
   }
@@ -181,7 +182,7 @@ VDJ_clonotype <- function(VDJ,
     }
   }
 
-  if(!"sample_id" %in% names(VDJ) & global.clonotype == F){
+  if(!"sample_id" %in% names(VDJ) & global.clonotype == FALSE){
     stop("sample_id column needed for clonotyping by sample was not found in the input dataframe")
   }
   if(!"sample_id" %in% names(VDJ) & hierarchical != "none" ){
@@ -241,8 +242,8 @@ VDJ_clonotype <- function(VDJ,
 
           #order CDR3s alphabetically
           for(z in 1:nrow(triple_aberrant)){
-            triple_aberrant$VDJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VDJ_cdr3s_nt[z], ";", simplify = T)[1,]), collapse = "")
-            triple_aberrant$VJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VJ_cdr3s_nt[z], ";", simplify = T)[1,]), collapse = "")
+            triple_aberrant$VDJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VDJ_cdr3s_nt[z], ";", simplify = TRUE)[1,]), collapse = "")
+            triple_aberrant$VJ_cdr3s_nt_check[z] <- paste0(sort(stringr::str_split(triple_aberrant$VJ_cdr3s_nt[z], ";", simplify = TRUE)[1,]), collapse = "")
           }
           #add new checking feature
           triple_aberrant$thresh_check_feature <- paste0(triple_aberrant$VDJ_cdr3s_nt_check, triple_aberrant$VJ_cdr3s_nt_check)
@@ -278,9 +279,9 @@ VDJ_clonotype <- function(VDJ,
                 curr[,j] <- gsub(";$", "", curr[,j])
                 curr[!stringr::str_detect(curr[,j], ";"),j] <- paste0(curr[!stringr::str_detect(curr[,j], ";"),j], ";",curr[!stringr::str_detect(curr[,j], ";"),j])
                 #For cells in row 1 = make those equal to the first "chain" of the aberrant cell
-                curr[1,j] <- stringr::str_split(curr[1,j], ";", simplify = T)[1,1]
+                curr[1,j] <- stringr::str_split(curr[1,j], ";", simplify = TRUE)[1,1]
                 #For cells in row 2 = make those equal to the second "chain" of the aberrant cell
-                curr[2,j] <- stringr::str_split(curr[2,j], ";", simplify = T)[1,2]
+                curr[2,j] <- stringr::str_split(curr[2,j], ";", simplify = TRUE)[1,2]
               }
             }
             #updating nchar values
@@ -313,7 +314,7 @@ VDJ_clonotype <- function(VDJ,
     }
   }
   #### prep for global clonotying ####
-  if(global.clonotype==F){ # loop through each repertoire individually
+  if(global.clonotype==FALSE){ # loop through each repertoire individually
     repertoire.number <- unique(as.character(VDJ$sample_id))
     sample_dfs <- list()
     sample_aberrant <- list()
@@ -536,7 +537,7 @@ VDJ_clonotype <- function(VDJ,
                 #now find the original cells that made up the pseudocells with this clonal feature and add the updated clonal feature
                 all_matching_orig_ids <- pseudo_cells$unique_id_internal[pseudo_cells$new_clonal_feature %in% curr_clonotypes]
                 #additional filtering step required: we only keep those original cells of which we have two rows aka BOTH pseudocells in that table. This way we only group exact matches but not extra pseudocells which may match this clonotype, but of which the original cell contained a non matching chain
-                full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == T]
+                full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == TRUE]
 
                 original_aberrant[[j]] <- subset(backup_double_aberrant, unique_id_internal %in% full_matching_orig_ids)
                 original_aberrant[[j]]$new_clonal_feature <- update_clonotype_feature
@@ -552,7 +553,7 @@ VDJ_clonotype <- function(VDJ,
                 #now find the original cells that made up the pseudocells with this clonal feature and add the updated clonal feature
                 all_matching_orig_ids <- pseudo_cells$unique_id_internal[pseudo_cells$new_clonal_feature %in% curr_clonotypes]
                 #additional filtering step required: we only keep those original cells of which we have two rows aka BOTH pseudocells in that table. This way we only group exact matches but not extra pseudocells which may match this clonotype, but of which the original cell contained a non matching chain
-                full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == T]
+                full_matching_orig_ids <- all_matching_orig_ids[duplicated(all_matching_orig_ids) == TRUE]
 
                 original_aberrant[[j]] <- subset(backup_double_aberrant, unique_id_internal %in% full_matching_orig_ids)
                 original_aberrant[[j]]$new_clonal_feature <- update_clonotype_feature

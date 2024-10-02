@@ -6,19 +6,9 @@
 #' @return Return a list. Element[[1]] is the feature plot of markers of interest or predefined genes. Element[[2]] is the dottile plot of markers of interest or predefined genes. Element[[3]] is the violin plot of markers of interest or predefined genes.
 #' @export
 #' @examples
-#' \dontrun{
-#' # Pre-defined gene set for CD4 T cells
-#' GEX_gene_visualization(GEX = VGM$GEX, predefined_genes = "CD4_T_cell")
+#' GEX_gene_visualization(GEX = Platypus::small_vgm[[2]], predefined_genes = "B_cell")
 #'
-#' # Pre-defined gene set for CD8 T cells
-#' GEX_gene_visualization(GEX = VGM$GEX, predefined_genes = "CD8_T_cell")
-#'
-#' # Pre-defined gene set for B cells
-#' GEX_gene_visualization(GEX = VGM$GEX, predefined_genes = "B_cell")
-#'
-#' # Gene set defined by user
-#' GEX_gene_visualization(GEX = VGM$GEX, gene_set=c("CD8A","CD3E","SELL","FAS","ID3","SDC1"))
-#'}
+
 
 GEX_gene_visualization<-function(GEX, gene_set, predefined_genes=c("B_cell","CD4_T_cell","CD8_T_cell"), group.by){
   if(missing(GEX))stop("Please provide GEX input for this function")

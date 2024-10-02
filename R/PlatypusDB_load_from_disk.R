@@ -8,7 +8,8 @@
 #' @return Large nested list object containing all needed Cellranger outputs to run the VDJ_GEX_matrix function. Level 1 of the list are samples, level 2 are VDJ GEX and metadata information. (e.g. out[[1]][[1]] corresponds to VDJ data objects of sample 1)
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' VDJ.in <- list()
 #' VDJ.in[[1]] <- c("~/VDJ/S1/")
 #' VDJ.in[[2]] <- c("~/VDJ/S2/")
@@ -16,6 +17,7 @@
 #' GEX.in[[1]] <- c("~/GEX/S1/")
 #' GEX.in[[2]] <- c("~/GEX/S2/")
 #' PlatypusDB_load_from_disk(VDJ.out.directory.list = VDJ.in, GEX.out.directory.list = GEX.in)
+#' })
 #' }
 PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
                                       GEX.out.directory.list,
@@ -66,7 +68,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
   out.list <- list() #open list containing matrices
 
   #### Load in VDJ ####
-  vdj.loaded <- F
+  vdj.loaded <- FALSE
   if(VDJ.out.directory.list[[1]] != "none"){
     vdj_load_error <- tryCatch({
 
@@ -134,7 +136,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         }
       } else { #in at least one directory the all_contig_annotations.json was not found
         warning("Warning: At least one VDJ input directory is missing the file all_contig_annotations.json. Without this, accurate trimming and aligning of sequences is not possible. Setting trim.and.align to FALSE and proceeding. For an alternate mode of aligment please refer to the function VDJ_call_MIXCR \n")
-        trim.and.align <- F
+        trim.and.align <- FALSE
         annotations.table <- as.list(rep("none", length(contig.table)))
       }
 
@@ -152,7 +154,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         }
       }
 
-      vdj.loaded <- T
+      vdj.loaded <- TRUE
     }, error = function(e){
       message(paste0("Loading VDJ failed \n ",e))
 })
@@ -167,8 +169,8 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
   }
 
   #### Load in GEX ####
-  gex.loaded <- F
-  FB.loaded <- F
+  gex.loaded <- FALSE
+  FB.loaded <- FALSE
   if(GEX.out.directory.list[[1]] != "none"){
     gex_load_error <- tryCatch({
       #add the directory identifier
@@ -194,7 +196,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       #=> Procedure: check if there is feature barcode info in the GEX that was just loaded => if not, proceed as normal
       #=> if yes, isolate the matrices for each input sample into two flat lists: GEX.list and FB.list
       FB.list <- list()
-      FB.loaded <- F
+      FB.loaded <- FALSE
       #dealing with possible mixed GEX FB inputs or multiple FB input matrices from the same directory
       for(i in 1:length(GEX.list)){ #iterating over main list
         if(inherits(GEX.list[[i]],"list")){ #this returns true only if the GEX directory import contained more than one marices => i.e. there is a GEX and a FB matrix
@@ -216,7 +218,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
             FB.list <- c(FB.list, GEX.list[[i]][FB_ind]) #add this matrix to the FB list
             GEX.list[[i]] <- GEX.list[[i]][-FB_ind] #delete the matrix from the original list, so that only the GEX matrix remains
             #Moreover we want to prevent two user inputs with FB. Here we set FB.loaded to TRUE, so that the FB loading from disk module further down will be skipped.
-            FB.loaded <- T
+            FB.loaded <- TRUE
             #at this point we have two lists: the FB.list and the directory_read10x which only contains GEX info, but is still nested. So we have to flatten it
             GEX.list <- do.call(list, unlist(GEX.list, recursive=FALSE))
           }
@@ -233,7 +235,7 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
         GEX.metrics <- as.list(rep("none",length(GEX.out.directory.list)))
       }
 
-      gex.loaded <- T
+      gex.loaded <- TRUE
     }, error = function(e){
       message(paste0("Loading GEX failed \n", e))})
   } else{
@@ -320,13 +322,13 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
       FB.list <- do.call(list, unlist(FB.list, recursive=FALSE))
       #Done => result should be a non-nested list of matrices only containing FB information. With this we can move forward
 
-      FB.loaded <- T
+      FB.loaded <- TRUE
    }, error = function(e){
       message(paste0("Loading FB failed \n", e))})
 
   } else {
-    if(FB.loaded == F){
-    FB.loaded <- F
+    if(FB.loaded == FALSE){
+    FB.loaded <- FALSE
     if(gex.loaded){
       FB.list <- as.list(rep("none",length(GEX.out.directory.list)))
     } else {
@@ -354,7 +356,3 @@ PlatypusDB_load_from_disk <- function(VDJ.out.directory.list,
 
   return(out.list)
 }
-
-
-
-

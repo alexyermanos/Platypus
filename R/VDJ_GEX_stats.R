@@ -10,10 +10,12 @@
 #' @return returns a single matrix where the rows are individual cells and the columns are repertoire features.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' stats <- VDJ_GEX_stats(VDJ.out.directory = VDJ.out.directory.list
 #' ,GEX.out.directory = GEX.out.directory.list,sample.names = c(1:4)
-#' ,metrics10x = TRUE,save.csv = TRUE ,filename = "stats.csv")
+#' ,metrics10x = TRUE,save.csv = FALSE)
+#' })
 #' }
 
 VDJ_GEX_stats <- function(VDJ.out.directory,
@@ -24,13 +26,13 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
                           filename){
 
 
-  if(missing(save.csv)) save.csv <- T
+  if(missing(save.csv)) save.csv <- TRUE
   if(missing(filename)) filename <- "VDJ_stats.csv"
-  if(missing(metrics10x)) metrics10x <- F
+  if(missing(metrics10x)) metrics10x <- FALSE
 
-  vdj.loaded <- F
-  if(missing(VDJ.out.directory)==F){
-    print("Reading in input files")
+  vdj.loaded <- FALSE
+  if(missing(VDJ.out.directory) == FALSE){
+    message("Reading in input files")
     VDJ.out.directory_clonotypes <- paste(VDJ.out.directory,"/clonotypes.csv",sep="")
     VDJ.out.directory_reference <- paste(VDJ.out.directory,"/concat_ref.fasta",sep="")
     VDJ.out.directory_contigs <- paste(VDJ.out.directory,"/all_contig_annotations.csv",sep="")
@@ -38,24 +40,24 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     VDJ.out.directory_metrics <- paste(VDJ.out.directory,"/metrics_summary.csv",sep="")
 
     #needed for VDJ_analyze module
-    clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
+    clonotype.list <- lapply(VDJ.out.directory_clonotypes, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=TRUE))
 
     #needed for VDJ_per_cell_matrix module
-    reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = T,seqonly = F,forceDNAtolower = F))
+    reference.list <- lapply(VDJ.out.directory_reference, function(x) seqinr::read.fasta(x, as.string = TRUE,seqonly = FALSE,forceDNAtolower = FALSE))
     annotations.list <- lapply(VDJ.out.directory_annotations, function(x) jsonlite::read_json(x))
-    contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-    VDJ.metrics.list <- lapply(VDJ.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-    vdj.loaded <- T
+    contig.list <- lapply(VDJ.out.directory_contigs, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=TRUE))
+    VDJ.metrics.list <- lapply(VDJ.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=TRUE))
+    vdj.loaded <- TRUE
   } else {
     stop("No VDJ.out.directory supplied")
   }
 
-  gex.loaded <- F
-  if(missing(GEX.out.directory) == F){
+  gex.loaded <- FALSE
+  if(missing(GEX.out.directory) == FALSE){
     if(length(GEX.out.directory) == length(VDJ.out.directory)){
       GEX.out.directory_metrics <- paste(GEX.out.directory,"/metrics_summary.csv",sep="")
-      GEX.metrics.list <- lapply(GEX.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=T))
-      gex.loaded <- T
+      GEX.metrics.list <- lapply(GEX.out.directory_metrics, function(x) utils::read.table(x, stringsAsFactors = FALSE,sep=",",header=TRUE))
+      gex.loaded <- TRUE
     }else {
       warning("Length of GEX out directory not the same as VDJ out directory. GEX will not be loaded")
     }
@@ -127,7 +129,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     names(lookup_stats_clono) <- c("clonotype_ids","nr_HC","nr_LC")
 
     #number of barcodes with
-    #is cell == true
+    #is cell ==TRUE
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr barcodes is_cell"
 
@@ -156,22 +158,22 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more HC 2 or more LC"
 
     #number of cells with
-    #full length == true
+    #full length ==TRUE
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$full_length == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells full_length"
 
     #number of barcodes with
-    #productive == true
+    #productive ==TRUE
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$productive == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells productive"
 
     #number of barcodes with
-    #high_confidence == true
+    #high_confidence ==TRUE
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$high_confidence == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells high_confidence"
 
     #number of cells with
-    #all three == true
+    #all three ==TRUE
     VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true" & lookup_stats$high_confidence == "true" & lookup_stats$productive == "true" & lookup_stats$full_length == "true" & lookup_stats$is_cell == "true",])
     names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true"
 
@@ -212,7 +214,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
   }
   VDJ.stats.all <- do.call(rbind, VDJ.stats.list)
 
-  if(metrics10x == T){
+  if(metrics10x == TRUE){
     tryCatch({
       #for VDJ
       #check lenght
@@ -238,7 +240,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
           } else{
             cur_ab <- as.data.frame(t(VDJ.metrics.list[[m]]))
             cur_ab$idents <- rownames(cur_ab)
-            ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T)
+            ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = TRUE, all.y = TRUE)
           }
         }
         VDJ.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
@@ -247,7 +249,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
 
       #for GEX
       #this is a rather inefficient routine to match tables with different columns. This is necessary when outputs from different cellranger versions are combined and the summary metics table is different between samples.
-      if(gex.loaded == T){
+      if(gex.loaded == TRUE){
 
         for(ij in 1:length(GEX.metrics.list)){
           GEX.metrics.list[[ij]]$rep_id <- ij
@@ -270,7 +272,7 @@ VDJ_GEX_stats <- function(VDJ.out.directory,
             } else{
               cur_ab <- as.data.frame(t(GEX.metrics.list[[m]]))
               cur_ab$idents <- rownames(cur_ab)
-              ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T)
+              ab_1 <- merge(ab_1, cur_ab, by = "idents", all.x = TRUE, all.y = TRUE)
             }
           }
           GEX.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])

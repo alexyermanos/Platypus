@@ -9,31 +9,23 @@
 #' @return A list of length of samples in VGM containing a AIRR-compatible dataframe for each sample if airr.integrate = F or a single dataframe if airr.integrate = T ! Cave the format: VGM object => 1 cell = 1 row; AIRR table 1 cell = as many rows as VDJ and VJ chains available for that cell. GEX cell-level information is attached to all rows containing a chain of that cell.
 #' @export
 #' @examples
-#' \dontrun{
-#' #complete workflow below
-#'
-#'#usage with airr rearrangement tables from PlatypusDB_load_from_disk
-#'#or PlatypusDB_fetch list object
+#' \donttest{
+#'try({
 #'airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 #', VDJ.features.to.append = c("VDJ_cdr3s_aa")
 #', GEX.features.to.append = c("CTLA4", "TOX"), airr.rearrangements = Data.in)
 #'
-#'#usage with airr rearrangement tables from disk
 #'airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 #', VDJ.features.to.append = c("VDJ_cdr3s_aa")
 #', GEX.features.to.append = c("CTLA4", "TOX"),
 #'airr.rearrangements =list("~/path_to/s1/airr.rearrangement.tsv"
 #',"~/path_to/s2/airr_rearrangement.tsv"))
 #'
-#'#usage with airr rearrangement tables from objects in R environment
 #'airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM
 #', VDJ.features.to.append = c("VDJ_cdr3s_aa")
 #', GEX.features.to.append = c("CTLA4", "TOX"),
 #'airr.rearrangements = list(airr_rearrangements.s1, airr_rearrangements_2))
 #'
-#'#Complete workflow
-#'#set paths of cellranger directories containing
-#'#also the airr_rearrangements.tsv file
 #'VDJ.out.directory.list <- list()
 #'VDJ.out.directory.list[[1]] <- c("~/cellrangerVDJ/s1")
 #'VDJ.out.directory.list[[2]] <- c("~/cellrangerVDJ/s2")
@@ -41,26 +33,20 @@
 #'GEX.out.directory.list <- list()
 #'GEX.out.directory.list[[1]] <- c("~/cellrangerGEX/s1")
 #'GEX.out.directory.list[[2]] <- c("~/cellrangerGEX/s2")
-
-#'#Run VGM with GEX and VDJ integration
 #'VGM <- VDJ_GEX_matrix(VDJ.out.directory.list = VDJ.out.directory.list,
 #'GEX.out.directory.list = GEX.out.directory.list,
 #'GEX.integrate = TRUE, VDJ.combine = TRUE, integrate.GEX.to.VDJ = TRUE
 #', integrate.VDJ.to.GEX = TRUE,
 #'get.VDJ.stats = FALSE, trim.and.align = FALSE)
-
-#'#Generate AIRR compatible table supplemented by GEX information
 #'airr.list.out <- PlatypusDB_VGM_to_AIRR(VGM = VGM,
 #'VDJ.features.to.append = c("VDJ_sequence_nt_trimmed","VJ_sequence_nt_trimmed"),
 #'GEX.features.to.append = c("UMAP_1","UMAP_2","CTLA4", "TOX"),
 #'airr.rearrangements = c("~/cellrangerVDJ/s1/airr_rearrangement.tsv"
 #',"~/cellrangerVDJ/s2/airr_rearrangement.tsv"))
-#'
-#'#To save a dataframe as .tsv
-#'write.table(airr_dataframe, file = "supplemented_airr_rearrangements.tsv"
-#', sep='\t', row.names = FALSE, quote=FALSE)
+#' })
 #' }
 #'
+
 PlatypusDB_VGM_to_AIRR <- function(VGM,
                                    VDJ.features.to.append,
                                    GEX.features.to.append,
@@ -74,10 +60,10 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
   #grab relevant columns from the VDJ and GEX VGM
   if(missing(VDJ.features.to.append)) VDJ.features.to.append <- "none"
   if(missing(GEX.features.to.append)) GEX.features.to.append <- "none"
-  if(missing(airr.integrate)) airr.integrate <- T
+  if(missing(airr.integrate)) airr.integrate <- TRUE
 
   if(VDJ.features.to.append[1] != "none"){
-    if(any(c("barcode", "sample_id","celltype", "VDJ_chain_contig", "VJ_chain_contig") %in% names(VGM[[1]]) == F)){
+    if(any(c("barcode", "sample_id","celltype", "VDJ_chain_contig", "VJ_chain_contig") %in% names(VGM[[1]]) == FALSE)){
       stop('VGM VDJ matrix does not contain all neccessary columns: "barcode", "sample_id","celltype", "VDJ_chain_contig", "VJ_chain_contig"')
     }
 
@@ -169,7 +155,6 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
           airr.list[[length(airr.list) + 1]] <- airr.rearrangements[[i]][[1]][[6]] #[[1]] for VDJ [[6]] for the airr_rearrangements table
         } else {
           for(j in 1:length(airr.rearrangements[[i]])){ #Second level
-            #cat(paste0("j",j))
             if(names(airr.rearrangements[[i]][[j]])[1] == "VDJ"){ #check if we are a sample level
               airr.list[[length(airr.list) + 1]] <- airr.rearrangements[[i]][[j]][[1]][[6]]
             } else { #Data structure does not match expectations
@@ -193,7 +178,7 @@ PlatypusDB_VGM_to_AIRR <- function(VGM,
           }
 
         }, error = function(e){e
-          print(e)})
+          message(e)})
         if(inherits(vdj_load_error,"error")){
           message("Loading airr_rearrangement from disk failed")}
 

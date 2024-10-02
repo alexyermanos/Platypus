@@ -20,11 +20,11 @@
 #' @return Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.
 #' @export
 #' @examples
-#' \dontrun{
-#'  alpha_beta_VJgene <- VDJ_alpha_beta_Vgene_circos(vgm[[1]])
-#'  # print circos plot:
-#'  alpha_beta_VJgene[[1]]
-#'}
+#' \donttest{
+#' alpha_beta_VJgene <- VDJ_alpha_beta_Vgene_circos(Platypus::small_vgm[[1]])
+#' alpha_beta_VJgene[[1]]
+#' }
+#'
 
 VDJ_alpha_beta_Vgene_circos <- function(VGM,
                                         V.or.J,
@@ -48,13 +48,13 @@ VDJ_alpha_beta_Vgene_circos <- function(VGM,
   if(missing(V.or.J)){V.or.J <- "both"}
   if(missing(label.threshold)){label.threshold <- 0}
   if(missing(c.threshold)){c.threshold <- 0}
-  if(missing(cell.level)){cell.level <- F}
+  if(missing(cell.level)){cell.level <- FALSE}
   if(missing(clonotype.per.gene.threshold)){clonotype.per.gene.threshold <- 0}
-  if(missing(c.count.label)){c.count.label <- T}
+  if(missing(c.count.label)){c.count.label <- TRUE}
   if(missing(c.count.label.size)){c.count.label.size <- 0.6}
   if(missing(platypus.version)){platypus.version ="v3"}
-  if(missing(filter1H1L)){filter1H1L <- T}
-  if(missing(gene.label)){gene.label <- T}
+  if(missing(filter1H1L)){filter1H1L <- TRUE}
+  if(missing(gene.label)){gene.label <- TRUE}
   if(missing(gene.label.size)){gene.label.size <- "undef"}
   if(missing(arr.col)){arr.col <- data.frame(c("dummy1"), c("dummy2"), c(""))}
   if(missing(arr.direction)){arr.direction <- 1}
@@ -124,7 +124,7 @@ if(platypus.version=="v3"){
 
   # filter for 1H1L
 
-  if(filter1H1L==T){
+  if(filter1H1L==TRUE){
     VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][VDJ.GEX.matrix[[1]]$Nr_of_VDJ_chains==1 &VDJ.GEX.matrix[[1]]$Nr_of_VJ_chains==1,]
   }
 
@@ -154,7 +154,6 @@ if(platypus.version=="v3"){
   #split up into samples to plot individually
   VDJ.GEX_list <- list()
   for (i in 1:length(unique(VDJ.GEX.matrix[[1]]$sample_id))){
-    print(unique(VDJ.GEX.matrix[[1]]$sample_id)[i])
     VDJ.GEX_list[[i]] <- VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]]$sample_id== unique(VDJ.GEX.matrix[[1]]$sample_id)[i]),]
   }
 
@@ -162,7 +161,7 @@ if(platypus.version=="v3"){
 
   if(topX != "all"){
     for(k in 1:length(VDJ.GEX_list)){
-      clonotypes_topX <- names(utils::head(sort(table(VDJ.GEX_list[[k]][[clonotype.column]]),decreasing = T),topX))
+      clonotypes_topX <- names(utils::head(sort(table(VDJ.GEX_list[[k]][[clonotype.column]]),decreasing = TRUE),topX))
       #filter and keep only cells of topX clonotypes
       VDJ.GEX_list[[k]] <- VDJ.GEX_list[[k]][which(VDJ.GEX_list[[k]][[clonotype.column]] %in% clonotypes_topX),]
     }
@@ -217,7 +216,7 @@ if(platypus.version=="v3"){
 
 
 
-  if(cell.level == F){
+  if(cell.level == FALSE){
     message("WARNING: If clonotype strategy is not based on unique V or J genes per clonotype, this setting [cell.level=F] might be questionable. One clonotype might then be represented in several Circos connections between V or J genes. The names of genes of simulatneously used chains will be pasted together.")
     message(paste("Chosen clonotype column: ", clonotype.column))
   }
@@ -226,13 +225,12 @@ if(platypus.version=="v3"){
 
     #create dummy df which will contain the counts for each combination
 
-    if(cell.level == T){
+    if(cell.level == TRUE){
       dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$alpha_beta_Vgene))
       colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
       dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ.GEX_list[[k]]$alpha_beta_Jgene))
       colnames(dummy_Jgene_df[[k]]) <- c("gene", "count")
     }else{
-      #print("---")
       message(paste0("Processing sample ", k))
       dummy <- as.data.frame(unique(paste(VDJ.GEX_list[[k]][[clonotype.column]],VDJ.GEX_list[[k]]$alpha_beta_Vgene, sep="/and/")))
       colnames(dummy) <- c("pasted")
@@ -448,7 +446,7 @@ if(platypus.version=="v3"){
 
         #create dummy df which will contain the counts for each combination
 
-        if(cell.level == F){
+        if(cell.level == FALSE){
           dummy_Vgene_df[[k]] <- as.data.frame(table(VDJ[[k]]$alpha_beta_Vgene))
           colnames(dummy_Vgene_df[[k]]) <- c("gene", "count")
           dummy_Jgene_df[[k]] <- as.data.frame(table(VDJ[[k]]$alpha_beta_Jgene))

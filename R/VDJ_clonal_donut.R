@@ -15,6 +15,7 @@
 #' @examples
 #' VDJ_clonal_donut(VDJ = Platypus::small_vgm[[1]])
 #'
+
 VDJ_clonal_donut <- function(VDJ,
                              counts.to.use,
                              label.size,
@@ -54,8 +55,8 @@ if(counts.to.use %in% names(VDJ)){
   VDJ$for_clonal_donut <- VDJ[,counts.to.use]
 
   clonotypes <- VDJ %>% dplyr::group_by(sample_id, for_clonal_donut) %>%  dplyr::summarise(clonotype_frequency = dplyr::n())
-  clonotypes$expanded <- F
-  clonotypes$expanded[clonotypes$clonotype_frequency > 1] <- T
+  clonotypes$expanded <- FALSE
+  clonotypes$expanded[clonotypes$clonotype_frequency > 1] <- TRUE
 }
 
 plot.list <- list()
@@ -63,13 +64,13 @@ for(i in 1:length(unique(clonotypes$sample_id))){
   cur_c <- subset(clonotypes, sample_id == unique(clonotypes$sample_id)[i])
 
   total_cells <- sum(cur_c$clonotype_frequency)
-  expanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == T])
-  nonexpanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == F])
+  expanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == TRUE])
+  nonexpanded_cells <- sum(cur_c$clonotype_frequency[cur_c$expanded == FALSE])
 
   cur_c <- cur_c[order(cur_c$clonotype_frequency, decreasing = T),]
-  cur_c$for_clonal_donut[which(cur_c$expanded == F)] <- "1 cell"
+  cur_c$for_clonal_donut[which(cur_c$expanded == FALSE)] <- "1 cell"
 
-  message(paste0("Clones: Expanded: ", length(which(cur_c$expanded == T)), " / ", round((length(which(cur_c$expanded == T)) / nrow(cur_c)*100),2), "%; 1 cell ", length(which(cur_c$expanded == F)), " / ",round((length(which(cur_c$expanded == F)) / nrow(cur_c)*100),2), "%; total: ", nrow(cur_c)))
+  message(paste0("Clones: Expanded: ", length(which(cur_c$expanded == TRUE)), " / ", round((length(which(cur_c$expanded == TRUE)) / nrow(cur_c)*100),2), "%; 1 cell ", length(which(cur_c$expanded == FALSE)), " / ",round((length(which(cur_c$expanded == FALSE)) / nrow(cur_c)*100),2), "%; total: ", nrow(cur_c)))
 
   message(paste0("Cells: Expanded: ", expanded_cells, " / ", round((expanded_cells / total_cells *100),2), "%; 1 cell ", nonexpanded_cells, " / ",round((nonexpanded_cells / total_cells *100),2), "%; Total: ", total_cells))
 
@@ -80,19 +81,19 @@ for(i in 1:length(unique(clonotypes$sample_id))){
   c_out <- c()
   for(j in 1:nrow(cur_c)){
     if(is.na(cur_c$expanded[j])){cur_c$expanded[j] <- FALSE}
-    if(cur_c$expanded[j]==T){
+    if(cur_c$expanded[j]==TRUE){
       c_out <- c(c_out, rep(cur_c$for_clonal_donut[j], cur_c$clonotype_frequency[j]))
     }
   }
-  c_out <- c(c_out, rep("1 cell", length(which(cur_c$expanded == F))))
+  c_out <- c(c_out, rep("1 cell", length(which(cur_c$expanded == FALSE))))
   c_out <- data.frame("clonotype_id" = c_out, "sample_id" = unique(clonotypes$sample_id)[i])
 
   c_out$clonotype_id <- ordered(as.factor(c_out$clonotype_id), levels = levels(cur_c$clonotype_id_ord))
 
   #generate palette
-  pal_cl <- c(rep(expanded.colors,500)[1:(nrow(cur_c[which(cur_c$expanded == T),]))], non.expanded.color)
+  pal_cl <- c(rep(expanded.colors,500)[1:(nrow(cur_c[which(cur_c$expanded == TRUE),]))], non.expanded.color)
 
-  plot_out <- ggplot2::ggplot(c_out, ggplot2::aes(x=sample_id, fill= clonotype_id))+ ggplot2::geom_bar(width = 1, show.legend = F)+ ggplot2::scale_fill_manual(values = pal_cl)+ ggplot2::coord_polar("y", direction = -1) + cowplot::theme_cowplot() + ggplot2::labs(x = "", y = "", title = paste0(unique(clonotypes$sample_id)[i])) + ggplot2::geom_text(x = 1, hjust = not.expanded.label.hjust, vjust = not.expanded.label.vjust, y = 1, label = paste0(length(which(cur_c$expanded == F))), color = "white", fontface = "bold", size = label.size) + ggplot2::geom_point(inherit.aes = F, ggplot2::aes(x = 0, y = 1), color = "white", size = 25) + ggplot2::geom_text(x = 1, y = 1, vjust = total.label.vjust, hjust = total.label.hjust, label = paste0(nrow(cur_c)," \n(", total_cells, ")"), color = "black", fontface = "bold", size = label.size)
+  plot_out <- ggplot2::ggplot(c_out, ggplot2::aes(x=sample_id, fill= clonotype_id))+ ggplot2::geom_bar(width = 1, show.legend = F)+ ggplot2::scale_fill_manual(values = pal_cl)+ ggplot2::coord_polar("y", direction = -1) + cowplot::theme_cowplot() + ggplot2::labs(x = "", y = "", title = paste0(unique(clonotypes$sample_id)[i])) + ggplot2::geom_text(x = 1, hjust = not.expanded.label.hjust, vjust = not.expanded.label.vjust, y = 1, label = paste0(length(which(cur_c$expanded == FALSE))), color = "white", fontface = "bold", size = label.size) + ggplot2::geom_point(inherit.aes = F, ggplot2::aes(x = 0, y = 1), color = "white", size = 25) + ggplot2::geom_text(x = 1, y = 1, vjust = total.label.vjust, hjust = total.label.hjust, label = paste0(nrow(cur_c)," \n(", total_cells, ")"), color = "black", fontface = "bold", size = label.size)
   plot.list[[i]] <- plot_out
   }
 }

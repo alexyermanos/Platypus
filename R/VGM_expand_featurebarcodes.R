@@ -21,33 +21,21 @@
 #'
 #'@export
 #'@examples
-#' #For Platypus version 3
-#'
-#' # 1. If only vdj data (vgm[[1]]) and
-#' #strict feature barcode assignment is used:
 #' vgm_expanded_fb <- VGM_expand_featurebarcodes(
 #' vgm = small_vgm[[1]],
 #' by.majority.barcodes = FALSE,
 #' integrate.in.gex=FALSE, vdj.only= TRUE)
 #'
-#' # 2. If whole vgm and strict fb assignment is used
-#' #(gex and vdj - necessary if gene expression analysis
-#' # of sub-samples is desired):
 #' vgm_expanded_fb <- VGM_expand_featurebarcodes(
 #' vgm = small_vgm,
 #' by.majority.barcodes = FALSE,
 #' integrate.in.gex=TRUE, vdj.only= FALSE)
 #'
-#' # 3. If whole vgm and majority barcode assignement is used
-#' #(gex and vdj) - necessary if gene expression analysis
-#' #of sub-samples is desired):
 #' vgm_expanded_fb <- VGM_expand_featurebarcodes(vgm = small_vgm,
 #' by.majority.barcodes = TRUE,
 #' integrate.in.gex=TRUE, vdj.only= FALSE)
 #'
-#' #Note: Majority barcode assignment is recommended
-#' #if the assumption that all cells within one clonotype
-#' #originate from the same sample sub-group is feasible.
+
 
 
 VGM_expand_featurebarcodes <- function(vgm,
@@ -145,7 +133,7 @@ VGM_expand_featurebarcodes <- function(vgm,
 
 
   #Step 3: Integrate new sample_id information into the seurat object (vgm[[2]]) - Only if integrate.in.gex set to TRUE
-  if(integrate.in.gex == TRUE){
+  if(integrate.in.gex ==TRUE){
 
     vgm[[2]]$original_sample_id <- rep("",ncol(vgm[[2]]))
     vgm[[2]]$sample_id <- as.character(vgm[[2]]$sample_id) #turn sample_id into character to be able to overwrite the original sample_id's

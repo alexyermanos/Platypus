@@ -13,7 +13,7 @@
 #' @return Returns a VDJ format dataframe in which cells with more than one VDJ or VJ chain are split into multiple rows each containing only one VDJ VJ chain combination.
 #' @export
 #' @examples
-#' VDJ_expand_aberrants(VDJ = small_vgm[[1]],
+#' VDJ_expand_aberrants(VDJ = Platypus::small_vgm[[1]],
 #' chain.to.expand='VDJ.VJ',
 #' add.barcode.prefix=TRUE, recalculate.clonotype.frequency=FALSE)
 #'
@@ -29,16 +29,16 @@ VDJ_expand_aberrants  <- function(VDJ,
 
   if(missing(VDJ)) stop('Please input your data as a VDJ matrix')
   if(missing(chain.to.expand)) chain.to.expand <- 'VDJ.VJ'
-  if(missing(add.barcode.prefix)) add.barcode.prefix <- T
+  if(missing(add.barcode.prefix)) add.barcode.prefix <- TRUE
   if(missing(additional.VDJ.features)) additional.VDJ.features <- NULL
   if(missing(additional.VJ.features)) additional.VJ.features <- NULL
-  if(missing(add.CDR3aa)) add.cdr3aa <- T
-  if(missing(add.expanded.number)) add.expanded.number <- T
-  if(missing(recalculate.clonotype.frequency)) recalculate.clonotype.frequency <- T
+  if(missing(add.CDR3aa)) add.cdr3aa <- TRUE
+  if(missing(add.expanded.number)) add.expanded.number <- TRUE
+  if(missing(recalculate.clonotype.frequency)) recalculate.clonotype.frequency <- TRUE
 
   get_sequence_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';'){
-    if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
-    if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
+    if(split.x==TRUE) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
+    if(split.y==TRUE) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
 
     ccombs <- expand.grid(x,y)
     ccombs<-paste0(ccombs[,1], ccombs[,2])
@@ -62,22 +62,22 @@ VDJ_expand_aberrants  <- function(VDJ,
 
 
   if(chain.to.expand=='VDJ'){
-    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VDJ_columns), sep=';', convert=T)
+    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VDJ_columns), sep=';', convert=TRUE)
 
 
   }else if(chain.to.expand=='VJ'){
-    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VJ_columns), sep=';', convert=T)
+    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VJ_columns), sep=';', convert=TRUE)
 
   }else if(chain.to.expand=='VDJ.VJ'){
-    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VDJ_columns), sep=';', convert=T)
-    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VJ_columns), sep=';', convert=T)
+    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VDJ_columns), sep=';', convert=TRUE)
+    VDJ.matrix <- tidyr::separate_rows(VDJ.matrix, tidyselect::all_of(VJ_columns), sep=';', convert=TRUE)
 
   }else stop('Chain not found.')
 
   VDJ.matrix <- as.data.frame(VDJ.matrix)
 
   if(add.cdr3aa){
-    VDJ.matrix$CDR3aa <- mapply(function(x,y) get_sequence_combinations(x,y, split.x=T, split.y=T), VDJ.matrix$VDJ_cdr3s_aa, VDJ.matrix$VJ_cdr3s_aa)
+    VDJ.matrix$CDR3aa <- mapply(function(x,y) get_sequence_combinations(x,y, split.x=TRUE, split.y=TRUE), VDJ.matrix$VDJ_cdr3s_aa, VDJ.matrix$VJ_cdr3s_aa)
   }
 
   if(add.expanded.number){
@@ -90,7 +90,7 @@ VDJ_expand_aberrants  <- function(VDJ,
 
     for(i in 1:length(ind)){
       barcode_ind <- 1
-      split_barcode <- stringr::str_split(VDJ.matrix$barcode[ind[[i]][1]-1], '_', simplify=T)
+      split_barcode <- stringr::str_split(VDJ.matrix$barcode[ind[[i]][1]-1], '_', simplify=TRUE)
       VDJ.matrix$barcode[ind[[i]][1]-1] <- paste0(split_barcode[1], '_', barcode_ind, '_', split_barcode[2])
 
       if(add.expanded.number){
@@ -100,7 +100,7 @@ VDJ_expand_aberrants  <- function(VDJ,
 
       for(j in 1:length(ind[[i]])){
         barcode_ind <- barcode_ind + 1
-        split_barcode <- stringr::str_split(VDJ.matrix$barcode[ind[[i]][j]], '_', simplify=T)
+        split_barcode <- stringr::str_split(VDJ.matrix$barcode[ind[[i]][j]], '_', simplify=TRUE)
         VDJ.matrix$barcode[ind[[i]][j]] <- paste0(split_barcode[1], '_', barcode_ind, '_', split_barcode[2])
       }
     }
@@ -112,7 +112,7 @@ VDJ_expand_aberrants  <- function(VDJ,
       clonotypes <- VDJ.matrix$clonotype_id[which(VDJ.matrix$sample_id==rep)]
       frequencies <- unlist(lapply(clonotypes, function(x) length(which(clonotypes==x))))
       VDJ.matrix$clonotype_frequency[which(VDJ.matrix$sample_id==rep)] <- frequencies
-      VDJ.matrix[which(VDJ.matrix$sample_id==rep),] <- VDJ.matrix[which(VDJ.matrix$sample_id==rep),][order(VDJ.matrix$clonotype_frequency[which(VDJ.matrix$sample_id==rep)], decreasing=T),]
+      VDJ.matrix[which(VDJ.matrix$sample_id==rep),] <- VDJ.matrix[which(VDJ.matrix$sample_id==rep),][order(VDJ.matrix$clonotype_frequency[which(VDJ.matrix$sample_id==rep)], decreasing=TRUE),]
     }
   }
 

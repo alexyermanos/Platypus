@@ -12,7 +12,8 @@
 #' @importFrom magrittr %<>%
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' samples = c('LCMV', 'TNFR')
 #' vgm = read("VGM.RData")
 #' n_clones = 20
@@ -21,6 +22,7 @@
 #' path_toData="../Data/")
 #' VDJ = result[1]$vdj
 #' clone_counts = result[2]$clones
+#' })
 #' }
 #'
 
@@ -82,7 +84,6 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
       }
       else{
         if(!clonotype_cons %in% names(examined_refs)){
-          #print(paste(clonotype_cons,names(examined_refs)))
           #Get the first sequence in the clonotype and start trimming the ref
           reference_n = vgm_barcode[[paste(chain, "_raw_ref", sep="")]]
           consensus_n = consensus_data[consensus_data["consensus_id"] == paste(clone, "_consensus",con_id,sep=""),]
@@ -253,7 +254,6 @@ VDJ_extract_germline_consensus_ref<- function(VDJ, n_clones = NA, samples = NA, 
     }
     topn_clones = names(clone_counts[order(-clone_counts)][1:used_clones])
     clone_counts_all[[i]] = topn_clones
-    print(clone_counts_all)
     #for each clonotype find the reference
     clone_rank = 1
     for (clone in topn_clones){

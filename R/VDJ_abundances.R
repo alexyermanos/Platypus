@@ -1,7 +1,7 @@
 #' Calculate abundances/counts of specific features for a VDJ dataframe
 #'
 #'@description Calculate the absolute counts or proportions of a specific cell-level feature (column in the VDJ/VDJ.GEX.matrix[[1]] object), per an optional specific grouping factor (e.g., clonotype via 'clonotype_id') and an optional sample factor(e.g., 'sample_id'). Outputs either a count dataframe of the specific feature or a ggplot2 barplot.
-#' @param VDJ VDJ or VDJ.GEX.matrix[[1]] object, as obtained from the VDJ_GEX_matrix function in Platypus.
+#' @param VDJ VDJ or VDJ.GEX.matrix[[1]] object, as obtained from the VDJ_build or VDJ_GEX_matrix function in Platypus.
 #' @param feature.columns vector of strings, denoting the columns of the VDJ/VDJ.GEX.matrix[[1]] object from which to extract the unique feature values (for which we will calculate the counts or proportions).
 #' @param proportions string, 'absolute' will return the absolute counts, 'group.level.proportions' will return the counts divided by the total number or elements/values in the specific groups (group level proportions), 'sample.level.proportions' will return the counts divided by the total number of elements in the sample.
 #' @param specific.features vector of specific feature values (or NULL) for which to calculate counts/proportions, from the specified feature.columns parameter (only works if a single feature column is specified in feature.columns).
@@ -23,7 +23,7 @@
 #'or a barplot of the counts/proportions per feature, per group.
 #' @export
 #' @examples
-#' VDJ_abundances(VDJ = Platypus::small_vgm[[1]],
+#' VDJ_abundances(VDJ = Platypus::small_vdj,
 #' feature.columns='VDJ_cgene', proportions='absolute',
 #' grouping.column='clonotype_id', specific.groups='none',
 #' output.format='plot')
@@ -298,10 +298,11 @@ VDJ_abundances <- function(VDJ,
    stop("The provided grouping.column was not found in VDJ. Please provide a valid name or 'none' to avoid grouping")
   }
 
+
   if(VDJ.VJ.1chain==TRUE){
     VDJ <- VDJ[which(VDJ$VDJ_chain_count ==1 & VDJ$VJ_chain_count ==1),]
   }
-
+  print(VDJ)
 
 
   if(grouping.column=='none'){

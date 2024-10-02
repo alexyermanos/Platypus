@@ -19,10 +19,12 @@
 #' @return Returns a circos plot and a list object with the following elememts for N samples: [[1 to N]] The first N listelements corresponds to the recorded circos plots for N beeing the number or samples in the VGM. Since Circlize uses the R base plotting funciton, this is not a ggplot object but can still be replotted by calling the first list element. [[N+1]] Adjacency matrix forwarded to VDJ_circos(). This Matrix contains the counts and can be used for manual replotting using VDJ_circos directly. [[N+2]] Contains a named list with colors for each connection drawn and can be used for manual replotting using VDJ_circos directly. [[N+3]] Contains a named list with grouping information and can be used for manual replotting using VDJ_circos directly.
 #' @export
 #' @examples
-#' \dontrun{
-#'  clonotype.clusters <- VDJ_GEX_clonotype_clusters_circos(vgm[[1]], n_cluster=8, topX = 20)
-#'  # print circos plot:
+#' \donttest{
+#' try({
+#'  clonotype.clusters <- VDJ_GEX_clonotype_clusters_circos(Platypus::small_vgm[[1]],
+#'  n_cluster=8, topX = 20)
 #'  clonotype.clusters[[1]]
+#'  })
 #'}
 #'
 
@@ -46,10 +48,10 @@ VDJ_GEX_clonotype_clusters_circos <- function(VGM,
   #if(missing(n_cluster)){stop("Please specify cluster number n_cluster")}
   if(missing(label.threshold)){label.threshold <- 0}
   if(missing(axis)){axis <- "max"}
-  if(missing(c.count.label)){c.count.label <-T}
+  if(missing(c.count.label)){c.count.label <- TRUE}
   if(missing(c.count.label.size)){c.count.label.size <- 0.6}
   if(missing(platypus.version)){platypus.version <- "v3"}
-  if(missing(gene.label)){gene.label <- T}
+  if(missing(gene.label)){gene.label <- TRUE}
   if(missing(gene.label.size)){gene.label.size <- "undef"}
   if(missing(arr.col)){arr.col <- data.frame(c("dummy1"), c("dummy2"), c(""))}
   if(missing(arr.direction)){arr.direction <- 1}
@@ -113,12 +115,12 @@ VDJ_GEX_clonotype_clusters_circos <- function(VGM,
       clonotypes <- list()
       if(topX != "all"){
         for(k in 1:length(VDJ.GEX_list)){
-          clonotypes[[k]] <- names(utils::head(sort(table(VDJ.GEX_list[[1]][[clonotype.column]]),decreasing = T),topX))
+          clonotypes[[k]] <- names(utils::head(sort(table(VDJ.GEX_list[[1]][[clonotype.column]]),decreasing = TRUE),topX))
         }
       }else{
         for (k in 1:length(VDJ.GEX_list)){
           topX <- length(table(VDJ.GEX_list[[k]][[clonotype.column]]))
-          clonotypes[[k]] <- names(utils::head(sort(table(VDJ.GEX_list[[1]][[clonotype.column]]),decreasing = T),topX))
+          clonotypes[[k]] <- names(utils::head(sort(table(VDJ.GEX_list[[1]][[clonotype.column]]),decreasing = TRUE),topX))
         }
       }
       #filter and keep only cells of topX clonotypes

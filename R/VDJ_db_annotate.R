@@ -11,8 +11,10 @@
 #' @return VDJ with new columns - antigen information integrated from the antigen databases.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' VDJ_db_annotate(VDJ=VDJ,db.list=db.list,database.features='Epitope',match='cdr3.aa',homology=FALSE)
+#' })
 #'}
 
 VDJ_db_annotate <- function(VDJ, db.list, database.features, match, homology, lv.distance){
@@ -20,8 +22,8 @@ VDJ_db_annotate <- function(VDJ, db.list, database.features, match, homology, lv
   if(missing(db.list)) stop('Please input a named list of the databases you want annotated')
   if(missing(database.features)) stop('Please input the feature columns you want your VDJ to be annotated with. Make sure the names are present in all databases - use vgm.names=T or keep.only.common=T in VDJ_db_load')
   if(missing(match)) match <- 'cdr3.aa'
-  if(missing(homology)) homology <- T
-  if(missing(lv.distance) & homology==T) lv.distance <- 16
+  if(missing(homology)) homology <- TRUE
+  if(missing(lv.distance) & homology==TRUE) lv.distance <- 16
 
   if(homology){
     matching_type <- 'homology'
@@ -35,9 +37,9 @@ VDJ_db_annotate <- function(VDJ, db.list, database.features, match, homology, lv
                                        match.by=match,
                                        matching.type=matching_type,
                                        distance.threshold=lv.distance,
-                                       sample.id=F,
-                                       VDJ.VJ.1chain=T,
-                                       aberrant.chosen.sequences=F,
+                                       sample.id=FALSE,
+                                       VDJ.VJ.1chain=TRUE,
+                                       aberrant.chosen.sequences=FALSE,
                                        output.format='vgm')
 
   return(output_VDJ)

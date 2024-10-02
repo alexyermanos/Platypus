@@ -24,11 +24,13 @@
 #' @return Nested list of tidytree dataframes or lineage dataframes.
 #' @export
 #' @examples
-#' \dontrun{
-#' VDJ_phylogenetic_trees(VDJ=VDJ, sequence.type='VDJ.VJ',
+#' \donttest{
+#' try({
+#' VDJ_phylogenetic_trees(VDJ=Platypus::small_vgm[[1]], sequence.type='VDJ.VJ',
 #' trimmed=TRUE, as.nucleotide=TRUE, include.germline=TRUE,
 #' additional.feature.columns=NULL, tree.level='intraclonal',
 #' output.format='tree.df.list')
+#' })
 #'}
 
 
@@ -54,11 +56,11 @@ VDJ_phylogenetic_trees <- function(VDJ,
  if(missing(output.format)) output.format <- 'tree.df.list'
  if(missing(VDJ)) stop('Please input your data as VDJ')
  if(missing(sequence.type)) sequence.type <- 'VDJ.VJ'
- if(missing(as.nucleotide)) as.nucleotide <- T
- if(missing(trimmed)) trimmed <- T
- if(missing(include.germline)) include.germline <- T
- if(missing(global.clonotype)) global.clonotype <- F
- if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- T
+ if(missing(as.nucleotide)) as.nucleotide <- TRUE
+ if(missing(trimmed)) trimmed <- TRUE
+ if(missing(include.germline)) include.germline <- TRUE
+ if(missing(global.clonotype)) global.clonotype <- FALSE
+ if(missing(VDJ.VJ.1chain)) VDJ.VJ.1chain <- TRUE
  if(missing(additional.feature.columns)) additional.feature.columns <- NULL
  if(missing(filter.na.columns)) filter.na.columns <- NULL
  if(missing(maximum.lineages)) maximum.lineages <- 50
@@ -70,11 +72,10 @@ VDJ_phylogenetic_trees <- function(VDJ,
  if(missing(n.trees.combined)) n.trees.combined <- 5
  if(missing(parallel)) parallel <- 'none'
 
- options(warn=-1)
 
   get_sequence_combinations <- function(x, y, split.x, split.y, split.by=';', collapse.by=';'){
-    if(split.x==T) x <- stringr::str_split(x, split.by ,simplify=T)[1,]
-    if(split.y==T) y <- stringr::str_split(y, split.by ,simplify=T)[1,]
+    if(split.x==TRUE) x <- stringr::str_split(x, split.by ,simplify=TRUE)[1,]
+    if(split.y==TRUE) y <- stringr::str_split(y, split.by ,simplify=TRUE)[1,]
 
     ccombs <- expand.grid(x,y)
     ccombs<-paste0(ccombs[,1], ccombs[,2])
@@ -88,32 +89,32 @@ VDJ_phylogenetic_trees <- function(VDJ,
 
 
     if(sequence.type=='cdr3'){
-      if(as.nucleotide==T){
-        combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_cdr3s_nt, clonotype_df$VJ_cdr3s_nt)
+      if(as.nucleotide==TRUE){
+        combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=TRUE, split.y=TRUE), clonotype_df$VDJ_cdr3s_nt, clonotype_df$VJ_cdr3s_nt)
         clonotype_df$lineage_sequences <- combined_sequences
       }else{
-        combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_cdr3s_aa, clonotype_df$VJ_cdr3s_aa)
+        combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=TRUE, split.y=TRUE), clonotype_df$VDJ_cdr3s_aa, clonotype_df$VJ_cdr3s_aa)
         clonotype_df$lineage_sequences <- combined_sequences
       }
     }else if(sequence.type=='cdrh3'){
-      if(as.nucleotide==T){
+      if(as.nucleotide==TRUE){
         clonotype_df$lineage_sequences <- clonotype_df$VDJ_cdr3s_nt
-      }else if(as.nucleotide==F){
+      }else if(as.nucleotide==FALSE){
         clonotype_df$lineage_sequences <- clonotype_df$VDJ_cdr3s_aa
       }
     }else if(sequence.type=='VDJ.VJ'){
-      if(as.nucleotide==T){
-        if(trimmed==T){
-          combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_trimmed, clonotype_df$VJ_sequence_nt_trimmed)
+      if(as.nucleotide==TRUE){
+        if(trimmed==TRUE){
+          combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=TRUE, split.y=TRUE), clonotype_df$VDJ_sequence_nt_trimmed, clonotype_df$VJ_sequence_nt_trimmed)
           if(length(combined_sequences)==0) stop('Make sure you used trim.and.align=T to obtain your clonotype_df.')
         }else{
-          combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_nt_raw, clonotype_df$VJ_sequence_nt_raw)
+          combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=TRUE, split.y=TRUE), clonotype_df$VDJ_sequence_nt_raw, clonotype_df$VJ_sequence_nt_raw)
         }
         clonotype_df$lineage_sequences <- combined_sequences
 
-      }else if(as.nucleotide==F){
-        if(trimmed==T){
-          combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=T, split.y=T), clonotype_df$VDJ_sequence_aa, clonotype_df$VJ_sequence_aa)
+      }else if(as.nucleotide==FALSE){
+        if(trimmed==TRUE){
+          combined_sequences <- mapply(function(x,y) get_sequence_combinations(x,y,split.x=TRUE, split.y=TRUE), clonotype_df$VDJ_sequence_aa, clonotype_df$VJ_sequence_aa)
           if(length(combined_sequences)==0) stop('Make sure you used trim.and.align=T to obtain your clonotype_df.')
         }else{
           stop('Not available for raw aa sequences.')
@@ -121,8 +122,8 @@ VDJ_phylogenetic_trees <- function(VDJ,
         clonotype_df$lineage_sequences <- combined_sequences
       }
     }else if(sequence.type!='VDJ.VJ' & sequence.type!='cdr3' & sequence.type!='cdrh3'){
-      if(as.nucleotide==T){
-        if(trimmed==T){
+      if(as.nucleotide==TRUE){
+        if(trimmed==TRUE){
           column_name <- paste0(sequence.type, '_sequence_nt_trimmed')
         }else{
           column_name <- paste0(sequence.type, '_sequence_nt_raw')
@@ -130,7 +131,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
         if(!(column_name %in% colnames(clonotype_df))) stop('Make sure you used trim.and.align=T to obtain your clonotype_df.')
         clonotype_df$lineage_sequences <-  clonotype_df$column_name
      }else{
-        if(trimmed==T){
+        if(trimmed==TRUE){
           column_name <- paste0(sequence.type, '_sequence_aa')
         }else{
           stop('Not available for raw aa sequences.')
@@ -144,8 +145,8 @@ VDJ_phylogenetic_trees <- function(VDJ,
     sequence_table <- c(table(all_sequences))
     sequence_frequency <- unname(sequence_table)
     unique_sequences <- names(sequence_table)
-    unique_sequences <- unique_sequences[order(sequence_frequency, decreasing=T)]
-    sequence_frequency <- sequence_frequency[order(sequence_frequency, decreasing=T)]
+    unique_sequences <- unique_sequences[order(sequence_frequency, decreasing=TRUE)]
+    sequence_frequency <- sequence_frequency[order(sequence_frequency, decreasing=TRUE)]
 
     cell_barcodes <- lapply(unique_sequences, function(x) clonotype_df$barcode[which(stringr::str_detect(clonotype_df$lineage_sequences, x))])
 
@@ -180,14 +181,14 @@ VDJ_phylogenetic_trees <- function(VDJ,
 
     lineage_df$germline <- rep('no', nrow(lineage_df))
 
-    if(include.germline==T){
-      if(sequence.type=='VJ' & as.nucleotide==T & trimmed==T){
+    if(include.germline==TRUE){
+      if(sequence.type=='VJ' & as.nucleotide==TRUE & trimmed==TRUE){
         if(!('VJ_trimmed_ref' %in% colnames(clonotype_df))) stop('Please run VDJ.GEX.matrix with trim.and.align=T first.')
         germline_seq <- unique(clonotype_df$VJ_trimmed_ref)[1]
-      }else if(sequence.type=='VDJ' & as.nucleotide==T & trimmed==T){
+      }else if(sequence.type=='VDJ' & as.nucleotide==TRUE & trimmed==TRUE){
         if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))) stop('Please run VDJ.GEX.matrix with trim.and.align=T first.')
         germline_seq <- unique(clonotype_df$VDJ_trimmed_ref)[1]
-      }else if(sequence.type=='VDJ.VJ' & as.nucleotide==T & trimmed==T){
+      }else if(sequence.type=='VDJ.VJ' & as.nucleotide==TRUE & trimmed==TRUE){
         if(!('VDJ_trimmed_ref' %in% colnames(clonotype_df))) stop('Please run VDJ.GEX.matrix with trim.and.align=T first.')
         VDJ <- unique(clonotype_df$VDJ_trimmed_ref)
         VJ <- unique(clonotype_df$VDJ_trimmed_ref)
@@ -217,26 +218,26 @@ VDJ_phylogenetic_trees <- function(VDJ,
 
     if(tree.algorithm == 'nj'){
       output_tree <- tidytree::as_tibble(ape::nj(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
-      if(include.germline==T){
+      if(include.germline==TRUE){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
     }else if(tree.algorithm == 'bionj'){
       output_tree <- tidytree::as_tibble(ape::bionj(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
-      if(include.germline==T){
+      if(include.germline==TRUE){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
     }else if(tree.algorithm == 'fastme.bal'){
       output_tree <- tidytree::as_tibble(ape::fastme.bal(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
-      if(include.germline==T){
+      if(include.germline==TRUE){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
 
       }
     }else if(tree.algorithm == 'fastme.ols'){
       output_tree <- tidytree::as_tibble(ape::fastme.ols(stringdist::stringdistmatrix(lineage_df$lineage_sequences, lineage_df$lineage_sequences)))
-      if(include.germline==T){
+      if(include.germline==TRUE){
         output_tree <- phytools::reroot(ape::as.phylo(output_tree), node.number = output_tree$node[which(output_tree$label == nrow(lineage_df))])
         output_tree <- tidytree::as_tibble(output_tree)
       }
@@ -321,7 +322,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
       VDJ <- VDJ[which(VDJ$Nr_of_VDJ_chains==1 & VDJ$Nr_of_VJ_chains==1),]
     }
 
-    if(global.clonotype==F){
+    if(global.clonotype==FALSE){
       repertoire.number <- unique(VDJ.GEX.matrix[[1]]$sample_id)
 
       for(i in 1:length(repertoire.number)){
@@ -334,7 +335,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
 
     for(i in 1:length(sample_dfs)){
       lineage_dfs[[i]] <- list()
-      sample_dfs[[i]] <- sample_dfs[[i]][order(sample_dfs[[i]]$clonotype_frequency, decreasing=T), ]
+      sample_dfs[[i]] <- sample_dfs[[i]][order(sample_dfs[[i]]$clonotype_frequency, decreasing=TRUE), ]
       clonotype_dfs <-  split(sample_dfs[[i]], factor(sample_dfs[[i]]$clonotype_id, levels=unique(sample_dfs[[i]]$clonotype_id)))
 
       if(maximum.lineages!='all') clonotype_dfs <- clonotype_dfs[1:maximum.lineages]
@@ -436,7 +437,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
       }
 
       return(output_trees)
-    }else if(tree.level=='global.clonotype' & include.germline==F){
+    }else if(tree.level=='global.clonotype' & include.germline==FALSE){
 
       temp_dfs <- list()
 
@@ -474,7 +475,7 @@ VDJ_phylogenetic_trees <- function(VDJ,
         }
       }
 
-    }else if(tree.level=='combine.first.trees' & include.germline==F){
+    }else if(tree.level=='combine.first.trees' & include.germline==FALSE){
       output_trees <- list()
 
       for (i in 1:length(lineage_dfs)){

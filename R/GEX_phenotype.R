@@ -26,7 +26,7 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
 
   is.hum<-any(useful::find.case(rownames(seurat.object),case="upper"))
 
-  if(missing(cell.state.markers)&default==T){
+  if(missing(cell.state.markers)&default==TRUE){
     cell.state.markers<-c("CD4+;CD44-",
                           "CD4+;IL7R+;CD44+",
                           "CD4+;CD44+;IL7R-;IFNG+",
@@ -39,7 +39,7 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
                           "SDC1+",
                           "CD38+;FAS-")
   }
-  if(missing(cell.state.names)&default==T){
+  if(missing(cell.state.names)&default==TRUE){
     cell.state.names<-c("NaiveCd4",
                         "MemoryCd4",
                         "ActivatedCd4",
@@ -53,11 +53,11 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
                         "MemoryBcell")
   }
 
-  if(is.hum==F&&default==T){
-    if(is.hum==F){
+  if(is.hum==FALSE&&default==TRUE){
+    if(is.hum==FALSE){
       cell.state.markers<-Cap(cell.state.markers)
     }
-    if(is.hum==T&&default==T){
+    if(is.hum==TRUE&&default==TRUE){
       cell.state.markers <- toupper(cell.state.markers)
     }
   }
@@ -75,9 +75,9 @@ GEX_phenotype <- function(seurat.object, cell.state.names, cell.state.markers, d
 
     cmd[i]<-paste0(cell.state.names[i],"<-Seurat::WhichCells(seurat.object, slot = 'counts', expression =", cell.state.markers[i],")")
     is.exist<-tryCatch(expr=length(eval(parse(text=cmd[i]))), error = function(x){
-      x<-F
+      x<-FALSE
       return(x)})
-    if(is.exist!=F){
+    if(is.exist!=FALSE){
       Seurat::Idents(object = seurat.object, cells = eval(parse(text=cell.state.names[i])) ) <- cell.state.names[i]
     }
   }

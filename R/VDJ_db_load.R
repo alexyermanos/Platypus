@@ -16,11 +16,13 @@
 #' @export
 
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' try({
 #' VDJ_db_load(databases=list('vdjdb'),file.paths=NULL,
 #' preprocess=TRUE,species='Mouse',filter.sequences='VDJ.VJ',
 #' remove.na='vgm', vgm.names=TRUE, keep.only.common=TRUE,
-#' output.format='df.list')
+#' output.format='df.list', saving.path = tempdir())
+#' })
 #'}
 
 VDJ_db_load <- function(databases,
@@ -38,12 +40,12 @@ VDJ_db_load <- function(databases,
 
   if(missing(databases)) databases <- list('vdjdb')
   if(missing(file.paths)) file.paths <- NULL
-  if(missing(preprocess)) preprocess <- T
+  if(missing(preprocess)) preprocess <- TRUE
   if(missing(species)) species <- 'Mouse'
   if(missing(filter.sequences)) filter.sequences <- 'VDJ.VJ'
   if(missing(remove.na)) remove.na <- 'common'
-  if(missing(vgm.names)) vgm.names <- T
-  if(missing(keep.only.common)) keep.only.common <- T
+  if(missing(vgm.names)) vgm.names <- TRUE
+  if(missing(keep.only.common)) keep.only.common <- TRUE
   if(missing(output.format)) output.format <- 'df.list'
   if(missing(saving.path)) saving.path <- './data'
 
@@ -63,9 +65,9 @@ VDJ_db_load <- function(databases,
     if(missing(database)) database <- 'vdjdb'
     if(missing(filter.species)) filter.species <- NULL
     if(missing(filter.na.sequences)) filter.na.sequences <- 'VDJ.VJ'
-    if(missing(use.vgm.names)) use.vgm.names <- T
+    if(missing(use.vgm.names)) use.vgm.names <- TRUE
     if(missing(filter.na.features)) filter.na.features <- NULL
-    if(missing(keep.only.common.cols)) keep.only.common.cols <- T
+    if(missing(keep.only.common.cols)) keep.only.common.cols <- TRUE
 
     output_db <- database.df
 
@@ -165,14 +167,14 @@ VDJ_db_load <- function(databases,
     if(databases[i]=='vdjdb'){
       if(!is.null(file.paths)){
         if(file.exists(file.paths[i])){
-          db_output[[i]] <- utils::read.csv(file.paths[i], sep='\t', header=T)
+          db_output[[i]] <- utils::read.csv(file.paths[i], sep='\t', header=TRUE)
         }
 
       }else{
         latest_vdjdb_url <- utils::read.table(vdjdb_master_url)[1,]
         temp <- tempfile()
         downloaded_file <- utils::download.file(latest_vdjdb_url, temp)
-        db_output[[i]] <- utils::read.csv(unz(temp, 'vdjdb_full.txt'), sep='\t', header=T)
+        db_output[[i]] <- utils::read.csv(unz(temp, 'vdjdb_full.txt'), sep='\t', header=TRUE)
         unlink(temp)
       }
 

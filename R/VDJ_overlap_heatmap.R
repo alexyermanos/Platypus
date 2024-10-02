@@ -12,11 +12,10 @@
 #' @return A list of a ggplot (out[[1]]), the source table or matrix for the plot out[[2]] and a table containing additional information in case that add.barcode.table was set to TRUE (out[[3]])
 #' @export
 #' @examples
-#' #To test the overlap of CDR3s between multiple samples
 #' overlap <- VDJ_overlap_heatmap(VDJ = Platypus::small_vgm[[1]]
 #' ,feature.columns = c("VDJ_cdr3s_aa"),
 #' grouping.column = "sample_id", axis.label.size = 15
-#' , plot.type = "ggplot")
+#' ,plot.type = "ggplot")
 #'
 
 VDJ_overlap_heatmap <- function(VDJ,
@@ -36,13 +35,13 @@ VDJ_overlap_heatmap <- function(VDJ,
 
   if(missing(pvalues.label.size)) pvalues.label.size <- 4
   if(missing(axis.label.size)) axis.label.size <- 4
-  if(missing(add.barcode.table)) add.barcode.table <- T
+  if(missing(add.barcode.table)) add.barcode.table <- TRUE
   if(missing(plot.type)) plot.type <- "pheatmap"
-  if(missing(jaccard)) jaccard <- F
+  if(missing(jaccard)) jaccard <- FALSE
 
-  if(!"barcode" %in% names(VDJ) & add.barcode.table == T){
+  if(!"barcode" %in% names(VDJ) & add.barcode.table == TRUE){
     warning("'barcode' column must be present in input dataframe to add barcode table. Setting add.barcode.table to false for now")
-    add.barcode.table <- F
+    add.barcode.table <- FALSE
   }
 
   #remove any rows that do not contain an entry for a given feature
@@ -91,7 +90,7 @@ VDJ_overlap_heatmap <- function(VDJ,
 
     if(jaccard){
 
-      if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == F & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == F){
+      if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == FALSE & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == FALSE){
 
         intersection = sum(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])
         union = length(df.list[[which(names(df.list) == combs[i,1])]]) + length(df.list[[which(names(df.list) == combs[i,2])]]) - intersection
@@ -107,7 +106,7 @@ VDJ_overlap_heatmap <- function(VDJ,
 
     } else if(!jaccard){
 
-      if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == F & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == F){
+      if(all(is.na(df.list[[which(names(df.list) == combs[i,1])]])) == FALSE & all(is.na(df.list[[which(names(df.list) == combs[i,2])]])) == FALSE){
         combs$overlap[i] <- sum(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])
         ov_temp <- df.list[[which(names(df.list) == combs[i,1])]][which(df.list[[which(names(df.list) == combs[i,1])]] %in% df.list[[which(names(df.list) == combs[i,2])]])]
         combs$items.overlapping[i] <- paste0(ov_temp, collapse = ";")
@@ -120,20 +119,20 @@ VDJ_overlap_heatmap <- function(VDJ,
     }
 
 
-    if(add.barcode.table == T){
+    if(add.barcode.table == TRUE){
       ov_temp_list[[i]] <- ov_temp
     }
   }
 
   #now add a third dataframe with frequencies and barcodes of the overlapping elements
-  if(add.barcode.table == T){
+  if(add.barcode.table == TRUE){
 
     ov_all <- do.call("c", ov_temp_list)
     if(length(ov_all) > 1){
     ov_df <- data.frame("overlapping_items" = ov_all)
     if(length(feature.columns) > 1){
       for(i in 1:length(feature.columns)){
-        ov_df[,ncol(ov_df) + 1] <- stringr::str_split(ov_all, "/", simplify = T)[,i]
+        ov_df[,ncol(ov_df) + 1] <- stringr::str_split(ov_all, "/", simplify = TRUE)[,i]
       }
       names(ov_df)[2:ncol(ov_df)] <- feature.columns
     }
@@ -191,9 +190,9 @@ VDJ_overlap_heatmap <- function(VDJ,
       pheat_map[which(colnames(pheat_map) == combs[i,2]), which(rownames(pheat_map) == combs[i,1])] <- round(as.numeric(combs[i,5]),3)
     }
     if(jaccard){
-    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.3f", angle_col = 315, fontsize_number  = pvalues.label.size, fontsize_row = axis.label.size, fontsize_col = axis.label.size)
+    plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = FALSE, cluster_cols = FALSE,display_numbers = TRUE, number_format = "%.3f", angle_col = 315, fontsize_number  = pvalues.label.size, fontsize_row = axis.label.size, fontsize_col = axis.label.size)
     } else {
-      plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = F, cluster_cols = F,display_numbers = T, number_format = "%.0f", angle_col = 315, fontsize_number  = pvalues.label.size, fontsize_row = axis.label.size, fontsize_col = axis.label.size)
+      plot_out <- pheatmap::pheatmap(pheat_map,main = paste0("Overlap features: " ,paste0(feature.columns, collapse = " ; ")), border_color = "white", scale = "none", cluster_rows = FALSE, cluster_cols = FALSE,display_numbers = TRUE, number_format = "%.0f", angle_col = 315, fontsize_number  = pvalues.label.size, fontsize_row = axis.label.size, fontsize_col = axis.label.size)
     }
     combs <- pheat_map
   }

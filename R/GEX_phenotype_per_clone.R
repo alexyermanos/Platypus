@@ -11,12 +11,12 @@
 #' @return Returns a stacked barplot that visualizes the seurat cluster membership for different cell phenotypes.
 #' @export
 #' @examples
-#' #For testing: only a single clonotype in two samples
 #' small_vgm_cl <- Platypus::small_vgm
 #' small_vgm_cl[[2]]$clonotype_id_10x <- "clonotype1"
 #' GEX_phenotype_per_clone(GEX = small_vgm_cl[[2]]
 #' , GEX.clonotypes = c(1), GEX.group.by = "seurat_clusters", platypus.version = "v3")
 #'
+
 GEX_phenotype_per_clone <- function(GEX,
                                     clonotype.ids,
                                     global.clonotypes,
@@ -32,7 +32,7 @@ GEX_phenotype_per_clone <- function(GEX,
   if(!missing(clonotype.ids)) platypus.version <- "v3"
 
   if(!missing(GEX.clonotypes)) platypus.version <- "v3"
-  if(missing(global.clonotypes)) global.clonotypes <- F
+  if(missing(global.clonotypes)) global.clonotypes <- FALSE
   if(platypus.version == "v2"){
 
     seurat.object <- GEX
@@ -50,14 +50,11 @@ GEX_phenotype_per_clone <- function(GEX,
       temp.matrix[i,j] <- length(which(seurat.object$cell.state[which(seurat.object$clonotype_id==desired_strings[i])]==possible_states[j]))/length(seurat.object$cell.state[which(seurat.object$clonotype_id==desired_strings[i])])
     }
   }
-print(class(temp.matrix))
   rownames(temp.matrix) <- desired_strings
   colnames(temp.matrix) <- possible_states
   temp.matrix$clonotype_id <- desired_strings
-  print(temp.matrix)
 
   temp.melt <- reshape2::melt(temp.matrix,id.vars = "clonotype_id")
-  print(temp.melt)
   stacked.ggplot<-ggplot2::ggplot(data=temp.melt, ggplot2::aes(x=clonotype_id, y=value, fill=variable)) +
     ggplot2::geom_bar(stat="identity")+
     ggplot2::ylab("Cell Counts")+
@@ -76,14 +73,14 @@ print(class(temp.matrix))
     GEX@meta.data$iscursample <- NULL
     GEX@meta.data$iscursample <- GEX@meta.data$sample_id == unique(GEX@meta.data$sample_id)[k]
 
-    seurat.object <- subset(GEX, cells = colnames(GEX)[which(GEX$iscursample == TRUE)])
+    seurat.object <- subset(GEX, cells = colnames(GEX)[which(GEX$iscursample ==TRUE)])
 
     #get clonotypes to plot
     if(GEX.clonotypes[[1]] == "topclones"){ #choose 10 top expanded clones
       temp_choice <- seurat.object@meta.data[,c("clonotype_id_10x", "clonotype_frequency")]
-      temp_choice <- subset(temp_choice, is.na(clonotype_id_10x) == F)
+      temp_choice <- subset(temp_choice, is.na(clonotype_id_10x) == FALSE)
       temp_choice$clonotype_frequency <- as.numeric(temp_choice$clonotype_frequency)
-      temp_choice <- temp_choice[order(temp_choice$clonotype_frequency, decreasing = T),]
+      temp_choice <- temp_choice[order(temp_choice$clonotype_frequency, decreasing = TRUE),]
 
       temp_choice <- temp_choice[c(1:10),]
       desired_strings <- unique(temp_choice$clonotype_id_10x)
@@ -94,8 +91,8 @@ print(class(temp.matrix))
 
     if(any(is.na(seurat.object$cell.state))){
     #subset further to exclude NA values in the grouping column
-    seurat.object$groupisna <- is.na(seurat.object$cell.state) ==T
-    seurat.object <- subset(seurat.object, cells = colnames(seurat.object)[which(seurat.object$groupisna == TRUE)])
+    seurat.object$groupisna <- is.na(seurat.object$cell.state) ==TRUE
+    seurat.object <- subset(seurat.object, cells = colnames(seurat.object)[which(seurat.object$groupisna ==TRUE)])
     }
 
     possible_states <- unique(seurat.object$cell.state)
@@ -113,7 +110,7 @@ print(class(temp.matrix))
 
     temp.melt <- reshape2::melt(temp.matrix,id.vars = "clonotype_id")
 
-    if(is.null(levels(seurat.object$cell.state)) == F){
+    if(is.null(levels(seurat.object$cell.state)) == FALSE){
     temp.melt$variable <- ordered(as.factor(temp.melt$variable), levels = levels(seurat.object$cell.state))
     }
 
@@ -130,6 +127,3 @@ print(class(temp.matrix))
     return(plot.out.list)
   }
 }
-
-
-

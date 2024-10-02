@@ -7,9 +7,6 @@
 #' @return Returns a ggplot object in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.
 #' @export
 #' @examples
-#' #Platypus v2
-#' #GEX_cluster_membership(GEX=automate_GEX_out[[2]], platypus.version = "v2")
-#' #Platypus v3
 #' GEX_cluster_membership(GEX= Platypus::small_vgm[[2]], platypus.version = "v3")
 
 GEX_cluster_membership <- function(GEX,
@@ -28,8 +25,8 @@ GEX_cluster_membership <- function(GEX,
   if(platypus.version == "v2"){
 
   if(by.group == FALSE){
-  unique_samples <- sort(unique(GEX$sample_id),decreasing = F)
-  unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = F)
+  unique_samples <- sort(unique(GEX$sample_id),decreasing = FALSE)
+  unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = FALSE)
   cells_per_cluster_per_sample <- list()
   for(i in 1:length(unique_samples)){
     cells_per_cluster_per_sample[[i]] <- list()
@@ -44,9 +41,9 @@ GEX_cluster_membership <- function(GEX,
   output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme_bw() + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1)) + cowplot::theme_cowplot()
   }
 
-  if(by.group == TRUE){
-    unique_groups <- sort(unique(GEX$group_id),decreasing = F)
-    unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = F)
+  if(by.group ==TRUE){
+    unique_groups <- sort(unique(GEX$group_id),decreasing = FALSE)
+    unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = FALSE)
     cells_per_cluster_per_group <- list()
     for(i in 1:length(unique_groups)){
       cells_per_cluster_per_group[[i]] <- list()
@@ -71,7 +68,7 @@ GEX_cluster_membership <- function(GEX,
 
     if(by.group == FALSE){
       unique_samples <- unique(GEX$sample_id)
-      unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = F)
+      unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = FALSE)
       cells_per_cluster_per_sample <- list()
       for(i in 1:length(unique_samples)){
         cells_per_cluster_per_sample[[i]] <- list()
@@ -99,9 +96,9 @@ GEX_cluster_membership <- function(GEX,
       output.plot <- ggplot2::ggplot(melting, ggplot2::aes(fill = Sample, y=value, x=L2,group=Sample)) + ggplot2::geom_bar(stat="identity", width=0.6, color="black",position = "dodge") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) + ggplot2::scale_y_continuous(expand = c(0,0)) + ggplot2::ylab("Fraction of cells") + ggplot2::xlab("Cluster membership") + ggplot2::scale_x_continuous(breaks = seq(from = 0, to = length(unique(melting$L2)), by = 1)) + cowplot::theme_cowplot()
     }
 
-    if(by.group == TRUE){
+    if(by.group ==TRUE){
       unique_groups <- unique(GEX$group_id)
-      unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = F)
+      unique_clusters <- sort(unique(GEX$seurat_clusters),decreasing = FALSE)
       cells_per_cluster_per_group <- list()
       for(i in 1:length(unique_groups)){
         cells_per_cluster_per_group[[i]] <- list()

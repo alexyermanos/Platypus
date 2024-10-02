@@ -3,7 +3,7 @@
 #' @description
 #' This function is designed as a common input to the Platypus pipeline. Integration of datasets as well as VDJ and GEX information is done here. Please check the Platypus V3 vignette for a detailed walkthrough of the output structure. In short: output[[1]] = VDJ table, output[[2]] = GEX Seurat object and output[[3]] = statistics
 #'[FB] Feature barcode (FB) technology is getting increasingly popular, which is why Platypus V3 fully supports their use as sample delimiters. As of V3, Platpyus does not support Cite-seq data natively, also the VDJ_GEX_matrix function is technically capable of loading a Cite-seq matrix and integrating it with VDJ. For details on how to process sequencing data with FB data and how to supply this information to the VDJ_GEX_matrix function, please consult the dedicated vignette on FB data.
-#' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: filtered_contig_annotations.csv, clonotypes.csv, concat_ref.fasta, all_contig_annotations.csv (only if trim.and.align == T) and metrics_summary.csv (Optional, will be appended to stats table if get.VDJ.stats == T)
+#' @param VDJ.out.directory.list List containing paths to VDJ output directories from cell ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary files within this folder: filtered_contig_annotations.csv, clonotypes.csv, concat_ref.fasta, all_contig_annotations.csv (only if trim.and.align == TRUE) and metrics_summary.csv (Optional, will be appended to stats table if get.VDJ.stats == TRUE)
 #'@param GEX.out.directory.list List containing paths the outs/ directory of each sample or directly the raw or filtered_feature_bc_matrix folder. Order of list items must be the same as for VDJ. These may be paths to cellranger aggr or cellranger multi output directories. In that case, additional matrices found, will be loaded as either GEX or FB (Feature barcodes) depending on the number of features in the matrix.
 #'@param FB.out.directory.list [FB] List of paths pointing at the outs/ directory of output from the Cellranger counts function which contain Feature barcode counts. ! Single list elements can be a path or "PLACEHOLDER", if the corresponding input in the VDJ or GEX path does not have any adjunct FB data. This is only the case when integrating two datasets of which only one has FB data. See examples for details. Any input will overwrite potential FB data loaded from the GEX input directories. This may be important, if wanting to input unfiltered FB data that will cover also cells in VDJ not present in GEX.
 #'@param Data.in Input for R objects from either the PlatypusDB_load_from_disk or the PlatypusDB_fetch function. If provided, input directories should not be specified. If you wish to integrate local and downloaded data, please load them via load_from_disk and fetch and provide as a list (e.g. Data.in = list(load_from_disk.output, fetch.output))
@@ -44,15 +44,11 @@
 #' @param FB.count.threshold Numeric. Defaults to 10. For description of Feature Barcode assignment see parameter FB.ratio.threshold above
 #' @param FB.exclude.pattern Character (regex compatible). If a feature barcode matches this pattern it will be excluded from the hashing sample assignments. This may be neccessary if CITE-seq barcodes and hashing barcodes are sequenced in the same run.
 #' @param verbose if TRUE prints runtime info to console. Defaults to TRUE
-#' @return Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == F, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
+#' @return Single cell matrix including VDJ and GEX info. Format is a list with out[[1]] = a VDJ dataframe (or list of dataframes if VDJ.combine == FALSE, not recommended) containing also selected GEX information of integrate.GEX.to.VDJ = T. out[[2]] = GEX Seurat object with the metadata also containing GEX information if integrate.VDJ.to.GEX = T. out[[3]] = Dataframe with statistics on GEX and VDJ. out[[4]] = runtime parameters. out[[5]] = session info
 #' @export
 #' @examples
-#' \dontrun{
-#'
-#' #FOR EXAMPLES see Platypus vignette at https://alexyermanos.github.io/Platypus/index.html
-#'
-#'#Run from local directory input. For run from PlatypusDB input see
-#'#PlatypusDB vignette
+#' \donttest{
+#' try({
 #' VDJ.out.directory.list <- list()
 #' VDJ.out.directory.list[[1]] <- c("~/VDJ/S1/")
 #' VDJ.out.directory.list[[2]] <- c("~/VDJ/S2/")
@@ -74,56 +70,9 @@
 #' ,subsample.barcodes = F
 #' ,trim.and.align = F
 #' ,group.id = c(1,2))
-#'
-#' # With Feature Barcodes
-#' ## Option 1: Cellranger multi or Cellranger count with --libraries output
-#' VDJ.out.directory.list <- list()
-#' VDJ.out.directory.list[[1]] <- "~/VDJ/S1/" #point to outs or per_sample_outs directory content
-#' VDJ.out.directory.list[[2]] <- "~/VDJ/S2/"
-#' GEX.out.directory.list <- list()
-#' GEX.out.directory.list[[1]] <- "~/GEX/S1/"
-#' GEX.out.directory.list[[2]] <- "~/GEX/S2/" #These directories contain two matrices (GEX and FB)
-#' VGM <- VDJ_GEX_matrix(
-#' VDJ.out.directory.list = VDJ.out.directory.list
-#' ,GEX.out.directory.list = GEX.out.directory.list,
-#' FB.ratio.threshold = 2)
-#'
-#' ##Option 2: Separate input of FB data from separate Cellranger count run
-#' VDJ.out.directory.list <- list()
-#' VDJ.out.directory.list[[1]] <- "~/VDJ/S1/"
-#' VDJ.out.directory.list[[2]] <- "~/VDJ/S2/"
-#' GEX.out.directory.list <- list()
-#' GEX.out.directory.list[[1]] <- "~/GEX/S1/"
-#' GEX.out.directory.list[[2]] <- "~/GEX/S2/"
-#' GEX.out.directory.list <- list()
-#' FB.out.directory.list[[1]] <- "~FB/S1/"
-#' FB.out.directory.list[[2]] <- "~FB/S1/"
-#' VGM <- VDJ_GEX_matrix(
-#' VDJ.out.directory.list = VDJ.out.directory.list,
-#' GEX.out.directory.list = GEX.out.directory.list,
-#' FB.out.directory.list = FB.out.directory.list,
-#' FB.ratio.threshold = 2)
-#'
-#' ##Option 3: FB input for two datasets of which only one contains FB data
-#' VDJ.out.directory.list <- list()
-#' VDJ.out.directory.list[[1]] <- "~/study1/VDJ/S1/"
-#' VDJ.out.directory.list[[2]] <- "~/study2/VDJ/S1/"
-#' VDJ.out.directory.list[[3]] <- "~/study2/VDJ/S2/"
-#' GEX.out.directory.list <- list()
-#' GEX.out.directory.list[[1]] <- "~/study1/GEX/S1/"
-#' GEX.out.directory.list[[2]] <- "~/study2/GEX/S1/"
-#' GEX.out.directory.list[[2]] <- "~/study2/GEX/S2/"
-#' GEX.out.directory.list <- list()
-#' FB.out.directory.list[[1]] <- "PLACEHOLDER" #Study 1 does not contain FB data
-#' FB.out.directory.list[[2]] <- "~/study2/FB/S1/"
-#' FB.out.directory.list[[3]] <- "~/study2/FB/S2/"
-#' VGM <- VDJ_GEX_matrix(
-#' VDJ.out.directory.list = VDJ.out.directory.list,
-#' GEX.out.directory.list = GEX.out.directory.list,
-#' FB.out.directory.list = FB.out.directory.list,
-#' FB.ratio.threshold = 2)
-#'
+#' })
 #' }
+
 VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                            GEX.out.directory.list,
                            FB.out.directory.list,
@@ -182,11 +131,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   Seurat.loaded <- NULL
   gex.metrics.table <- "none" #error avoidance in case only VDJ is provided and stats are requested
   #Concerning input types
-  gex.loaded <- F
-  fb.loaded <- F
-  vdj.loaded <- F
-  seurat.loaded <- F
-  data.in.loaded <- F
+  gex.loaded <- FALSE
+  fb.loaded <- FALSE
+  vdj.loaded <- FALSE
+  seurat.loaded <- FALSE
+  data.in.loaded <- FALSE
 
   #### Function def: Helper for gene name capitalization ####
   Cap<-function(x){
@@ -221,7 +170,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #Choose max barcodes and return the index of the valid maximum BC or 1000 (see below why)
     bc_out <- sapply(bc_out, function(x,FB.ratio.threshold, FB.count.threshold){
-      y <- sort(x, decreasing = T)
+      y <- sort(x, decreasing = TRUE)
       if(max(y) > FB.count.threshold){
         if((y[1] / y[2]) > FB.ratio.threshold){
           return(which(x == y[1]))
@@ -326,7 +275,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       names(lookup_stats_clono) <- c("clonotype_ids","nr_HC","nr_LC")
 
       #number of barcodes with
-      #is cell == true
+      #is cell ==TRUE
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true",])
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr barcodes is_cell"
 
@@ -355,22 +304,22 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells 2 or more VDJ 2 or more VJ"
 
       #number of cells with
-      #full length == true
+      #full length ==TRUE
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$full_length == "true" & lookup_stats$is_cell == "true",])
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells full_length"
 
       #number of barcodes with
-      #productive == true
+      #productive ==TRUE
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$productive == "true" & lookup_stats$is_cell == "true",])
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells productive"
 
       #number of barcodes with
-      #high_confidence == true
+      #high_confidence ==TRUE
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$high_confidence == "true" & lookup_stats$is_cell == "true",])
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells high_confidence"
 
       #number of cells with
-      #all three == true
+      #all three ==TRUE
       VDJ.stats[length(VDJ.stats)+1] <- nrow(lookup_stats[lookup_stats$is_cell == "true" & lookup_stats$high_confidence == "true" & lookup_stats$productive == "true" & lookup_stats$full_length == "true" & lookup_stats$is_cell == "true",])
       names(VDJ.stats)[length(VDJ.stats)] <- "Nr cells all true"
 
@@ -443,7 +392,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             } else{
               cur_ab <- as.data.frame(t(VDJ.metrics.list[[m]]))
               cur_ab$idents <- rownames(cur_ab)
-              ab_1 <- suppressWarnings(merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T))
+              ab_1 <- suppressWarnings(merge(ab_1, cur_ab, by = "idents", all.x = TRUE, all.y = TRUE))
             }
           }
           VDJ.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
@@ -479,7 +428,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             } else{
               cur_ab <- as.data.frame(t(GEX.metrics.list[[m]]))
               cur_ab$idents <- rownames(cur_ab)
-              ab_1 <- suppressWarnings(merge(ab_1, cur_ab, by = "idents", all.x = T, all.y = T))
+              ab_1 <- suppressWarnings(merge(ab_1, cur_ab, by = "idents", all.x = TRUE, all.y = TRUE))
             }
           }
           GEX.metrics.all <- as.data.frame(t(ab_1)[2:ncol(ab_1),])
@@ -531,7 +480,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       if(verbose) message("Integrating GEX matrices using the default scale.data function. Other options are 'sct', 'anchors' (recommended in case of batch effects) and 'harmony' (recommended for large datasets) \n")
     }
 
-    if(GEX.integrate == T & length(GEX.list) > 1 & integration.method != "anchors"){ #combine all GEX into one seurat object and add s%number%_ to the FRONT of the barcode
+    if(GEX.integrate == TRUE & length(GEX.list) > 1 & integration.method != "anchors"){ #combine all GEX into one seurat object and add s%number%_ to the FRONT of the barcode
       #In case of the ANCORS integration method, we DO NOT combine datasets here. If integration.method == "anchors" this will jump to the condition below
 
 
@@ -564,45 +513,45 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     for(i in 1:length(GEX.list)){
       holding_upper_gene_names <- toupper(rownames(GEX.list[[i]]))
-      if(VDJ.gene.filter==T){
-        antibody_gene_indices <- which(grepl((holding_upper_gene_names),pattern = "^IGHA")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGHG")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGHM")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGHD")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGHE")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGHJ")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGK")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^IGHV")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^JCHAIN")==F&
-                                         grepl((holding_upper_gene_names),pattern = "^IGL")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRAV")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRAC")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRBC")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRGC")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRDC")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRBD")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRBJ")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRGV")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRGJ")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRGJ")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRDV")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRDD")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRDJ")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TRBV")==F &
-                                         grepl((holding_upper_gene_names),pattern = "^TCRG")==F & #New filter for TCR gamma and delta chains
-                                         grepl((holding_upper_gene_names),pattern = "^TCRD")==F)
+      if(VDJ.gene.filter==TRUE){
+        antibody_gene_indices <- which(grepl((holding_upper_gene_names),pattern = "^IGHA")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGHG")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGHM")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGHD")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGHE")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGHJ")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGK")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^IGHV")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^JCHAIN")==FALSE&
+                                         grepl((holding_upper_gene_names),pattern = "^IGL")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRAV")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRAC")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRBC")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRGC")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRDC")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRBD")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRBJ")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRGV")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRGJ")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRGJ")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRDV")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRDD")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRDJ")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TRBV")==FALSE &
+                                         grepl((holding_upper_gene_names),pattern = "^TCRG")==FALSE & #New filter for TCR gamma and delta chains
+                                         grepl((holding_upper_gene_names),pattern = "^TCRD")==FALSE)
 
         GEX.list[[i]] <- GEX.list[[i]][antibody_gene_indices,]
       }
 
       GEX.list[[i]][["percent.mt"]] <- Seurat::PercentageFeatureSet(GEX.list[[i]], pattern = "^MT-") + Seurat::PercentageFeatureSet(GEX.list[[i]], pattern = "^mt-")
       cell.subset.bool <- (GEX.list[[i]]$percent.mt< mito.filter & GEX.list[[i]]$nFeature_RNA >n.feature.rna & GEX.list[[i]]$nCount_RNA > n.count.rna.min & GEX.list[[i]]$nCount_RNA < n.count.rna.max)
-      GEX.list[[i]] <- subset(GEX.list[[i]],cells=which(cell.subset.bool==T))
+      GEX.list[[i]] <- subset(GEX.list[[i]],cells=which(cell.subset.bool==TRUE))
 
       if(integration.method=="sct"){
         GEX.list[[i]] <- Seurat::SCTransform(GEX.list[[i]],vars.to.regress = "percent.mt")
         GEX.list[[i]] <- Seurat::RunPCA(GEX.list[[i]],verbose=FALSE,feature=Seurat::VariableFeatures(object = GEX.list[[i]]))
-        GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]],dims=neighbor.dim,verbose = T)
+        GEX.list[[i]] <- Seurat::FindNeighbors(GEX.list[[i]],dims=neighbor.dim,verbose = TRUE)
         GEX.list[[i]] <- Seurat::FindClusters(GEX.list[[i]],resolution = cluster.resolution)
         GEX.list[[i]] <- Seurat::RunUMAP(GEX.list[[i]], dims = mds.dim)
         message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Calculating TSNE embedding"))
@@ -671,9 +620,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       GEX.list[[1]] <- Seurat::FindNeighbors(GEX.list[[1]], dims = neighbor.dim)
       GEX.list[[1]] <- Seurat::FindClusters(GEX.list[[1]], resolution = cluster.resolution)
       GEX.list[[1]] <- Seurat::RunUMAP(GEX.list[[1]], dims = mds.dim)
-      message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Calculating TSNE embedding"))
+      message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Calculating TSNE embedding"))
       tsne_error <- tryCatch({
-        GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[1]], dims = mds.dim,check_duplicates=F)}, error = function(e){
+        GEX.list[[i]] <- Seurat::RunTSNE(GEX.list[[1]], dims = mds.dim,check_duplicates=FALSE)}, error = function(e){
           message(paste0("TSNE failed: ", e))})
     }
     return(GEX.list)
@@ -715,14 +664,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #In case the cell has more than 1 VJ or VDJ chain, and the user decided to not want to have all these chains included in the later table
     #select one of the excessive VDJ chains by umi count
-    if(HC_count > 1 & select.excess.chains.by.umi.count == T){
+    if(HC_count > 1 & select.excess.chains.by.umi.count == TRUE){
       if(!all(as.numeric(curr.contigs.HC$umis) >= excess.chain.confidence.count.threshold)){ #only filter chains out if not all chains present exceed the set confidence umi count threshold.
         curr.contigs.HC <- curr.contigs.HC[which.max(curr.contigs.HC$umis),] #getting the VDJ with most umis and all VJs
         HC_count <- 1 #resetting the count to not confuse any loops below
       } #no else needed: if all chains exceed the chain.confidence.count.threshold all chains are kept
     }
     #select one of the excessive VJ chains by umi count
-    if(LC_count > 1 & select.excess.chains.by.umi.count == T){
+    if(LC_count > 1 & select.excess.chains.by.umi.count == TRUE){
       if(!all(as.numeric(curr.contigs.LC$umis) >= excess.chain.confidence.count.threshold)){ #only filter chains out if not all chains present exceed the set confidence umi count threshold.
         curr.contigs.LC <- curr.contigs.LC[which.max(curr.contigs.LC$umis),] #getting the VDJ with most umis and all VJs
         LC_count <- 1 #resetting the count to not confuse any loops below
@@ -738,7 +687,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else {curr.references <- ""}
 
     #getting the relevant annotations ! ONLY IF TRIM AND ALIGN IS TRUE (check the VDJ loading part for reference)
-    if(trim.and.align == T){
+    if(trim.and.align == TRUE){
       curr.annotations <- annotations[stringr::str_detect(annotations$contig_id, barcodes),]
     }
 
@@ -840,8 +789,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       curr.barcode$VJ_jgene <- contigs_pasted.LC$j_gene
       curr.barcode$VDJ_cgene <- contigs_pasted.HC$c_gene
       curr.barcode$VJ_cgene <- contigs_pasted.LC$c_gene
-      curr.barcode$VDJ_raw_consensus_id <- stringr::str_split(contigs_pasted.HC$raw_consensus_id,";",simplify = T)[1]
-      curr.barcode$VJ_raw_consensus_id <- stringr::str_split(contigs_pasted.LC$raw_consensus_id,";",simplify = T)[1] #Because we may have more than one consensus ID for light chains, we need to get one of them. Because the consensus ids are always the same for different light or heavy chains of the same cell, we can just take the first element of the str_split
+      curr.barcode$VDJ_raw_consensus_id <- stringr::str_split(contigs_pasted.HC$raw_consensus_id,";",simplify = TRUE)[1]
+      curr.barcode$VJ_raw_consensus_id <- stringr::str_split(contigs_pasted.LC$raw_consensus_id,";",simplify = TRUE)[1] #Because we may have more than one consensus ID for light chains, we need to get one of them. Because the consensus ids are always the same for different light or heavy chains of the same cell, we can just take the first element of the str_split
       #adding raw sequences directly
       curr.barcode$VDJ_sequence_nt_raw <- contigs_pasted.HC$raw_contig
       curr.barcode$VJ_sequence_nt_raw <- contigs_pasted.LC$raw_contig
@@ -854,14 +803,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     #HEAVY CHAIN / TRB
     if(HC_count == 1){
-      if(append.raw.reference == T){
+      if(append.raw.reference == TRUE){
         if(length(as.character(reference_HC)) > 0){curr.barcode$VDJ_raw_ref <- as.character(reference_HC)}
       }
 
-      if(trim.and.align == T){
+      if(trim.and.align == TRUE){
         tryCatch({
           #find match in annotations
-          HC_contig <- which(curr.annotations$contig_id == curr.barcode$VDJ_chain_contig) #This line is never reached if trim.and.align == F (either set by the user or set by the function if the all_contig_annotations.json was present in the input folders)
+          HC_contig <- which(curr.annotations$contig_id == curr.barcode$VDJ_chain_contig) #This line is never reached if trim.and.align == FALSE (either set by the user or set by the function if the all_contig_annotations.json was present in the input folders)
           #trim sequence
           curr.barcode$VDJ_sequence_nt_trimmed <- substr(curr.barcode$VDJ_sequence_nt_raw, as.numeric(curr.annotations$temp_start[HC_contig])+1, as.numeric(curr.annotations$temp_end[HC_contig])-1)
           #translate trimmed sequence
@@ -871,7 +820,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           #align to reference and trim reference
           if(nchar(curr.barcode$VDJ_sequence_nt_trimmed) > 1){
             alignments <- Biostrings::pairwiseAlignment(curr.barcode$VDJ_sequence_nt_trimmed, as.character(reference_HC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-            curr.barcode$VDJ_trimmed_ref <- as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))]))
+            curr.barcode$VDJ_trimmed_ref <- as.character(alignments@subject[which.max(alignments@score)])
           } else {to_paste_ref_trimmed <-  ""}
         }, error=function(e){
           to_paste_ref_trimmed <- "ALIGNMENT ERROR"})
@@ -879,7 +828,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     } else if(HC_count > 1){ #MORE THAN ONE HC
       #from the annotations extract sequence and paste
 
-      if(append.raw.reference == T){
+      if(append.raw.reference == TRUE){
         if(length(as.character(reference_HC)) > 0){
           curr.barcode$VDJ_raw_ref <- paste0(lapply(reference_HC, function(x) return(as.character(unlist(x)))), collapse = ";")
         }
@@ -891,14 +840,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
-      if(trim.and.align == T){
+      if(trim.and.align == TRUE){
         tryCatch({
           #looping contigs in annotation
           for(l in 1:nrow(curr.annotations)){
             #looping over Hb contig ids (as there may be more than 1)
-            for(c in 1:length(stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T))){
+            for(c in 1:length(stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = TRUE))){
               #find a match
-              if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = T)[c]){
+              if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VDJ_chain_contig, ";",simplify = TRUE)[c]){
                 #trim sequence
                 to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = T)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
                 #translate trimmed sequence
@@ -908,7 +857,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                 #align to reference and trim reference
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
                   alignments <- Biostrings::pairwiseAlignment(to_paste_trimmed[length(to_paste_trimmed)], as.character(reference_HC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))])))
+                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(alignments@subject[which.max(alignments@score)]))
                 } else {
                   to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
                 }
@@ -927,12 +876,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     #Light/a
     if(LC_count == 1){
 
-      if(append.raw.reference == T){
+      if(append.raw.reference == TRUE){
         if(length(as.character(reference_LC)) > 0){curr.barcode$VJ_raw_ref <- as.character(reference_LC)
         }
       }
 
-      if(trim.and.align == T){
+      if(trim.and.align == TRUE){
         tryCatch({
           #find match in annotations
           LC_contig <- which(curr.annotations$contig_id == curr.barcode$VJ_chain_contig)
@@ -945,7 +894,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           #align to reference and trim reference
           if(nchar(curr.barcode$VJ_sequence_nt_trimmed) > 1){
             alignments <- Biostrings::pairwiseAlignment(curr.barcode$VJ_sequence_nt_trimmed, as.character(reference_LC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-            curr.barcode$VJ_trimmed_ref <- as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))]))
+            curr.barcode$VJ_trimmed_ref <- as.character(alignments@subjects[which.max(alignments@score)])
           } else {to_paste_ref_trimmed <-  ""}
         }, error=function(e){
           to_paste_ref_trimmed <- "ALIGNMENT ERROR"
@@ -953,7 +902,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
     } else if(LC_count > 1){ #MORE THAN ONE LC
 
-      if(append.raw.reference == T){
+      if(append.raw.reference == TRUE){
         if(length(as.character(reference_LC)) > 0){
           curr.barcode$VJ_raw_ref <- paste0(lapply(reference_LC, function(x) return(as.character(unlist(x)))), collapse = ";")
         }
@@ -963,16 +912,16 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       to_paste_trimmed <- c()
       to_paste_aa <- c()
       to_paste_ref_trimmed <- c()
-      if(trim.and.align == T){
+      if(trim.and.align == TRUE){
         tryCatch({
           #looping contigs in annotation
           for(l in 1:nrow(curr.annotations)){
             #looping over Hb contig ids (as there may be more than 1)
-            for(c in 1:length(stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T))){
+            for(c in 1:length(stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = TRUE))){
               #find a match
-              if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = T)[c]){
+              if(curr.annotations$contig_id[l] == stringr::str_split(curr.barcode$VJ_chain_contig, ";",simplify = TRUE)[c]){
                 #trim sequence
-                to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = T)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
+                to_paste_trimmed <- append(to_paste_trimmed, substr(stringr::str_split(to_paste, ";",simplify = TRUE)[c], as.numeric(curr.annotations$temp_start[l])+1, as.numeric(curr.annotations$temp_end[l])-1))
                 #translate trimmed sequence
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
                   to_paste_aa <- append(to_paste_aa, as.character(suppressWarnings(Biostrings::translate(Biostrings::DNAStringSet(to_paste_trimmed[length(to_paste_trimmed)])))))
@@ -981,7 +930,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
 
                   alignments <- Biostrings::pairwiseAlignment(to_paste_trimmed[length(to_paste_trimmed)], as.character(reference_LC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))])))
+                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(alignments@subjects[which.max(alignments@score)]))
                 } else {
                   to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
                 }
@@ -1004,21 +953,21 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #Input
   if(missing(GEX.read.h5)) GEX.read.h5 <- FALSE
   #VDJ GEX integration
-  if(missing(VDJ.combine)) VDJ.combine <- T
-  if(missing(GEX.integrate)) GEX.integrate <- T
-  if(GEX.integrate == F) VDJ.combine <- F #Default to avoid one GEX object and multiple VDJs
-  if(missing(integrate.GEX.to.VDJ)) integrate.GEX.to.VDJ <- T
-  if(missing(integrate.VDJ.to.GEX)) integrate.VDJ.to.GEX <- T
-  if(missing(exclude.GEX.not.in.VDJ)) exclude.GEX.not.in.VDJ <- F
-  if(missing(filter.overlapping.barcodes.GEX)) filter.overlapping.barcodes.GEX <- T
-  if(missing(filter.overlapping.barcodes.VDJ)) filter.overlapping.barcodes.VDJ <- T
+  if(missing(VDJ.combine)) VDJ.combine <- TRUE
+  if(missing(GEX.integrate)) GEX.integrate <- TRUE
+  if(GEX.integrate == FALSE) VDJ.combine <- FALSE #Default to avoid one GEX object and multiple VDJs
+  if(missing(integrate.GEX.to.VDJ)) integrate.GEX.to.VDJ <- TRUE
+  if(missing(integrate.VDJ.to.GEX)) integrate.VDJ.to.GEX <- TRUE
+  if(missing(exclude.GEX.not.in.VDJ)) exclude.GEX.not.in.VDJ <- FALSE
+  if(missing(filter.overlapping.barcodes.GEX)) filter.overlapping.barcodes.GEX <- TRUE
+  if(missing(filter.overlapping.barcodes.VDJ)) filter.overlapping.barcodes.VDJ <- TRUE
   #Stats
-  if(missing(get.VDJ.stats)) get.VDJ.stats <- T
+  if(missing(get.VDJ.stats)) get.VDJ.stats <- TRUE
   #VDJ
-  if(missing(append.raw.reference)) append.raw.reference <- T
-  if(missing(select.excess.chains.by.umi.count)) select.excess.chains.by.umi.count <- F
+  if(missing(append.raw.reference)) append.raw.reference <- TRUE
+  if(missing(select.excess.chains.by.umi.count)) select.excess.chains.by.umi.count <- FALSE
   if(missing(excess.chain.confidence.count.threshold)) excess.chain.confidence.count.threshold <- 1000 #default is too high for any single chain to cross it. if set to 3 or lower, cells with double chains will be maintained if each double chain is over that umi threshold
-  if(missing(trim.and.align)) trim.and.align <- F
+  if(missing(trim.and.align)) trim.and.align <- FALSE
   if(missing(parallel.processing)) parallel.processing <- "none"
   if(parallel.processing == "parlapply" | parallel.processing == "mclapply"){
     if(missing(numcores)) numcores <- parallel::detectCores()
@@ -1032,13 +981,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(exclude.on.cell.state.markers)) exclude.on.cell.state.markers <- "none"
   if(missing(exclude.on.barcodes)) exclude.on.barcodes <- "none"
   if(missing(mito.filter)) mito.filter <- 20
-  if(missing(VDJ.gene.filter)) VDJ.gene.filter <- T
+  if(missing(VDJ.gene.filter)) VDJ.gene.filter <- TRUE
   if(missing(norm.scale.factor)) norm.scale.factor <- 10000
   if(missing(n.count.rna.min)) n.count.rna.min <- 0
   if(missing(n.count.rna.max)) n.count.rna.max <- Inf
   if(missing(n.feature.rna)) n.feature.rna <- 0
   if(missing(integration.method)) integration.method <- "scale.data"
-  if(missing(GEX.integrate)) GEX.integrate <- T
+  if(missing(GEX.integrate)) GEX.integrate <- TRUE
   if(missing(n.variable.features)) n.variable.features <- 2000
   if(missing(cluster.resolution)) cluster.resolution <- .5
   if(missing(neighbor.dim)) neighbor.dim <- 1:10
@@ -1047,8 +996,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   if(missing(FB.ratio.threshold)) FB.ratio.threshold <- 2
   if(missing(FB.count.threshold)) FB.count.threshold <- 10
   if(missing(FB.exclude.pattern)) FB.exclude.pattern <- "not a pattern that will be filterd out"
-  if(missing(subsample.barcodes)) subsample.barcodes = F
-  if(missing(verbose)) verbose <- T
+  if(missing(subsample.barcodes)) subsample.barcodes <- FALSE
+  if(missing(verbose)) verbose <- TRUE
 
   #### Input organisation ####
 
@@ -1064,14 +1013,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   } else if (inherits(Seurat.in,"SeuratObject") | inherits(Seurat.in,"Seurat")){ #Seurat.in must be class Seurat.object
 
       if(!"sample_id" %in% names(Seurat.in@meta.data) | !"group_id" %in% names(Seurat.in@meta.data)) stop("Seurat.in objects need to contain sample_id and group_id columns")
-      if(stringr::str_detect(Seurat.in@meta.data$sample_id, "s\\d")[1] == F) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
+      if(stringr::str_detect(Seurat.in@meta.data$sample_id, "s\\d")[1] == FALSE) stop("Seurat.in objects sample_id column needs to follow sample naming scheme: s1 , s2, ... sn")
 
     #Setting related variables accoring to Seurat.input
-    seurat.loaded <- T
+    seurat.loaded <- TRUE
 
-    if(VDJ.combine == F){
+    if(VDJ.combine == FALSE){
       warning("Seurat input object provided, but VDJ.combine == FALSE. Setting VDJ.combine to TRUE")
-      VDJ.combine <- T
+      VDJ.combine <- TRUE
     }
   }
 
@@ -1170,7 +1119,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     if(missing(group.id)) group.id <- 1:length(samples.in)
     Data.in <- NULL
-    data.in.loaded <- T
+    data.in.loaded <- TRUE
   }
 
   #### Load VDJ ####
@@ -1178,7 +1127,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   vdj_load_error <- tryCatch({
 
-  if(data.in.loaded == F & VDJ.out.directory.list[[1]] != "none"){ #No Data.in => proceed with loading by VDJ.out.directory.list
+  if(data.in.loaded == FALSE & VDJ.out.directory.list[[1]] != "none"){ #No Data.in => proceed with loading by VDJ.out.directory.list
 
     #Remove possible backslash at the end of the input path
     VDJ.out.directory.list <- lapply(VDJ.out.directory.list, function(x) return(gsub("/$", "", x)))
@@ -1187,21 +1136,21 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     file.check <- c()
     for(i in 1:length(VDJ.out.directory.list)){
       for(j in c("/clonotypes.csv","/concat_ref.fasta","/filtered_contig_annotations.csv","/filtered_contig.fasta")){
-        if(file.exists(paste(VDJ.out.directory.list[[i]],j,sep="")) == F) file.check <- c(file.check, paste0("For VDJ input directory ",i, " file ", j, " was not found. \n"))
+        if(file.exists(paste(VDJ.out.directory.list[[i]],j,sep="")) == FALSE) file.check <- c(file.check, paste0("For VDJ input directory ",i, " file ", j, " was not found. \n"))
       }
     }
-    if(trim.and.align == F) file.check <- file.check[!stringr::str_detect(file.check, "all_contig_annotations.json")] #If these files are not needed they are not reported as missing
+    if(trim.and.align == FALSE) file.check <- file.check[!stringr::str_detect(file.check, "all_contig_annotations.json")] #If these files are not needed they are not reported as missing
     if(length(file.check) > 0){
       for(i in file.check){ message(i)}
       stop("VDJ loading of at least one file failed. Please revise input paths")}
 
       clonotype.list <- lapply(VDJ.out.directory.list, function(x) utils::read.table(paste(x,"/clonotypes.csv",sep=""), stringsAsFactors = FALSE,sep=",",header=T))
-      reference.list <- lapply(VDJ.out.directory.list, function(x) seqinr::read.fasta(paste(x,"/concat_ref.fasta",sep=""), as.string = T,seqonly = F,forceDNAtolower = F))
+      reference.list <- lapply(VDJ.out.directory.list, function(x) seqinr::read.fasta(paste(x,"/concat_ref.fasta",sep=""), as.string = TRUE,seqonly = FALSE,forceDNAtolower = FALSE))
       contig.table <- lapply(VDJ.out.directory.list, function(x) utils::read.csv(paste(x,"/filtered_contig_annotations.csv",sep=""),sep=",",header=T)) #better using the table format downstream
 
       #changes for compatibility with the cellranger multi pipeline
       if(all(file.exists(paste(VDJ.out.directory.list,"/metrics_summary.csv",sep="")))){
-        metrics.table <- lapply(VDJ.out.directory.list, function(x) utils::read.csv(paste(x,"/metrics_summary.csv",sep=""),sep=",",header=T))
+        metrics.table <- lapply(VDJ.out.directory.list, function(x) utils::read.csv(paste(x,"/metrics_summary.csv",sep=""),sep=",",header=TRUE))
       } else {
         if(verbose) message("! metrics_summary.csv file not available in at least one of the VDJ input directories. Loading will be skipped \n")
         metrics.table <- "none"
@@ -1209,12 +1158,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #NEW in cellranger 6.1 => Loading the contigs independently from the annotations file. This allows to return full contig sequences despite not trimming and aligning
       #Adding the raw contigs to the contig table loaded from filtered_contig_annotation.csv above
-      raw.contig.table <- lapply(VDJ.out.directory.list, function(x) seqinr::read.fasta(paste(x,"/filtered_contig.fasta",sep=""), as.string = T,seqonly = F,forceDNAtolower = F))
+      raw.contig.table <- lapply(VDJ.out.directory.list, function(x) seqinr::read.fasta(paste(x,"/filtered_contig.fasta",sep=""), as.string = TRUE,seqonly = FALSE,forceDNAtolower = FALSE))
       for(ikj in 1:length(raw.contig.table)){
         #coercing this to a dataframe
         raw.contig.table[[ikj]] <- data.frame("contig_id" = names(raw.contig.table[[ikj]]), "raw_contig" = as.character(raw.contig.table[[ikj]]))
         #merge directly with contig dataframe to have annotations and sequence in one place for later
-        contig.table[[ikj]] <- merge(contig.table[[ikj]], raw.contig.table[[ikj]], by = "contig_id", all.x = T, all.y = F) #making sure to only merge in raw contig sequences for contigs which are present in the table containing annotations
+        contig.table[[ikj]] <- merge(contig.table[[ikj]], raw.contig.table[[ikj]], by = "contig_id", all.x = TRUE, all.y = FALSE) #making sure to only merge in raw contig sequences for contigs which are present in the table containing annotations
         if(sum(is.na(contig.table[[ikj]]$raw_contig)) > 0.5*nrow(contig.table[[ikj]])) warning("! Merging of raw contigs and filtered_contig_annotations showed unsusually low overlap \n")
       }
 
@@ -1222,7 +1171,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #Reason: In Cellranger 6 the function Cellranger multi was introduced. The VDJ output of that does not contain the all_contig_annotations.json file.
       #Therefore we check if the file exists and skip it if not. If it does not exist, the function will not be able to perform trimming and aligning and a warning is issued
 
-      if(trim.and.align == T){ #we only need this for trimming, so we skip the loading if that is not desired
+      if(trim.and.align == TRUE){ #we only need this for trimming, so we skip the loading if that is not desired
         if(all(file.exists(paste(VDJ.out.directory.list,"/all_contig_annotations.json",sep="")))){
           annotations.list <- lapply(VDJ.out.directory.list, function(x) jsonlite::read_json(paste(x,"/all_contig_annotations.json",sep="")))
 
@@ -1247,10 +1196,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           }
         } else { #in at least one directory the all_contig_annotations.json was not found
           warning("Warning: At least one VDJ input directory is missing the file all_contig_annotations.json. Without this, accurate trimming and aligning of sequences is not possible. Setting trim.and.align to FALSE and proceeding. For an alternate mode of aligment please refer to the function VDJ_call_MIXCR \n")
-          trim.and.align <- F
+          trim.and.align <- FALSE
           annotations.table <- as.list(rep("none", length(contig.table)))
         }
-      } else if(trim.and.align == F){
+      } else if(trim.and.align == FALSE){
         annotations.table <- as.list(rep("none", length(contig.table)))
       }
 
@@ -1268,12 +1217,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         annotations.table <- lapply(annotations.table, function(x) dplyr::mutate(.data = x, dplyr::across(dplyr::everything(), as.character)))}
 
       vdj.loaded <- T
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded VDJ data"))
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded VDJ data"))
 
-  } else if(data.in.loaded == T){ #GET info from samples.in
+  } else if(data.in.loaded == TRUE){ #GET info from samples.in
     #get VDJs
 
-    vdj.loaded <- F
+    vdj.loaded <- FALSE
 
       clonotype.list <- lapply(samples.in, function(x){return(x[[1]][[1]])})
       reference.list <- lapply(samples.in, function(x){return(x[[1]][[2]])})
@@ -1302,11 +1251,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         annotations.table <- lapply(annotations.table, function(x) dplyr::mutate(.data = x, dplyr::across(dplyr::everything(), as.character)))}
 
       vdj.loaded <- T
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded VDJ data from Data.in"))
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded VDJ data from Data.in"))
 
       } else {
         warning("At least on VDJ slot in data.in provided list did not contain VDJ information. Skipping VDJ processing")
-        vdj.loaded <- F
+        vdj.loaded <- FALSE
       }
     }
   }, error = function(e){
@@ -1318,12 +1267,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   gex_load_error <- tryCatch({
 
   #Choosing GEX paths
-  if(data.in.loaded == F  & seurat.loaded == F & GEX.out.directory.list[[1]] != "none"){ #No Data.in or Seurat.in => proceed with loading by GEX.out.directory.list
+  if(data.in.loaded == FALSE  & seurat.loaded == FALSE & GEX.out.directory.list[[1]] != "none"){ #No Data.in or Seurat.in => proceed with loading by GEX.out.directory.list
 
     #Remove possible backslash at the end of the input path
     GEX.out.directory.list <- lapply(GEX.out.directory.list, function(x) return(gsub("/$", "", x)))
 
-      if(GEX.read.h5 == F){
+      if(GEX.read.h5 == FALSE){
         if(stringr::str_detect(GEX.out.directory.list[[1]],"filtered_feature_bc_matrix") | #checking only for first path assuming that all sample inputs are processed with the same cellranger function
            stringr::str_detect(GEX.out.directory.list[[1]],"raw_feature_bc_matrix") |
            stringr::str_detect(GEX.out.directory.list[[1]],"sample_feature_bc_matrix") |
@@ -1370,7 +1319,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       #NEW CELLRANGER 6.1. dealing with the possibility of Feature barcode information being included in the GEX directory.
       #=> Procedure: check if there is feature barcode info in the GEX that was just loaded => if not, proceed as normal
       #=> if yes, isolate the matrices for each input sample into two flat lists: GEX.list and FB.list
-      fb.loaded <- F
+      fb.loaded <- FALSE
       FB.list <- list()
       for(i in 1:length(directory_read10x)){ #iterating over main list
         if(inherits(directory_read10x[[i]],"list")){ #this returns true only if the GEX directory import contained more than one marices => i.e. there is a GEX and a FB matrix
@@ -1394,7 +1343,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             FB.list[[length(FB.list)+1]] <- directory_read10x[[i]][[FB_ind]] #add this matrix to the FB list ! For GEX input where no FB was found this will become placeholder (see below)
             directory_read10x[[i]] <- directory_read10x[[i]][[-FB_ind]] #delete the matrix from the original list, so that only the GEX matrix remains
             #Moreover we want to prevent two user inputs with FB. Here we set fb.loaded to TRUE, so that the FB loading from disk module further down will be skipped.
-            fb.loaded <- T
+            fb.loaded <- TRUE
           }
         } else{
           #PLACEHOLDER MATRIX: can be converted to a seurat object and run through the whole function without needing extra IF conditions
@@ -1402,7 +1351,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         }
       }
 
-      if(fb.loaded == T) {
+      if(fb.loaded == TRUE) {
         #got two lists: the FB.list and the directory_read10x which only contains GEX info, but is still nested. So we have to flatten it
         directory_read10x <- do.call(list, unlist(directory_read10x, recursive=FALSE))
 
@@ -1439,21 +1388,21 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #load the metrics file conditionally
       GEX.out.directory.list.metrics <- paste(GEX.out.directory.list,"/metrics_summary.csv",sep="")
-      if(get.VDJ.stats == T & all(file.exists(GEX.out.directory.list.metrics))){
-        gex.metrics.table <- lapply(GEX.out.directory.list.metrics, function(x) utils::read.csv(x,sep=",",header=T, ))
+      if(get.VDJ.stats == TRUE & all(file.exists(GEX.out.directory.list.metrics))){
+        gex.metrics.table <- lapply(GEX.out.directory.list.metrics, function(x) utils::read.csv(x,sep=",",header=TRUE, ))
       } else {
         gex.metrics.table <- "none"
       }
 
-      gex.loaded <- T
-      if(fb.loaded == F){
-        if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded GEX data"))
+      gex.loaded <- TRUE
+      if(fb.loaded == FALSE){
+        if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded GEX data"))
       } else {
-        if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded GEX and FB data"))
+        if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded GEX and FB data"))
       }
 
 
-  } else if(data.in.loaded == T & inherits(samples.in, "list")){ #GET info from samples.in
+  } else if(data.in.loaded == TRUE & inherits(samples.in, "list")){ #GET info from samples.in
       gex.list <- lapply(samples.in, function(x) return(x[[2]][[1]]))
       gex.list.class <- lapply(samples.in, function(x) return(class(x[[2]][[1]])))
 
@@ -1481,15 +1430,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         samples.in[[i]][[2]] <- "loaded"
       }
 
-      gex.loaded <- T
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded GEX data from Data.in"))
+      gex.loaded <- TRUE
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded GEX data from Data.in"))
 
       } else {
         warning("At least on GEX slot in data.in provided list did not contain GEX information. Skipping GEX processing")
-        gex.loaded <- F
+        gex.loaded <- FALSE
       }
   } else {
-    if(seurat.loaded == F) message("\n GEX not loaded")
+    if(seurat.loaded == FALSE) message("\n GEX not loaded")
   }
 
   }, error = function(e){
@@ -1498,17 +1447,17 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #### Load GEX from Seurat object ####
 
-  if(gex.loaded == F & seurat.loaded == T){
+  if(gex.loaded == FALSE & seurat.loaded == TRUE){
       gex.list <- list(Seurat.in) #changing to list type for compatibility
       Seurat.in <- NULL
-      gex.loaded <- F #!
+      gex.loaded <- FALSE #!
   }
 
   #### Load Feature barcodes ####
 
   #! Not checking if FB have already been loaded as part of GEX. If FB directory is supplied, any FB data loaded by GEX is therefore overwritten.
   # This should allow for more flexibility of the user without having to realign the whole GEX data
-  if(inherits(samples.in,"character") & FB.out.directory.list[[1]] != "none" & fb.loaded == F){ #No Data.in or input => proceed with loading by BC.out.directory.list
+  if(inherits(samples.in,"character") & FB.out.directory.list[[1]] != "none" & fb.loaded == FALSE){ #No Data.in or input => proceed with loading by BC.out.directory.list
     #Remove possible backslash at the end of the input path
     FB.out.directory.list <- lapply(FB.out.directory.list, function(x) return(gsub("/$", "", x)))
 
@@ -1590,14 +1539,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       FB.list <- lapply(directory_read10x, function(x) Seurat::CreateSeuratObject(x))
       directory_read10x <- NULL
 
-      fb.loaded <- T
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded FB data"))
+      fb.loaded <- TRUE
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded FB data"))
 
     })}, error = function(e){
       message("\n Loading FB failed")
       message(e)})
 
-  } else if(inherits(samples.in,"list") & fb.loaded == F){ #GET info from samples.in
+  } else if(inherits(samples.in,"list") & fb.loaded == FALSE){ #GET info from samples.in
 
     FB.list <- lapply(samples.in, function(x) return(x[[3]][[1]]))
     FB.list.class <- lapply(samples.in, function(x) return(class(x[[3]][[1]])))
@@ -1612,21 +1561,21 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       #Make Seurat
       FB.list <- lapply(FB.list, function(x) Seurat::CreateSeuratObject(x))
-      fb.loaded <- T
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Loaded FB data from data.in"))
+      fb.loaded <- TRUE
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Loaded FB data from data.in"))
 
-    } else if(fb.loaded == F){
+    } else if(fb.loaded == FALSE){
       FB.list <- "none"
     }
-  } else if(fb.loaded == F){
+  } else if(fb.loaded == FALSE){
     FB.list <- "none"
   }
 
 
   #### Call VDJ stats ####
 
-  stats.done <- F
-  if(get.VDJ.stats == T & vdj.loaded == T){
+  stats.done <- FALSE
+  if(get.VDJ.stats == TRUE & vdj.loaded == TRUE){
     if(verbose) message("\n Getting VDJ GEX stats")
     tryCatch({
       out.stats <- VDJ_GEX_stats_int(clonotype.list = clonotype.list,
@@ -1635,10 +1584,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                      contig.table = contig.table,
                                      vdj.metrics = metrics.table,
                                      gex.metrics = gex.metrics.table,
-                                     samples.paths.VDJ = stringr::str_split(samples.paths.VDJ, " ; ", simplify = T)[1,], #needing to split sample paths again as they will end up in separate rows in the stats dataframe
+                                     samples.paths.VDJ = stringr::str_split(samples.paths.VDJ, " ; ", simplify = TRUE)[1,], #needing to split sample paths again as they will end up in separate rows in the stats dataframe
                                      verbose = verbose)
-      stats.done <- T
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Got VDJ GEX stats"))
+      stats.done <- TRUE
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Got VDJ GEX stats"))
 
     }, error = function(e){
       message(paste0("VDJ stats failed: ", e, "\n"))
@@ -1657,7 +1606,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   barcodes_GEX_raw <- list()
   barcodes_VDJ_raw <- list()
 
-  if(gex.loaded == T & vdj.loaded == T & seurat.loaded == F){ #If both VDJ and GEX are available
+  if(gex.loaded == TRUE & vdj.loaded == TRUE & seurat.loaded == FALSE){ #If both VDJ and GEX are available
 
     for(i in 1:length(gex.list)){
       barcodes_GEX[[i]] <- colnames(gex.list[[i]])
@@ -1679,8 +1628,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       gex.list[[i]] <- SeuratObject::AddMetaData(gex.list[[i]], vdj.gex.available, col.name = "VDJ_available")
 
       #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
-      if(exclude.GEX.not.in.VDJ == T){
-        gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ_available == T)])
+      if(exclude.GEX.not.in.VDJ == TRUE){
+        gex.list[[i]] <- subset(gex.list[[i]], cells = colnames(gex.list[[i]])[which(gex.list[[i]]$VDJ_available == TRUE)])
         if(verbose) message(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX cells that were not present in VDJ"))
       }
     }
@@ -1689,11 +1638,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     bc_list <- c(barcodes_VDJ_raw, barcodes_GEX_raw)
     names(bc_list) <- c(paste0("VDJ s", 1:length(barcodes_VDJ_raw)), paste0("GEX s", 1:length(barcodes_GEX_raw)))
     if(verbose) message("\n Overlap matrix of barcodes in GEX and VDJ: ")
-    if(verbose) print(listIntersect(bc_list))
+    if(verbose) message(listIntersect(bc_list))
 
   }
 
-  if(gex.loaded == F & vdj.loaded == T & seurat.loaded == T){ #If VDJ is available and GEX is loaded from Seurat.in
+  if(gex.loaded == FALSE & vdj.loaded == TRUE & seurat.loaded == TRUE){ #If VDJ is available and GEX is loaded from Seurat.in
     #Pulling single vectors from Seurat.in
     barcodes_GEX <- colnames(gex.list[[1]])
     barcodes_GEX_raw <- gsub("(^_)|(-\\d+.*$)","",barcodes_GEX)
@@ -1721,7 +1670,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     bc_list <- c(barcodes_VDJ_raw, barcodes_GEX_raw_list)
     names(bc_list) <- c(paste0("VDJ s", 1:length(barcodes_VDJ_raw)), paste0("GEX s", 1:length(barcodes_GEX_raw_list)))
     if(verbose) message("\n Overlap matrix of barcodes in GEX and VDJ: ")
-    if(verbose) print(listIntersect(bc_list))
+    if(verbose) message(listIntersect(bc_list))
 
     barcodes_VDJ_raw <- unlist(barcodes_VDJ_raw) #reducing to a single vector
     if(verbose) message(paste0("\n For input Seurat object: ", length(barcodes_GEX)," cells assigned barcodes in GEX"))
@@ -1732,14 +1681,14 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     gex.list[[1]] <- SeuratObject::AddMetaData(gex.list[[1]], vdj.gex.available, col.name = "VDJ_available")
 
     #remove all barcodes in GEX which are not present in VDJ (defaults to FALSE)
-    if(exclude.GEX.not.in.VDJ == T){
-      gex.list[[1]] <- subset(gex.list[[1]], cells = colnames(gex.list[[1]])[which(gex.list[[1]]$VDJ_available == T)])
+    if(exclude.GEX.not.in.VDJ == TRUE){
+      gex.list[[1]] <- subset(gex.list[[1]], cells = colnames(gex.list[[1]])[which(gex.list[[1]]$VDJ_available == TRUE)])
       if(verbose) message(paste0("Removed ", length(vdj.gex.available)-sum(vdj.gex.available), " GEX cells that were not present in VDJ"))
       }
     }
 
   #If only GEX is processed
-  if(gex.loaded == T & vdj.loaded == F){
+  if(gex.loaded == TRUE & vdj.loaded == FALSE){
     for(i in 1:length(gex.list)){
       barcodes_GEX[[i]] <- colnames(gex.list[[i]])
       barcodes_GEX_raw[[i]] <- gsub("(^_)|(-\\d+.*$)","",barcodes_GEX[[i]])
@@ -1748,7 +1697,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     }
   }
   #If only VDJ is processed
-  if(gex.loaded == F & vdj.loaded == T){
+  if(gex.loaded == FALSE & vdj.loaded == TRUE){
     for(i in 1:length(contig.table)){##barcodes_VDJ holds the unique barcodes
       barcodes_VDJ[[i]] <- unique(contig.table[[i]]$barcode[which(tolower(contig.table[[i]]$is_cell) == "true"
                                                                   & tolower(contig.table[[i]]$high_confidence) == "true"
@@ -1761,7 +1710,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #### Barcode overlap removal ####
 
   #GEX
-  if(filter.overlapping.barcodes.GEX == T & gex.loaded == T){
+  if(filter.overlapping.barcodes.GEX == TRUE & gex.loaded == TRUE){
     if(length(gex.list) > 1){
       barcodes_GEX_c <- do.call("c", lapply(gex.list, function(x) x$orig_barcode))
       unique_barcodes <- names(table(barcodes_GEX_c)[table(barcodes_GEX_c) == 1])
@@ -1775,7 +1724,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   #VDJ
-  if(filter.overlapping.barcodes.VDJ == T & vdj.loaded == T){
+  if(filter.overlapping.barcodes.VDJ == TRUE & vdj.loaded == TRUE){
     if(length(barcodes_VDJ) > 1){
       barcodes_VDJ_c <- do.call("c", barcodes_VDJ)
       non_unique_barcodes <- names(table(barcodes_VDJ_c)[table(barcodes_VDJ_c) > 1])
@@ -1792,7 +1741,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #### Filtering by input barcode list ####
 
-  if(exclude.on.barcodes[1] != "none" & (gex.loaded == T | seurat.loaded == T)){
+  if(exclude.on.barcodes[1] != "none" & (gex.loaded == TRUE | seurat.loaded == TRUE)){
       barcodes_GEX_c <- do.call("c", lapply(gex.list, function(x) x$orig_barcode))
       to_keep <- barcodes_GEX_c[!barcodes_GEX_c %in% exclude.on.barcodes]
       for(i in 1:length(gex.list)){
@@ -1802,7 +1751,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       }
     }
 
-  if(exclude.on.barcodes[1] != "none" & vdj.loaded == T){
+  if(exclude.on.barcodes[1] != "none" & vdj.loaded == TRUE){
       for(i in 1:length(barcodes_VDJ)){
         n_cells <- length(barcodes_VDJ[[i]])
         barcodes_VDJ[[i]] <- barcodes_VDJ[[i]][which(!gsub("-\\d+.*$","",barcodes_VDJ[[i]]) %in% exclude.on.barcodes)]
@@ -1813,7 +1762,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #### Exclude cells on cell state markers ####
 
   #handlers copied from GEX_phenotype, Thanks Alex!
-  if(exclude.on.cell.state.markers[1] != "none" & gex.loaded == T){
+  if(exclude.on.cell.state.markers[1] != "none" & gex.loaded == TRUE){
 
     #rename to match GEX_phenotype variables
     cell.state.markers <- exclude.on.cell.state.markers
@@ -1839,10 +1788,10 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
             x<-F
             return(x)})
           #if command worked, subset current seurat object
-          if(is.exist!=F){
+          if(is.exist!=FALSE){
             cells_unfiltered <- ncol(gex.list[[j]])
             gex.list[[j]]$match_ex_crit <- colnames(gex.list[[j]]) %in% barcodes_match_ex_crit
-            gex.list[[j]] <- subset(gex.list[[j]], subset = match_ex_crit == T)
+            gex.list[[j]] <- subset(gex.list[[j]], subset = match_ex_crit == TRUE)
             gex.list[[j]]@meta.data <- gex.list[[j]]@meta.data[-c(ncol(gex.list[[j]]@meta.data))] #remove that column again
             if(verbose) message(paste0("\n In GEX sample ", j ," excluded ", cells_unfiltered - ncol(gex.list[[j]])," cells based on ", cell.state.markers[i]))
             #If the Gene was not found in seurat object features
@@ -1860,7 +1809,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #### Subsample VDJ barcodes ####
 
-  if(subsample.barcodes == T & vdj.loaded == T){
+  if(subsample.barcodes == TRUE & vdj.loaded == TRUE){
     #For development => shorten barcode list to shorten computational time during development
     if(verbose) message("Sampling 50 barcodes from all in VDJ per sample \n")
     for(i in 1:length(barcodes_VDJ)){
@@ -1870,11 +1819,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #### VDJ Processing per cell ####
 
-  if(vdj.loaded == T){
+  if(vdj.loaded == TRUE){
     VDJ.proc.list <- list()
     for(i in 1:length(contig.table)){
 
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " "," Starting VDJ barcode iteration ", i , " of ", length(contig.table), "..."))
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " "," Starting VDJ barcode iteration ", i , " of ", length(contig.table), "..."))
 
       if(parallel.processing == "parlapply" | parallel.processing == "parLapply"){
         doParallel::stopImplicitCluster() #close any open clusters
@@ -1947,7 +1896,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
       VDJ.proc.list[[i]] <- VDJ.proc
 
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Done with ", i , " of ", length(contig.table)))
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Done with ", i , " of ", length(contig.table)))
     }
     VDJ.proc <- VDJ.proc.list
     VDJ.proc.list <- NULL
@@ -1958,7 +1907,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     reference.list <- NULL
     annotations.table <- NULL
 
-    if (VDJ.combine == T){ #processing all VDJ files together ! THIS RETURNS A DATAFRAME
+    if (VDJ.combine == TRUE){ #processing all VDJ files together ! THIS RETURNS A DATAFRAME
       VDJ.proc <- dplyr::bind_rows(VDJ.proc)
     }
   } else{
@@ -1966,7 +1915,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   }
 
   #### GEX Processing ####
-  if(gex.loaded == T & seurat.loaded == F){ #Only execute this processing if the GEX object is not already processed
+  if(gex.loaded == TRUE & seurat.loaded == FALSE){ #Only execute this processing if the GEX object is not already processed
     if(verbose) message("\n Starting GEX pipeline")
     GEX.proc <- GEX_automate_single(GEX.list = gex.list,
                                     GEX.integrate = GEX.integrate,
@@ -1984,11 +1933,11 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                     group.id = group.id,
                                     verbose = verbose)
 
-    if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Done with GEX pipeline"))
+    if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Done with GEX pipeline"))
 
-  } else if (gex.loaded == F & seurat.loaded == F){
+  } else if (gex.loaded == FALSE & seurat.loaded == FALSE){
     GEX.proc <- "none"
-  } else if (gex.loaded == F & seurat.loaded == T){
+  } else if (gex.loaded == FALSE & seurat.loaded == TRUE){
 
     if(verbose) message("\n Preparing Seurat.in object")
 
@@ -2000,12 +1949,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     GEX.proc[[1]] <- SeuratObject::RenameCells(GEX.proc[[1]], new.names = paste0(GEX.proc[[1]]$sample_id, "_",gsub("(^_)|(-\\d+.*$)","",colnames(GEX.proc[[1]]))))
     }
 
-    if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Done with Seurat.in"))
+    if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Done with Seurat.in"))
   }
 
   #### Feature Barcode preparation ####
 
-  FB.processed <- F
+  FB.processed <- FALSE
   if(fb.loaded){
     if(verbose) message("\n Starting FB processing")
     tryCatch({
@@ -2013,7 +1962,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       FB.list <- lapply(FB.list, function(x) return(SeuratObject::FetchData(x, rownames(x))))
       #filtering columns of the table based on pattern input
       for(i in 1:length(FB.list)){
-        FB.list[[i]] <- FB.list[[i]][, stringr::str_detect(names(FB.list[[i]]), FB.exclude.pattern) == F]
+        FB.list[[i]] <- FB.list[[i]][, stringr::str_detect(names(FB.list[[i]]), FB.exclude.pattern) == FALSE]
       }
       #assigning FBs using also the user tunable threshold as an additional argument
       FB.list <- lapply(FB.list, pick_max_feature_barcode, FB.ratio.threshold, FB.count.threshold)
@@ -2025,8 +1974,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         }
       }
 
-      FB.processed <- T #keeping track for VDJ
-      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Got FB assignment to cell barcodes"))
+      FB.processed <- TRUE #keeping track for VDJ
+      if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Got FB assignment to cell barcodes"))
     }, error = function(e){
       message("Processing FB failed")
       message(e)
@@ -2036,7 +1985,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #### Feature Barcode assignment to GEX ####
   #Here we merge feature barcodes into the GEX matrices.
   #Because users may choose to not combine individual samples, we need to deal with multiple seurat objects in the GEX.proc and VDJ.proc lists
-  if(fb.loaded == T & inherits(GEX.proc,"list")){ #ensuring correct input
+  if(fb.loaded == TRUE & inherits(GEX.proc,"list")){ #ensuring correct input
 
     if(verbose) message("\n Adding Feature barcode information to GEX")
 
@@ -2046,7 +1995,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       FB.list.copy.for.vdj <- FB.list
 
       #process FB further
-      if(length(GEX.proc) == 1){ #Either only one sample or GEX.integrate == T
+      if(length(GEX.proc) == 1){ #Either only one sample or GEX.integrate == TRUE
         if(length(unique(GEX.proc[[1]]$sample_id)) != length(FB.list)){ #no 1-1 corespondence between lengths...
           #This should not happen as every GEX library is associated with on FB library
           stop("\n FB assignment failed because number of FB input matrices does not match number of GEX input matrices")
@@ -2059,9 +2008,9 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         #GET from GEX
         meta_to_merge <- SeuratObject::FetchData(GEX.proc[[1]], "orig_barcode") #getting a reference to merge into
         #now making the barcodes matching with the format in FB.list
-        meta_to_merge$barcode <- paste0(stringr::str_split(rownames(meta_to_merge), "_", simplify = T)[,1], "_",meta_to_merge$orig_barcode)
+        meta_to_merge$barcode <- paste0(stringr::str_split(rownames(meta_to_merge), "_", simplify = TRUE)[,1], "_",meta_to_merge$orig_barcode)
 
-        meta_to_merge <- merge(meta_to_merge, FB.list, by = "barcode", all.x = T, all.y = F, sort = F) #merging making sure to not add or remove any rows
+        meta_to_merge <- merge(meta_to_merge, FB.list, by = "barcode", all.x = TRUE, all.y = FALSE, sort = FALSE) #merging making sure to not add or remove any rows
         rownames(meta_to_merge) <- rownames(GEX.proc[[1]]@meta.data) #reconstitute the rownames.
         #make sure that there are no NAs
         meta_to_merge$FB_assignment[is.na(meta_to_merge$FB_assignment)] <- "Not assignable"
@@ -2075,7 +2024,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
           for(i in 1:length(FB.list)){ #iterating over FB tables
             meta_to_merge <- SeuratObject::FetchData(GEX.proc[[i]], "orig_barcode") #getting a reference to merge into
-            meta_to_merge <- merge(meta_to_merge, FB.list[[i]], by = "orig_barcode", all.x = T, all.y = F, sort = F) #merging making sure to not add or remove any rows
+            meta_to_merge <- merge(meta_to_merge, FB.list[[i]], by = "orig_barcode", all.x = TRUE, all.y = FALSE, sort = FALSE) #merging making sure to not add or remove any rows
             rownames(meta_to_merge) <- rownames(GEX.proc[[i]]@meta.data)#reconstitute the rownames.
             #make sure that there are no NAs
             meta_to_merge$FB_assignment[is.na(meta_to_merge$FB_assignment)] <- "Not assignable"
@@ -2088,23 +2037,23 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           stop("\n FB assignment failed because number of FB input matrices does not match number of GEX input matrices")
         }
       }
-      message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Added Feature barcode info to GEX"))
+      message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Added Feature barcode info to GEX"))
       meta_to_merge <- NULL
     }, error = function(e){
       message("Adding Feature barcode information to GEX failed")
       message(e)
     })
   } else {
-    FB.processed <- F #keeping track for VDJ
+    FB.processed <- FALSE #keeping track for VDJ
   }
 
   #### Feature Barcode assignment to VDJ ####
 
-  if(fb.loaded == T & (inherits(VDJ.proc,"list") | inherits(VDJ.proc,"data.frame"))){ #ensuring correct input
+  if(fb.loaded == TRUE & (inherits(VDJ.proc,"list") | inherits(VDJ.proc,"data.frame"))){ #ensuring correct input
 
     if(verbose) message("\n Adding Feature barcode information to VDJ")
     tryCatch({
-      if(inherits(VDJ.proc,"data.frame")){ #Either only one sample or VDJ.combine == T
+      if(inherits(VDJ.proc,"data.frame")){ #Either only one sample or VDJ.combine == TRUE
 
         if(inherits(FB.list, "data.frame")) FB.list <- FB.list.copy.for.vdj #reconstitute
 
@@ -2118,8 +2067,8 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         FB.list <- as.data.frame(dplyr::bind_rows(FB.list))
 
         #add the sample identifier to the orig_barcode column in VDJ similar to GEX
-        VDJ.proc$barcode <- paste0(stringr::str_split(VDJ.proc$barcode, "_", simplify = T)[,1], "_",VDJ.proc$orig_barcode)
-        VDJ.proc <- merge(VDJ.proc, FB.list, by = "barcode", all.x = T, all.y = F) #merging making sure to not add or remove any rows
+        VDJ.proc$barcode <- paste0(stringr::str_split(VDJ.proc$barcode, "_", simplify = TRUE)[,1], "_",VDJ.proc$orig_barcode)
+        VDJ.proc <- merge(VDJ.proc, FB.list, by = "barcode", all.x = T, all.y = FALSE) #merging making sure to not add or remove any rows
         #make sure that there are no NAs
         VDJ.proc$FB_assignment[is.na(VDJ.proc$FB_assignment)] <- "Not assignable"
         #move the column to after sample_id as this column will probably be used a lot
@@ -2129,7 +2078,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       } else if(inherits(VDJ.proc,"list")){
         if(length(VDJ.proc) == length(FB.list)){ #if there is 1-1 correspondence
           for(i in 1:length(FB.list)){ #iterating over FB tables
-            VDJ.proc[[i]] <- merge(VDJ.proc[[i]], FB.list[[i]], by = "orig_barcode", all.x = T, all.y = F)
+            VDJ.proc[[i]] <- merge(VDJ.proc[[i]], FB.list[[i]], by = "orig_barcode", all.x = TRUE, all.y = FALSE)
             #make sure that there are no NAs
             VDJ.proc[[i]]$FB_assignment[is.na(VDJ.proc[[i]]$FB_assignment)] <- "Not assignable"
             #move the column to after sample_id as this column will probably be used a lot
@@ -2140,7 +2089,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           stop("\n FB assignment failed because number of FB input matrices does not match number of VDJ input matrices")
         }
       }
-      message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Added Feature barcode info to VDJ"))
+      message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Added Feature barcode info to VDJ"))
       FB.list <- NULL
       FB.list.merge <- NULL
     }, error = function(e){
@@ -2151,7 +2100,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
   #### VDJ GEX integration ####
 
-  if(vdj.loaded == T & (gex.loaded == T | seurat.loaded == T)){
+  if(vdj.loaded == TRUE & (gex.loaded == TRUE | seurat.loaded == TRUE)){
     if(verbose) message("\n Integrating VDJ and GEX ")
     #Combine GEX and VDJ
     #Multiple cases:
@@ -2164,7 +2113,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                                                  , col.name = "VDJ_available")
 
       #add some GEX columns to VDJ table
-      if(integrate.GEX.to.VDJ == T){
+      if(integrate.GEX.to.VDJ == TRUE){
 
         #get data from Seurat object to add to VDJ. In the future this could become an extra parameter
         seur_meta <- SeuratObject::FetchData(GEX.proc[[1]],
@@ -2172,12 +2121,12 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         seur_meta$barcode <- rownames(seur_meta)
         #merge to VDJ.proc => into each VDJ we add the relevant info
         for(l in 1:length(VDJ.proc)){
-          VDJ.proc[[l]] <- merge(VDJ.proc[[l]], seur_meta, by = "barcode", all.x = T, all.y = F)
+          VDJ.proc[[l]] <- merge(VDJ.proc[[l]], seur_meta, by = "barcode", all.x = TRUE, all.y = FALSE)
         }
       }
 
       #add VDJ info to GEX as metadata columns
-      if(integrate.VDJ.to.GEX == T){
+      if(integrate.VDJ.to.GEX == TRUE){
         seur_meta <- GEX.proc[[1]]@meta.data
         #set barcodes as columns for merging
         seur_meta$barcode <- rownames(seur_meta)
@@ -2185,7 +2134,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         drop <- c("sample_id", "group_id", "orig.ident", "seurat_clusters", "orig_barcode.x", "orig.barcode.y","orig_barcode", "GEX_available", "FB_assignment")
         #rbind VDJ proc objects and add them together
         VDJ.proc.all <- dplyr::bind_rows(VDJ.proc)
-        seur_meta <- merge(seur_meta, VDJ.proc.all[,which(!names(VDJ.proc.all) %in% drop)], by = "barcode", all.x = T) #these columns are excluded here because they already exist in the seurat object
+        seur_meta <- merge(seur_meta, VDJ.proc.all[,which(!names(VDJ.proc.all) %in% drop)], by = "barcode", all.x = TRUE) #these columns are excluded here because they already exist in the seurat object
         VDJ.proc.all <- NULL
         #add rownames to new dataframe, otherwise AddMetaData fails
         rownames(seur_meta) <- seur_meta$barcode
@@ -2203,23 +2152,23 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
       GEX.proc <- GEX.proc[[1]]
 
       #add some GEX columns to VDJ table
-      if(integrate.GEX.to.VDJ == T){
+      if(integrate.GEX.to.VDJ == TRUE){
         #get data from Seurat object to add to VDJ. In the future this could become an extra parameter
         seur_meta <- SeuratObject::FetchData(GEX.proc,
                                              vars = c("orig.ident","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))
         seur_meta$barcode <- rownames(seur_meta)
         #merge to VDJ.proc
-        VDJ.proc <- merge(VDJ.proc, seur_meta, by = "barcode", all.x = T, all.y = F)
+        VDJ.proc <- merge(VDJ.proc, seur_meta, by = "barcode", all.x = TRUE, all.y = FALSE)
       }
 
       #add VDJ info to GEX as metadata columns
-      if(integrate.VDJ.to.GEX == T){
+      if(integrate.VDJ.to.GEX == TRUE){
         seur_meta <- GEX.proc@meta.data
         #set barcodes as columns for merging
         seur_meta$barcode <- rownames(seur_meta)
         #merge
         drop <- c("sample_id", "group_id", "orig.ident", "seurat_clusters", "orig_barcode.x", "orig.barcode.y","orig_barcode", "GEX_available")
-        seur_meta <- merge(seur_meta, VDJ.proc[,which(!names(VDJ.proc) %in% drop)], by = "barcode", all.x = T) #these columns are excluded here because they already exist in the seurat object
+        seur_meta <- merge(seur_meta, VDJ.proc[,which(!names(VDJ.proc) %in% drop)], by = "barcode", all.x = TRUE) #these columns are excluded here because they already exist in the seurat object
         #add rownames to new dataframe, otherwise AddMetaData fails
         rownames(seur_meta) <- seur_meta$barcode
         #add metadata
@@ -2232,24 +2181,24 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
         VDJ.proc[[i]]$GEX_available <- VDJ.proc[[i]]$barcode %in% colnames(GEX.proc[[i]])
 
         #add some GEX columns to VDJ table
-        if(integrate.GEX.to.VDJ == T){
+        if(integrate.GEX.to.VDJ == TRUE){
           if(verbose) message("Integrating multiple VDJ and GEX pairwise. ! VDJ and GEX input paths or data must be in the same order!")
           #get data from Seurat object to add to VDJ. In the future this could become an extra parameter
           seur_meta <- SeuratObject::FetchData(GEX.proc[[i]],
                                                vars = c("orig.ident","seurat_clusters","PC_1", "PC_2", "UMAP_1", "UMAP_2", "tSNE_1", "tSNE_2"))
           seur_meta$barcode <- rownames(seur_meta)
           #merge to VDJ.proc
-          VDJ.proc[[i]] <- merge(VDJ.proc[[i]], seur_meta, by = "barcode", all.x = T, all.y = F)
+          VDJ.proc[[i]] <- merge(VDJ.proc[[i]], seur_meta, by = "barcode", all.x = TRUE, all.y = FALSE)
         }
         #add VDJ info to GEX as metadata columns
-        if(integrate.VDJ.to.GEX == T){
+        if(integrate.VDJ.to.GEX == TRUE){
           if(verbose) message("\n Integrating multiple VDJ and GEX pairwise. ! VDJ and GEX input paths or data must be in the same order!")
           seur_meta <- GEX.proc[[i]]@meta.data
           #set barcodes as columns for merging
           seur_meta$barcode <- rownames(seur_meta)
           #merge
           drop <- c("sample_id", "group_id", "orig.ident", "seurat_clusters", "orig_barcode.x", "orig.barcode.y","orig_barcode", "GEX_available")
-          seur_meta <- merge(seur_meta, VDJ.proc[[i]][,which(!names(VDJ.proc[[i]]) %in% drop)], by = "barcode", all.x = T) #these columns are excluded here because they already exist in the seurat object
+          seur_meta <- merge(seur_meta, VDJ.proc[[i]][,which(!names(VDJ.proc[[i]]) %in% drop)], by = "barcode", all.x = TRUE) #these columns are excluded here because they already exist in the seurat object
           #add rownames to new dataframe, otherwise AddMetaData fails
           rownames(seur_meta) <- seur_meta$barcode
           #add metadata
@@ -2260,15 +2209,15 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
 
     out.list <- list("VDJ" = VDJ.proc, "GEX" = GEX.proc)
 
-  } else if(vdj.loaded == T & gex.loaded == F & seurat.loaded == F){
+  } else if(vdj.loaded == TRUE & gex.loaded == FALSE & seurat.loaded == FALSE){
     out.list <- list("VDJ" = VDJ.proc, "GEX" = "none")
-  } else if(vdj.loaded == F & (gex.loaded == T | seurat.loaded == T)){
+  } else if(vdj.loaded == FALSE & (gex.loaded == TRUE | seurat.loaded == TRUE)){
     if(length(GEX.proc) == 1){
       #Reduce GEX.proc to a seurat object
       GEX.proc <- GEX.proc[[1]]
     }
     out.list <- list("VDJ" = "none", "GEX" = GEX.proc)
-  } else if(vdj.loaded == F & gex.loaded == F & Seurat.loaded == F){
+  } else if(vdj.loaded == FALSE & gex.loaded == FALSE & Seurat.loaded == FALSE){
     stop("Neither VDJ or GEX data loaded. Exiting")
   }
 
@@ -2322,7 +2271,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           out.list[[1]]$batch_id <- gsub(unique(out.list[[1]]$sample_id)[i], batches[i], out.list[[1]]$batch_id)}
       }
     }
-    if(!inherits(out.list[[2]],"character") & GEX.integrate == T){ #check that gex has been completed and if there is only a single GEX object
+    if(!inherits(out.list[[2]],"character") & GEX.integrate == TRUE){ #check that gex has been completed and if there is only a single GEX object
       if(length(batches) == length(unique(out.list[[2]]$sample_id))){
         out.list[[2]]$batch_id <- as.character(out.list[[2]]$sample_id)
         for (i in 1:length(unique(out.list[[2]]$batch_id))){
@@ -2333,13 +2282,13 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
     if(inherits(out.list[[1]],"data.frame")){ #check that vdj has been completed
       out.list[[1]]$batches <- "Unspecified"
     }
-    if(!inherits(out.list[[2]],"character") & GEX.integrate == T){ #check that gex has been completed
+    if(!inherits(out.list[[2]],"character") & GEX.integrate == TRUE){ #check that gex has been completed
       out.list[[2]]$batches <- "Unspecified"
     }
   }
 
   #adding VDJ stats
-  if(stats.done == T){
+  if(stats.done == TRUE){
     if(verbose) message("\n Adding VDJ stats")
     out.list[[3]] <- out.stats
   } else {
@@ -2359,7 +2308,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
   #Capitalized gene names from now on :)
   rownames(out.list[[2]]) <- sapply(rownames(out.list[[2]]), function(x) toupper(x))
 
-  if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = T)[,2], " ","Done!"))
+  if(verbose) message(paste0(stringr::str_split(Sys.time(), " ", simplify = TRUE)[,2], " ","Done!"))
   if(verbose) message(Sys.time())
 
   return(out.list)

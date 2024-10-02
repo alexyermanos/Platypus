@@ -8,14 +8,14 @@
 #' @param platypus.version Character. Defaults to "v3". Can be "v2" or "v3" dependent on the input format
 #' @param known.binders Either a character vector with cdr3s of known binders or a data frame with cdr3s in the first and the corresponding specificity in the second column. If this parameter is defined, the output will be a network with only edges between known binders and the repertoire nodes and edges between the known binders that have at least one edge to a repertoire node
 #' @param is.bulk logical value indicating whether the VDJ input was generated from bulk-sequencing data using the bulk_to_vgm function. If is.bulk = T, the VDJ_network function is compatible for use with bulk data. Defaults to False (F).
-#' @return returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==F, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
+#' @return returns a list containing networks and network information. If per.sample is set to TRUE then the result will be a network for each repertoire. If per.sample ==FALSE, output[[1]] <- will contain the network, output[[2]] will contain the dataframe with information on each node, such as frequency, mouse origin etc. output[[3]] will contain the connected index - these numbers indicate that the nodes are connected to at least one other node. output[[4]] contains the paired graph - so the graph where only the connected nodes are drawn.
 #' @export
 #' @examples
-#' #Platypus v2
-#' #network_out <- VDJ_network(VDJ = VDJ_analyze.out[[1]],per.sample = TRUE,distance.cutoff = 2)
-#' #Platypus v3
+#' \donttest{
+#' try({
 #' network_out <- VDJ_network(VDJ = Platypus::small_vgm[[1]],per.sample = FALSE,distance.cutoff = 2)
-#'
+#' })
+#'}
 
 VDJ_network <- function(VDJ,
                         distance.cutoff,
@@ -29,11 +29,11 @@ VDJ_network <- function(VDJ,
   Nr_of_VDJ_chains <- NULL
   Nr_of_VJ_chains <- NULL
 
-  if(missing(is.bulk)) is.bulk <- F
+  if(missing(is.bulk)) is.bulk <- FALSE
   if(missing(platypus.version)) platypus.version <- "v3" ##START V2
   if(missing(distance.cutoff)) distance.cutoff <- 3
-  if(missing(known.binders)) known.binders <- F
-  if(missing(hcdr3.only)) hcdr3.only <- F
+  if(missing(known.binders)) known.binders <- FALSE
+  if(missing(hcdr3.only)) hcdr3.only <- FALSE
 
   #Naming compatibility
   VDJ.matrix <- VDJ
@@ -44,7 +44,7 @@ VDJ_network <- function(VDJ,
 
     clonotype.list <- VDJ.matrix
 
-    if(per.sample==F & known.binders == F){
+    if(per.sample==FALSE & known.binders == FALSE){
       for(i in 1:length(clonotype.list)) clonotype.list[[i]]$mouse <- rep(i,nrow(clonotype.list[[i]]))
       clonotype_rbind <- do.call("rbind",clonotype.list)
       distance_matrix <- stringdist::stringdistmatrix(clonotype_rbind$CDR3_aa_pasted,clonotype_rbind$CDR3_aa_pasted,method = "lv")
@@ -54,7 +54,7 @@ VDJ_network <- function(VDJ,
       paired_network_aa[paired_network_aa<distance.cutoff] <- 1
       paired_network_aa[paired_network_aa>=distance.cutoff] <- 0
       paired_graph <- igraph::graph_from_adjacency_matrix(paired_network_aa, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
-      connected_index <- which(rowSums(paired_network_aa,na.rm = T)>0 & colSums(paired_network_aa,na.rm = T)>0)
+      connected_index <- which(rowSums(paired_network_aa,na.rm = TRUE)>0 & colSums(paired_network_aa,na.rm = TRUE)>0)
       paired_network_aa_connect <- paired_network_aa[connected_index,connected_index]
       out.graph <- igraph::graph_from_adjacency_matrix(paired_network_aa_connect, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
       outlist <- list()
@@ -64,7 +64,7 @@ VDJ_network <- function(VDJ,
       outlist[[4]] <- paired_graph
       return(outlist)
     }
-    else if(per.sample==T & known.binders == F){
+    else if(per.sample==TRUE & known.binders == FALSE){
       outlist <- list()
 
       for(i in 1:length(clonotype.list)){
@@ -74,7 +74,7 @@ VDJ_network <- function(VDJ,
         paired_network_aa[paired_network_aa<distance.cutoff] <- 1
         paired_network_aa[paired_network_aa>=distance.cutoff] <- 0
         paired_graph <- igraph::graph_from_adjacency_matrix(paired_network_aa, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
-        connected_index <- which(rowSums(paired_network_aa,na.rm = T)>0 & colSums(paired_network_aa,na.rm = T)>0)
+        connected_index <- which(rowSums(paired_network_aa,na.rm = TRUE)>0 & colSums(paired_network_aa,na.rm = TRUE)>0)
         paired_network_aa_connect <- paired_network_aa[connected_index,connected_index]
         out.graph <- igraph::graph_from_adjacency_matrix(paired_network_aa_connect, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
         if(connected==TRUE) outlist[[i]] <- out.graph
@@ -85,17 +85,17 @@ VDJ_network <- function(VDJ,
   }
   else if(platypus.version == "v3"){
 
-    if (is.bulk == F) {
+    if (is.bulk == FALSE) {
       #filtering for max 1VDJ 1VJ chain
       VDJ.matrix <- subset(VDJ.matrix, Nr_of_VDJ_chains == 1 & Nr_of_VJ_chains == 1)
     }
     clonotype.list <- VDJ.matrix
     clonotype.list$CDR3_aa_pasted <- paste0(clonotype.list$VDJ_cdr3s_aa, clonotype.list$VJ_cdr3s_aa)
 
-    if(per.sample==F & inherits(known.binders,'logical')){
-      if (hcdr3.only == T){
+    if(per.sample==FALSE & inherits(known.binders,'logical')){
+      if (hcdr3.only == TRUE){
         clonotype.feature <- clonotype.list$VDJ_cdr3s_aa
-      } else if (hcdr3.only == F){
+      } else if (hcdr3.only == FALSE){
         clonotype.feature <- clonotype.list$CDR3_aa_pasted
       }
 
@@ -109,7 +109,7 @@ VDJ_network <- function(VDJ,
       diag(paired_network_aa)<-NA
       gc()
       paired_graph <- igraph::graph_from_adjacency_matrix(paired_network_aa, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
-      connected_index <- which(rowSums(paired_network_aa,na.rm = T)>0 & colSums(paired_network_aa,na.rm = T)>0)
+      connected_index <- which(rowSums(paired_network_aa,na.rm = TRUE)>0 & colSums(paired_network_aa,na.rm = TRUE)>0)
       paired_network_aa_connect <- paired_network_aa[connected_index,connected_index]
       out.graph <- igraph::graph_from_adjacency_matrix(paired_network_aa_connect, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
       outlist <- list()
@@ -119,7 +119,7 @@ VDJ_network <- function(VDJ,
       outlist[[4]] <- paired_graph
       return(outlist)
     }
-    else if(per.sample==T & inherits(known.binders,'logical')){
+    else if(per.sample==TRUE & inherits(known.binders,'logical')){
 
       outlist <- list()
 
@@ -139,9 +139,9 @@ VDJ_network <- function(VDJ,
 
       for(i in 1:length(clonotype.list)){
 
-        if (hcdr3.only == T){
+        if (hcdr3.only == TRUE){
           clonotype.feature <- clonotype.list[[i]]$VDJ_cdr3s_aa
-        } else if (hcdr3.only == F){
+        } else if (hcdr3.only == FALSE){
           clonotype.feature <- clonotype.list[[i]]$CDR3_aa_pasted
         }
 
@@ -154,7 +154,7 @@ VDJ_network <- function(VDJ,
         diag(paired_network_aa)<-NA
         gc()
         paired_graph <- igraph::graph_from_adjacency_matrix(paired_network_aa, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
-        connected_index <- which(rowSums(paired_network_aa,na.rm = T)>0 & colSums(paired_network_aa,na.rm = T)>0)
+        connected_index <- which(rowSums(paired_network_aa,na.rm = TRUE)>0 & colSums(paired_network_aa,na.rm = TRUE)>0)
         paired_network_aa_connect <- paired_network_aa[connected_index,connected_index]
         out.graph <- igraph::graph_from_adjacency_matrix(paired_network_aa_connect, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
 
@@ -168,7 +168,7 @@ VDJ_network <- function(VDJ,
       outlist[[4]] <- graph.paired.list
       return(outlist)
     }
-    else if(per.sample==F & !inherits(known.binders,'logical')){ #STAR GLOBAL known binders
+    else if(per.sample==FALSE & !inherits(known.binders,'logical')){ #START GLOBAL known binders
 
       known.binders <- data.frame(known.binders)
       comb_cdrs <- append(known.binders[,1], clonotype.feature) # append cdrs
@@ -197,12 +197,12 @@ VDJ_network <- function(VDJ,
       diag(paired_network_aa)<-NA
       gc()
 
-      delete_index <- which(rowSums(paired_network_aa[1:nrow(known.binders),(nrow(known.binders)+1):length(comb_cdrs)],na.rm = T)==0 &
-                              colSums(paired_network_aa[(nrow(known.binders)+1):length(comb_cdrs),1:nrow(known.binders)],na.rm = T)==0) #remove known binders without edges to repertoire nodes
+      delete_index <- which(rowSums(paired_network_aa[1:nrow(known.binders),(nrow(known.binders)+1):length(comb_cdrs)],na.rm = TRUE)==0 &
+                              colSums(paired_network_aa[(nrow(known.binders)+1):length(comb_cdrs),1:nrow(known.binders)],na.rm = TRUE)==0) #remove known binders without edges to repertoire nodes
       paired_network_aa[delete_index,1:nrow(known.binders)]<-NA
       paired_network_aa[1:nrow(known.binders),delete_index]<-NA
 
-      connected_index <- which(rowSums(paired_network_aa,na.rm = T)>0 & colSums(paired_network_aa,na.rm = T)>0)
+      connected_index <- which(rowSums(paired_network_aa,na.rm = TRUE)>0 & colSums(paired_network_aa,na.rm = TRUE)>0)
       paired_network_aa_connect <- paired_network_aa[connected_index,connected_index]
       #stop matrix calculations
       out.graph <- igraph::graph_from_adjacency_matrix(paired_network_aa_connect, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
@@ -213,7 +213,7 @@ VDJ_network <- function(VDJ,
       return(outlist)
     }#STAR GLOBAL known binders
 
-    else if(per.sample==T & !inherits(known.binders,'logical')){ #START per sample known binders
+    else if(per.sample==TRUE & !inherits(known.binders,'logical')){ #START per sample known binders
 
       outlist <- list()
 
@@ -235,9 +235,9 @@ VDJ_network <- function(VDJ,
       index.list <- list()
 
       for(i in 1:length(clonotype.list)){
-        if (hcdr3.only == T){
+        if (hcdr3.only == TRUE){
           clonotype.feature <- clonotype.list[[i]]$VDJ_cdr3s_aa
-        } else if (hcdr3.only == F){
+        } else if (hcdr3.only == FALSE){
           clonotype.feature <- clonotype.list[[i]]$CDR3_aa_pasted
         }
 
@@ -267,12 +267,12 @@ VDJ_network <- function(VDJ,
         diag(paired_network_aa)<-NA
         gc()
 
-        delete_index <- which(rowSums(paired_network_aa[1:nrow(known.binders),(nrow(known.binders)+1):length(comb_cdrs)],na.rm = T)==0 &
-                                colSums(paired_network_aa[(nrow(known.binders)+1):length(comb_cdrs),1:nrow(known.binders)],na.rm = T)==0) #remove known binders without edges to repertoire nodes
+        delete_index <- which(rowSums(paired_network_aa[1:nrow(known.binders),(nrow(known.binders)+1):length(comb_cdrs)],na.rm = TRUE)==0 &
+                                colSums(paired_network_aa[(nrow(known.binders)+1):length(comb_cdrs),1:nrow(known.binders)],na.rm = TRUE)==0) #remove known binders without edges to repertoire nodes
         paired_network_aa[delete_index,1:nrow(known.binders)]<-NA
         paired_network_aa[1:nrow(known.binders),delete_index]<-NA
 
-        connected_index <- which(rowSums(paired_network_aa,na.rm = T)>0 & colSums(paired_network_aa,na.rm = T)>0)
+        connected_index <- which(rowSums(paired_network_aa,na.rm = TRUE)>0 & colSums(paired_network_aa,na.rm = TRUE)>0)
         paired_network_aa_connect <- paired_network_aa[connected_index,connected_index]
         #stop matrix calculations
         out.graph <- igraph::graph_from_adjacency_matrix(paired_network_aa_connect, mode = c("undirected"), weighted = NULL, diag = TRUE,add.colnames = NULL, add.rownames = NA)
@@ -289,4 +289,3 @@ VDJ_network <- function(VDJ,
 
   }
 }
-
