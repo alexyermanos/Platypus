@@ -4,7 +4,14 @@
 \alias{VDJ_logoplot_vector}
 \title{Flexible logoplot wrapper}
 \usage{
-VDJ_logoplot_vector(cdr3.vector, length_cdr3, seq_type)
+VDJ_logoplot_vector(
+  cdr3.vector,
+  length_cdr3,
+  seq_type,
+  namespace,
+  font,
+  method
+)
 }
 \arguments{
 \item{cdr3.vector}{A character vector of aa sequences. This is to increase flexibility of this function. Such a sequence vector may be retrieved from the VDJ_analyse function output on a clonotype level or from the VDJ_GEX_matrix function output on a per cell level. Additionally, any length of sequence may be used (e.g. HCDR3 only or H and LCDR3 pasted together)}
@@ -12,6 +19,12 @@ VDJ_logoplot_vector(cdr3.vector, length_cdr3, seq_type)
 \item{length_cdr3}{Integer or character. Defaults to "auto". Sets the length of the CDR3 regions that are selected to be plotted. If set to auto, the most frequently appearing length in the vector will be used}
 
 \item{seq_type}{passed to ggseqlogo. Can be set to "aa", "dna", "rna" or "other"}
+
+\item{namespace}{passed to ggseqlogo. Default "auto".}
+
+\item{font}{passed to ggseqlogo. Default "roboto_medium".}
+
+\item{method}{passed to ggseqlogo. Default "bits".}
 }
 \value{
 Returns the logo plot.

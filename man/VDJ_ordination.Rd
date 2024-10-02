@@ -16,9 +16,9 @@ VDJ_ordination(
 )
 }
 \arguments{
-\item{VDJ}{VDJ dataframe output from the VDJ_GEX_matrix function.}
+\item{VDJ}{VDJ dataframe output from the VDJ_build function.}
 
-\item{feature.columns}{Character vector. One or more column names from the VDJ to indicate the unique species for the incidence/count matrix. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation.}
+\item{feature.columns}{Character vector. One or more column names from the VDJ to indicate the unique species for the incidence/count matrix. if more than one column is provided (e.g. c("VDJ_cdr3_aa","VJ_cdr3_aa")) these columns will be pasted together before metric calculation.}
 
 \item{grouping.column}{Character. Column name of a column to group the ordination by. This could be "sample_id" to reduce across each sample. Indicative of 'sites' in a typical community data matrix/incidence matrix used in community ecology analyses (species by sites).}
 
@@ -39,8 +39,8 @@ Returns a ggplot with the ordination analysis performer across features, groups,
 Performs ordination/dimensionality reduction for a species incidence matrix, depending on the species selected in the feature.columns parameter.
 }
 \examples{
-plot <- VDJ_ordination(VDJ = Platypus::small_vgm[[1]]
-,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
+plot <- VDJ_ordination(VDJ = Platypus::small_vdj
+,feature.columns = c("VDJ_cdr3_aa"), grouping.column = "sample_id"
 ,method = "pca", reduction.level = 'groups')
 
 }

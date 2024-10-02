@@ -14,7 +14,7 @@
 #' @export
 #' @examples
 #' example.vdj.vgene_usage <- VDJ_Vgene_usage_stacked_barplot(
-#' VDJ = Platypus::small_vgm[[1]], LC.Vgene = TRUE
+#' VDJ = Platypus::small_vdj, LC.Vgene = TRUE
 #' ,HC.gene.number = 15, Fraction.HC = 1, platypus.version = "v3")
 #'
 

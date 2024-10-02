@@ -8,6 +8,7 @@ VDJ_kmers(
   VDJ,
   sequence.column,
   grouping.column,
+  pool.per.group,
   kmer.k,
   max.kmers,
   specific.kmers,
@@ -21,6 +22,8 @@ VDJ_kmers(
 \item{sequence.column}{Character vector. One or more sequence column names from the VDJ for kmer counting. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before counting the kmers.}
 
 \item{grouping.column}{Character. Column name of a column to group kmer counting by. This could be "sample_id" to group each kmer by the sample.}
+
+\item{pool.per.group}{Boolean. If TRUE, will sum the kmer counts of each sequence per grouping factor (determined in grouping.column).}
 
 \item{kmer.k}{Integer. Length k of each kmer.}
 

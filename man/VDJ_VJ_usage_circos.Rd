@@ -25,7 +25,7 @@ VDJ_VJ_usage_circos(
 )
 }
 \arguments{
-\item{VGM}{The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.}
+\item{VGM}{The output of the VDJ_build function has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.}
 
 \item{VDJ.or.VJ}{Determines whether to plot the V J gene pairing of the alpha or beta chain. "VDJ", "VJ" or "both" as possible inputs. Default: "both".}
 
@@ -67,8 +67,9 @@ Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the co
 }
 \examples{
 \donttest{
- usage_circos_VDJVJ <- VDJ_VJ_usage_circos(Platypus::small_vgm[[1]])
+ try({usage_circos_VDJVJ <- VDJ_VJ_usage_circos(Platypus::small_vdj)
  usage_circos_VDJVJ[[1]]
+ })
 }
 
 }

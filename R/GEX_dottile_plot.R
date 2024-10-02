@@ -8,6 +8,7 @@
 #' @param platypus.version This is coded for \"v3\" only, but in practice any Seurat Object can be fed in
 #' @return Returns a ggplot object were the dot size indicates the percentage of expressing cells and the dot color indicates the expression level.
 #' @export
+#' @importFrom magrittr %>%
 #' @examples
 #'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
 #'group.by = "seurat_clusters", threshold.to.plot = 5)

@@ -1,40 +1,66 @@
-#' Minimal version of the VDJ building part from VDJ_GEX_matrix() function. Optimized for for Cell Ranger v7 and suitable for older Cell Ranger versions.
-#' Authors: Valentijn Tromp, Tudor-Stefan Cotet, Victor Kreiner, Aurora Desideri Perea, Evgenios Kladis, Anamay Samant
-#' @description  Imports Cell Ranger output into R dataframe for downstream analyses. Minimal version of the VDJ building part from the 'VDJ_GEX_matrix()' function of Platypus package. Adapted for Cell Ranger v7 and older versions as well. Seurat objects can be integrated by matching barcodes from the Seurat object's metadata with the barcodes in the 'barcode' column of the VDJ dataframe.
-#' @param VDJ.directory string - path to parent directory containing the output folders (one folder for each sample) of Cell Ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary 5 files within this folder: 'filtered_contig_annotations.csv', 'filtered_contig.fasta', 'consensus_annotations.csv', 'consensus.fasta', and 'concat_ref.fasta'.
-#' @param VDJ.sample.list list - list of paths to the output folders (one folder for each sample) of Cell Ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the /outs/ folder. This is compatible with B and T cell repertoires. ! Neccessary 5 files within this folder: 'filtered_contig_annotations.csv', 'filtered_contig.fasta', 'consensus_annotations.csv', 'consensus.fasta', and 'concat_ref.fasta'.
-#' @param remove.divergent.cells bool - if TRUE, cells with more than one VDJ transcript or more than one VJ transcript will be excluded. This could be due to multiple cells being trapped in one droplet or due to light chain dual expression (concerns ~2-5% of B cells, see DOI:10.1084/jem.181.3.1245). Defaults to FALSE.
-#' @param complete.cells.only bool - if TRUE, only cells with both a VDJ transcripts and a VJ transcript are included in the VDJ dataframe. Keeping only cells with 1 VDJ and 1 VJ transcript could be preferable for downstream analysis. Defaults to FALSE.
-#' @param trim.germlines bool - if TRUE, the raw germline sequences of each clone will be trimmed using the the consensus sequences of that clone as reference seqeunces (using Biostrings::pairwiseAlignment with the option "global-local" and a gap opening cost = gap.opening.cost). Defaults to FALSE.
-#' @param gap.opening.cost float - the cost for opening a gap in Biostrings::pairwiseAlignment when aligning and trimming germline sequences. Defaults to 10.
-#' @param parallel bool - if TRUE, the per-sample VDJ building is executed in parallel (parallelized across samples). Defaults to FALSE.
-#' @param num.cores integer - number of cores to be used when parallel = TRUE. Defaults to all available cores - 1 or the number of sample folders in 'VDJ.directory' (depending which number is smaller).
-#' @return Returns the VDJ dataframe / VGM[[1]] object. Each row in this dataframe represent one cell, or one unique cell barcode.
+#' Minimal Version of the VDJ Building Part from VDJ_GEX_matrix() Function
+#'
+#' This function imports Cell Ranger output into an R dataframe for downstream analyses. It is a minimal version of the VDJ building part from the `VDJ_GEX_matrix()` function of the Platypus package, adapted for Cell Ranger v7 and older versions. Seurat objects can be integrated by matching barcodes from the Seurat object's metadata with the barcodes in the `barcode` column of the VDJ dataframe.
+#'
+#' @param VDJ.directory A string specifying the path to the parent directory containing the output folders (one folder for each sample) of Cell Ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the `/outs/` folder. This is compatible with B and T cell repertoires. The following 5 files are necessary within this folder: 
+#' \describe{
+#'   \item{`filtered_contig_annotations.csv`}{Contains the filtered contig annotations.}
+#'   \item{`filtered_contig.fasta`}{Contains the filtered contig sequences in FASTA format.}
+#'   \item{`consensus_annotations.csv`}{Contains the consensus annotations.}
+#'   \item{`consensus.fasta`}{Contains the consensus sequences in FASTA format.}
+#'   \item{`concat_ref.fasta`}{Contains concatenated reference sequences.}
+#' }
+#' @param VDJ.sample.list A list specifying the paths to the output folders (one folder for each sample) of Cell Ranger. This pipeline assumes that the output file names have not been changed from the default 10x settings in the `/outs/` folder and requires the same 5 files listed above.
+#' @param remove.divergent.cells A logical value (`TRUE`/`FALSE`). If `TRUE`, cells with more than one VDJ transcript or more than one VJ transcript will be excluded. This could be due to multiple cells being trapped in one droplet or light chain dual expression (concerns ~2-5 percent of B cells, see DOI:10.1084/jem.181.3.1245). Defaults to `FALSE`.
+#' @param complete.cells.only A logical value (`TRUE`/`FALSE`). If `TRUE`, only cells with both a VDJ transcript and a VJ transcript are included in the VDJ dataframe. Keeping only cells with 1 VDJ and 1 VJ transcript could be preferable for downstream analysis. Defaults to `FALSE`.
+#' @param trim.germlines A logical value (`TRUE`/`FALSE`). If `TRUE`, the raw germline sequences of each clone will be trimmed using the consensus sequences of that clone as reference sequences (using `Biostrings::pairwiseAlignment` with the option "global-local" and a gap opening cost specified by `gap.opening.cost`). Defaults to `FALSE`.
+#' @param gap.opening.cost A numeric value representing the cost for opening a gap in `Biostrings::pairwiseAlignment` when aligning and trimming germline sequences. Defaults to 10.
+#' @param parallel A logical value (`TRUE`/`FALSE`). If `TRUE`, the per-sample VDJ building is executed in parallel (parallelized across samples). Defaults to `FALSE`.
+#' @param num.cores An integer specifying the number of cores to be used when `parallel = TRUE`. Defaults to all available cores minus 1 or the number of sample folders in `VDJ.directory` (whichever is smaller).
+#'
+#' @return A dataframe representing the VDJ / VGM[[1]] object. Each row in this dataframe represents one cell or one unique cell barcode.
+#'
+#' @details The function extracts and processes VDJ data from Cell Ranger output folders, making it suitable for integration with downstream analysis workflows such as Seurat. It can handle both T and B cell repertoires and is optimized for Cell Ranger v7.
+#'
 #' @export
+#' 
 #' @examples
-#' \dontrun{
-#' VDJ <- VDJ_build(VDJ_directory,
-#'                    remove.divergent.cells = TRUE,
-#'                    complete,cells.only = TRUE,
-#'                    trim.germlines = TRUE)
-#'}
+#' \donttest{
+#' try({
+#'   VDJ <- VDJ_build(
+#'     VDJ.directory = "path/to/VDJ_directory",
+#'     remove.divergent.cells = TRUE,
+#'     complete.cells.only = TRUE,
+#'     trim.germlines = TRUE
+#'   )
+#' })
+#' }
+
+
 
 
 VDJ_build <- function(VDJ.directory,
                       VDJ.sample.list,
-                      remove.divergent.cells = FALSE,
-                      complete.cells.only = FALSE,
-                      trim.germlines = FALSE,
-                      gap.opening.cost = 10,
-                      parallel = FALSE,
-                      num.cores = NULL){
+                      remove.divergent.cells,
+                      complete.cells.only,
+                      trim.germlines,
+                      gap.opening.cost,
+                      parallel,
+                      num.cores){
 
 
   # If both the 'VDJ.directory' and 'VDJ.sample.list' are missing, a message is returned and execution is stopped
   if(missing(VDJ.directory) & missing(VDJ.sample.list)){stop('The path to the parent directory containing the output folders (one for each sample) from Cell Ranger, or the list of these sample directories are missing.')}
   # If both a 'VDJ.directory' and 'VDJ.sample.list' are specified, a message is returned and execution is stopped
   if(!missing(VDJ.directory) & !missing(VDJ.sample.list)){stop('Both a path to the parent directory containing the output folders (one for each sample) from Cell Ranger and a list of sample directories are given as input. Please provide one parent direcotry or one list of sample directories.')}
-
+  
+  #Set defaults
+  if(missing(remove.divergent.cells)){remove.divergent.cells <- FALSE}
+  if(missing(complete.cells.only)){complete.cells.only <- FALSE}
+  if(missing(trim.germlines)){trim.germlines <- FALSE}
+  if(missing(gap.opening.cost)){gap.opening.cost <- 10}
+  if(missing(parallel)){parallel <- FALSE}
+  
   # Create list with paths to output folders of Cell Ranger (one path for each sample) in parent direcotry 'VDJ.directory'
   if(missing(VDJ.sample.list)){
     VDJ.sample.list <- list.dirs(path=VDJ.directory,
@@ -52,6 +78,20 @@ VDJ_build <- function(VDJ.directory,
   # Return a message that performing pairwise alignment for all germline sequences significantly increases computation time (if 'trim.germlines' is set to TRUE)
   if(trim.germlines){message("Warning: Setting 'trim.germlines' to TRUE will significantly increase computation time, please be patient!\n")}
 
+  #Global variable definitions for CRAN checks
+  sequence_trimmed <- NULL
+  chain <- NULL
+  barcode <- NULL
+  barcode <- NULL
+  VDJ_clonotype_id <- NULL
+  VJ_clonotype_id <- NULL
+  VDJ_chain_count <- NULL
+  VJ_chain_count <- NULL
+  celltype <- NULL
+  VDJ_cgene <- NULL
+  clonotype_id <- NULL
+
+  
 
   get_trim_seqs_from_json <- function(annotation_file){
 
@@ -85,7 +125,7 @@ VDJ_build <- function(VDJ.directory,
           # Retrieve contig/consensus ID
           id = single_annotation$contig_name,
           # Trim raw sequence using 'L-REGION+V-REGION' start and 'J-REGION' end indices
-          sequence_trimmed = substr(single_annotation$sequence,
+          sequence_trimmed <- substr(single_annotation$sequence,
                                     start = as.numeric(lv_region$contig_match_start)+1,
                                     stop = as.numeric(j_region$contig_match_end))
         )
@@ -131,17 +171,17 @@ VDJ_build <- function(VDJ.directory,
     return(as.character(alignment@subject))
     }
   }
-  
+
   translate_DNA<- function(sequence){
-    
+
     #Translate a nucleotide sequence into an amino acid sequence
     #Arguments:
     #- sequence: nucleotide sequence to be translated
-    
+
     if (sequence == ""){
       return("")
     }
-    
+
     #Genetic code
     genetic_code <- list(
       "TTT"="F", "TTC"="F", "TTA"="L", "TTG"="L",
@@ -163,7 +203,7 @@ VDJ_build <- function(VDJ.directory,
     )
     #Split the sequence into codons
     codons <- strsplit(sequence, "(?<=.{3})", perl=TRUE)[[1]]
-    
+
     #Translate the codons
     for (codon_id in 1:length(codons)){
       #Remove codons that are not complete
@@ -179,14 +219,14 @@ VDJ_build <- function(VDJ.directory,
         codons[codon_id] = genetic_code[[codons[codon_id]]]
       }
     }
-    
+
     #Paste the codons together
     sequence <- paste(codons, collapse="")
-    
+
     #Return the sequence
     return(sequence)
   }
-  
+
 
   make_VDJ_sample <- function(VDJ.sample.directory,
                               remove.divergent.cells,
@@ -446,8 +486,8 @@ VDJ_build <- function(VDJ.directory,
     # If 'remove.divergent.cells' is set to FALSE, merge rows with identical 'barcode' in 'VDJ_subset' and VJ_subset'
     if(!remove.divergent.cells){
       # Concatenate non-missing values in each column into a comma-separated string for 'vdj_subset' and 'vj_subset'
-      vdj_subset_processed <- aggregate(data = vdj_subset, x = . ~ barcode, FUN = \(x)toString(na.omit(x)), na.action = identity)
-      vj_subset_processed <- aggregate(data = vj_subset, x = . ~ barcode, FUN = \(x)toString(na.omit(x)), na.action = identity)
+      vdj_subset_processed <- stats::aggregate(data = vdj_subset, x = . ~ barcode, FUN = \(x)toString(stats::na.omit(x)), na.action = identity)
+      vj_subset_processed <- stats::aggregate(data = vj_subset, x = . ~ barcode, FUN = \(x)toString(stats::na.omit(x)), na.action = identity)
     }
 
     # Merge 'vdj_subset' with 'vj_subset' by 'barcode'

@@ -16,16 +16,10 @@
 #' @return Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing also barcode and CDR3 information
 #' @export
 #' @examples
-#'clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::VDJ_build(),
+#'clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vdj,
 #'  celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
 #'  ,treat.incomplete.clones = "exclude"
 #'  ,treat.incomplete.cells = "proportional")
-#'
-#'clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::VDJ_build()
-#', celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
-#',treat.incomplete.clones = "exclude"
-#',treat.incomplete.cells = "proportional"
-#',color.by = "seurat_clusters") #change grouping with group.by = "column name"
 #'clonal_out[[1]] #list of plots
 #'clonal_out[[2]] #list of source dataframes
 
@@ -962,7 +956,7 @@ VDJ_clonal_expansion <- function(VDJ,
               ggplot2::scale_y_continuous(expand = c(0,0)) + 
               ggplot2::scale_x_continuous(expand = c(0,0.5)) + 
               ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells") +
-              ggplot2::theme(text = element_text(size = 30),
+              ggplot2::theme(text = ggplot2::element_text(size = 30),
                              plot.title = ggplot2::element_text(hjust = 0.5))
 
           }
@@ -977,7 +971,7 @@ VDJ_clonal_expansion <- function(VDJ,
               ggplot2::scale_y_continuous(expand = c(0,0)) + 
               ggplot2::scale_x_continuous(expand = c(0,0.5)) + 
               ggplot2::labs(title = sample.names[[i]], x = "Clonal rank", y = "Number of cells") +
-              ggplot2::theme(text = element_text(size = 30),
+              ggplot2::theme(text = ggplot2::element_text(size = 30),
                              plot.title = ggplot2::element_text(hjust = 0.5))
 
 

@@ -14,7 +14,7 @@ VDJ_diversity(
 )
 }
 \arguments{
-\item{VDJ}{VDJ dataframe output from the VDJ_GEX_matrix function.}
+\item{VDJ}{VDJ dataframe output from the VDJ_build function.}
 
 \item{feature.columns}{Character vector. One or more column names from the VDJ of which diversity or overlap metrics are calculated. if more than one column is provided (e.g. c("VDJ_cdr3s_aa","VJ_cdr3s_aa")) these columns will be pasted together before metric calculation.}
 
@@ -34,15 +34,15 @@ Calculates and plots common diversity and overlap measures for repertoires and a
 }
 \examples{
 
-plot <- VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
-,feature.columns = c("VDJ_cdr3s_aa"), grouping.column = "sample_id"
+plot <- VDJ_diversity(VDJ = Platypus::small_vdj,
+,feature.columns = c("VDJ_cdr3_aa"), grouping.column = "sample_id"
 ,metric = "shannon")
 
-VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
-,feature.columns = c("VDJ_cdr3s_aa","VJ_cdr3s_aa"), grouping.column = "sample_id"
+VDJ_diversity(VDJ = Platypus::small_vdj,
+,feature.columns = c("VDJ_cdr3_aa","VJ_cdr3_aa"), grouping.column = "sample_id"
 ,metric = "ginisimpson")
 
-VDJ_diversity(VDJ = Platypus::small_vgm[[1]],
+VDJ_diversity(VDJ = Platypus::small_vdj,
 ,feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 ,metric = "jaccard")
 

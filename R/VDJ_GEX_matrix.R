@@ -820,7 +820,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           #align to reference and trim reference
           if(nchar(curr.barcode$VDJ_sequence_nt_trimmed) > 1){
             alignments <- Biostrings::pairwiseAlignment(curr.barcode$VDJ_sequence_nt_trimmed, as.character(reference_HC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-            curr.barcode$VDJ_trimmed_ref <- as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))]))
+            curr.barcode$VDJ_trimmed_ref <- as.character(alignments@subject[which.max(alignments@score)])
           } else {to_paste_ref_trimmed <-  ""}
         }, error=function(e){
           to_paste_ref_trimmed <- "ALIGNMENT ERROR"})
@@ -857,7 +857,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                 #align to reference and trim reference
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
                   alignments <- Biostrings::pairwiseAlignment(to_paste_trimmed[length(to_paste_trimmed)], as.character(reference_HC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))])))
+                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(alignments@subject[which.max(alignments@score)]))
                 } else {
                   to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
                 }
@@ -894,7 +894,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
           #align to reference and trim reference
           if(nchar(curr.barcode$VJ_sequence_nt_trimmed) > 1){
             alignments <- Biostrings::pairwiseAlignment(curr.barcode$VJ_sequence_nt_trimmed, as.character(reference_LC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-            curr.barcode$VJ_trimmed_ref <- as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))]))
+            curr.barcode$VJ_trimmed_ref <- as.character(alignments@subjects[which.max(alignments@score)])
           } else {to_paste_ref_trimmed <-  ""}
         }, error=function(e){
           to_paste_ref_trimmed <- "ALIGNMENT ERROR"
@@ -930,7 +930,7 @@ VDJ_GEX_matrix <- function(VDJ.out.directory.list,
                 if(nchar(to_paste_trimmed[length(to_paste_trimmed)]) > 1){
 
                   alignments <- Biostrings::pairwiseAlignment(to_paste_trimmed[length(to_paste_trimmed)], as.character(reference_LC), type = "local", gapOpening = gap.opening.cost, gapExtension = gap.extension.cost)
-                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(Biostrings::subject(alignments[which.max(Biostrings::score(alignments))])))
+                  to_paste_ref_trimmed <- append(to_paste_ref_trimmed, as.character(alignments@subjects[which.max(alignments@score)]))
                 } else {
                   to_paste_ref_trimmed <- append(to_paste_ref_trimmed, "")
                 }

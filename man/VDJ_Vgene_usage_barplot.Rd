@@ -15,7 +15,7 @@ VDJ_Vgene_usage_barplot(
 )
 }
 \arguments{
-\item{VDJ}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_GEX_matrix() function (VDJ.GEX.matrix.output[[1]])}
+\item{VDJ}{Either (for platypus version "v2") output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire, OR (for platypus version "v3") the the VDJ matrix output of the VDJ_build() function.}
 
 \item{group.by}{Character. Defaults to "sample_id". Column name of VDJ to group plot by.}
 
@@ -36,7 +36,7 @@ Returns a list of ggplot objects which show the distribution of IgH and IgK/L V 
 Produces a barplot with the most frequently used IgH and IgK/L Vgenes.
 }
 \examples{
-VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vgm[[1]],
+VDJ_Vgene_usage_barplot(VDJ = Platypus::small_vdj,
 HC.gene.number = 2, platypus.version = "v3")
 
 }

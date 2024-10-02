@@ -1,5 +1,5 @@
 #'Makes a Circos plot from the VDJ_analyze output. Connects the V gene with the corresponding J gene for each clonotype.
-#' @param VGM The output of the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]]) has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.
+#' @param VGM The output of the VDJ_build function has to be supplied. For Platypus v2: The output of the VDJ_GEX_integrate function (Platypus platypus.version v2). A list of data frames for each sample containing the clonotype information and cluster membership information.
 #' @param VDJ.or.VJ Determines whether to plot the V J gene pairing of the alpha or beta chain. "VDJ", "VJ" or "both" as possible inputs. Default: "both".
 #' @param label.threshold Genes are only labeled if the count is larger then the label.threshold. By default all label.threshold = 0 (all genes are labeled).
 #' @param c.count.label Boolean, lets the user decide if the gene and count labels should be plotted or not. Default = T.
@@ -20,8 +20,9 @@
 #' @export
 #' @examples
 #' \donttest{
-#'  usage_circos_VDJVJ <- VDJ_VJ_usage_circos(Platypus::small_vgm[[1]])
+#'  try({usage_circos_VDJVJ <- VDJ_VJ_usage_circos(Platypus::small_vdj)
 #'  usage_circos_VDJVJ[[1]]
+#'  })
 #'}
 #'
 
@@ -59,8 +60,7 @@ VDJ_VJ_usage_circos <- function(VGM,
   if(missing(arr.direction)){arr.direction <- 1}
   if(missing(topX)){topX <- "all"}
   if(missing(platy.theme)){platy.theme <- "pretty"}
-  if(missing(clonotype.column)){clonotype.column <- "clonotype_id_10x"}
-  clonotype.frequency <- paste0("clonotype_frequency_", stringr::str_split(clonotype.column, pattern="_")[[1]][3])
+  if(missing(clonotype.column)){clonotype.column <- "clonotype_id"}
 
 
   clonotypes_topX <- NULL
@@ -86,7 +86,7 @@ VDJ_VJ_usage_circos <- function(VGM,
   grid.col <- NULL
   plot <- NULL
   circos.recorded <- NULL
-  clonotype.frequency <- NULL
+  clonotype.frequency <-"clonotype_frequency"
 
 
   #naming compatibility
@@ -104,14 +104,13 @@ VDJ_VJ_usage_circos <- function(VGM,
       }
 
       message(paste("Chosen clonotype column: ", clonotype.column))
-      clonotype.frequency <- paste0("clonotype_frequency_", stringr::str_split(clonotype.column, pattern="_")[[1]][3])
+      #clonotype.frequency <- paste0("clonotype_frequency_", stringr::str_split(clonotype.column, pattern="_")[[1]][3])
       message(paste("Chosen clonotype.frequency column: ", clonotype.frequency))
 
       #filter for 1H1L
       if(filter1H1L==TRUE){
         VDJ.GEX.matrix[[1]]<-VDJ.GEX.matrix[[1]][which((VDJ.GEX.matrix[[1]]$VDJ_chain_count==1)&(VDJ.GEX.matrix[[1]]$VJ_chain_count==1)),]
       }
-
       #filter out clonotypes with less then c.threshold cells
       if(clonotype.frequency %in% colnames(VDJ.GEX.matrix[[1]])){ #check if 10x frequency already exists... will only be created after reclonotyping.
         VDJ.GEX.matrix[[1]] <-VDJ.GEX.matrix[[1]][which(VDJ.GEX.matrix[[1]][[clonotype.frequency]] >= c.threshold),]

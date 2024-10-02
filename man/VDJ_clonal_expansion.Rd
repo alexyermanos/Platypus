@@ -15,11 +15,12 @@ VDJ_clonal_expansion(
   treat.incomplete.cells,
   group.by,
   color.by,
-  variant.plot
+  variant.plot,
+  text.size
 )
 }
 \arguments{
-\item{VDJ}{VDJ dataframe generated using the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
+\item{VDJ}{VDJ dataframe generated using the VDJ_build function.}
 
 \item{celltype}{Character. Either "Tcells" or "Bcells". If set to Tcells bars will not be colored by default and the parameters treat_incomplete_cells, treat_incomplete_clones, subtypes and species are ignored. The color.by and group.by arguments work identically for both celltypes. If none provided it will detect this param from the celltype column.}
 
@@ -40,24 +41,20 @@ VDJ_clonal_expansion(
 \item{color.by}{Character. Defaults to "isotype". If set to "isotype" bars are colored by the respective IgH chain or in grey for T cells. This can alternatively be set to any column name of the VDJ. This allows coloring clones by their V_gene usage or by GEX clusters}
 
 \item{variant.plot}{Logical indicating whether to plot the output showing the variants or not.}
+
+\item{text.size}{Numeric value indicating the size of the text in the plot. Default is 12.}
 }
 \value{
 Returns a nested list. out[[1]] are plots out[[2]] are raw datatables containing also barcode and CDR3 information
 }
 \description{
-Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus v3 input. Only available for Platypus "v3" available. For v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.
+Clonal frequency plot displaying clonal expansion for either T and B cells with Platypus VDJ_build() output. For Platypus v2 plotting of B cell clonotype expansion and isotypes please refer to VDJ_isotypes_per_clone.
 }
 \examples{
-clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]],
+clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vdj,
  celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
  ,treat.incomplete.clones = "exclude"
  ,treat.incomplete.cells = "proportional")
-
-clonal_out <- VDJ_clonal_expansion(VDJ = Platypus::small_vgm[[1]]
-, celltype = "Bcells", clones = 30,subtypes = FALSE, species = "Mouse"
-,treat.incomplete.clones = "exclude"
-,treat.incomplete.cells = "proportional"
-,color.by = "seurat_clusters") #change grouping with group.by = "column name"
 clonal_out[[1]] #list of plots
 clonal_out[[2]] #list of source dataframes
 }

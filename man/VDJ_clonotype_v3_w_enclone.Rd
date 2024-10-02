@@ -21,7 +21,7 @@ VDJ_clonotype_v3_w_enclone(
 )
 }
 \arguments{
-\item{VDJ}{For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_GEX_matrix function (VDJ_GEX_matrix.output[[1]])}
+\item{VDJ}{For platypus v2 output from VDJ_analyze function. This should be a list of clonotype dataframes, with each list element corresponding to a single VDJ repertoire. For platypus v3 VDJ output from the VDJ_build function}
 
 \item{VDJ.directory}{Cellranger output directory for VDJ files.}
 
