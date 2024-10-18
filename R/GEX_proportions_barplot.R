@@ -26,7 +26,7 @@ GEX_proportions_barplot <- function(GEX,
   value <- NULL
   target <- NULL
 
-  if(missing(verbose)) verbose <- FALSE
+  verbose <- FALSE
   platypus.version <- "does not matter"
   if(missing(source.group)) source.group <- "sample_id"
   if(missing(target.group)) target.group <- "seurat_clusters"
