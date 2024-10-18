@@ -3,7 +3,7 @@ Type: Package
 Title: Single-Cell Immune Repertoire and Gene Expression Analysis
 Description: We present 'Platypus', an open-source software platform providing a user-friendly interface to investigate B-cell receptor and T-cell receptor repertoires from scSeq experiments. 'Platypus' provides a framework to automate and ease the analysis of single-cell immune repertoires while also incorporating transcriptional information involving unsupervised clustering, gene expression and gene ontology. This R version of 'Platypus' is part of the 'ePlatypus' ecosystem for computational analysis of immunogenomics data: Yermanos et al. (2021) <doi:10.1093/nargab/lqab023>, Cotet et al. (2023) <doi:10.1093/bioinformatics/btad553>.
 Version: 3.6.0
-Date: 2024-02-20
+Date: 2024-10-17
 Authors@R: c(person("Alexander", "Yermanos", role = c("aut", "cre"), email = "ayermanos@gmail.com"),
              person("Andreas", "Agrafiotis", role = "ctb"),
              person("Victor", "Kreiner", role = "ctb"),
@@ -21,7 +21,8 @@ biocViews:
 Imports:
     Biostrings,
     cowplot,  
-    dplyr, 
+    dplyr,
+    ggalluvial,
     ggplot2,
     ggseqlogo,
     ggtree,
@@ -34,6 +35,7 @@ Imports:
     seqinr,
     Seurat,
     SeuratObject(>= 4.1.3),
+    stringdist,
     stringr,
     tibble,
     tidyr,
@@ -48,7 +50,6 @@ Suggests:
     cluster,
     doParallel,
     fgsea,
-    ggalluvial,
     ggrepel,
     ggridges,
     gridExtra,
@@ -70,7 +71,6 @@ Suggests:
     sf,
     SingleCellExperiment,
     slingshot,
-    stringdist,
     tidytree,
     tidyselect,
     tidyverse,

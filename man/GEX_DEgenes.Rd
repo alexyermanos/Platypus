@@ -72,6 +72,8 @@ Returns a dataframe containing the output from the FindMarkers function, which c
 Extracts the differentially expressed genes between two groups of cells. These groups are defined as cells having either of two entries (group1, group2) in the grouping.column of the input Seurat object metadata This function uses the FindMarkers function from the Seurat package.
 }
 \examples{
-DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
-group1 = "s1",group2 = "s2", return.plot = "volcano")
+\donttest{
+try({DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+group1 = "s1",group2 = "s2", return.plot = "volcano")})
+}
 }

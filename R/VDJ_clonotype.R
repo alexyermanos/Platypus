@@ -27,10 +27,6 @@
 #' clone.strategy="cdr3.nt",
 #' hierarchical = "none", global.clonotype = TRUE)
 #'
-#' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
-#' clone.strategy="cdr3.homology", homology.threshold = 0.5,
-#' hierarchical = "single.chains", global.clonotype = TRUE)
-#'
 
 VDJ_clonotype <- function(VDJ,
                              clone.strategy,

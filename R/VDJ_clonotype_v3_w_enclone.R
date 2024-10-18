@@ -29,10 +29,6 @@
 #' clone.strategy="cdr3.nt",
 #' hierarchical = "none", global.clonotype = TRUE)
 #'
-#' reclonotyped_vgm <- VDJ_clonotype(VDJ=Platypus::small_vgm[[1]],
-#' clone.strategy="cdr3.homology", homology.threshold = 0.5,
-#' hierarchical = "single.chains", global.clonotype = TRUE)
-#'
 
 VDJ_clonotype_v3_w_enclone <- function(VDJ,
                              VDJ.directory,
@@ -193,19 +189,19 @@ VDJ_clonotype_v3_w_enclone <- function(VDJ,
 
     sample_out <- merge(sample_df, new_clonotypes, by='stripped_barcodes', all.x = T)
     sample_out$new_group_id <- unlist(lapply(sample_out$new_group_id, function(x) paste0('clonotype', x)))
-    
+
     #keep previous clonotype (10x)
     sample_out$clonotype_id_10x <- sample_out$clonotype_id
-    
+
     #assign new clonotype
     sample_out$clonotype_id <- sample_out$new_group_id
-    
+
     #recalculated new clonotype frequency
     sample_out$clonotype_frequency <- unlist(lapply(sample_out$clonotype_id, function(x) length(which(sample_out$clonotype_id == x))))
 
     sample_out$stripped_barcodes <- NULL
     sample_out$new_group_id <- NULL
-                                                    
+
     #Remove duplicated barcodes
     sample_out <- sample_out[!(sample_out$X %in% sample_out$X[duplicated(sample_out$X)]),]
 

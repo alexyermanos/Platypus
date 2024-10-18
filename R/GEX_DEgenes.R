@@ -23,8 +23,10 @@
 #' @return Returns a dataframe containing the output from the FindMarkers function, which contains information regarding the genes that are differentially regulated, statistics (p value and log fold change), and the percent of cells expressing the particular gene for both groups.
 #' @export
 #' @examples
-#' DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
-#' group1 = "s1",group2 = "s2", return.plot = "volcano")
+#' \donttest{
+#' try({DEGs <- GEX_DEgenes(GEX = Platypus::small_vgm[[2]],min.pct = .25,
+#' group1 = "s1",group2 = "s2", return.plot = "volcano")})
+#' }
 
 
 GEX_DEgenes <- function(GEX,

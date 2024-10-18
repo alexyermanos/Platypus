@@ -34,14 +34,6 @@ Calculates and plots common diversity and overlap measures for repertoires and a
 }
 \examples{
 
-plot <- VDJ_diversity(VDJ = Platypus::small_vdj,
-,feature.columns = c("VDJ_cdr3_aa"), grouping.column = "sample_id"
-,metric = "shannon")
-
-VDJ_diversity(VDJ = Platypus::small_vdj,
-,feature.columns = c("VDJ_cdr3_aa","VJ_cdr3_aa"), grouping.column = "sample_id"
-,metric = "ginisimpson")
-
 VDJ_diversity(VDJ = Platypus::small_vdj,
 ,feature.columns = c("VDJ_jgene"), grouping.column = "sample_id"
 ,metric = "jaccard")

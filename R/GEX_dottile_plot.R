@@ -10,8 +10,10 @@
 #' @export
 #' @importFrom magrittr %>%
 #' @examples
-#'GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
-#'group.by = "seurat_clusters", threshold.to.plot = 5)
+#' \donttest{
+#' try({GEX_dottile_plot(GEX = Platypus::small_vgm[[2]], genes = c("CD19","CD83"),
+#'group.by = "seurat_clusters", threshold.to.plot = 5)})
+#'}
 #'
 
 GEX_dottile_plot <- function(GEX,

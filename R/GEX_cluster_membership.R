@@ -7,7 +7,10 @@
 #' @return Returns a ggplot object in which the values on the x axis correspond to each cluster found in the Seurat object. The y axis corresponds to the percentage of cells found in each cluster. The bar and color corresponds to the distinct sample_id.
 #' @export
 #' @examples
-#' GEX_cluster_membership(GEX= Platypus::small_vgm[[2]], platypus.version = "v3")
+#' \donttest{
+#' try({GEX_cluster_membership(GEX= Platypus::small_vgm[[2]],
+#' platypus.version = "v3")})
+#' }
 
 GEX_cluster_membership <- function(GEX,
                                    by.group,
