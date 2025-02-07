@@ -38,9 +38,9 @@ This will now bring features from VDJ to GEX and vice versa (VGM[[1]] and VGM[[2
 We have created an entire pipeline to analysis B cell evolution within the context of immune repertoires. A more detailed vignette can be found here (https://cran.r-project.org/web//packages/AntibodyForests/index.html). These functions include various methods to construct antibody lineages (in the form of phylogenetic networks), can integrate bulk and single-cell immune repertoire sequencing data, analyze and compare lineages within and across individuals, and furthermore integrate protein language models and strutural models with B cell evolution.  
 
 # Clonal Expansion
-VDJ_clonal_expansion
-VDJ_clonal_barplot
-VDJ_clonal_donut
+VDJ_clonal_expansion <br/>
+VDJ_clonal_barplot <br/>
+VDJ_clonal_donut 
 
 # Germline Gene usage
 VDJ_Vgene_usage
