@@ -43,51 +43,51 @@ VDJ_clonal_barplot <br/>
 VDJ_clonal_donut 
 
 # Germline Gene usage
-VDJ_Vgene_usage
-VDJ_Vgene_usage_barplot
-VDJ_Vgene_usage_stacked_barplot
-VDJ_circos
-VDJ_VJ_usage_circos
-VDJ_alpha_beta_Vgene_circos
+VDJ_Vgene_usage <br/>
+VDJ_Vgene_usage_barplot <br/>
+VDJ_Vgene_usage_stacked_barplot <br/>
+VDJ_circos <br/>
+VDJ_VJ_usage_circos <br/>
+VDJ_alpha_beta_Vgene_circos <br/>
 
 # Clonal dynamics and diversity
-VDJ_abundances
-VDJ_diversity
-VDJ_dynamics
-VDJ_kmers
-VDJ_ordination
-VDJ_rarefaction
-VDJ_logoplot_vector
+VDJ_abundances <br/>
+VDJ_diversity <br/>
+VDJ_dynamics <br/>
+VDJ_kmers <br/>
+VDJ_ordination <br/>
+VDJ_rarefaction <br/>
+VDJ_logoplot_vector 
 
 # Somatic Hypermutation
-VDJ_plot_SHM
+VDJ_plot_SHM <br/>
 VDJ_variants_per_clone
 
 # Clonotyping 
-VDJ_clonotype
-VDJ_call_enclone
+VDJ_clonotype <br/>
+VDJ_call_enclone <br/>
 VDJ_clonotype_v3_w_enclone
 
 # Clonal Convergence and similarity Networks
-VDJ_overlap_heatmap
-VDJ_public
+VDJ_overlap_heatmap <br/>
+VDJ_public <br/>
 VDJ_network
 
 # Gene Expression Analysis
-We have included many wrapper functions to investigate gene expression profiles. This often involves suing the Seurat package but we have included other analyses such as ports to gene set enrichment analysis (GSEA). 
-GEX_cluster_genes_heatmap
-GEX_cluster_membership
-GEX_coexpression_coefficient
-GEX_DEgenes
-GEX_dottile_plot
-GEX_gene_visualization
-GEX_heatmap
-GEX_proportions_barplot
-GEX_volcano
+We have included many wrapper functions to investigate gene expression profiles. This often involves suing the Seurat package but we have included other analyses such as ports to gene set enrichment analysis (GSEA). <br/>
+GEX_cluster_genes_heatmap <br/>
+GEX_cluster_membership <br/>
+GEX_coexpression_coefficient <br/>
+GEX_DEgenes <br/>
+GEX_dottile_plot <br/>
+GEX_gene_visualization <br/>
+GEX_heatmap <br/>
+GEX_proportions_barplot <br/>
+GEX_volcano <br/>
 GEX_GSEA
 
 # Integrating gene expression with repertoire information
-VDJ_GEX_overlay_clones
+VDJ_GEX_overlay_clones <br/>
 VDJ_GEX_clonotype_clusters_circos
 
 
