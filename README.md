@@ -12,13 +12,51 @@ single-cell immune repertoire sequencing experiments. The manuscript
 corresponding to Platypus v2 can be found here at Yermanos et al NARGAB
 2021 <https://doi.org/10.1093/nargab/lqab023> and the updated manuscript concerning the v3 Platypus ecosystem can be found here: <https://www.biorxiv.org/content/10.1101/2022.09.28.509709v1>
 
+
+# Platypus Quickstart v3.6.0 (https://cran.r-project.org/web/packages/Platypus/index.html)
+
+We have reworked the function that creates the core object of Platypus. We now suggest users to create a VGM object by first using the VDJ_build function found within the current CRAN version of the Package. This function can be run by suppling a list of directories to the VDJ output from 10x Genomics
+
+VDJ.input <- list()
+VDJ.input[[1]] <- “~/Downloads/VDJ/s1/“
+VDJ.input[[1]] <- “~/Downloads/VDJ/s2/“
+VGM[[1]] <- VDJ_build(VDJ.input)
+
+As in the older version of platypus, the second list element in the VGM object can hold a Seurat object. We recommend that users run their own single-cell sequencing analysis to determine important parameters that are specific to their dataset (number of principal components, cut offs for mitochondrial and read counts, etc). We also suggest to remove the B and T cell receptor genes from the gene expression matrix, as these genes will cause clonal memberships to influence transcriptional clustering, as they are often in the set of variable features. 
+
+Following the creation of a Seurat object, the object can be supplied to the VGM. For integration of VDJ and GEX information, the Seurat object samples should be in the same order as the VDJ directories supplied. 
+
+VGM[[2]] <- my_seurat_object
+
+There is a function that can integrate features from GEX and VDJ in platypus.
+
+VGM <- VGM_integrate(VGM) 
+
+This will now bring features from VDJ to GEX and vice versa (VGM[[1]] and VGM[[2]]). This VGM object can be used for downstream analyses in the Platypus package, in addition to the pipelines present in the AntibodyForests package (https://cran.r-project.org/web//packages/AntibodyForests/index.html). We have highlighted some of the downstream functions and use cases for the VGM object within the Platypus ecosystem. Functions primarily working on repertoire data start with "VDJ_" whereas functions focusing on commonly used gene expression analyses start with "GEX_". 
+
+
+# Clonal Expansion
+
+# Germline Gene usage
+
+# Clonal Diversity
+
+# Clonal Convergence and similarity Networks
+
+# Phylogenetics
+We have created an entire pipeline to analysis B cell evolution within the context of immune repertoires. A more detailed vignette can be found here (https://cran.r-project.org/web//packages/AntibodyForests/index.html). These functions include various methods to construct antibody lineages (in the form of phylogenetic networks), can integrate bulk and single-cell immune repertoire sequencing data, analyze and compare lineages within and across individuals, and furthermore integrate protein language models and strutural models with B cell evolution.  
+
+# Gene Expression Analysis
+We have included many wrapper functions for the commonly used package, Seurat, to investigate gene expression profiles. Furthermore, we have added accesory functions to perform analyses such as Gene Set Enrichment Analysis (Function: GEX_GSEA). 
+
+
 # Ongoing updates in the Platypus pipeline (v3)
 
 Due to the recent changes of the default clonotyping strategy in Cellranger 
 (version 5 and version 6) and annotation of the framework and CDR regions 
 (version 7) we have rebuild Platypus to revolve around the VDJ\_build function. 
 This function creates a dataframe of the repertoire data. The function 
-VGM\_build integrates the repertoire and transcriptome information (Seurat object) 
+VGM_build integrates the repertoire and transcriptome information (Seurat object) 
 and will serve as the input to all secondary functions in  future iterations of 
 the package. The advantage of this is having all repertoire and transcriptome 
 information at a per-cell level.
