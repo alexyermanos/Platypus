@@ -34,20 +34,62 @@ VGM <- VGM_integrate(VGM)
 
 This will now bring features from VDJ to GEX and vice versa (VGM[[1]] and VGM[[2]]). This VGM object can be used for downstream analyses in the Platypus package, in addition to the pipelines present in the AntibodyForests package (https://cran.r-project.org/web//packages/AntibodyForests/index.html). We have highlighted some of the downstream functions and use cases for the VGM object within the Platypus ecosystem. Functions primarily working on repertoire data start with "VDJ_" whereas functions focusing on commonly used gene expression analyses start with "GEX_". 
 
-
-# Clonal Expansion
-
-# Germline Gene usage
-
-# Clonal Diversity
-
-# Clonal Convergence and similarity Networks
-
 # Phylogenetics
 We have created an entire pipeline to analysis B cell evolution within the context of immune repertoires. A more detailed vignette can be found here (https://cran.r-project.org/web//packages/AntibodyForests/index.html). These functions include various methods to construct antibody lineages (in the form of phylogenetic networks), can integrate bulk and single-cell immune repertoire sequencing data, analyze and compare lineages within and across individuals, and furthermore integrate protein language models and strutural models with B cell evolution.  
 
+# Clonal Expansion
+VDJ_clonal_expansion
+VDJ_clonal_barplot
+VDJ_clonal_donut
+
+# Germline Gene usage
+VDJ_Vgene_usage
+VDJ_Vgene_usage_barplot
+VDJ_Vgene_usage_stacked_barplot
+VDJ_circos
+VDJ_VJ_usage_circos
+VDJ_alpha_beta_Vgene_circos
+
+# Clonal dynamics and diversity
+VDJ_abundances
+VDJ_diversity
+VDJ_dynamics
+VDJ_kmers
+VDJ_ordination
+VDJ_rarefaction
+VDJ_logoplot_vector
+
+# Somatic Hypermutation
+VDJ_plot_SHM
+VDJ_variants_per_clone
+
+# Clonotyping 
+VDJ_clonotype
+VDJ_call_enclone
+VDJ_clonotype_v3_w_enclone
+
+# Clonal Convergence and similarity Networks
+VDJ_overlap_heatmap
+VDJ_public
+VDJ_network
+
 # Gene Expression Analysis
-We have included many wrapper functions for the commonly used package, Seurat, to investigate gene expression profiles. Furthermore, we have added accesory functions to perform analyses such as Gene Set Enrichment Analysis (Function: GEX_GSEA). 
+We have included many wrapper functions to investigate gene expression profiles. This often involves suing the Seurat package but we have included other analyses such as ports to gene set enrichment analysis (GSEA). 
+GEX_cluster_genes_heatmap
+GEX_cluster_membership
+GEX_coexpression_coefficient
+GEX_DEgenes
+GEX_dottile_plot
+GEX_gene_visualization
+GEX_heatmap
+GEX_proportions_barplot
+GEX_volcano
+GEX_GSEA
+
+# Integrating gene expression with repertoire information
+VDJ_GEX_overlay_clones
+VDJ_GEX_clonotype_clusters_circos
+
 
 
 # Ongoing updates in the Platypus pipeline (v3)
@@ -70,9 +112,8 @@ their own datasets. Collectively, PlatypusDB serves as a database for
 the scientific community interested in exploration of single cell immune
 repertoire sequencing experiments from mouse and human.
 
-Stay tuned for updates <https://twitter.com/alexyermanos?lang=en>
+Stay tuned for updates 
 
-## Architecture
 
 ![](images/PlatypusV3_abstract.png)
 
